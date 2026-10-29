@@ -176,7 +176,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-40.4: Geht die App in den Hintergrund (`visibilitychange`), pausiert der Timer und läuft beim Zurückkehren weiter.
   - AT-40.5: Im Hochformat pausiert der Timer und läuft nach dem Zurückdrehen weiter.
   - AT-40.6: Der Ablauf ändert die Runde nicht: kein Ton, kein Hinweis, das aktuelle Wort bleibt (Ansicht meldet nur intern `data-expired`).
-- [ ] **B-41 Timer-Zifferblatt**: SVG im Time-Timer-Stil (lila Sektor schrumpft im Uhrzeigersinn, Strichmarken, keine Ziffern), ~120 px oben rechts, aktualisiert ≥ 1×/s.
+- [x] **B-41 Timer-Zifferblatt**: SVG im Time-Timer-Stil (lila Sektor schrumpft im Uhrzeigersinn, Strichmarken, keine Ziffern), ~120 px oben rechts, aktualisiert ≥ 1×/s.
   - AT-41.1: Oben rechts unter der Kopfleiste steht ein rundes Zifferblatt (ca. 120 px) mit 12 Strichmarken, ohne Ziffern oder Text.
   - AT-41.2: Zu Beginn ist die ganze Scheibe lila (volle Scheibe = gewählte Dauer); nach der halben Zeit ist es ein Halbkreis von 6 bis 12 Uhr – der Sektor schrumpft im Uhrzeigersinn.
   - AT-41.3: Das Zifferblatt aktualisiert sich mindestens einmal pro Sekunde.
