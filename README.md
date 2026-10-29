@@ -17,6 +17,21 @@ npm run test:e2e                # Akzeptanztests (Playwright, WebKit, iPad quer)
 npm run lint
 ```
 
+## Veröffentlichung (GitHub Pages)
+
+Jeder Push auf `main` baut die App und veröffentlicht sie unter **https://alexanderdelp.github.io/mimi_mots/** (Workflow `.github/workflows/deploy.yml`: Lint → Unit-Tests → Build → Deploy). Von Hand: im Repo unter *Actions → Deploy GitHub Pages → Run workflow*.
+
+Einmalige Einrichtung im Repo: *Settings → Pages → Build and deployment → Source: „GitHub Actions“*. Die E2E-Tests laufen lokal (`npm run test:e2e`), nicht in der Action.
+
+### Auf dem iPad installieren („Zum Home-Bildschirm“)
+
+1. Die Adresse oben in **Safari** öffnen.
+2. Auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).
+3. **„Zum Home-Bildschirm“** wählen und mit „Hinzufügen“ bestätigen.
+4. Die App vom Home-Bildschirm aus starten – sie läuft dann im Vollbild und nach dem ersten Start auch **offline** (z. B. im Flugmodus).
+
+Neue Versionen lädt die App still im Hintergrund; sie sind beim **nächsten Start** aktiv (App einmal ganz schließen und neu öffnen).
+
 ## Audio erzeugen
 
 Die französische Aussprache liegt als fertige MP3-Dateien in `public/audio/fr/<id>.mp3` und wird mit der App ausgeliefert. Englisch liest die App vorerst mit der Stimme des Geräts vor (die Kokoro-Stimme `bf_emma` sprach einen falschen Anfangslaut mit, siehe `anforderungen.md` §11). Erzeugt werden sie **einmalig lokal** mit dem Open-Source-Sprachmodell [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) über [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) – ohne Internet zur Laufzeit.

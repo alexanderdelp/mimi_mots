@@ -231,8 +231,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-52.4: Der Timer pausiert im Hochformat (abgedeckt durch AT-40.5 und AT-41.5).
   - AT-52.5: In allen drei Hochformat-Größen (768 × 1024, 820 × 1180, 1024 × 1366) ist alles sichtbar, nichts scrollt.
   - AT-52.6: Begleiter und Dreh-Symbol sind statisch (keine Animation).
-- [ ] **B-53 Deployment GitHub Pages**: GitHub Action (Build + `actions/deploy-pages`) bei Push auf `main`; Vite `base` = Repo-Pfad; README mit Einrichtung (Pages-Quelle „GitHub Actions“) und Anleitung „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
+- [x] **B-53 Deployment GitHub Pages**: GitHub Action (Build + `actions/deploy-pages`) bei Push auf `main`; Vite `base` = Repo-Pfad; README mit Einrichtung (Pages-Quelle „GitHub Actions“) und Anleitung „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
   - AK: App unter `https://<user>.github.io/<repo>/` erreichbar, installierbar, offline nutzbar.
+  - AT-53.1: Der Workflow `.github/workflows/deploy.yml` läuft bei jedem Push auf `main` (und von Hand), prüft Lint und Unit-Tests, baut die App und veröffentlicht `dist/` mit `actions/deploy-pages`; nur ein Deployment gleichzeitig (Unit-Test prüft die Datei).
+  - AT-53.2: Nach dem Merge ist die App unter https://alexanderdelp.github.io/mimi_mots/ erreichbar (Status 200, Titel „Mimi & Mots“).
+  - AT-53.3: Dort werden Manifest, Service Worker, Icons und die französischen MP3s ausgeliefert – die App ist installierbar und offline nutzbar.
+  - AT-53.4: Die README beschreibt die Einrichtung (Pages-Quelle „GitHub Actions“) und „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
+  - Hinweis: AT-53.2/53.3 lassen sich erst nach dem Merge auf `main` prüfen (der Workflow läuft nur dort); sie werden dann per Abruf der echten Adresse geprüft. Die E2E-Tests laufen weiter lokal (Screenshot-Referenzen sind Windows-spezifisch), nicht in der Action.
 
 ## M6 – Feinschliff
 - [ ] **B-60 Layout-Prüfung**: Screenshot-Tests aller Views auf 3 Viewports; keine Überläufe; Kontrast geprüft.
