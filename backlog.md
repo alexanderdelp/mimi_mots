@@ -11,8 +11,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-01.2: Die Seite hat den Titel „Mimi & Mots“, `lang="de"` und einen Viewport-Meta-Tag ohne Zoom (`user-scalable=no`, `viewport-fit=cover`).
   - AT-01.3: Die App wird unter dem GitHub-Pages-Pfad `/mimi_mots/` ausgeliefert (Preview des Produktionsbuilds) und lädt ihre Skripte von dort.
   - AT-01.4: Zur Laufzeit gehen keine Requests an fremde Hosts (Leitprinzip 6).
-- [ ] **B-02 Design-Tokens & Basis-CSS**: `tokens.css`, `base.css` (Reset, `ui-rounded`, Touch-Regeln, kein Scroll/Zoom, Safe Areas, 100dvh-Layout).
+- [x] **B-02 Design-Tokens & Basis-CSS**: `tokens.css`, `base.css` (Reset, `ui-rounded`, Touch-Regeln, kein Scroll/Zoom, Safe Areas, 100dvh-Layout).
   - AK: Leere Seite füllt Bildschirm ohne Scrollbalken; Doppeltipp zoomt nicht.
+  - AT-02.1: Auf allen drei Viewports füllt `#app` exakt den Bildschirm; Dokument ist weder horizontal noch vertikal scrollbar, auch nicht bei zu großem Inhalt.
+  - AT-02.2: Doppeltipp auf die Seite verändert den Zoom nicht (`visualViewport.scale` bleibt 1); `touch-action: manipulation` ist gesetzt.
+  - AT-02.3: Seitenhintergrund ist `--lila-50` (#F8F4FB), Text `--lila-900` (#3B2A63); Schrift-Stack beginnt mit `ui-rounded`, dann `Nunito`.
+  - AT-02.4: Touch-Regeln aktiv: `user-select: none`, `overscroll-behavior: none` (`-webkit-touch-callout` und – im Windows-Playwright-WebKit – `overscroll-behavior` sind nicht prüfbar → zusätzlich Unit-Test am CSS).
+  - AT-02.5: Die Nunito-Schrift wird von der eigenen Domain geladen (keine externen Requests) und ist nach dem Laden verfügbar.
 - [ ] **B-03 Assets einbinden**: Gelieferte PNGs (Avatare, Flaggen) und Icons liegen bereits unverändert in `public/avatars/`, `public/flags/`, `public/icons/` (Namen laut CLAUDE.md). Asset-Mapping Pose → Datei in `src/components/avatar.ts`.
   - AK: Bildtausch zwischen Posen springt nicht (visueller Check im Dev-Server).
 - [ ] **B-04 Wortliste**: `src/data/words.ts` mit Typ `Word { id, emoji, de, en, fr }` und Liste aus Anhang `anforderungen.md`. Export als JSON für das Audio-Skript.

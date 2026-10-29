@@ -1,0 +1,19 @@
+/* Design-Tokens laut CLAUDE.md – nur diese Werte verwenden. */
+:root {
+  --lila-900: #3b2a63; /* Überschriften, Text */
+  --lila-700: #6a4c9c; /* Primär, Auswahlrahmen, Play-Button */
+  --lila-500: #9a7cc4;
+  --lila-200: #dccdee;
+  --lila-100: #ede4f4; /* Header, Kachel ausgewählt */
+  --lila-50: #f8f4fb; /* Seitenhintergrund */
+  --white: #ffffff;
+  --grau-700: #4a4458; /* Rahmen nicht ausgewählt */
+  --radius-l: 28px;
+  --radius-m: 20px;
+  --border-selected: 5px solid var(--lila-700);
+  --border-default: 2px solid var(--grau-700);
+  --shadow: 0 6px 18px rgba(59, 42, 99, 0.12);
+
+  --font: ui-rounded, 'Nunito', system-ui, sans-serif;
+  --transition: 200ms ease;
+}
