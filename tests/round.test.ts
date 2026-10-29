@@ -1,9 +1,18 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WORDS, getWord } from '../src/data/words';
 import { seededRng } from '../src/scheduler';
 import { defaults } from '../src/storage';
 import { createStore } from '../src/state';
 import { renderRound, showNextWord } from '../src/views/round';
+
+// Vorladen der Audiodateien: in jsdom gibt es keinen Server – alle Dateien gelten als vorhanden.
+// (Der Player ist modulweit geteilt; ohne das würden frühe Tests Dateien als fehlend markieren.)
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => ({ ok: true })),
+  );
+});
 
 function roundStore(language: 'en' | 'fr' = 'en') {
   const data = defaults();
@@ -83,9 +92,13 @@ describe('renderRound', () => {
   });
 });
 
-describe('Aufdecken in der Lernrunde (B-22)', () => {
-  afterEach(() => vi.unstubAllGlobals());
+describe('Aufdecken in der Lernrunde (B-22, seit B-31 mit MP3)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
 
+  /** Attrappen für Sprachausgabe, Audio-Wiedergabe und Vorladen (jsdom kann kein Audio). */
   function withSpeech() {
     const synth = { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] };
     vi.stubGlobal('speechSynthesis', synth);
@@ -96,30 +109,43 @@ describe('Aufdecken in der Lernrunde (B-22)', () => {
         constructor(public text: string) {}
       },
     );
-    return synth;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true })),
+    );
+    const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(function (
+      this: HTMLMediaElement,
+    ) {
+      return Promise.resolve();
+    });
+    const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+    return { ...synth, play, pause };
   }
 
-  it('Tipp auf Flagge zeigt das Fremdwort und liest es vor', () => {
-    const synth = withSpeech();
+  it('Tipp auf den Lautsprecher zeigt das Fremdwort und spielt die MP3', () => {
+    const media = withSpeech();
     const store = roundStore('fr');
     const { el } = renderRound(store);
     const word = getWord(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId!)!;
     el.querySelector<HTMLButtonElement>('.speak-button')!.click();
     expect(el.querySelector('.round__foreign')!.textContent).toBe(word.fr);
     expect(el.querySelector('.round__foreign')!.getAttribute('lang')).toBe('fr');
-    expect(synth.speak).toHaveBeenCalledTimes(1);
-    expect(synth.speak.mock.calls[0][0].text).toBe(word.fr);
+    expect(media.play).toHaveBeenCalledTimes(1);
+    expect((media.play.mock.instances[0] as HTMLAudioElement).src).toMatch(
+      new RegExp(`/audio/fr/${word.id}\\.mp3$`),
+    );
+    expect(media.speak).not.toHaveBeenCalled();
   });
 
-  it('erneuter Tipp liest erneut von vorn vor', () => {
-    const synth = withSpeech();
+  it('erneuter Tipp spielt erneut von vorn', () => {
+    const media = withSpeech();
     const { el } = renderRound(roundStore('en'));
-    const flag = el.querySelector<HTMLButtonElement>('.speak-button')!;
-    flag.click();
-    flag.click();
-    flag.click();
-    expect(synth.speak).toHaveBeenCalledTimes(3);
-    expect(synth.cancel).toHaveBeenCalledTimes(3);
+    const speaker = el.querySelector<HTMLButtonElement>('.speak-button')!;
+    speaker.click();
+    speaker.click();
+    speaker.click();
+    expect(media.play).toHaveBeenCalledTimes(3);
+    expect(media.pause).toHaveBeenCalledTimes(3);
   });
 
   it('neues Wort verdeckt das Fremdwort wieder', () => {
@@ -133,10 +159,13 @@ describe('Aufdecken in der Lernrunde (B-22)', () => {
   });
 
   it('dispose beendet eine laufende Wiedergabe', () => {
-    const synth = withSpeech();
-    const { dispose } = renderRound(roundStore('en'));
+    const media = withSpeech();
+    const { el, dispose } = renderRound(roundStore('en'));
+    el.querySelector<HTMLButtonElement>('.speak-button')!.click();
+    media.pause.mockClear();
     dispose!();
-    expect(synth.cancel).toHaveBeenCalled();
+    expect(media.pause).toHaveBeenCalled();
+    expect(media.cancel).toHaveBeenCalled();
   });
 });
 

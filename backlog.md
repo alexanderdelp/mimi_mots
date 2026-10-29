@@ -158,6 +158,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Menschliche Abnahme: Hörprüfung aller 100 Dateien, Ergebnis in `audio-check.md`.
 - [ ] **B-31 Audio-Modul**: Vorladen der Session-Dateien, Abspielen per `HTMLAudioElement`, Neustart bei erneutem Tipp, Fallback Web Speech (en-GB/fr-FR) bei fehlender Datei.
   - AK: Unit-Test für Fallback-Logik (gemockt); manueller Test auf iPad.
+  - AT-31.1: Tipp auf den Lautsprecher spielt die MP3 des Worts in der gewählten Sprache (`audio/<lang>/<id>.mp3`) über `HTMLAudioElement`; Web Speech wird dabei nicht benutzt.
+  - AT-31.2: Jeder weitere Tipp startet die Wiedergabe von vorn (Position 0).
+  - AT-31.3: Beim Start der Runde werden die Audiodateien der gewählten Sprache vorgeladen, die der anderen Sprache nicht.
+  - AT-31.4: Fehlt die Datei eines Worts (404), wird es per Web Speech vorgelesen (en-GB bzw. fr-FR) – ohne Fehlermeldung, das Wort wird trotzdem aufgedeckt.
+  - AT-31.5: Schlägt das Abspielen selbst fehl (z. B. vom Browser blockiert), wird ebenfalls per Web Speech vorgelesen.
+  - AT-31.6: Beim Bewerten (nächstes Wort) und beim Beenden der Runde verstummt eine laufende Wiedergabe.
+  - Hinweis: In den Tests werden `HTMLMediaElement.play/pause` und die Sprachausgabe durch Attrappen ersetzt, die Aufrufe mitschreiben. Offline-Verfügbarkeit folgt mit dem Service Worker (B-51).
 
 ## M4 – Timer & Abschluss
 - [ ] **B-40 Timer-Logik**: Start beim ersten Wort, Pause bei `visibilitychange`/Hochformat, Ereignis „abgelaufen“; testbar mit Fake-Timers.

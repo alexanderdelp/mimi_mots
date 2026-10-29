@@ -197,6 +197,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Ausnahme von der 200-ms-Regel (Leitprinzip 4): Beim Gedrückthalten von [×] füllt sich ein Fortschrittsring über 600 ms (= Long-Press-Dauer). Er ist Rückmeldung auf eine Bedienung, keine Deko; bei „Bewegung reduzieren“ ohne Animation.
 - 2026-10-29: UI-Überarbeitung (B-26): Dauer 5 oder 10 Minuten (nur Uhr-Symbol); Sprachkacheln flach im 2 × 2-Raster mit Japanisch ausgegraut; Kopfleiste auch in der Lernrunde; Lautsprecher-Button statt Tipp auf die Flagge; Bewertung als runde lila Buttons nur mit Symbol. Kacheln sind nur noch innerhalb einer Gruppe gleich groß.
 - 2026-10-29: Flaggen GB/FR als SVG statt der gelieferten PNGs (214 × 143 px waren auf dem Retina-iPad in der großen Darstellung unscharf); alle Flaggen im Seitenverhältnis 3 : 2.
+- 2026-10-29: Audio (M3): Kokoro über `kokoro-onnx` (gleiches Modell, ohne PyTorch); Python-Umgebung `.venv`, Modell in `.models/` (beides nicht eingecheckt). Beim Start einer Runde werden alle Audiodateien der gewählten Sprache vorgeladen (~450 KB). Hörprüfung über die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server) und `audio-check.md`.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
 
 ## 12. Später (nicht in v1)

@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SPEECH_LANG, pickVoice, speak, stopSpeaking } from '../src/audio';
+import {
+  SPEECH_LANG,
+  audioUrl,
+  createAudioPlayer,
+  pickVoice,
+  speak,
+  stopSpeaking,
+} from '../src/audio';
 
 const voice = (lang: string, localService = true, name = lang) =>
   ({ lang, localService, name }) as SpeechSynthesisVoice;
@@ -75,5 +82,115 @@ describe('speak', () => {
     expect(synth.cancel).toHaveBeenCalled();
     vi.stubGlobal('speechSynthesis', undefined);
     expect(() => stopSpeaking()).not.toThrow();
+  });
+});
+
+describe('createAudioPlayer (B-31)', () => {
+  const word = { id: 'apfel', emoji: '🍎', de: 'Apfel', en: 'apple', fr: 'la pomme' };
+
+  /** Attrappe für ein Audio-Element; play() liefert das übergebene Ergebnis. */
+  function fakeAudio(playResult: () => Promise<void> = () => Promise.resolve()) {
+    const audio = {
+      src: '',
+      currentTime: 5,
+      onerror: null as null | (() => void),
+      play: vi.fn(playResult),
+      pause: vi.fn(),
+    };
+    return audio;
+  }
+
+  function setup(options: { exists?: (url: string) => boolean; play?: () => Promise<void> } = {}) {
+    const audio = fakeAudio(options.play);
+    const deps = {
+      createAudio: vi.fn(() => audio as unknown as HTMLAudioElement),
+      fetchFile: vi.fn(async (url: string) => (options.exists ?? (() => true))(url)),
+      speak: vi.fn(() => true),
+      stopSpeaking: vi.fn(),
+    };
+    return { audio, deps, player: createAudioPlayer(deps) };
+  }
+
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+
+  it('spielt die MP3 der Sprache von vorn ab, ohne Web Speech', async () => {
+    const { audio, deps, player } = setup();
+    player.play(word, 'fr');
+    await flush();
+    expect(audio.src).toBe(audioUrl('fr', 'apfel'));
+    expect(audio.currentTime).toBe(0);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+    expect(deps.speak).not.toHaveBeenCalled();
+  });
+
+  it('nutzt ein einziges Audio-Element und startet bei erneutem Tipp neu', () => {
+    const { audio, deps, player } = setup();
+    player.play(word, 'en');
+    audio.currentTime = 0.4;
+    player.play(word, 'en');
+    expect(deps.createAudio).toHaveBeenCalledTimes(1);
+    expect(audio.pause).toHaveBeenCalledTimes(2);
+    expect(audio.currentTime).toBe(0);
+    expect(audio.play).toHaveBeenCalledTimes(2);
+  });
+
+  it('lädt die Dateien der Sprache vor', async () => {
+    const { deps, player } = setup();
+    await player.preload('fr', ['apfel', 'hund']);
+    expect(deps.fetchFile.mock.calls.map((c) => c[0])).toEqual([
+      audioUrl('fr', 'apfel'),
+      audioUrl('fr', 'hund'),
+    ]);
+    await player.preload('fr', ['apfel']);
+    expect(deps.fetchFile).toHaveBeenCalledTimes(2); // nicht doppelt
+  });
+
+  it('fehlende Datei → Web Speech, ohne Abspielversuch', async () => {
+    const { audio, deps, player } = setup({ exists: (url) => !url.includes('apfel') });
+    await player.preload('fr', ['apfel']);
+    player.play(word, 'fr');
+    expect(deps.speak).toHaveBeenCalledWith('la pomme', 'fr');
+    expect(audio.play).not.toHaveBeenCalled();
+  });
+
+  it('Abspielen scheitert → Web Speech', async () => {
+    const { deps, player } = setup({
+      play: () => Promise.reject(new DOMException('blockiert', 'NotAllowedError')),
+    });
+    player.play(word, 'en');
+    await flush();
+    expect(deps.speak).toHaveBeenCalledWith('apple', 'en');
+  });
+
+  it('Ladefehler des Elements → Web Speech, Datei gilt danach als fehlend', () => {
+    const { audio, deps, player } = setup();
+    player.play(word, 'fr');
+    audio.onerror?.();
+    expect(deps.speak).toHaveBeenCalledTimes(1);
+    player.play(word, 'fr');
+    expect(deps.speak).toHaveBeenCalledTimes(2);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it('abgebrochene Wiedergabe (AbortError) ist kein Fehler', async () => {
+    const { deps, player } = setup({
+      play: () => Promise.reject(new DOMException('abgebrochen', 'AbortError')),
+    });
+    player.play(word, 'en');
+    await flush();
+    expect(deps.speak).not.toHaveBeenCalled();
+  });
+
+  it('stop hält Datei und Sprachausgabe an', () => {
+    const { audio, deps, player } = setup();
+    player.play(word, 'en');
+    player.stop();
+    expect(audio.pause).toHaveBeenCalledTimes(2);
+    expect(deps.stopSpeaking).toHaveBeenCalledTimes(2);
+  });
+
+  it('stop ohne vorheriges Abspielen wirft nicht', () => {
+    const { player } = setup();
+    expect(() => player.stop()).not.toThrow();
   });
 });
