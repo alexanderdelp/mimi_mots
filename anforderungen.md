@@ -190,6 +190,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Hosting GitHub Pages.
 - 2026-10-29: App-Icon als austauschbares SVG generiert.
 - 2026-10-29: Assets aus dem Repo-Root nach `public/avatars/`, `public/flags/`, `public/icons/` verschoben.
+- 2026-10-29: Wortliste liegt als `src/data/words.json` (Quelle für App und Audio-Skript), `words.ts` liefert Typ und Zugriff. Kein separater JSON-Export nötig.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
 
 ## 12. Später (nicht in v1)

@@ -25,8 +25,11 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen.
   - AT-03.4: Der Avatar wird höchstens 440 CSS-px hoch dargestellt, unten ausgerichtet und ohne Verzerrung (`object-fit: contain`).
   - Hinweis: Die Avatar-Vorschau ist ein Platzhalter für den visuellen Check und wird mit B-06/B-11 durch den Router und die Startansicht ersetzt.
-- [ ] **B-04 Wortliste**: `src/data/words.ts` mit Typ `Word { id, emoji, de, en, fr }` und Liste aus Anhang `anforderungen.md`. Export als JSON für das Audio-Skript.
+- [x] **B-04 Wortliste**: `src/data/words.ts` mit Typ `Word { id, emoji, de, en, fr }` und Liste aus Anhang `anforderungen.md`. Export als JSON für das Audio-Skript.
   - AK: Test prüft eindeutige ids, keine leeren Felder.
+  - AT-04.1: Alle 50 Emojis der Wortliste werden in WebKit als je ein einzelnes Bildzeichen dargestellt (kein Zerfall in mehrere Zeichen, kein leeres Kästchen).
+  - AT-04.2: Die Wortliste liegt als `src/data/words.json` vor, die das Audio-Skript direkt lesen kann, und stimmt Eintrag für Eintrag mit der Tabelle in `anforderungen.md` §10 überein (Unit-Test).
+  - Hinweis: B-04 hat noch keine Oberfläche; AT-04.1 prüft die Darstellung in einer leeren Testseite.
 - [ ] **B-05 Storage-Modul**: `load()`, `save()`, Defaults, Versionsfeld, robust bei kaputtem JSON.
   - AK: Unit-Tests für Defaults, Roundtrip, kaputte Daten.
 - [ ] **B-06 Router/State**: Views `start | round | end`, einfache Zustandsmaschine; Hochformat-Overlay (B-30) vorbereiten.
