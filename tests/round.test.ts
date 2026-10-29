@@ -184,3 +184,29 @@ describe('Selbsteinschätzung in der Lernrunde (B-23)', () => {
     expect(store.getState().data.progress.en).toEqual({});
   });
 });
+
+describe('Avatar in der Lernrunde (B-24)', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('zeigt den gewählten Begleiter: „zeigt“ bei neuem Wort, „freut“ nach Aufdecken', () => {
+    vi.stubGlobal('speechSynthesis', { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] });
+    vi.stubGlobal('SpeechSynthesisUtterance', class {});
+    const data = defaults();
+    data.settings = { companion: 'mots', language: 'en', durationMin: 5 };
+    const store = createStore(data);
+    store.dispatch({ type: 'play' });
+    const { el } = renderRound(store);
+    const avatar = el.querySelector<HTMLElement>('.round__avatar .avatar')!;
+    const img = avatar.querySelector('img')!;
+    expect(avatar.dataset.pose).toBe('zeigt');
+    expect(img.getAttribute('src')).toMatch(/pony_pointing\.png$/);
+
+    el.querySelector<HTMLButtonElement>('.flag-button')!.click();
+    expect(avatar.dataset.pose).toBe('freut');
+    expect(img.getAttribute('src')).toMatch(/pony_idle\.png$/);
+
+    el.querySelector<HTMLButtonElement>('[data-rating="known"]')!.click();
+    expect(avatar.dataset.pose).toBe('zeigt');
+    expect(el.querySelector('.round__avatar .avatar img')).toBe(img); // nur Bildtausch
+  });
+});

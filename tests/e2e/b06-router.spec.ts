@@ -69,9 +69,8 @@ test.describe('B-06 Router/State', () => {
     expect(await roundView!.evaluate((el) => el.isConnected)).toBe(true);
   });
 
-  test('AT-06.5: Avatar-Vorschau unter ?vorschau=avatar erreichbar', async ({ page }) => {
+  test('AT-06.5: ?vorschau=avatar zeigt seit B-24 die Startansicht', async ({ page }) => {
     await page.goto('./?vorschau=avatar');
-    await expect(page.locator('.avatar')).toHaveCount(2);
-    await expect(views(page)).toHaveCount(0);
+    await expectOnlyView(page, 'start');
   });
 });
