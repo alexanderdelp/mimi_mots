@@ -139,3 +139,48 @@ describe('Aufdecken in der Lernrunde (B-22)', () => {
     expect(synth.cancel).toHaveBeenCalled();
   });
 });
+
+describe('Selbsteinschätzung in der Lernrunde (B-23)', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  const setup = () => {
+    vi.stubGlobal('speechSynthesis', { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] });
+    vi.stubGlobal('SpeechSynthesisUtterance', class {});
+    const store = roundStore('en');
+    const { el } = renderRound(store);
+    const q = <T extends Element>(sel: string) => el.querySelector<T & HTMLElement>(sel)!;
+    return { store, el, q };
+  };
+
+  it('hat zwei Buttons „Wusste ich“ und „Noch üben“', () => {
+    const { el } = setup();
+    const labels = [...el.querySelectorAll('.rating-button')].map((b) => b.textContent);
+    expect(labels).toEqual(['👍Wusste ich', '🔁Noch üben']);
+  });
+
+  it('Buttons sind vor dem Aufdecken verborgen (data-revealed=false)', () => {
+    const { el, q } = setup();
+    expect(el.dataset.revealed).toBe('false');
+    q('.flag-button').click();
+    expect(el.dataset.revealed).toBe('true');
+  });
+
+  it('Tipp speichert den Lernstand und zeigt ein neues, verdecktes Wort', () => {
+    const { store, el, q } = setup();
+    const first = q('.word-card').dataset.wordId!;
+    q('.flag-button').click();
+    q('[data-rating="known"]').click();
+    expect(store.getState().data.progress.en[first]).toMatchObject({ box: 1, seen: 1 });
+    expect(q('.word-card').dataset.wordId).not.toBe(first);
+    expect(el.dataset.revealed).toBe('false');
+    expect(q('.round__foreign').textContent).toBe('');
+  });
+
+  it('Tipp ohne Aufdecken bewirkt nichts', () => {
+    const { store, q } = setup();
+    const first = q('.word-card').dataset.wordId!;
+    q('[data-rating="practice"]').click();
+    expect(q('.word-card').dataset.wordId).toBe(first);
+    expect(store.getState().data.progress.en).toEqual({});
+  });
+});

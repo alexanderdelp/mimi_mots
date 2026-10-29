@@ -98,8 +98,16 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-22.5: Vor dem ersten Tipp wird nichts vorgelesen (kein Autoplay).
   - AT-22.6: Ohne Sprachausgabe im Browser wird das Wort trotzdem aufgedeckt, ohne Fehler.
   - Hinweis: Bis die MP3-Dateien da sind (B-30a/b, B-31), liest die Web-Speech-Stimme des Geräts vor (Fallback laut Anforderungen). In den Tests wird die Sprachausgabe durch eine Attrappe ersetzt, die Aufrufe mitschreibt.
-- [ ] **B-23 Selbsteinschätzung**: Nach erstem Aufdecken zwei gleichwertige Buttons „Wusste ich“ 👍 / „Noch üben“ 🔁 (lila, gleiche Größe); Tipp aktualisiert Lernstand und lädt nächstes Wort. Kein Feedback.
+- [x] **B-23 Selbsteinschätzung**: Nach erstem Aufdecken zwei gleichwertige Buttons „Wusste ich“ 👍 / „Noch üben“ 🔁 (lila, gleiche Größe); Tipp aktualisiert Lernstand und lädt nächstes Wort. Kein Feedback.
   - AK: E2E – Buttons vor Aufdecken unsichtbar; nach Tipp neues Wort; Storage aktualisiert.
+  - AT-23.1: Vor dem Aufdecken sind keine Bewertungs-Buttons sichtbar; nach dem ersten Tipp auf die Flagge erscheinen „Wusste ich“ 👍 und „Noch üben“ 🔁.
+  - AT-23.2: Beide Buttons sind gleich groß (≥ 88 px hoch) und gleich gestaltet, nur in Token-Farben (kein Rot/Grün).
+  - AT-23.3: „Wusste ich“ → das nächste Wort erscheint verdeckt, die Buttons verschwinden; im Speicher steht für das alte Wort Box 1, `seen` 1.
+  - AT-23.4: „Noch üben“ → nächstes Wort; im Speicher Box 0, `seen` 1.
+  - AT-23.5: Kein Feedback: Nach dem Tipp erscheint kein zusätzlicher Text oder Hinweis; das nächste Wort ist innerhalb von 200 ms da.
+  - AT-23.6: 12 Wörter hintereinander bewerten: nie dasselbe Wort innerhalb von 3 anderen; alle bewerteten Wörter stehen im Lernstand.
+  - AT-23.7: Der Lernstand gilt pro Sprache: Bewertungen auf Französisch ändern den englischen Lernstand nicht.
+  - AT-23.8: Das Erscheinen der Buttons verschiebt Karte, Flagge und Fremdwort nicht; alles bleibt im Bildschirm.
 - [ ] **B-24 Avatar in der Runde**: Avatar links; Pose „zeigt“ bei neuem Wort, „freut“ nach Aufdecken; reiner Bildtausch; alle Posen vorgeladen.
 - [ ] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
 

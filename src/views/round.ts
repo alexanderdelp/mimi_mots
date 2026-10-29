@@ -1,10 +1,10 @@
-// Lernrunde (anforderungen.md §3.2): Wortkarte, Flagge zum Aufdecken und Vorlesen.
-// Freigehaltener Platz für Avatar (B-24), Timer (B-41), Bewertung (B-23).
+// Lernrunde (anforderungen.md §3.2): Wortkarte, Flagge zum Aufdecken und Vorlesen,
+// danach Selbsteinschätzung. Freigehaltener Platz für Avatar (B-24) und Timer (B-41).
 import { speak, stopSpeaking } from '../audio';
 import { fitText } from '../components/fit-text';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { WORDS, getWord, type Language } from '../data/words';
-import { pickNext } from '../scheduler';
+import { pickNext, type Rating } from '../scheduler';
 import type { AppState, Store } from '../state';
 import type { ViewHandle } from './view';
 
@@ -80,8 +80,27 @@ export function renderRound(store: Store): ViewHandle {
 
   stage.append(avatar, card, answer);
 
-  // Platz für „Wusste ich“ / „Noch üben“ (B-23)
+  // Selbsteinschätzung: zwei gleichwertige Buttons, erst nach dem Aufdecken sichtbar.
+  // Kein Feedback – der Tipp speichert den Lernstand und holt direkt das nächste Wort.
   const rating = el('div', 'round__rating');
+  const rateButton = (value: Rating, icon: string, label: string) => {
+    const button = el('button', 'rating-button');
+    button.type = 'button';
+    button.dataset.rating = value;
+    const iconEl = el('span', 'rating-button__icon');
+    iconEl.setAttribute('aria-hidden', 'true');
+    iconEl.textContent = icon;
+    const labelEl = el('span', 'rating-button__label');
+    labelEl.textContent = label;
+    button.append(iconEl, labelEl);
+    button.addEventListener('click', () => {
+      if (!store.getState().round?.revealed) return;
+      store.dispatch({ type: 'rate', rating: value, at: new Date().toISOString() });
+      showNextWord(store);
+    });
+    return button;
+  };
+  rating.append(rateButton('known', '👍', 'Wusste ich'), rateButton('practice', '🔁', 'Noch üben'));
 
   view.append(top, stage, rating);
 
@@ -89,6 +108,10 @@ export function renderRound(store: Store): ViewHandle {
     const word = state.round?.wordId ? getWord(state.round.wordId) : undefined;
     if (!word) return;
     card.dataset.wordId = word.id;
+    // dezentes Einblenden (≤ 200 ms) als Übergang zum nächsten Wort
+    card.classList.remove('word-card--enter');
+    void card.offsetWidth;
+    card.classList.add('word-card--enter');
     emoji.textContent = word.emoji;
     emoji.setAttribute('aria-label', word.de);
     german.textContent = word.de;
