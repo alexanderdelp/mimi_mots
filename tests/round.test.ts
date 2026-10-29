@@ -151,14 +151,16 @@ describe('Aufdecken in der Lernrunde (B-22, seit B-31 mit MP3)', () => {
     expect(media.pause).toHaveBeenCalledTimes(3);
   });
 
-  it('Englisch liest mit der Gerätestimme vor, ohne MP3', () => {
+  it('Englisch spielt ebenfalls die MP3 (B-64)', () => {
     const media = withSpeech();
     const { el } = renderRound(roundStore('en'));
     const word = getWord(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId!)!;
     el.querySelector<HTMLButtonElement>('.speak-button')!.click();
-    expect(media.play).not.toHaveBeenCalled();
-    expect(media.speak).toHaveBeenCalledTimes(1);
-    expect(media.speak.mock.calls[0][0].text).toBe(word.en);
+    expect(media.play).toHaveBeenCalledTimes(1);
+    expect((media.play.mock.instances[0] as HTMLAudioElement).src).toMatch(
+      new RegExp(`/audio/en/${word.id}\\.mp3$`),
+    );
+    expect(media.speak).not.toHaveBeenCalled();
   });
 
   it('neues Wort verdeckt das Fremdwort wieder', () => {

@@ -18,7 +18,7 @@ Fachliche Anforderungen: `anforderungen.md`. Aufgaben und Reihenfolge: `backlog.
 - **vite-plugin-pwa** (Workbox, `generateSW`, Precache aller Assets).
 - **Vitest** für Logik (Scheduler, Timer, Storage).
 - **Playwright** für E2E mit iPad-Landscape-Viewport (WebKit).
-- **Audio:** vorproduzierte MP3-Dateien (mono, 64 kbit/s), erzeugt per Skript mit Kokoro-TTS (Fallback Piper). Abspielen über `HTMLAudioElement` (nicht Web Audio, wegen iOS-Stummschaltung). Web Speech API nur als Fallback, wenn eine Datei fehlt.
+- **Audio:** vorproduzierte MP3-Dateien (mono, 64 kbit/s), erzeugt per Skript: Englisch mit Piper (`en_US-ljspeech-high`), Französisch mit Kokoro (`ff_siwis`). Abspielen über `HTMLAudioElement` (nicht Web Audio, wegen iOS-Stummschaltung). Web Speech API nur als Fallback, wenn eine Datei fehlt.
 - **Bilder der Wörter:** native Apple-Emoji (0 Byte, auf iPad einheitlich und hochwertig).
 - **Schrift:** `ui-rounded` (SF Pro Rounded auf iPad), Fallback `"Nunito"` selbst gehostet, dann `system-ui`.
 - **Persistenz:** `localStorage` (Einstellungen + Lernstand), ein Schlüssel, versioniert.

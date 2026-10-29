@@ -161,13 +161,15 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
     await speaker.click();
     await expect(page.locator('.round__foreign')).not.toHaveText('');
     await speaker.click();
-    // Englisch: Gerätestimme, jeder Tipp von vorn (Französisch: MP3, siehe B-31)
+    // seit B-64 auch Englisch aus der MP3, jeder Tipp von vorn
     const calls = await page.evaluate(
       () => (window as unknown as { __speech: SpeechCall[] }).__speech,
     );
-    expect(calls.map((c) => c.op)).toEqual(['cancel', 'speak', 'cancel', 'speak']);
-    const media = await mediaCalls(page);
-    expect(media.filter((c) => c.op === 'play')).toEqual([]);
+    expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
+    const plays = (await mediaCalls(page)).filter((c) => c.op === 'play');
+    expect(plays).toHaveLength(2);
+    for (const p of plays)
+      expect(p).toMatchObject({ src: expect.stringMatching(/\/audio\/en\//), time: 0 });
   });
 
   test('AT-26.7: Bewertung als runde Symbol-Buttons wie Play', async ({ page }) => {

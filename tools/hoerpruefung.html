@@ -50,6 +50,8 @@
         <tr>
           <th>id</th>
           <th>Deutsch</th>
+          <th>Englisch</th>
+          <th></th>
           <th>Französisch</th>
           <th></th>
         </tr>
@@ -85,6 +87,8 @@
           tr.append(
             cell(w.id),
             cell(`${w.emoji} ${w.de}`),
+            cell(w.en),
+            cell(playButton('en', w.id)),
             cell(w.fr),
             cell(playButton('fr', w.id)),
           );

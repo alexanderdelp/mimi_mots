@@ -65,19 +65,11 @@ test.describe('B-22 Aufdecken', () => {
       const word = await startRound(page, language);
       await btn(page, flagName[language]).click();
       const calls = await mediaCalls(page);
-      if (key[language] === 'fr') {
-        // seit B-31: Französisch aus der vorproduzierten MP3
-        expect(calls.filter((c) => c.op === 'play')).toEqual([
-          { op: 'play', src: `/mimi_mots/audio/fr/${word.id}.mp3`, time: 0 },
-        ]);
-        expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
-      } else {
-        // Englisch mit der Gerätestimme (anforderungen.md §11)
-        expect(calls.filter((c) => c.op === 'speak')).toEqual([
-          { op: 'speak', text: word.en, lang: 'en-GB' },
-        ]);
-        expect(calls.filter((c) => c.op === 'play')).toEqual([]);
-      }
+      // seit B-31 (Französisch) bzw. B-64 (Englisch) aus der vorproduzierten MP3
+      expect(calls.filter((c) => c.op === 'play')).toEqual([
+        { op: 'play', src: `/mimi_mots/audio/${key[language]}/${word.id}.mp3`, time: 0 },
+      ]);
+      expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
     });
   }
 
