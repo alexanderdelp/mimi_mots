@@ -191,7 +191,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-42.3: Die Bewertung des letzten Worts wird gespeichert (Lernstand im Speicher), auch wenn danach der Abschluss kommt.
   - AT-42.4: Solange die Zeit nicht abgelaufen ist, führt eine Bewertung wie bisher zum nächsten Wort.
   - AT-42.5: [×] (gedrückt halten) beendet die Runde auch nach Ablauf sofort.
-- [ ] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Viel Spaß beim Spielen!“, Haus-Button → Start. Keine Statistik.
+- [x] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Viel Spaß beim Spielen!“, Haus-Button → Start. Keine Statistik.
   - AT-43.1: Der Abschluss zeigt die Kopfleiste und den gewählten Begleiter groß (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) in der Pose „winkt“ (Mimi: Katze, Mots: Pony).
   - AT-43.2: Der Text lautet „Viel Spaß beim Spielen!“; es gibt keine Zahlen, keine Anzahl Wörter, kein Lob und keine Bewertung.
   - AT-43.3: Ein runder lila Haus-Button („Zurück“, nur Symbol) führt zur Startseite; die Auswahl ist dort noch vorbelegt.
