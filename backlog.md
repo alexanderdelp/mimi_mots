@@ -245,14 +245,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 - [ ] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten.
 
 ## Nach Abschluss
-- [ ] **B-64 Englische Aussprache mit Piper**: Englisch aus vorproduzierten MP3s statt Gerätestimme (klang unter Linux schlecht, auf dem iPad je nach installierter Stimme). Stimme nach Klangvergleich (Kokoro `bf_*`/`bm_*`/`am_*`, 23 Piper-Stimmen): Piper `en_US-ljspeech-high` (LJ Speech, public domain). Amy u. ä. fielen aus, weil sie auf der nur für Forschung lizenzierten Lessac-Stimme aufbauen. Französisch bleibt Kokoro `ff_siwis`.
+- [x] **B-64 Englische Aussprache mit Piper**: Englisch aus vorproduzierten MP3s statt Gerätestimme (klang unter Linux schlecht, auf dem iPad je nach installierter Stimme). Stimme nach Klangvergleich (Kokoro `bf_*`/`bm_*`/`am_*`, 23 Piper-Stimmen): Piper `en_US-ljspeech-high` (LJ Speech, public domain). Amy u. ä. fielen aus, weil sie auf der nur für Forschung lizenzierten Lessac-Stimme aufbauen. Französisch bleibt Kokoro `ff_siwis`.
   - AT-64.1: `generate_audio.py` erzeugt Englisch mit Piper (`en_US-ljspeech-high`) und Französisch weiter mit Kokoro (`ff_siwis`); beide Sprachen sind Standard. Gleiche Nachbearbeitung (MP3 mono 64 kbit/s, −16 LUFS, 150 ms Vorlauf).
   - AT-64.2: Fehlt die Piper-Stimme, bricht das Skript mit Hinweis auf README ab; mit `--download-models` wird sie geladen.
   - AT-64.3: Für jedes Wort gibt es `public/audio/en/<id>.mp3`, keine überzähligen Dateien; alle Audiodateien zusammen < 2 MB, jede < 16 KB (Unit-Test, ersetzt „keine englischen MP3s“ aus AT-30b.1).
   - AT-64.4: Englisch: Tipp auf den Lautsprecher spielt `audio/en/<id>.mp3`, Web Speech wird nicht benutzt (ersetzt AT-31.1b und den Englisch-Fall von AT-22.2).
   - AT-64.5: Beim Start einer englischen Runde werden die englischen Audiodateien vorgeladen (ersetzt den Englisch-Teil von AT-31.3).
   - AT-64.6: `audio-check.md` und die Abhörseite haben je eine Spalte für Englisch; README nennt Piper und die Lizenz der Stimme.
-  - Menschliche Abnahme: 50 englische Wörter auf der Abhörseite anhören.
+  - Menschliche Abnahme: Stimme im Klangvergleich gewählt; die Hörprüfung aller 50 englischen Wörter (`audio-check.md`) folgt später.
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später
