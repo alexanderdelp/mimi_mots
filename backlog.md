@@ -168,7 +168,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: In den Tests werden `HTMLMediaElement.play/pause` und die Sprachausgabe durch Attrappen ersetzt, die Aufrufe mitschreiben. Offline-Verfügbarkeit folgt mit dem Service Worker (B-51).
 
 ## M4 – Timer & Abschluss
-- [ ] **B-40 Timer-Logik**: Start beim ersten Wort, Pause bei `visibilitychange`/Hochformat, Ereignis „abgelaufen“; testbar mit Fake-Timers.
+- [x] **B-40 Timer-Logik**: Start beim ersten Wort, Pause bei `visibilitychange`/Hochformat, Ereignis „abgelaufen“; testbar mit Fake-Timers.
   - Hinweis: Die E2E-Tests steuern die Uhr mit Playwrights Clock-API (`page.clock`), statt eines Test-Parameters wie `?dur=10s` – so braucht der Produktionsbuild keinen Test-Zugang.
   - AT-40.1: Der Timer startet mit dem ersten Wort der Runde: Nach 4:59 min ist die Runde noch nicht abgelaufen, nach 5:00 min schon (bei Dauer 5 Minuten).
   - AT-40.2: Bei Dauer 10 Minuten läuft die Runde erst nach 10:00 min ab.
