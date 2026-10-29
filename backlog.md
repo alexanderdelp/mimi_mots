@@ -52,8 +52,15 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-10.4: Jede Kachel ist auf allen drei Viewports mindestens 88 × 88 px groß.
   - AT-10.5: Kacheln verwenden in beiden Zuständen nur Farben aus den Design-Tokens (kein Rot/Grün, Leitprinzip 1).
   - Hinweis: Geprüft wird in der Vorschau `?vorschau=kacheln` (Begleiter-, Flaggen- und Dauer-Kacheln), bis die Startansicht (B-11) die Kacheln nutzt.
-- [ ] **B-11 Startansicht**: Header mit Icon + Titel; Gruppen Begleiter, Sprache, Dauer (nur „5 Min.“ mit Uhr-Symbol); Play-Button. Layout laut Mockup, passt auf alle Ziel-Viewports.
+- [x] **B-11 Startansicht**: Header mit Icon + Titel; Gruppen Begleiter, Sprache, Dauer (nur „5 Min.“ mit Uhr-Symbol); Play-Button. Layout laut Mockup, passt auf alle Ziel-Viewports.
   - AK: Play erst aktiv, wenn alle drei Gruppen gewählt; Screenshot-Tests für 3 Viewports.
+  - AT-11.1: Header mit App-Icon und „Mimi & Mots“; drei Gruppen mit den Überschriften „Wer begleitet dich?“, „Welche Sprache?“, „Wie lange?“.
+  - AT-11.2: Begleiter-Kacheln zeigen Bild (Pose „ruhig“) und Namen; Sprach-Kacheln nur die Flagge ohne Text; Dauer-Kachel ein Uhr-Symbol und „5 Min.“.
+  - AT-11.3: Ohne gespeicherte Auswahl ist nur „5 Min.“ ausgewählt und Play deaktiviert; ein Tipp auf das deaktivierte Play bewirkt nichts.
+  - AT-11.4: Play wird erst aktiv, wenn Begleiter und Sprache gewählt sind; Tipp auf Play startet die Lernrunde.
+  - AT-11.5: Auf allen drei Viewports liegt alles vollständig im Bildschirm, nichts überlappt, nichts scrollt; Kacheln ≥ 88 × 88 px, Play rund und ≥ 96 px.
+  - AT-11.6: Screenshot-Vergleich der Startansicht je Viewport (Erststart und vollständige Auswahl).
+  - Hinweis: Die Kachel-Vorschau aus B-10 entfällt; die B-10-Tests laufen jetzt auf der Startansicht. Speichern der Auswahl folgt in B-12.
 - [ ] **B-12 Auswahl merken**: Letzte Auswahl speichern und vorbelegen; Erststart: nur Dauer vorbelegt.
   - AK: E2E – Auswahl treffen, neu laden, Auswahl ist vorbelegt.
 

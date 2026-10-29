@@ -81,7 +81,7 @@
   font-weight: 800;
 }
 
-/* Runde Schaltflächen (Platzhalter-Optik, Feinschliff in B-11/B-25/B-43). */
+/* Runde Schaltflächen (Feinschliff Abbrechen/Abschluss in B-25/B-43). */
 .play-button,
 .home-button {
   width: 112px;
@@ -191,28 +191,117 @@
   gap: 24px;
 }
 
-/* Kachel-Vorschau (B-10), Platzhalter bis zur Startansicht (B-11). */
-.tile-preview {
-  flex: 1;
+.play-button {
+  display: grid;
+  place-items: center;
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.play-button svg {
+  width: 56px;
+  height: 56px;
+}
+
+.play-button:disabled {
+  background: var(--lila-200);
+  color: var(--white);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Startansicht (B-11): Header oben, drei Gruppen in einer Reihe, Play unten mittig.
+   Alle Kacheln gleich groß; Größen skalieren mit dem Viewport. */
+.view--start {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.app-header {
+  align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 48px;
-  padding: 24px;
+  gap: 16px;
+  height: clamp(72px, 10dvh, 96px);
+  background: var(--lila-100);
 }
 
-.tile-preview .choice-tile {
-  --tile-w: 200px;
-  --tile-h: 260px;
+.app-header__icon {
+  width: clamp(48px, 7dvh, 64px);
+  height: auto;
+  border-radius: 14px;
 }
 
-.tile-preview__avatar {
-  height: 180px;
+.app-header h1 {
+  font-size: clamp(28px, 4dvh, 36px);
+  font-weight: 800;
+}
+
+.start__groups {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(32px, 4vw, 64px);
+  padding: 16px 24px;
+}
+
+.view--start .choice-tile {
+  --tile-w: clamp(150px, 15vw, 220px);
+  --tile-h: clamp(210px, 36dvh, 340px);
+  padding: 10px;
+}
+
+.start__avatar {
+  height: calc(var(--tile-h) - 96px);
   width: auto;
+  max-width: 100%;
+  object-fit: contain;
 }
 
-.tile-preview__flag {
-  width: 120px;
+.start__name,
+.start__duration {
+  font-size: clamp(22px, 3dvh, 28px);
+}
+
+.start__flag {
+  width: 80%;
   height: auto;
   border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--lila-200);
+}
+
+.clock-icon {
+  width: 55%;
+  height: auto;
+}
+
+.clock-icon__face {
+  fill: var(--white);
+  stroke: var(--lila-900);
+  stroke-width: 4;
+}
+
+.clock-icon__ticks line {
+  stroke: var(--lila-900);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.clock-icon__sector {
+  fill: var(--lila-700);
+}
+
+.clock-icon__hub {
+  fill: var(--lila-900);
+}
+
+.start__footer {
+  display: flex;
+  justify-content: center;
+  padding: 0 24px clamp(24px, 4dvh, 40px);
 }

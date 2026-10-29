@@ -7,7 +7,6 @@ import { renderStart } from './views/start';
 import { renderRound } from './views/round';
 import { renderEnd } from './views/end';
 import { renderAvatarPreview } from './views/avatar-preview';
-import { renderTilePreview } from './views/tile-preview';
 
 const VIEWS: Record<ViewName, (store: Store) => HTMLElement> = {
   start: renderStart,
@@ -57,10 +56,9 @@ function start(app: HTMLElement) {
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (app) {
-  // Vorschauen für den visuellen Check: Avatar (B-03, bis B-24), Kacheln (B-10, bis B-11).
+  // Vorschau für den visuellen Check: Avatar (B-03, bis B-24).
   const previews: Record<string, (root: HTMLElement) => void> = {
     avatar: renderAvatarPreview,
-    kacheln: renderTilePreview,
   };
   const preview = previews[new URLSearchParams(location.search).get('vorschau') ?? ''];
   if (preview) {

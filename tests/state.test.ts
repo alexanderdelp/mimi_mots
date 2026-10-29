@@ -1,6 +1,21 @@
 import { describe, expect, it, vi } from 'vitest';
 import { defaults } from '../src/storage';
-import { createStore, nextView, reduce, type AppEvent, type ViewName } from '../src/state';
+import {
+  createStore,
+  isComplete,
+  nextView,
+  reduce,
+  type AppEvent,
+  type AppState,
+  type ViewName,
+} from '../src/state';
+
+/** Daten mit vollständiger Auswahl, damit Play erlaubt ist. */
+const complete = () => {
+  const data = defaults();
+  data.settings = { companion: 'mimi', language: 'en', durationMin: 5 };
+  return data;
+};
 
 const VIEWS: ViewName[] = ['start', 'round', 'end'];
 const EVENTS: AppEvent[] = [{ type: 'play' }, { type: 'finish' }, { type: 'home' }];
@@ -55,7 +70,7 @@ describe('createStore', () => {
   });
 
   it('benachrichtigt bei Änderungen mit neuem und altem State', () => {
-    const store = createStore(defaults());
+    const store = createStore(complete());
     const listener = vi.fn();
     store.subscribe(listener);
     store.dispatch({ type: 'play' });
@@ -74,7 +89,7 @@ describe('createStore', () => {
   });
 
   it('subscribe liefert eine Abmeldefunktion', () => {
-    const store = createStore(defaults());
+    const store = createStore(complete());
     const listener = vi.fn();
     const unsubscribe = store.subscribe(listener);
     unsubscribe();
@@ -83,12 +98,62 @@ describe('createStore', () => {
   });
 
   it('kompletter Ablauf: start → round → end → start', () => {
-    const store = createStore(defaults());
+    const store = createStore(complete());
     const seen = [store.getState().view];
     for (const type of ['play', 'finish', 'home'] as const) {
       store.dispatch({ type });
       seen.push(store.getState().view);
     }
     expect(seen).toEqual(['start', 'round', 'end', 'start']);
+  });
+});
+
+describe('Auswahl (B-11)', () => {
+  const startState = (): AppState => ({ view: 'start', portrait: false, data: defaults() });
+
+  it('isComplete braucht Begleiter, Sprache und Dauer', () => {
+    expect(isComplete(defaults().settings)).toBe(false);
+    expect(isComplete(complete().settings)).toBe(true);
+    expect(isComplete({ ...complete().settings, language: null })).toBe(false);
+    expect(isComplete({ ...complete().settings, durationMin: null })).toBe(false);
+  });
+
+  it('Play ohne vollständige Auswahl wird ignoriert', () => {
+    const state = startState();
+    expect(reduce(state, { type: 'play' })).toBe(state);
+  });
+
+  it('select übernimmt einzelne Einstellungen, andere bleiben', () => {
+    let state = startState();
+    state = reduce(state, { type: 'select', settings: { companion: 'mots' } });
+    state = reduce(state, { type: 'select', settings: { language: 'fr' } });
+    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', durationMin: 5 });
+    expect(reduce(state, { type: 'play' }).view).toBe('round');
+  });
+
+  it('select ohne Änderung liefert denselben State', () => {
+    const state = startState();
+    expect(reduce(state, { type: 'select', settings: { durationMin: 5 } })).toBe(state);
+  });
+
+  it('select ändert die Daten nicht in-place', () => {
+    const state = startState();
+    const before = structuredClone(state.data);
+    reduce(state, { type: 'select', settings: { companion: 'mimi' } });
+    expect(state.data).toEqual(before);
+  });
+
+  it('select wirkt nur auf der Startansicht', () => {
+    const state: AppState = { view: 'round', portrait: false, data: complete() };
+    expect(reduce(state, { type: 'select', settings: { companion: 'mots' } })).toBe(state);
+  });
+
+  it('Store: Auswahl treffen, dann spielen', () => {
+    const store = createStore(defaults());
+    store.dispatch({ type: 'play' });
+    expect(store.getState().view).toBe('start');
+    store.dispatch({ type: 'select', settings: { companion: 'mimi', language: 'en' } });
+    store.dispatch({ type: 'play' });
+    expect(store.getState().view).toBe('round');
   });
 });
