@@ -31,8 +31,9 @@ test.describe('B-25 Abbrechen', () => {
     expect(box.x).toBeLessThan(vp.width * 0.1);
     // seit B-26 direkt unter der Kopfleiste
     const header = (await page.locator('header.app-header').boundingBox())!;
-    expect(box.y).toBeGreaterThanOrEqual(header.y + header.height);
-    expect(box.y).toBeLessThan(header.y + header.height + vp.height * 0.1);
+    // seit B-27 links in der Kopfleiste
+    expect(box.y).toBeGreaterThanOrEqual(header.y);
+    expect(box.y + box.height).toBeLessThanOrEqual(header.y + header.height);
     expect(box.width).toBeGreaterThanOrEqual(88);
     expect(box.height).toBeGreaterThanOrEqual(88);
     await expect(close(page)).toHaveCSS('background-color', 'rgb(255, 255, 255)');

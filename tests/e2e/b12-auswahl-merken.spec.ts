@@ -18,7 +18,7 @@ const stored = (page: Page) =>
   }, KEY);
 
 async function expectSelection(page: Page, selected: string[]) {
-  for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch', '5 Minuten', '10 Minuten']) {
+  for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch', '3 Minuten', '7 Minuten']) {
     await expect(btn(page, name), name).toHaveAttribute(
       'aria-pressed',
       String(selected.includes(name)),
@@ -32,17 +32,17 @@ test.describe('B-12 Auswahl merken', () => {
     await btn(page, 'Mots').click();
     await btn(page, 'Englisch').click();
     await page.reload();
-    await expectSelection(page, ['Mots', 'Englisch', '5 Minuten']);
+    await expectSelection(page, ['Mots', 'Englisch', '3 Minuten']);
     await expect(btn(page, 'Los geht’s')).toBeEnabled();
   });
 
   test('AT-12.2: Erststart – nur Dauer, nichts gespeichert', async ({ page }) => {
     await page.goto('./');
-    await expectSelection(page, ['5 Minuten']);
-    await btn(page, '5 Minuten').click(); // bereits gewählt → keine Änderung
+    await expectSelection(page, ['3 Minuten']);
+    await btn(page, '3 Minuten').click(); // bereits gewählt → keine Änderung
     expect(await stored(page)).toBeNull();
     await page.reload();
-    await expectSelection(page, ['5 Minuten']);
+    await expectSelection(page, ['3 Minuten']);
   });
 
   test('AT-12.3: geänderte Auswahl wird gemerkt', async ({ page }) => {
@@ -53,11 +53,11 @@ test.describe('B-12 Auswahl merken', () => {
     await btn(page, 'Mots').click();
     await btn(page, 'Französisch').click();
     await page.reload();
-    await expectSelection(page, ['Mots', 'Französisch', '5 Minuten']);
+    await expectSelection(page, ['Mots', 'Französisch', '3 Minuten']);
     expect((await stored(page)).settings).toEqual({
       companion: 'mots',
       language: 'fr',
-      durationMin: 5,
+      durationMin: 3,
     });
   });
 
@@ -68,7 +68,7 @@ test.describe('B-12 Auswahl merken', () => {
     await btn(page, 'Los geht’s').click();
     await hold(page, 'Beenden');
     await btn(page, 'Zurück').click();
-    await expectSelection(page, ['Mimi', 'Französisch', '5 Minuten']);
+    await expectSelection(page, ['Mimi', 'Französisch', '3 Minuten']);
   });
 
   test('AT-12.5: Lernstand bleibt beim Speichern erhalten', async ({ page }) => {
@@ -83,7 +83,7 @@ test.describe('B-12 Auswahl merken', () => {
             k,
             JSON.stringify({
               version: 1,
-              settings: { companion: null, language: null, durationMin: 5 },
+              settings: { companion: null, language: null, durationMin: 3 },
               progress: p,
             }),
           );

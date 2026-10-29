@@ -13,7 +13,7 @@
 | Duale Kodierung | Bild (Emoji) + gesprochenes Wort + geschriebenes Wort. |
 | Verteiltes Wiederholen | Leitner-Boxen: Gewusstes kommt seltener, Ungewusstes öfter. |
 | Dosierung neuer Inhalte | Max. 6 neue Wörter pro Session, gemischt mit bekannten. |
-| Kurze Sessions | Timer (5 min), danach freundlicher Abschluss. |
+| Kurze Sessions | Timer (3 oder 7 min), danach freundlicher Abschluss. |
 | Keine extrinsische Belohnung | Kein Lob/Tadel, neutrale Selbsteinschätzung. Motivation durch Begleiter und Erfolgserleben. |
 | Joint Attention | Avatar zeigt per Geste auf die Aufgabe. |
 | Genus mitlernen (FR) | Französische Nomen mit bestimmtem Artikel (la pomme, le chat). |
@@ -27,7 +27,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - Header: App-Icon + „Mimi & Mots“.
 - **Begleiter:** zwei große Kacheln (Mimi, Mots) mit Bild (Pose „ruhig“) und Name.
 - **Sprache:** flache Kacheln mit Flagge, ohne Text, im 2 × 2-Raster: Englisch (`flag_gb.svg`), Französisch (`flag_fr.svg`), Japanisch (`flag_jp.svg`, ausgegraut, noch nicht wählbar), vierter Platz frei.
-- **Dauer:** zwei flache Kacheln untereinander, nur mit Uhr-Symbol (Optik wie Timer, Sektor zeigt 5 bzw. 10 Minuten), ohne Text. 5 Minuten ist beim Erststart vorausgewählt.
+- **Dauer:** zwei flache Kacheln untereinander, nur mit Uhr-Symbol (Optik wie Timer, Sektor zeigt 3 bzw. 7 Minuten), ohne Text. 3 Minuten ist beim Erststart vorausgewählt.
 - **Kachelgrößen:** Kacheln einer Gruppe sind gleich groß; Sprach- und Dauer-Kacheln sind halb so hoch wie die Begleiter-Kacheln.
 - **Auswahlzustand:** ausgewählt = dicker lila Rahmen (5 px, `--lila-700`) + Hintergrund `--lila-100`; nicht ausgewählt = dünner dunkelgrauer Rahmen (2 px, `--grau-700`) + weißer Hintergrund. Größe der Kacheln ändert sich nicht.
 - **Play-Button** (rund, lila, ≥ 96 px) unten mittig. Aktiv, sobald alle drei Gruppen eine Auswahl haben.
@@ -38,24 +38,25 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 **Layout (quer):**
 ```
 ┌──────────────────────────────────────────────────────┐
-│               [Icon] Mimi & Mots  (Kopfleiste)       │
+│ [×]          [Icon] Mimi & Mots            (Timer)  │  ← Kopfleiste
 ├──────────────────────────────────────────────────────┤
-│ [×]                                          (Timer) │
-│  Avatar      ┌────────────────────┐   Flagge  (🔊)   │
-│  (links,     │        🍎          │                  │
-│   zeigt      │       Apfel        │     apple        │
-│   nach       └────────────────────┘                  │
-│   rechts)            (👍)    (🔁)                    │
+│             ┌──────────────┐  ┌──────────────┐        │
+│             │      🍎       │  │   Flagge     │        │
+│  Avatar     │              │  │   apple      │        │
+│  (links     │    Apfel     │  │    (🔊)      │        │
+│   unten,    └──────────────┘  └──────────────┘        │
+│   zeigt →)          (👍)        (🔁)                  │
 └──────────────────────────────────────────────────────┘
 ```
-- **Kopfleiste** wie auf dem Startbildschirm (App-Icon + „Mimi & Mots“).
-1. **Neues Wort:** Emoji groß (~ 40 % Bildschirmhöhe), darunter deutsches Wort. Rechts die Flagge der Sprache (nur Anzeige) und daneben ein runder lila Lautsprecher-Button (🔊), ohne Fremdwort. Avatar-Pose „zeigt“ (Richtung Karte/Flagge). Bewertungs-Buttons nicht sichtbar.
-2. **Tipp auf den Lautsprecher:** Fremdwort erscheint unter Flagge und Lautsprecher, Audio wird einmal abgespielt. Avatar-Pose „freut“ (offener Mund, „spricht mit“).
+- **Kopfleiste** wie auf dem Startbildschirm (App-Icon + „Mimi & Mots“), zusätzlich links [×] und rechts der Timer.
+- **Begleiter** groß links unten, zeigt nach rechts auf die Karten.
+1. **Neues Wort:** Zwei gleich große Karten nebeneinander. Links: Emoji groß (~ 40 % Bildschirmhöhe), darunter deutsches Wort. Rechts: Flagge der Sprache (nur Anzeige), Platz für das Fremdwort (noch leer) und ein runder lila Lautsprecher-Button (🔊). Avatar-Pose „zeigt“ (Richtung Karte/Flagge). Bewertungs-Buttons nicht sichtbar.
+2. **Tipp auf den Lautsprecher:** Fremdwort erscheint in der rechten Karte zwischen Flagge und Lautsprecher, Audio wird einmal abgespielt. Avatar-Pose „freut“ (offener Mund, „spricht mit“).
 3. **Erneuter Tipp auf den Lautsprecher:** Audio erneut (laufende Wiedergabe neu starten). Beliebig oft.
 4. **Nach dem ersten Aufdecken** erscheinen zwei gleichwertige runde lila Buttons wie der Play-Button, nur mit Symbol: „Wusste ich“ (👍) und „Noch üben“ (🔁). Gleiche Größe, kein Text, kein Rot/Grün.
 5. **Tipp auf einen der Buttons:** Lernstand aktualisieren, kein Feedback, direkt nächstes Wort (Übergang ≤ 200 ms).
-- **Timer:** oben rechts unter der Kopfleiste, ~120 px, nicht interaktiv (siehe 3.4).
-- **[×]** oben links unter der Kopfleiste, klein, beendet die Session (springt zum Abschluss). Langes Drücken (600 ms) gegen versehentliches Tippen.
+- **Timer:** rechts in der Kopfleiste, ~88 px, nicht interaktiv (siehe 3.4).
+- **[×]** links in der Kopfleiste, klein, beendet die Session (springt zum Abschluss). Langes Drücken (600 ms) gegen versehentliches Tippen.
 
 ### 3.3 Abschluss
 - Avatar-Pose „winkt“, groß.
@@ -200,6 +201,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Audio (M3): Kokoro über `kokoro-onnx` (gleiches Modell, ohne PyTorch); Python-Umgebung `.venv`, Modell in `.models/` (beides nicht eingecheckt). Beim Start einer Runde werden alle Audiodateien der gewählten Sprache vorgeladen (~450 KB). Hörprüfung über die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server) und `audio-check.md`.
 - 2026-10-29: Aussprache: Französisch aus vorproduzierten Kokoro-MP3s (`ff_siwis`, Hörprüfung ok). Englisch vorerst live über die Gerätestimme (Web Speech, en-GB): Kokoro `bf_emma` sprach im Klangvergleich bei jedem Wort einen falschen Anfangslaut mit (z. B. „egg“ → „leg“); weder Einblenden noch Satzkontext halfen. Pro Sprache steuert `audioFiles` in `src/data/languages.ts`, ob MP3s genutzt werden. Später prüfen: Piper (en_GB) oder eigene Aufnahmen.
 - 2026-10-29: Timer-Zifferblatt (B-41): Die volle Scheibe entspricht der gewählten Dauer (5 bzw. 10 Minuten), nicht einer 60-Minuten-Skala wie beim echten Time Timer – auf 120 px wäre ein 30°-Keil für ein Kind kaum ablesbar. Die Uhr-Symbole der Startseite zeigen weiterhin 5 bzw. 10 von 60 Minuten, damit sich die Kacheln unterscheiden.
+- 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
 
 ## 12. Später (nicht in v1)

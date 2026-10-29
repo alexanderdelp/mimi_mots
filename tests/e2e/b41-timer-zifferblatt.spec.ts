@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('./');
   await btn(page, 'Mimi').click();
   await btn(page, 'Französisch').click();
-  await btn(page, '5 Minuten').click();
+  await btn(page, '3 Minuten').click();
   await btn(page, 'Los geht’s').click();
   await expect(dial(page)).toBeVisible();
 });
@@ -23,22 +23,26 @@ async function advance(page: Page, ms: number) {
 }
 
 test.describe('B-41 Timer-Zifferblatt', () => {
-  test('AT-41.1: rundes Zifferblatt oben rechts, 12 Striche, keine Ziffern', async ({ page }) => {
+  test('AT-41.1: rundes Zifferblatt rechts in der Kopfleiste, 12 Striche, keine Ziffern', async ({
+    page,
+  }) => {
     const vp = page.viewportSize()!;
     const header = (await page.locator('header.app-header').boundingBox())!;
     const box = (await dial(page).boundingBox())!;
-    expect(box.width).toBeGreaterThanOrEqual(100);
+    // seit B-27: 88 px in der Kopfleiste
+    expect(box.width).toBeGreaterThanOrEqual(80);
     expect(box.width).toBeLessThanOrEqual(140);
     expect(box.height).toBeCloseTo(box.width, 0);
     expect(box.x + box.width).toBeGreaterThan(vp.width * 0.85);
-    expect(box.y).toBeGreaterThanOrEqual(header.y + header.height);
+    expect(box.y).toBeGreaterThanOrEqual(header.y);
+    expect(box.y + box.height).toBeLessThanOrEqual(header.y + header.height);
     await expect(dial(page).locator('.timer-dial__ticks line')).toHaveCount(12);
     expect(await dial(page).evaluate((el) => el.textContent)).toBe('');
   });
 
   test('AT-41.2: volle Scheibe, nach halber Zeit Halbkreis 6–12 Uhr', async ({ page }) => {
     expect(await fraction(page)).toBeGreaterThan(0.99);
-    await advance(page, 2.5 * MIN - 300);
+    await advance(page, 1.5 * MIN - 300);
     expect(await fraction(page)).toBeCloseTo(0.5, 2);
     const sector = (await dial(page).locator('.timer-dial__sector').boundingBox())!;
     const face = (await dial(page).locator('.timer-dial__face').boundingBox())!;
@@ -46,7 +50,7 @@ test.describe('B-41 Timer-Zifferblatt', () => {
     // (±3 px Toleranz: die Box der Scheibe enthält die Randlinie)
     expect(Math.abs(sector.x - (face.x + face.width * 0.083))).toBeLessThan(3);
     expect(Math.abs(sector.x + sector.width - (face.x + face.width / 2))).toBeLessThan(3);
-    await advance(page, 1.25 * MIN);
+    await advance(page, 0.75 * MIN);
     expect(await fraction(page)).toBeCloseTo(0.25, 2); // schrumpft weiter Richtung 12 Uhr
   });
 
@@ -60,7 +64,7 @@ test.describe('B-41 Timer-Zifferblatt', () => {
   });
 
   test('AT-41.4: nach Ablauf leer, ohne Animation', async ({ page }) => {
-    await advance(page, 5 * MIN + 1000);
+    await advance(page, 3 * MIN + 1000);
     expect(await fraction(page)).toBe(0);
     await expect(dial(page).locator('.timer-dial__sector')).toHaveAttribute('d', '');
     const animations = await dial(page).evaluate(
@@ -70,16 +74,16 @@ test.describe('B-41 Timer-Zifferblatt', () => {
   });
 
   test('AT-41.5: in der Pause bleibt der Sektor stehen', async ({ page }) => {
-    await advance(page, MIN);
+    await advance(page, 0.5 * MIN);
     const landscape = page.viewportSize()!;
     await page.setViewportSize({ width: landscape.height, height: landscape.width });
     await expect(page.getByRole('alert')).toBeVisible();
     const paused = await fraction(page);
-    await advance(page, 3 * MIN);
+    await advance(page, 2 * MIN);
     expect(await fraction(page)).toBe(paused);
     await page.setViewportSize(landscape);
     await expect(page.getByRole('alert')).toBeHidden();
-    await advance(page, MIN);
+    await advance(page, 0.5 * MIN);
     expect(await fraction(page)).toBeLessThan(paused);
   });
 

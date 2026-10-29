@@ -5,7 +5,7 @@ import { END_TEXT, renderEnd } from '../src/views/end';
 
 function endStore(companion: 'mimi' | 'mots' = 'mots') {
   const data = defaults();
-  data.settings = { companion, language: 'fr', durationMin: 5 };
+  data.settings = { companion, language: 'fr', durationMin: 3 };
   const store = createStore(data);
   store.dispatch({ type: 'play' });
   store.dispatch({ type: 'finish' });

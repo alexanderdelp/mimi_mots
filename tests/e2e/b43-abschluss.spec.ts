@@ -13,7 +13,7 @@ async function startRound(page: Page, companion: 'Mimi' | 'Mots' = 'Mimi') {
   await page.goto('./');
   await btn(page, companion).click();
   await btn(page, 'Französisch').click();
-  await btn(page, '5 Minuten').click();
+  await btn(page, '3 Minuten').click();
   await btn(page, 'Los geht’s').click();
   await expect(view(page, 'round')).toBeVisible();
 }
@@ -79,14 +79,14 @@ test.describe('B-43 Abschlussansicht', () => {
     expect(box.height).toBe(box.width);
     await home.click();
     await expect(view(page, 'start')).toBeVisible();
-    for (const name of ['Mots', 'Französisch', '5 Minuten']) {
+    for (const name of ['Mots', 'Französisch', '3 Minuten']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'true');
     }
   });
 
   test('AT-43.4: gleicher Abschluss nach Zeitablauf', async ({ page }) => {
     await startRound(page);
-    await page.clock.fastForward(5 * 60_000 + 1000);
+    await page.clock.fastForward(3 * 60_000 + 1000);
     await page.clock.runFor(300);
     await btn(page, 'Auf Französisch anhören').click();
     await btn(page, 'Noch üben').click();

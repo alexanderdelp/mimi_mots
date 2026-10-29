@@ -138,6 +138,17 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-26.9: Lange Fremdwörter: Mehrwortbegriffe bis 22 Zeichen und Einzelwörter bis 25 Zeichen passen vollständig in den Fremdwort-Bereich, mindestens 36 px groß; Einzelwörter werden dafür notfalls getrennt (geprüft am echten Fremdwort-Feld mit der App-Logik, Unit-Tests für `fitText`).
   - Hinweis: Bestehende Tests werden angepasst (Kachelanzahl, „5 Min.“ → „5 Minuten“, Flaggen-Button → Lautsprecher-Button, Bewertungs-Buttons ohne Text).
 
+- [ ] **B-27 Lernansicht überarbeiten**: Dauer 3/7 statt 5/10 Minuten; [×] und Timer fest in der Kopfleiste; Fremdwort und Flagge in einer eigenen Karte, genauso groß wie die Karte des deutschen Worts; Begleiter größer links unten.
+  - AT-27.1: Startseite: Dauer-Kacheln „3 Minuten“ und „7 Minuten“ (Sektor 18° bzw. 42°); Erststart: 3 Minuten vorbelegt.
+  - AT-27.2: Gespeicherte alte Dauern werden übernommen: 5 → 3, 10 → 7 Minuten.
+  - AT-27.3: Die Runde läuft bei 3 Minuten nach 3:00 ab, bei 7 Minuten nach 7:00.
+  - AT-27.4: Kopfleiste auf allen Seiten gleich hoch; in der Lernrunde liegt [×] links und das Timer-Zifferblatt rechts **in** der Kopfleiste, beide mindestens 88 px, vertikal mittig; Icon und Titel bleiben mittig.
+  - AT-27.5: Zwei Karten nebeneinander, exakt gleich groß und auf gleicher Höhe: links Emoji + deutsches Wort, rechts Flagge, Fremdwort-Bereich und Lautsprecher-Button.
+  - AT-27.6: Der Begleiter steht links unten (Unterkante wie die Bewertungszeile), ist größer als bisher (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) und überlappt keine Karte.
+  - AT-27.7: Die Bewertungs-Buttons liegen mittig unter den beiden Karten.
+  - AT-27.8: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen.
+  - Hinweis: Frühere Tests mit 5/10 Minuten, der alten Kopfleiste und der Antwortspalte (B-11, B-21, B-22, B-25, B-26, B-40–B-43) werden angepasst; die Screenshots von Start- und Abschlussseite werden neu erzeugt (höhere Kopfleiste).
+
 ## M3 – Audio
 - [x] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
   - AK: Skript erzeugt `public/audio/{en,fr}/<id>.mp3`; Gesamtgröße < 2 MB.
