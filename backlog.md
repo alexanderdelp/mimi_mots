@@ -141,6 +141,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 ## M3 – Audio
 - [ ] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
   - AK: Skript erzeugt `public/audio/{en,fr}/<id>.mp3`; Gesamtgröße < 2 MB.
+  - Hinweis: Kein Browser beteiligt – die Akzeptanztests rufen das echte Skript mit Kokoro und ffmpeg in einem Temp-Ordner auf (`scripts/test_generate_audio.py`, `npm run test:audio`, Python-`unittest`).
+  - AT-30a.1: Für zwei Testwörter erzeugt das Skript `<out>/en/<id>.mp3` und `<out>/fr/<id>.mp3` (EN mit `bf_emma`, FR mit `ff_siwis`, FR mit Artikel).
+  - AT-30a.2: Jede Datei ist MP3, mono, 64 kbit/s, nicht leer, höchstens 2 s lang und kleiner als 16 KB.
+  - AT-30a.3: Lautheit −16 LUFS (±1,5); am Anfang ca. 150 ms Stille (100–250 ms), am Ende keine lange Stille (< 300 ms).
+  - AT-30a.4: Ein zweiter Lauf erzeugt nichts neu (vorhandene Dateien bleiben byte-gleich); mit `--force` wird neu erzeugt.
+  - AT-30a.5: Liegt eine Datei in `audio-overrides/<lang>/<id>.(mp3|wav|m4a)`, wird sie statt Kokoro verwendet (gleiche Nachbearbeitung) und ersetzt eine ältere erzeugte Datei.
+  - AT-30a.6: `npm run audio -- --help` läuft; fehlen Modell oder Stimmen, bricht das Skript mit verständlicher Meldung ab (Hinweis auf README).
+  - AT-30a.7: Die README beschreibt die einmalige Einrichtung (venv, Pakete, Modell-Download) und nennt die Lizenzen (Kokoro Apache-2.0, SIWIS CC BY 4.0).
 - [ ] **B-30b Audio erzeugen & prüfen**: Dateien generieren, Hörprüfliste `audio-check.md` (id, ok/neu) zum Abhaken durch den Menschen.
 - [ ] **B-31 Audio-Modul**: Vorladen der Session-Dateien, Abspielen per `HTMLAudioElement`, Neustart bei erneutem Tipp, Fallback Web Speech (en-GB/fr-FR) bei fehlender Datei.
   - AK: Unit-Test für Fallback-Logik (gemockt); manueller Test auf iPad.
