@@ -183,7 +183,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-41.4: Nach Ablauf ist kein lila Sektor mehr zu sehen; kein Blinken, keine Animation.
   - AT-41.5: Während einer Pause (Hintergrund, Hochformat) bleibt der Sektor stehen.
   - AT-41.6: Das Zifferblatt nutzt nur Token-Farben, ist nicht antippbar und liegt vollständig im Bildschirm, ohne andere Elemente zu überlappen.
-- [ ] **B-42 Rundenende**: Nach Ablauf läuft das aktuelle Wort unverändert weiter (Aufdecken, Vorlesen beliebig oft); erst nach „Wusste ich“/„Noch üben“ (Lernstand gespeichert) kommt der Abschluss statt eines neuen Worts.
+- [x] **B-42 Rundenende**: Nach Ablauf läuft das aktuelle Wort unverändert weiter (Aufdecken, Vorlesen beliebig oft); erst nach „Wusste ich“/„Noch üben“ (Lernstand gespeichert) kommt der Abschluss statt eines neuen Worts.
   - AK: E2E mit verkürzter Dauer (Test-Parameter `?dur=10s`, nur in Dev/Test): Timer läuft ab → Flagge mehrfach tippbar, Audio startet jeweils → Selbsteinschätzung → Abschluss; Fall „Timer läuft vor dem Aufdecken ab“ abgedeckt.
   - Hinweis: Statt `?dur=10s` steuern die Tests die Uhr mit Playwrights Clock-API (siehe B-40); seit B-26 ersetzt der Lautsprecher die Flagge.
   - AT-42.1: Läuft die Zeit **vor** dem Aufdecken ab, bleibt das Wort; der Lautsprecher deckt auf und spielt mehrfach (jeweils von vorn); erst nach „Wusste ich“/„Noch üben“ kommt der Abschluss statt eines neuen Worts.
