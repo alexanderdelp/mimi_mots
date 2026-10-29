@@ -1,0 +1,23 @@
+{
+  "name": "Mimi & Mots",
+  "short_name": "Mimi & Mots",
+  "description": "Spielerisch erste Wörter auf Englisch und Französisch lernen – mit Mimi und Mots.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#6A4C9C",
+  "background_color": "#F8F4FB",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
