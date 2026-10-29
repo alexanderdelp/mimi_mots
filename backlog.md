@@ -115,7 +115,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-24.4: Mimi zeigt Katzen-, Mots Pony-Bilder.
   - AT-24.5: Alle vier Posen des Begleiters sind nach dem Start der Runde geladen; der Avatar ist ≤ 440 px hoch, vollständig im Bildschirm und nicht animiert.
   - Hinweis: Die Avatar-Vorschau (`?vorschau=avatar`) entfällt; AT-03.2–03.4 laufen jetzt in der Lernrunde, AT-06.5 prüft, dass die Adresse die Startansicht zeigt.
-- [ ] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
+- [x] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
   - AT-25.1: [×] steht oben links, ist mindestens 88 × 88 px groß und unaufdringlich (weiß, dünner grauer Rand).
   - AT-25.2: Ein kurzer Tipp auf [×] beendet die Runde nicht.
   - AT-25.3: Gedrückt halten (≥ 600 ms) führt zum Abschluss.
