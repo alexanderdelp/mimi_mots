@@ -11,6 +11,7 @@ import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { WORDS, getWord, type Language } from '../data/words';
 import { pickNext, type Rating } from '../scheduler';
 import type { AppState, Store } from '../state';
+import { createSessionTimer } from '../timer';
 import type { ViewHandle } from './view';
 
 const WORD_IDS = WORDS.map((w) => w.id);
@@ -60,8 +61,8 @@ export function renderRound(store: Store): ViewHandle {
   );
   // gedrückt halten (600 ms), damit ein versehentlicher Tipp die Runde nicht beendet
   const stopLongPress = onLongPress(close, () => store.dispatch({ type: 'finish' }));
-  const timer = el('div', 'round__timer');
-  top.append(close, timer);
+  const timerSlot = el('div', 'round__timer');
+  top.append(close, timerSlot);
 
   // Bühne: Avatar | Wortkarte | Flagge + Lautsprecher
   const stage = el('div', 'round__stage');
@@ -152,6 +153,10 @@ export function renderRound(store: Store): ViewHandle {
   };
 
   const unsubscribe = store.subscribe((state, previous) => {
+    if (state.portrait !== previous.portrait) {
+      if (state.portrait) timer.pause('portrait');
+      else timer.resume('portrait');
+    }
     if (state.round?.wordId !== previous.round?.wordId) showWord(state);
     else if (state.round?.revealed !== previous.round?.revealed) showForeign(state);
   });
@@ -159,13 +164,32 @@ export function renderRound(store: Store): ViewHandle {
   // Aussprache der Sprache vorladen (je ~9 KB); fehlende Dateien merkt sich der Player
   void player.preload(language, WORD_IDS);
 
+  // Session-Timer: läuft ab dem ersten Wort, pausiert im Hintergrund und im Hochformat.
+  // Der Ablauf ändert an der Runde nichts Sichtbares (§3.4); Abschluss erst nach Bewertung (B-42).
+  view.dataset.expired = 'false';
+  const timer = createSessionTimer({
+    durationMs: (settings.durationMin ?? 5) * 60_000,
+    onExpire: () => {
+      view.dataset.expired = 'true';
+      store.dispatch({ type: 'expire' });
+    },
+  });
+  const onVisibility = () =>
+    document.visibilityState === 'hidden' ? timer.pause('hidden') : timer.resume('hidden');
+  document.addEventListener('visibilitychange', onVisibility);
+  onVisibility();
+  if (store.getState().portrait) timer.pause('portrait');
+
   if (store.getState().round?.wordId) showWord(store.getState());
   else showNextWord(store);
+  timer.start(); // mit dem ersten angezeigten Wort
 
   return {
     el: view,
     dispose() {
       unsubscribe();
+      timer.dispose();
+      document.removeEventListener('visibilitychange', onVisibility);
       stopLongPress();
       player.stop();
     },

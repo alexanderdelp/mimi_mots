@@ -173,6 +173,7 @@ describe('Lernrunde (B-21)', () => {
       session: { history: [], introduced: [] },
       wordId: null,
       revealed: false,
+      expired: false,
     });
   });
 
@@ -180,7 +181,12 @@ describe('Lernrunde (B-21)', () => {
     const store = createStore(complete());
     store.dispatch({ type: 'play' });
     store.dispatch({ type: 'word', id: 'apfel', session });
-    expect(store.getState().round).toEqual({ session, wordId: 'apfel', revealed: false });
+    expect(store.getState().round).toEqual({
+      session,
+      wordId: 'apfel',
+      revealed: false,
+      expired: false,
+    });
   });
 
   it('word wird außerhalb der Lernrunde ignoriert', () => {
@@ -300,5 +306,53 @@ describe('Selbsteinschätzung (B-23)', () => {
     store.dispatch({ type: 'rate', rating: 'known', at: AT });
     expect(data).toEqual(snapshot);
     expect(store.getState().data).not.toBe(data);
+  });
+});
+
+describe('Zeitablauf (B-40)', () => {
+  const session = { history: ['apfel'], introduced: ['apfel'] };
+  const inRound = () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    return store;
+  };
+
+  it('expire markiert die Runde als abgelaufen, sonst ändert sich nichts', () => {
+    const store = inRound();
+    const before = store.getState();
+    store.dispatch({ type: 'expire' });
+    const after = store.getState();
+    expect(after.round?.expired).toBe(true);
+    expect(after.view).toBe('round');
+    expect(after.round?.wordId).toBe(before.round?.wordId);
+    expect(after.data).toBe(before.data);
+  });
+
+  it('expire bleibt beim nächsten Wort erhalten', () => {
+    const store = inRound();
+    store.dispatch({ type: 'expire' });
+    store.dispatch({ type: 'word', id: 'hund', session });
+    expect(store.getState().round?.expired).toBe(true);
+  });
+
+  it('expire außerhalb der Runde oder doppelt ändert nichts', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'expire' });
+    expect(store.getState().round).toBeNull();
+    const inside = inRound();
+    inside.dispatch({ type: 'expire' });
+    const before = inside.getState();
+    inside.dispatch({ type: 'expire' });
+    expect(inside.getState()).toBe(before);
+  });
+
+  it('eine neue Runde beginnt nicht abgelaufen', () => {
+    const store = inRound();
+    store.dispatch({ type: 'expire' });
+    store.dispatch({ type: 'finish' });
+    store.dispatch({ type: 'home' });
+    store.dispatch({ type: 'play' });
+    expect(store.getState().round?.expired).toBe(false);
   });
 });
