@@ -1,14 +1,20 @@
 // App-State: aktuelle Ansicht als einfache Zustandsmaschine, plus gespeicherte Daten
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
-import type { AppData } from './storage';
+import type { AppData, Settings } from './storage';
 
 export type ViewName = 'start' | 'round' | 'end';
 
 export type AppEvent =
-  | { type: 'play' } // Start → Lernrunde
+  | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss → Start
+  | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
   | { type: 'orientation'; portrait: boolean };
+
+/** Begleiter, Sprache und Dauer sind gewählt. */
+export function isComplete(settings: Settings): boolean {
+  return settings.companion !== null && settings.language !== null && settings.durationMin !== null;
+}
 
 export interface AppState {
   view: ViewName;
@@ -31,6 +37,15 @@ export function reduce(state: AppState, event: AppEvent): AppState {
   if (event.type === 'orientation') {
     return event.portrait === state.portrait ? state : { ...state, portrait: event.portrait };
   }
+  if (event.type === 'select') {
+    if (state.view !== 'start') return state;
+    const settings = { ...state.data.settings, ...event.settings };
+    const changed = (Object.keys(settings) as (keyof Settings)[]).some(
+      (k) => settings[k] !== state.data.settings[k],
+    );
+    return changed ? { ...state, data: { ...state.data, settings } } : state;
+  }
+  if (event.type === 'play' && !isComplete(state.data.settings)) return state;
   const view = nextView(state.view, event);
   return view === state.view ? state : { ...state, view };
 }

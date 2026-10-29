@@ -43,7 +43,7 @@ async function imagesLoaded(page: Page) {
 
 test.describe('B-10 Auswahlkachel', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('./?vorschau=kacheln');
+    await page.goto('./');
     await imagesLoaded(page);
   });
 
