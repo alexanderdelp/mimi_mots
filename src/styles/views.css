@@ -58,3 +58,75 @@
     inset 0 0 0 5px var(--lila-700),
     var(--shadow);
 }
+
+/* Router: eine Ansicht füllt die ganze App. */
+.view-root,
+.view {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.view {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 24px;
+}
+
+.view h1 {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+/* Runde Schaltflächen (Platzhalter-Optik, Feinschliff in B-11/B-25/B-43). */
+.play-button,
+.home-button {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: var(--lila-700);
+  color: var(--white);
+  font-size: 48px;
+  box-shadow: var(--shadow);
+}
+
+.close-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--lila-900);
+  font-size: 44px;
+  box-shadow:
+    inset 0 0 0 2px var(--grau-700),
+    var(--shadow);
+}
+
+/* Hochformat-Hinweis (Gestaltung mit Avatar in B-52). */
+.portrait-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background: var(--lila-50);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.portrait-overlay[hidden] {
+  display: none;
+}
+
+.portrait-overlay__icon {
+  font-size: 96px;
+}
