@@ -5,8 +5,12 @@ Reihenfolge = Umsetzungsreihenfolge. Häkchen setzen, wenn Definition of Done (s
 Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt unter der Aufgabe ergänzt.
 
 ## M0 – Grundgerüst
-- [ ] **B-01 Projekt aufsetzen**: Vite + TS, ESLint/Prettier, Vitest, Playwright (WebKit, Viewports 1024×768, 1180×820, 1366×1024 quer). npm-Skripte laut CLAUDE.md. Dev-Server mit `--host`.
+- [x] **B-01 Projekt aufsetzen**: Vite + TS, ESLint/Prettier, Vitest, Playwright (WebKit, Viewports 1024×768, 1180×820, 1366×1024 quer). npm-Skripte laut CLAUDE.md. Dev-Server mit `--host`.
   - AK: `npm run dev/build/test/test:e2e/lint` laufen grün.
+  - AT-01.1: Die App lädt in WebKit auf 1024×768, 1180×820 und 1366×1024 (quer) ohne Konsolenfehler und ohne fehlgeschlagene Requests.
+  - AT-01.2: Die Seite hat den Titel „Mimi & Mots“, `lang="de"` und einen Viewport-Meta-Tag ohne Zoom (`user-scalable=no`, `viewport-fit=cover`).
+  - AT-01.3: Die App wird unter dem GitHub-Pages-Pfad `/mimi_mots/` ausgeliefert (Preview des Produktionsbuilds) und lädt ihre Skripte von dort.
+  - AT-01.4: Zur Laufzeit gehen keine Requests an fremde Hosts (Leitprinzip 6).
 - [ ] **B-02 Design-Tokens & Basis-CSS**: `tokens.css`, `base.css` (Reset, `ui-rounded`, Touch-Regeln, kein Scroll/Zoom, Safe Areas, 100dvh-Layout).
   - AK: Leere Seite füllt Bildschirm ohne Scrollbalken; Doppeltipp zoomt nicht.
 - [ ] **B-03 Assets einbinden**: Gelieferte PNGs (Avatare, Flaggen) und Icons liegen bereits unverändert in `public/avatars/`, `public/flags/`, `public/icons/` (Namen laut CLAUDE.md). Asset-Mapping Pose → Datei in `src/components/avatar.ts`.
