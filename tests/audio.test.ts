@@ -7,6 +7,7 @@ import {
   speak,
   stopSpeaking,
 } from '../src/audio';
+import { LANGUAGE_INFO } from '../src/data/languages';
 
 const voice = (lang: string, localService = true, name = lang) =>
   ({ lang, localService, name }) as SpeechSynthesisVoice;
@@ -100,9 +101,16 @@ describe('createAudioPlayer (B-31)', () => {
     return audio;
   }
 
-  function setup(options: { exists?: (url: string) => boolean; play?: () => Promise<void> } = {}) {
+  function setup(
+    options: {
+      exists?: (url: string) => boolean;
+      play?: () => Promise<void>;
+      hasFiles?: (lang: string) => boolean;
+    } = {},
+  ) {
     const audio = fakeAudio(options.play);
     const deps = {
+      hasFiles: vi.fn(options.hasFiles ?? (() => true)),
       createAudio: vi.fn(() => audio as unknown as HTMLAudioElement),
       fetchFile: vi.fn(async (url: string) => (options.exists ?? (() => true))(url)),
       speak: vi.fn(() => true),
@@ -187,6 +195,21 @@ describe('createAudioPlayer (B-31)', () => {
     player.stop();
     expect(audio.pause).toHaveBeenCalledTimes(2);
     expect(deps.stopSpeaking).toHaveBeenCalledTimes(2);
+  });
+
+  it('Sprache ohne MP3s: direkt Web Speech, nichts vorladen', async () => {
+    const { audio, deps, player } = setup({ hasFiles: (lang) => lang !== 'en' });
+    await player.preload('en', ['apfel', 'hund']);
+    expect(deps.fetchFile).not.toHaveBeenCalled();
+    player.play(word, 'en');
+    expect(deps.speak).toHaveBeenCalledWith('apple', 'en');
+    expect(deps.createAudio).not.toHaveBeenCalled();
+    expect(audio.play).not.toHaveBeenCalled();
+  });
+
+  it('Standard: Französisch mit MP3s, Englisch mit Gerätestimme', () => {
+    expect(LANGUAGE_INFO.fr.audioFiles).toBe(true);
+    expect(LANGUAGE_INFO.en.audioFiles).toBe(false);
   });
 
   it('stop ohne vorheriges Abspielen wirft nicht', () => {

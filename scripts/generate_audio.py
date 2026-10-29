@@ -28,6 +28,10 @@ VOICES = {
     'en': {'voice': 'bf_emma', 'lang': 'en-gb'},
     'fr': {'voice': 'ff_siwis', 'lang': 'fr-fr'},
 }
+# Standardmäßig nur Französisch: bf_emma spricht bei englischen Einzelwörtern einen falschen
+# Anfangslaut mit; Englisch liest die App vorerst mit der Gerätestimme (anforderungen.md §11).
+# Mit --lang en lässt sich Englisch trotzdem erzeugen (z. B. für Tests oder eine neue Stimme).
+DEFAULT_LANGS = ['fr']
 MODEL_FILES = {
     'kokoro-v1.0.onnx': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
     'voices-v1.0.bin': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin',
@@ -165,7 +169,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument('--overrides', type=Path, default=ROOT / 'audio-overrides')
     parser.add_argument('--models', type=Path, default=ROOT / '.models')
     parser.add_argument('--lang', dest='langs', action='append', choices=sorted(VOICES),
-                        help='nur diese Sprache(n), Standard: alle')
+                        help=f"nur diese Sprache(n), Standard: {', '.join(DEFAULT_LANGS)}")
     parser.add_argument('--id', dest='ids', action='append', help='nur diese Wort-id(s)')
     parser.add_argument('--force', action='store_true', help='auch vorhandene Dateien neu erzeugen')
     parser.add_argument('--download-models', action='store_true',
@@ -181,7 +185,9 @@ def main(argv: list[str] | None = None) -> int:
     words = json.loads(args.words.read_text(encoding='utf-8'))
     jobs = [
         job
-        for job in plan_jobs(words, args.langs or sorted(VOICES), args.out, args.overrides, args.ids)
+        for job in plan_jobs(
+            words, list(dict.fromkeys(args.langs or DEFAULT_LANGS)), args.out, args.overrides, args.ids
+        )
         if needs_update(job, args.force)
     ]
     if not jobs:

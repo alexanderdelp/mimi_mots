@@ -19,7 +19,7 @@ npm run lint
 
 ## Audio erzeugen
 
-Die Aussprache der Wörter liegt als fertige MP3-Dateien in `public/audio/{en,fr}/<id>.mp3` und wird mit der App ausgeliefert. Erzeugt werden sie **einmalig lokal** mit dem Open-Source-Sprachmodell [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) über [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) – ohne Internet zur Laufzeit.
+Die französische Aussprache liegt als fertige MP3-Dateien in `public/audio/fr/<id>.mp3` und wird mit der App ausgeliefert. Englisch liest die App vorerst mit der Stimme des Geräts vor (die Kokoro-Stimme `bf_emma` sprach einen falschen Anfangslaut mit, siehe `anforderungen.md` §11). Erzeugt werden sie **einmalig lokal** mit dem Open-Source-Sprachmodell [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) über [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) – ohne Internet zur Laufzeit.
 
 ### Einmalige Einrichtung
 
@@ -36,13 +36,13 @@ npm run audio -- --download-models                              # lädt Modell +
 ### Benutzung
 
 ```bash
-npm run audio                       # erzeugt nur fehlende Dateien
+npm run audio                       # erzeugt fehlende Dateien (Standard: nur Französisch)
 npm run audio -- --id apfel --force # eine Datei neu erzeugen
-npm run audio -- --lang fr          # nur Französisch
+npm run audio -- --lang en          # Englisch trotzdem erzeugen (z. B. zum Ausprobieren)
 npm run test:audio                  # Tests des Skripts (inkl. echter Erzeugung im Temp-Ordner)
 ```
 
-- Stimmen: Englisch `bf_emma` (britisch, passend zur UK-Flagge), Französisch `ff_siwis`.
+- Stimmen: Französisch `ff_siwis`; Englisch wäre `bf_emma` (britisch), wird wegen des falschen Anfangslauts derzeit nicht genutzt.
 - Nachbearbeitung mit ffmpeg: Stille vorn/hinten entfernt, 150 ms Vorlauf, Lautheit −16 LUFS, MP3 mono 64 kbit/s.
 - **Eigene Aufnahmen:** Klingt ein Wort schlecht, eine Aufnahme als `audio-overrides/<lang>/<id>.mp3` (oder `.wav`, `.m4a`) ablegen und `npm run audio` erneut ausführen – sie hat Vorrang und wird genauso nachbearbeitet.
 

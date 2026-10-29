@@ -139,13 +139,23 @@ describe('Aufdecken in der Lernrunde (B-22, seit B-31 mit MP3)', () => {
 
   it('erneuter Tipp spielt erneut von vorn', () => {
     const media = withSpeech();
-    const { el } = renderRound(roundStore('en'));
+    const { el } = renderRound(roundStore('fr'));
     const speaker = el.querySelector<HTMLButtonElement>('.speak-button')!;
     speaker.click();
     speaker.click();
     speaker.click();
     expect(media.play).toHaveBeenCalledTimes(3);
     expect(media.pause).toHaveBeenCalledTimes(3);
+  });
+
+  it('Englisch liest mit der Gerätestimme vor, ohne MP3', () => {
+    const media = withSpeech();
+    const { el } = renderRound(roundStore('en'));
+    const word = getWord(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId!)!;
+    el.querySelector<HTMLButtonElement>('.speak-button')!.click();
+    expect(media.play).not.toHaveBeenCalled();
+    expect(media.speak).toHaveBeenCalledTimes(1);
+    expect(media.speak.mock.calls[0][0].text).toBe(word.en);
   });
 
   it('neues Wort verdeckt das Fremdwort wieder', () => {
@@ -160,7 +170,7 @@ describe('Aufdecken in der Lernrunde (B-22, seit B-31 mit MP3)', () => {
 
   it('dispose beendet eine laufende Wiedergabe', () => {
     const media = withSpeech();
-    const { el, dispose } = renderRound(roundStore('en'));
+    const { el, dispose } = renderRound(roundStore('fr'));
     el.querySelector<HTMLButtonElement>('.speak-button')!.click();
     media.pause.mockClear();
     dispose!();

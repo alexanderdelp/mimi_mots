@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { WORDS } from '../src/data/words';
 
-const LANGS = ['en', 'fr'] as const;
+// Englisch liest die Gerätestimme (anforderungen.md §11) – MP3s nur für Französisch
+const LANGS = ['fr'] as const;
 const dir = (lang: string) => `public/audio/${lang}`;
 
 /** MP3 erkennbar an ID3-Tag oder MPEG-Frame-Sync (0xFFE…). */
@@ -16,6 +17,10 @@ describe('Audiodateien (B-30b)', () => {
   it.each(LANGS)('AT-30b.1: %s – genau eine Datei pro Wort', (lang) => {
     const files = readdirSync(dir(lang)).filter((f) => f.endsWith('.mp3'));
     expect(files.sort()).toEqual(WORDS.map((w) => `${w.id}.mp3`).sort());
+  });
+
+  it('AT-30b.1: keine englischen MP3s', () => {
+    expect(existsSync('public/audio/en')).toBe(false);
   });
 
   it('AT-30b.2: klein und gültig', () => {
@@ -37,13 +42,12 @@ describe('Audiodateien (B-30b)', () => {
 describe('Hörprüfliste (B-30b)', () => {
   const lines = readFileSync('audio-check.md', 'utf8').split('\n');
 
-  it('AT-30b.4: jedes Wort genau einmal mit Kästchen für EN und FR', () => {
+  it('AT-30b.4: jedes Wort genau einmal mit Kästchen für Französisch', () => {
     for (const word of WORDS) {
       const rows = lines.filter((l) => l.startsWith(`| ${word.id} |`));
       expect(rows, word.id).toHaveLength(1);
-      expect(rows[0]).toContain(word.en);
       expect(rows[0]).toContain(word.fr);
-      expect(rows[0].match(/\[[ x]\]/g), word.id).toHaveLength(2);
+      expect(rows[0].match(/\[[ x]\]/g), word.id).toHaveLength(1);
     }
   });
 

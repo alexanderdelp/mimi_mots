@@ -5,3 +5,4 @@ test-results/
 .venv/
 *.log
 .models/
+tools/vergleich/

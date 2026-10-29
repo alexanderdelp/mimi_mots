@@ -159,13 +159,13 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
     await speaker.click();
     await expect(page.locator('.round__foreign')).not.toHaveText('');
     await speaker.click();
-    // seit B-31: Wiedergabe der MP3 (Web Speech nur als Fallback)
+    // Englisch: Gerätestimme, jeder Tipp von vorn (Französisch: MP3, siehe B-31)
     const calls = await page.evaluate(
       () => (window as unknown as { __speech: SpeechCall[] }).__speech,
     );
-    expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
+    expect(calls.map((c) => c.op)).toEqual(['cancel', 'speak', 'cancel', 'speak']);
     const media = await mediaCalls(page);
-    expect(media.filter((c) => c.op === 'play')).toHaveLength(2);
+    expect(media.filter((c) => c.op === 'play')).toEqual([]);
   });
 
   test('AT-26.7: Bewertung als runde Symbol-Buttons wie Play', async ({ page }) => {

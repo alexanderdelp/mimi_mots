@@ -150,17 +150,18 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-30a.6: `npm run audio -- --help` läuft; fehlen Modell oder Stimmen, bricht das Skript mit verständlicher Meldung ab (Hinweis auf README).
   - AT-30a.7: Die README beschreibt die einmalige Einrichtung (venv, Pakete, Modell-Download) und nennt die Lizenzen (Kokoro Apache-2.0, SIWIS CC BY 4.0).
 - [ ] **B-30b Audio erzeugen & prüfen**: Dateien generieren, Hörprüfliste `audio-check.md` (id, ok/neu) zum Abhaken durch den Menschen.
-  - AT-30b.1: Für jedes Wort der Liste gibt es `public/audio/en/<id>.mp3` und `public/audio/fr/<id>.mp3`, keine überzähligen Dateien (Unit-Test).
+  - AT-30b.1: Für jedes Wort der Liste gibt es `public/audio/fr/<id>.mp3`, keine überzähligen Dateien; für Englisch gibt es keine MP3s (Entscheidung §11: Gerätestimme) (Unit-Test).
   - AT-30b.2: Gesamtgröße aller Audiodateien < 2 MB, jede Datei < 16 KB und gültiges MP3 (Unit-Test).
   - AT-30b.3: Der Produktionsbuild liefert die Dateien unter `/mimi_mots/audio/<lang>/<id>.mp3` aus (Status 200, `audio/mpeg`).
-  - AT-30b.4: `audio-check.md` enthält jedes Wort genau einmal mit je einem Kästchen für Englisch und Französisch (Unit-Test).
-  - AT-30b.5: Die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server, nicht im Build) listet alle Wörter mit Abspiel-Buttons je Sprache.
-  - Menschliche Abnahme: Hörprüfung aller 100 Dateien, Ergebnis in `audio-check.md`.
+  - AT-30b.4: `audio-check.md` enthält jedes Wort genau einmal mit einem Kästchen für Französisch (Unit-Test).
+  - AT-30b.5: Die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server, nicht im Build) listet alle Wörter mit einem Abspiel-Button für Französisch.
+  - Menschliche Abnahme: Hörprüfung der 50 französischen Dateien, Ergebnis in `audio-check.md`. Englisch (bf_emma) fiel im Klangvergleich durch einen falschen Anfangslaut durch.
 - [ ] **B-31 Audio-Modul**: Vorladen der Session-Dateien, Abspielen per `HTMLAudioElement`, Neustart bei erneutem Tipp, Fallback Web Speech (en-GB/fr-FR) bei fehlender Datei.
   - AK: Unit-Test für Fallback-Logik (gemockt); manueller Test auf iPad.
-  - AT-31.1: Tipp auf den Lautsprecher spielt die MP3 des Worts in der gewählten Sprache (`audio/<lang>/<id>.mp3`) über `HTMLAudioElement`; Web Speech wird dabei nicht benutzt.
+  - AT-31.1: Französisch: Tipp auf den Lautsprecher spielt die MP3 des Worts (`audio/fr/<id>.mp3`) über `HTMLAudioElement`; Web Speech wird dabei nicht benutzt.
+  - AT-31.1b: Englisch: Tipp auf den Lautsprecher liest direkt mit der Gerätestimme vor (en-GB); es wird keine MP3 angefragt oder abgespielt.
   - AT-31.2: Jeder weitere Tipp startet die Wiedergabe von vorn (Position 0).
-  - AT-31.3: Beim Start der Runde werden die Audiodateien der gewählten Sprache vorgeladen, die der anderen Sprache nicht.
+  - AT-31.3: Beim Start einer französischen Runde werden die französischen Audiodateien vorgeladen; bei einer englischen Runde wird keine Audiodatei angefragt.
   - AT-31.4: Fehlt die Datei eines Worts (404), wird es per Web Speech vorgelesen (en-GB bzw. fr-FR) – ohne Fehlermeldung, das Wort wird trotzdem aufgedeckt.
   - AT-31.5: Schlägt das Abspielen selbst fehl (z. B. vom Browser blockiert), wird ebenfalls per Web Speech vorgelesen.
   - AT-31.6: Beim Bewerten (nächstes Wort) und beim Beenden der Runde verstummt eine laufende Wiedergabe.

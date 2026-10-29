@@ -36,6 +36,22 @@ test.describe('B-31 Audio-Modul', () => {
     expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
   });
 
+  test('AT-31.1b: Englisch liest mit der Gerätestimme vor', async ({ page }) => {
+    await fakeMedia(page);
+    const requested: string[] = [];
+    page.on('request', (r) => r.url().includes('/audio/') && requested.push(r.url()));
+    const word = await startRound(page, 'Englisch');
+    await speaker(page).click();
+    await speaker(page).click();
+    const calls = await mediaCalls(page);
+    expect(calls.filter((c) => c.op === 'speak')).toEqual([
+      { op: 'speak', text: word.en, lang: 'en-GB' },
+      { op: 'speak', text: word.en, lang: 'en-GB' },
+    ]);
+    expect(calls.filter((c) => c.op === 'play')).toEqual([]);
+    expect(requested).toEqual([]);
+  });
+
   test('AT-31.2: jeder weitere Tipp spielt von vorn', async ({ page }) => {
     await fakeMedia(page);
     await startRound(page);
@@ -45,18 +61,18 @@ test.describe('B-31 Audio-Modul', () => {
     for (const p of plays) expect(p).toMatchObject({ time: 0 });
   });
 
-  test('AT-31.3: Dateien der gewählten Sprache werden vorgeladen', async ({ page }) => {
+  test('AT-31.3: französische Dateien werden vorgeladen, englische nicht', async ({ page }) => {
     await fakeMedia(page);
     const requested: string[] = [];
     page.on('request', (r) => {
       const path = new URL(r.url()).pathname;
       if (path.includes('/audio/')) requested.push(path);
     });
-    await startRound(page, 'Englisch');
+    await startRound(page, 'Französisch');
     await expect
-      .poll(() => requested.filter((p) => p.includes('/audio/en/')).length)
+      .poll(() => requested.filter((p) => p.includes('/audio/fr/')).length)
       .toBe(words.length);
-    expect(requested.filter((p) => p.includes('/audio/fr/'))).toEqual([]);
+    expect(requested.filter((p) => p.includes('/audio/en/'))).toEqual([]);
   });
 
   test('AT-31.4: fehlende Datei → Web Speech', async ({ page }) => {
@@ -74,11 +90,11 @@ test.describe('B-31 Audio-Modul', () => {
 
   test('AT-31.5: Abspielen scheitert → Web Speech', async ({ page }) => {
     await fakeMedia(page, { playFails: true });
-    const word = await startRound(page, 'Englisch');
+    const word = await startRound(page, 'Französisch');
     await speaker(page).click();
     await expect
       .poll(async () => (await mediaCalls(page)).filter((c) => c.op === 'speak'))
-      .toEqual([{ op: 'speak', text: word.en, lang: 'en-GB' }]);
+      .toEqual([{ op: 'speak', text: word.fr, lang: 'fr-FR' }]);
   });
 
   test('AT-31.6: Bewerten und Beenden stoppen die Wiedergabe', async ({ page }) => {
