@@ -79,7 +79,7 @@
     var(--shadow);
 }
 
-/* Hochformat-Hinweis (Gestaltung mit Avatar in B-52). */
+/* Hochformat-Hinweis (B-52): Begleiter, Dreh-Symbol, „iPad drehen“ – statisch, deckt alles ab */
 .portrait-overlay {
   position: fixed;
   inset: 0;
@@ -88,18 +88,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: clamp(16px, 3dvh, 32px);
+  padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom);
   background: var(--lila-50);
-  font-size: 28px;
-  font-weight: 700;
+  color: var(--lila-900);
 }
 
 .portrait-overlay[hidden] {
   display: none;
 }
 
+.portrait-overlay__avatar .avatar {
+  --avatar-h: min(440px, 40dvh);
+}
+
 .portrait-overlay__icon {
-  font-size: 96px;
+  width: clamp(96px, 12dvh, 140px);
+  height: auto;
+  color: var(--lila-700);
+}
+
+.portrait-overlay__text {
+  font-size: clamp(32px, 4dvh, 44px);
+  font-weight: 800;
 }
 
 /* Auswahlkachel (B-10): Rahmen als inset-Schatten, damit der Wechsel 2 px ↔ 5 px

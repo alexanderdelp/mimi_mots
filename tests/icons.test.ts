@@ -3,13 +3,16 @@ import { clockIcon, icon, roundButton } from '../src/components/icons';
 import { createAppHeader } from '../src/components/app-header';
 
 describe('icon', () => {
-  it.each(['play', 'thumbsUp', 'repeat', 'speaker'] as const)('%s ist ein dekoratives SVG', (n) => {
-    const svg = icon(n);
-    expect(svg.tagName.toLowerCase()).toBe('svg');
-    expect(svg.getAttribute('aria-hidden')).toBe('true');
-    expect(svg.dataset.icon).toBe(n);
-    expect(svg.innerHTML).toContain('currentColor');
-  });
+  it.each(['play', 'thumbsUp', 'repeat', 'speaker', 'home', 'rotate'] as const)(
+    '%s ist ein dekoratives SVG',
+    (n) => {
+      const svg = icon(n);
+      expect(svg.tagName.toLowerCase()).toBe('svg');
+      expect(svg.getAttribute('aria-hidden')).toBe('true');
+      expect(svg.dataset.icon).toBe(n);
+      expect(svg.innerHTML).toContain('currentColor');
+    },
+  );
 });
 
 describe('clockIcon', () => {
