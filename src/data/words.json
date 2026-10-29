@@ -1,0 +1,352 @@
+[
+  {
+    "id": "apfel",
+    "emoji": "🍎",
+    "de": "Apfel",
+    "en": "apple",
+    "fr": "la pomme"
+  },
+  {
+    "id": "banane",
+    "emoji": "🍌",
+    "de": "Banane",
+    "en": "banana",
+    "fr": "la banane"
+  },
+  {
+    "id": "erdbeere",
+    "emoji": "🍓",
+    "de": "Erdbeere",
+    "en": "strawberry",
+    "fr": "la fraise"
+  },
+  {
+    "id": "birne",
+    "emoji": "🍐",
+    "de": "Birne",
+    "en": "pear",
+    "fr": "la poire"
+  },
+  {
+    "id": "kirsche",
+    "emoji": "🍒",
+    "de": "Kirsche",
+    "en": "cherry",
+    "fr": "la cerise"
+  },
+  {
+    "id": "zitrone",
+    "emoji": "🍋",
+    "de": "Zitrone",
+    "en": "lemon",
+    "fr": "le citron"
+  },
+  {
+    "id": "karotte",
+    "emoji": "🥕",
+    "de": "Karotte",
+    "en": "carrot",
+    "fr": "la carotte"
+  },
+  {
+    "id": "brot",
+    "emoji": "🍞",
+    "de": "Brot",
+    "en": "bread",
+    "fr": "le pain"
+  },
+  {
+    "id": "kaese",
+    "emoji": "🧀",
+    "de": "Käse",
+    "en": "cheese",
+    "fr": "le fromage"
+  },
+  {
+    "id": "ei",
+    "emoji": "🥚",
+    "de": "Ei",
+    "en": "egg",
+    "fr": "l'œuf"
+  },
+  {
+    "id": "milch",
+    "emoji": "🥛",
+    "de": "Milch",
+    "en": "milk",
+    "fr": "le lait"
+  },
+  {
+    "id": "kuchen",
+    "emoji": "🍰",
+    "de": "Kuchen",
+    "en": "cake",
+    "fr": "le gâteau"
+  },
+  {
+    "id": "eis",
+    "emoji": "🍦",
+    "de": "Eis",
+    "en": "ice cream",
+    "fr": "la glace"
+  },
+  {
+    "id": "katze",
+    "emoji": "🐱",
+    "de": "Katze",
+    "en": "cat",
+    "fr": "le chat"
+  },
+  {
+    "id": "hund",
+    "emoji": "🐶",
+    "de": "Hund",
+    "en": "dog",
+    "fr": "le chien"
+  },
+  {
+    "id": "pferd",
+    "emoji": "🐴",
+    "de": "Pferd",
+    "en": "horse",
+    "fr": "le cheval"
+  },
+  {
+    "id": "maus",
+    "emoji": "🐭",
+    "de": "Maus",
+    "en": "mouse",
+    "fr": "la souris"
+  },
+  {
+    "id": "hase",
+    "emoji": "🐰",
+    "de": "Hase",
+    "en": "rabbit",
+    "fr": "le lapin"
+  },
+  {
+    "id": "vogel",
+    "emoji": "🐦",
+    "de": "Vogel",
+    "en": "bird",
+    "fr": "l'oiseau"
+  },
+  {
+    "id": "fisch",
+    "emoji": "🐟",
+    "de": "Fisch",
+    "en": "fish",
+    "fr": "le poisson"
+  },
+  {
+    "id": "kuh",
+    "emoji": "🐮",
+    "de": "Kuh",
+    "en": "cow",
+    "fr": "la vache"
+  },
+  {
+    "id": "schwein",
+    "emoji": "🐷",
+    "de": "Schwein",
+    "en": "pig",
+    "fr": "le cochon"
+  },
+  {
+    "id": "ente",
+    "emoji": "🦆",
+    "de": "Ente",
+    "en": "duck",
+    "fr": "le canard"
+  },
+  {
+    "id": "baer",
+    "emoji": "🐻",
+    "de": "Bär",
+    "en": "bear",
+    "fr": "l'ours"
+  },
+  {
+    "id": "loewe",
+    "emoji": "🦁",
+    "de": "Löwe",
+    "en": "lion",
+    "fr": "le lion"
+  },
+  {
+    "id": "elefant",
+    "emoji": "🐘",
+    "de": "Elefant",
+    "en": "elephant",
+    "fr": "l'éléphant"
+  },
+  {
+    "id": "schmetterling",
+    "emoji": "🦋",
+    "de": "Schmetterling",
+    "en": "butterfly",
+    "fr": "le papillon"
+  },
+  {
+    "id": "frosch",
+    "emoji": "🐸",
+    "de": "Frosch",
+    "en": "frog",
+    "fr": "la grenouille"
+  },
+  {
+    "id": "ball",
+    "emoji": "⚽",
+    "de": "Ball",
+    "en": "ball",
+    "fr": "le ballon"
+  },
+  {
+    "id": "haus",
+    "emoji": "🏠",
+    "de": "Haus",
+    "en": "house",
+    "fr": "la maison"
+  },
+  {
+    "id": "auto",
+    "emoji": "🚗",
+    "de": "Auto",
+    "en": "car",
+    "fr": "la voiture"
+  },
+  {
+    "id": "buch",
+    "emoji": "📖",
+    "de": "Buch",
+    "en": "book",
+    "fr": "le livre"
+  },
+  {
+    "id": "baum",
+    "emoji": "🌳",
+    "de": "Baum",
+    "en": "tree",
+    "fr": "l'arbre"
+  },
+  {
+    "id": "blume",
+    "emoji": "🌸",
+    "de": "Blume",
+    "en": "flower",
+    "fr": "la fleur"
+  },
+  {
+    "id": "sonne",
+    "emoji": "☀️",
+    "de": "Sonne",
+    "en": "sun",
+    "fr": "le soleil"
+  },
+  {
+    "id": "mond",
+    "emoji": "🌙",
+    "de": "Mond",
+    "en": "moon",
+    "fr": "la lune"
+  },
+  {
+    "id": "stern",
+    "emoji": "⭐",
+    "de": "Stern",
+    "en": "star",
+    "fr": "l'étoile"
+  },
+  {
+    "id": "schuh",
+    "emoji": "👟",
+    "de": "Schuh",
+    "en": "shoe",
+    "fr": "la chaussure"
+  },
+  {
+    "id": "hut",
+    "emoji": "👒",
+    "de": "Hut",
+    "en": "hat",
+    "fr": "le chapeau"
+  },
+  {
+    "id": "fahrrad",
+    "emoji": "🚲",
+    "de": "Fahrrad",
+    "en": "bike",
+    "fr": "le vélo"
+  },
+  {
+    "id": "boot",
+    "emoji": "⛵",
+    "de": "Boot",
+    "en": "boat",
+    "fr": "le bateau"
+  },
+  {
+    "id": "zug",
+    "emoji": "🚂",
+    "de": "Zug",
+    "en": "train",
+    "fr": "le train"
+  },
+  {
+    "id": "regenschirm",
+    "emoji": "☂️",
+    "de": "Regenschirm",
+    "en": "umbrella",
+    "fr": "le parapluie"
+  },
+  {
+    "id": "herz",
+    "emoji": "❤️",
+    "de": "Herz",
+    "en": "heart",
+    "fr": "le cœur"
+  },
+  {
+    "id": "rot",
+    "emoji": "🔴",
+    "de": "rot",
+    "en": "red",
+    "fr": "rouge"
+  },
+  {
+    "id": "blau",
+    "emoji": "🔵",
+    "de": "blau",
+    "en": "blue",
+    "fr": "bleu"
+  },
+  {
+    "id": "gelb",
+    "emoji": "🟡",
+    "de": "gelb",
+    "en": "yellow",
+    "fr": "jaune"
+  },
+  {
+    "id": "gruen",
+    "emoji": "🟢",
+    "de": "grün",
+    "en": "green",
+    "fr": "vert"
+  },
+  {
+    "id": "lila",
+    "emoji": "🟣",
+    "de": "lila",
+    "en": "purple",
+    "fr": "violet"
+  },
+  {
+    "id": "orange",
+    "emoji": "🟠",
+    "de": "orange",
+    "en": "orange",
+    "fr": "orange"
+  }
+]
