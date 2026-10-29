@@ -279,6 +279,11 @@
 
 .view--round .close-button {
   position: static;
+  touch-action: none;
+}
+
+.close-button[data-pressing] {
+  background: var(--lila-100);
 }
 
 .round__timer {

@@ -3,6 +3,7 @@
 import { speak, stopSpeaking } from '../audio';
 import { createAvatar, type Pose } from '../components/avatar';
 import { fitText } from '../components/fit-text';
+import { onLongPress } from '../components/long-press';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { WORDS, getWord, type Language } from '../data/words';
 import { pickNext, type Rating } from '../scheduler';
@@ -44,7 +45,8 @@ export function renderRound(store: Store): ViewHandle {
   close.type = 'button';
   close.setAttribute('aria-label', 'Beenden');
   close.textContent = '×';
-  close.addEventListener('click', () => store.dispatch({ type: 'finish' }));
+  // gedrückt halten (600 ms), damit ein versehentlicher Tipp die Runde nicht beendet
+  const stopLongPress = onLongPress(close, () => store.dispatch({ type: 'finish' }));
   const timer = el('div', 'round__timer');
   top.append(close, timer);
 
@@ -146,6 +148,7 @@ export function renderRound(store: Store): ViewHandle {
     el: view,
     dispose() {
       unsubscribe();
+      stopLongPress();
       stopSpeaking();
     },
   };

@@ -1,5 +1,14 @@
 import { expect, test, type Page } from '@playwright/test';
 
+/** Hält einen Button gedrückt (Long-Press, z. B. [×] seit B-25). */
+async function hold(page: Page, name: string, ms = 700) {
+  const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(ms);
+  await page.mouse.up();
+}
+
 const KEY = 'mimi-mots:v1';
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const stored = (page: Page) =>
@@ -57,7 +66,7 @@ test.describe('B-12 Auswahl merken', () => {
     await btn(page, 'Mimi').click();
     await btn(page, 'Französisch').click();
     await btn(page, 'Los geht’s').click();
-    await btn(page, 'Beenden').click();
+    await hold(page, 'Beenden');
     await btn(page, 'Zurück').click();
     await expectSelection(page, ['Mimi', 'Französisch', '5 Min.']);
   });
