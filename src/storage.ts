@@ -2,6 +2,7 @@
 // Kaputte oder fehlende Daten führen nie zum Absturz, sondern zu Defaults.
 import { COMPANIONS, type Companion } from './components/avatar';
 import type { Language } from './data/words';
+import type { Store } from './state';
 
 export const STORAGE_KEY = 'mimi-mots:v1';
 export const VERSION = 1;
@@ -119,4 +120,14 @@ export function save(data: AppData, storage: Storage | null = getStorage()): boo
   } catch {
     return false;
   }
+}
+
+/** Speichert die Daten, sobald sie sich im Store ändern (z. B. neue Auswahl, Lernstand). */
+export function persistOnChange(
+  store: Pick<Store, 'subscribe'>,
+  write: (data: AppData) => boolean = save,
+): () => void {
+  return store.subscribe((state, previous) => {
+    if (state.data !== previous.data) write(state.data);
+  });
 }

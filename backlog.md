@@ -61,8 +61,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-11.5: Auf allen drei Viewports liegt alles vollständig im Bildschirm, nichts überlappt, nichts scrollt; Kacheln ≥ 88 × 88 px, Play rund und ≥ 96 px.
   - AT-11.6: Screenshot-Vergleich der Startansicht je Viewport (Erststart und vollständige Auswahl).
   - Hinweis: Die Kachel-Vorschau aus B-10 entfällt; die B-10-Tests laufen jetzt auf der Startansicht. Speichern der Auswahl folgt in B-12.
-- [ ] **B-12 Auswahl merken**: Letzte Auswahl speichern und vorbelegen; Erststart: nur Dauer vorbelegt.
+- [x] **B-12 Auswahl merken**: Letzte Auswahl speichern und vorbelegen; Erststart: nur Dauer vorbelegt.
   - AK: E2E – Auswahl treffen, neu laden, Auswahl ist vorbelegt.
+  - AT-12.1: Begleiter und Sprache wählen, neu laden → beide sind vorbelegt, „5 Min.“ ebenfalls, Play ist sofort aktiv.
+  - AT-12.2: Erststart mit leerem Speicher: nur „5 Min.“ vorbelegt; solange nichts gewählt wurde, wird nichts gespeichert.
+  - AT-12.3: Auswahl ändern (Mimi → Mots, Englisch → Französisch), neu laden → die neue Auswahl ist vorbelegt.
+  - AT-12.4: Nach einer Runde (Play → Beenden → Zurück) zeigt die Startansicht die zuletzt gewählte Auswahl.
+  - AT-12.5: Ein vorhandener Lernstand bleibt beim Speichern der Auswahl unverändert erhalten.
+  - AT-12.6: Ist `localStorage` gesperrt, funktionieren Auswahl und Play trotzdem ohne Fehler (nur ohne Merken).
 
 ## M2 – Lernrunde
 - [ ] **B-20 Scheduler**: reine Funktion laut anforderungen.md §5 (Leitner-Gewichte, max. 6 neue, Abstand ≥ 3, injizierbarer Zufall).
