@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
-import { defaults } from '../src/storage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { defaults, type AppData } from '../src/storage';
 import {
   createStore,
+  createStore as createStoreAt,
   isComplete,
   nextView,
   reduce,
@@ -390,5 +391,168 @@ describe('Rundenende (B-42)', () => {
     const before = store.getState();
     store.dispatch({ type: 'rate', rating: 'known', at: AT });
     expect(store.getState()).toBe(before);
+  });
+});
+
+describe('Schlafende Begleiter (B-65)', () => {
+  const TODAY = new Date(2026, 9, 30, 9, 0); // 30.10.2026, lokale Zeit
+  let clock = TODAY;
+  const now = () => clock;
+  const rest = (
+    sleeping: ('mimi' | 'mots')[],
+    usedDurations: (3 | 7)[],
+    since: string | null = '2026-10-30',
+  ) => {
+    const data = complete();
+    data.rest = { sleeping, usedDurations, since };
+    return data;
+  };
+  const createStore = (data: AppData) => createStoreAt(data, false, now);
+  beforeEach(() => {
+    clock = TODAY;
+  });
+
+  /** Spielt eine Runde mit der aktuellen Auswahl und beendet sie per [×]. */
+  function playAndFinish(store: ReturnType<typeof createStore>) {
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'finish' });
+  }
+
+  it('Ende der Runde: Begleiter schläft, Dauer verbraucht, Abschluss zeigt ihn noch', () => {
+    const store = createStore(complete());
+    playAndFinish(store);
+    const state = store.getState();
+    expect(state.view).toBe('end');
+    expect(state.data.rest).toEqual({
+      sleeping: ['mimi'],
+      usedDurations: [3],
+      since: '2026-10-30',
+    });
+    expect(state.data.settings.companion).toBe('mimi');
+  });
+
+  it('Ende per Zeitablauf verbraucht ebenso', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'hund', session: store.getState().round!.session });
+    store.dispatch({ type: 'expire' });
+    store.dispatch({ type: 'reveal' });
+    store.dispatch({ type: 'rate', rating: 'known', at: '2026-10-29T10:00:00.000Z' });
+    expect(store.getState().view).toBe('end');
+    expect(store.getState().data.rest).toEqual({
+      sleeping: ['mimi'],
+      usedDurations: [3],
+      since: '2026-10-30',
+    });
+  });
+
+  it('zurück zum Start: verbleibender Begleiter und Dauer vorausgewählt, Sprache bleibt', () => {
+    const store = createStore(complete());
+    playAndFinish(store);
+    store.dispatch({ type: 'home' });
+    expect(store.getState().view).toBe('start');
+    expect(store.getState().data.settings).toEqual({
+      companion: 'mots',
+      language: 'en',
+      durationMin: 7,
+    });
+  });
+
+  it('schlafender Begleiter und verbrauchte Dauer sind nicht wählbar', () => {
+    const store = createStore(rest(['mimi'], [3]));
+    const before = store.getState();
+    store.dispatch({ type: 'select', settings: { companion: 'mimi' } });
+    store.dispatch({ type: 'select', settings: { durationMin: 3 } });
+    expect(store.getState()).toBe(before);
+  });
+
+  it('Play mit schlafendem Begleiter wird ignoriert', () => {
+    const state: AppState = {
+      view: 'start',
+      portrait: false,
+      data: rest(['mimi'], []),
+      round: null,
+    };
+    expect(reduce(state, { type: 'play' })).toBe(state);
+  });
+
+  it('nach dem zweiten Begleiter folgt die Schlafseite', () => {
+    const store = createStore(complete());
+    playAndFinish(store);
+    store.dispatch({ type: 'home' });
+    playAndFinish(store);
+    expect(store.getState().data.rest).toEqual({
+      sleeping: ['mimi', 'mots'],
+      usedDurations: [3, 7],
+      since: '2026-10-30',
+    });
+    store.dispatch({ type: 'home' });
+    expect(store.getState().view).toBe('sleep');
+  });
+
+  it('App-Start mit beiden schlafend → Schlafseite', () => {
+    expect(createStore(rest(['mimi', 'mots'], [3, 7])).getState().view).toBe('sleep');
+  });
+
+  it('App-Start mit einem schlafend → Start mit Vorauswahl', () => {
+    const state = createStore(rest(['mimi'], [3])).getState();
+    expect(state.view).toBe('start');
+    expect(state.data.settings).toMatchObject({ companion: 'mots', durationMin: 7 });
+  });
+
+  it('wake weckt alle, gibt alle Dauern frei und behält die Auswahl', () => {
+    const data = rest(['mimi', 'mots'], [3, 7]);
+    data.settings = { companion: 'mots', language: 'fr', durationMin: 7 };
+    const store = createStore(data);
+    store.dispatch({ type: 'wake' });
+    const state = store.getState();
+    expect(state.view).toBe('start');
+    expect(state.data.rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', durationMin: 7 });
+  });
+
+  it('wake wirkt nur auf der Schlafseite', () => {
+    const store = createStore(rest(['mimi'], [3]));
+    const before = store.getState();
+    store.dispatch({ type: 'wake' });
+    expect(store.getState()).toBe(before);
+  });
+
+  it('App-Start an einem späteren Tag: alle wach, Dauern frei, Startseite', () => {
+    clock = new Date(2026, 9, 31, 7, 0);
+    const state = createStore(rest(['mimi', 'mots'], [3, 7], '2026-10-30')).getState();
+    expect(state.view).toBe('start');
+    expect(state.data.rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+  });
+
+  it('am selben Tag bleibt es beim Schlaf, auch kurz vor Mitternacht', () => {
+    clock = new Date(2026, 9, 30, 23, 59);
+    expect(createStore(rest(['mimi', 'mots'], [3, 7])).getState().view).toBe('sleep');
+  });
+
+  it('App bleibt offen: Tageswechsel weckt beim Zurückholen (day)', () => {
+    const store = createStore(rest(['mimi', 'mots'], [3, 7]));
+    store.dispatch({ type: 'day' });
+    expect(store.getState().view).toBe('sleep');
+    clock = new Date(2026, 9, 31, 0, 1);
+    store.dispatch({ type: 'day' });
+    expect(store.getState().view).toBe('start');
+    expect(store.getState().data.rest.sleeping).toEqual([]);
+  });
+
+  it('Begleiter von gestern wacht auf, wenn heute der andere einschläft', () => {
+    const store = createStore(rest(['mimi'], [3], '2026-10-30'));
+    clock = new Date(2026, 9, 31, 8, 0);
+    store.dispatch({ type: 'play' }); // Mots, 7 Minuten (vorausgewählt) – App war offen
+    store.dispatch({ type: 'finish' });
+    expect(store.getState().data.rest).toEqual({
+      sleeping: ['mots'],
+      usedDurations: [7],
+      since: '2026-10-31',
+    });
+  });
+
+  it('Schlaf ohne Datum gilt als alt', () => {
+    expect(createStore(rest(['mimi', 'mots'], [3, 7], null)).getState().view).toBe('start');
   });
 });

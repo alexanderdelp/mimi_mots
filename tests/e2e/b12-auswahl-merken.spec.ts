@@ -68,7 +68,8 @@ test.describe('B-12 Auswahl merken', () => {
     await btn(page, 'Los geht’s').click();
     await hold(page, 'Beenden');
     await btn(page, 'Zurück').click();
-    await expectSelection(page, ['Mimi', 'Französisch', '3 Minuten']);
+    // Sprache bleibt; Mimi schläft seit B-65, Mots und 7 Minuten sind vorausgewählt
+    await expectSelection(page, ['Mots', 'Französisch', '7 Minuten']);
   });
 
   test('AT-12.5: Lernstand bleibt beim Speichern erhalten', async ({ page }) => {

@@ -79,7 +79,8 @@ test.describe('B-43 Abschlussansicht', () => {
     expect(box.height).toBe(box.width);
     await home.click();
     await expect(view(page, 'start')).toBeVisible();
-    for (const name of ['Mots', 'Französisch', '3 Minuten']) {
+    // Sprache bleibt; Mots schläft seit B-65, Mimi und 7 Minuten sind vorausgewählt
+    for (const name of ['Mimi', 'Französisch', '7 Minuten']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'true');
     }
   });

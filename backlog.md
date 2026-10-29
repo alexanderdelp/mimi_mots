@@ -54,7 +54,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: Geprüft wird in der Vorschau `?vorschau=kacheln` (Begleiter-, Flaggen- und Dauer-Kacheln), bis die Startansicht (B-11) die Kacheln nutzt.
 - [x] **B-11 Startansicht**: Header mit Icon + Titel; Gruppen Begleiter, Sprache, Dauer (nur „5 Min.“ mit Uhr-Symbol); Play-Button. Layout laut Mockup, passt auf alle Ziel-Viewports.
   - AK: Play erst aktiv, wenn alle drei Gruppen gewählt; Screenshot-Tests für 3 Viewports.
-  - AT-11.1: Header mit App-Icon und „Mimi & Mots“; drei Gruppen mit den Überschriften „Wer begleitet dich?“, „In welcher Sprache?“, „Wie lange?“.
+  - AT-11.1: Header mit App-Icon und „Mimi & Mots“; drei Gruppen mit den Überschriften „Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“.
   - AT-11.2: Begleiter-Kacheln zeigen Bild (Pose „ruhig“) und Namen; Sprach-Kacheln nur die Flagge ohne Text; Dauer-Kachel ein Uhr-Symbol und „5 Min.“.
   - AT-11.3: Ohne gespeicherte Auswahl ist nur „5 Min.“ ausgewählt und Play deaktiviert; ein Tipp auf das deaktivierte Play bewirkt nichts.
   - AT-11.4: Play wird erst aktiv, wenn Begleiter und Sprache gewählt sind; Tipp auf Play startet die Lernrunde.
@@ -253,6 +253,16 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-64.5: Beim Start einer englischen Runde werden die englischen Audiodateien vorgeladen (ersetzt den Englisch-Teil von AT-31.3).
   - AT-64.6: `audio-check.md` und die Abhörseite haben je eine Spalte für Englisch; README nennt Piper und die Lizenz der Stimme.
   - Menschliche Abnahme: Stimme im Klangvergleich gewählt; die Hörprüfung aller 50 englischen Wörter (`audio-check.md`) folgt später.
+- [x] **B-65 Schlafende Begleiter**: Nach einer Runde schläft der Begleiter ein und die gespielte Dauer ist verbraucht (auch nach Abbruch mit [×]). Auf der Abschlussseite winkt er noch. Schlafende Begleiter und verbrauchte Dauern sind auf der Startseite ausgegraut, der Begleiter mit Schlafbild. Schlafen beide, kommt statt der Startseite eine Schlafseite. Aufwecken nur über verstecktes Gedrückthalten des Icons in der Kopfleiste der Schlafseite (gleiche Dauer wie [×]). An einem späteren Tag wachen alle von selbst auf. `both_sleeping.png` ist die gelieferte Grafik (Schachbrett-Hintergrund entfernt, verkleinert); `cat_sleeping.png` und `pony_sleeping.png` sind Platzhalter. Überschrift der Begleiter-Gruppe jetzt „Wer soll dich begleiten?“ (AT-11.1 angepasst).
+  - AT-65.1: Nach einer Runde (Zeitablauf) winkt der Begleiter auf der Abschlussseite. Zurück auf der Startseite ist er ausgegraut, nicht wählbar und zeigt das Schlafbild; die gespielte Dauer ist ausgegraut und nicht wählbar.
+  - AT-65.2: Nach Abbruch mit [×] gilt dasselbe.
+  - AT-65.3: Ist nur noch ein Begleiter bzw. eine Dauer frei, sind sie vorausgewählt; mit gewählter Sprache ist Play sofort aktiv.
+  - AT-65.4: Verbraucht wird beim Erreichen der Abschlussseite: Neuladen auf der Abschlussseite und danach jeder App-Start zeigt den Begleiter schlafend (localStorage).
+  - AT-65.5: Nach der Abschlussseite des zweiten Begleiters führt der Haus-Button zur Schlafseite: gleiche Kopfleiste wie überall, Bild beider Begleiter schlafend, Satz „Gute Nacht und bis morgen!“, keine Schaltfläche.
+  - AT-65.6: Schlafen beide, startet die App mit der Schlafseite.
+  - AT-65.7: Das Icon in der Kopfleiste der Schlafseite 600 ms gedrückt halten → Startseite, beide Begleiter wach, beide Dauern frei, Auswahl wie zuletzt. Kürzer halten oder tippen bewirkt nichts. Kein Hinweis: Das Icon ist keine Schaltfläche (keine Rolle, kein Name) und verändert sich beim Drücken nicht.
+  - AT-65.9: Wird die App an einem späteren Tag geöffnet (oder nach Mitternacht aus dem Hintergrund zurückgeholt), sind alle Begleiter wach und alle Dauern frei. Maßgeblich ist das lokale Datum des Einschlafens.
+  - AT-65.8: Schlafseite und Startseite mit schlafendem Begleiter passen ohne Scrollen auf 1024 × 768, 1180 × 820 und 1366 × 1024 (Screenshot).
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später

@@ -31,10 +31,19 @@ export interface WordProgress {
 
 export type Progress = Record<Language, Record<string, WordProgress>>;
 
+/** B-65: Nach einer Runde schläft der Begleiter und die Dauer ist verbraucht – bis zum
+ *  nächsten Tag (`since`: lokales Datum JJJJ-MM-TT des Einschlafens). */
+export interface Rest {
+  sleeping: Companion[];
+  usedDurations: DurationMin[];
+  since: string | null;
+}
+
 export interface AppData {
   version: typeof VERSION;
   settings: Settings;
   progress: Progress;
+  rest: Rest;
 }
 
 /** Erststart: nur die Dauer ist vorbelegt (anforderungen.md §3.1). */
@@ -43,6 +52,7 @@ export function defaults(): AppData {
     version: VERSION,
     settings: { companion: null, language: null, durationMin: 3 },
     progress: { en: {}, fr: {} },
+    rest: { sleeping: [], usedDurations: [], since: null },
   };
 }
 
@@ -64,6 +74,28 @@ function sanitizeSettings(raw: unknown): Settings {
       LEGACY_DURATIONS[raw.durationMin as number] ?? raw.durationMin,
       d.durationMin,
     ),
+  };
+}
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Lokales Kalenderdatum als JJJJ-MM-TT (Tageswechsel um Mitternacht auf dem Gerät). */
+export function localDay(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/** Nur bekannte Werte, jeder höchstens einmal, in fester Reihenfolge. */
+function subsetOf<T>(allowed: readonly T[], raw: unknown): T[] {
+  return Array.isArray(raw) ? allowed.filter((v) => raw.includes(v)) : [];
+}
+
+function sanitizeRest(raw: unknown): Rest {
+  if (!isObject(raw)) return defaults().rest;
+  return {
+    sleeping: subsetOf(COMPANIONS, raw.sleeping),
+    usedDurations: subsetOf(DURATIONS, raw.usedDurations),
+    since: typeof raw.since === 'string' && DAY.test(raw.since) ? raw.since : null,
   };
 }
 
@@ -97,6 +129,7 @@ export function sanitize(raw: unknown): AppData {
     version: VERSION,
     settings: sanitizeSettings(raw.settings),
     progress: sanitizeProgress(raw.progress),
+    rest: sanitizeRest(raw.rest),
   };
 }
 

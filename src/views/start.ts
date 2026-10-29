@@ -1,5 +1,12 @@
 // Startansicht (anforderungen.md §3.1): Begleiter, Sprache, Dauer wählen, dann Play.
-import { COMPANIONS, COMPANION_NAMES, avatarUrl, type Companion } from '../components/avatar';
+// Schlafende Begleiter und verbrauchte Dauern sind ausgegraut (B-65).
+import {
+  COMPANIONS,
+  COMPANION_NAMES,
+  avatarUrl,
+  sleepingAvatarUrl,
+  type Companion,
+} from '../components/avatar';
 import { createAppHeader } from '../components/app-header';
 import { createChoiceGroup } from '../components/choice-tile';
 import { clockIcon, icon } from '../components/icons';
@@ -30,7 +37,7 @@ const LANGUAGES: Language[] = ['en', 'fr'];
 const UPCOMING_LANGUAGE = { value: 'ja', label: 'Japanisch (bald)', flag: 'flag_jp.svg' } as const;
 
 export function renderStart(store: Store): ViewHandle {
-  const { settings } = store.getState().data;
+  const { settings, rest } = store.getState().data;
 
   const play = document.createElement('button');
   play.type = 'button';
@@ -43,14 +50,18 @@ export function renderStart(store: Store): ViewHandle {
   };
 
   const companions = createChoiceGroup<Companion>(
-    'Wer begleitet dich?',
-    COMPANIONS.map((c) => ({
-      value: c,
-      content: [
-        img(avatarUrl(c, 'ruhig'), 'start__avatar'),
-        text(COMPANION_NAMES[c], 'start__name'),
-      ],
-    })),
+    'Wer soll dich begleiten?',
+    COMPANIONS.map((c) => {
+      const asleep = rest.sleeping.includes(c);
+      return {
+        value: c,
+        disabled: asleep,
+        content: [
+          img(asleep ? sleepingAvatarUrl(c) : avatarUrl(c, 'ruhig'), 'start__avatar'),
+          text(COMPANION_NAMES[c], 'start__name'),
+        ],
+      };
+    }),
     settings.companion,
     (companion) => {
       store.dispatch({ type: 'select', settings: { companion } });
@@ -86,6 +97,7 @@ export function renderStart(store: Store): ViewHandle {
     DURATIONS.map((minutes) => ({
       value: `${minutes}` as const,
       label: `${minutes} Minuten`,
+      disabled: rest.usedDurations.includes(minutes),
       content: [clockIcon(minutes)],
     })),
     settings.durationMin ? `${settings.durationMin}` : null,

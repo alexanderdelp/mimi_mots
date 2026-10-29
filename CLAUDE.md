@@ -41,6 +41,7 @@ npm run audio        # scripts/generate_audio.py – erzeugt fehlende MP3s (loka
 public/
   avatars/   cat_sitting.png, cat_pointing.png, cat_idle.png, cat_waving.png
              pony_sitting.png, pony_pointing.png, pony_idle.png, pony_waving.png
+             cat_sleeping.png, pony_sleeping.png, both_sleeping.png (Platzhalter, B-65)
              (Originaldateien, transparente PNGs, 384 × 440 – unverändert übernehmen)
   flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg (scharfe Vektorflaggen)
   audio/     en/<wortId>.mp3, fr/<wortId>.mp3
@@ -57,6 +58,7 @@ src/
   views/start.ts     Auswahl Begleiter, Sprache, Dauer
   views/round.ts     Lernrunde
   views/end.ts       Abschluss
+  views/sleep.ts     Schlafseite (beide Begleiter schlafen, B-65)
   components/        timer-dial.ts, choice-tile.ts, avatar.ts
   styles/            tokens.css, base.css, views.css
 scripts/generate_audio.py

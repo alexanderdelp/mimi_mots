@@ -6,15 +6,6 @@ const btn = (page: Page, name: string) => page.getByRole('button', { name, exact
 /** Seit B-31 Wiedergabe der MP3; Attrappe für Audio und Sprachausgabe. */
 const fakeSpeech = (page: Page) => fakeMedia(page);
 
-/** Hält einen Button gedrückt (Long-Press, z. B. [×] seit B-25). */
-async function hold(page: Page, name: string, ms = 700) {
-  const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(ms);
-  await page.mouse.up();
-}
-
 async function startRound(page: Page, language: 'Englisch' | 'Französisch') {
   await page.goto('./');
   await btn(page, 'Mots').click();
@@ -45,18 +36,17 @@ const key = { Englisch: 'en', Französisch: 'fr' } as const;
 test.describe('B-22 Aufdecken', () => {
   for (const language of ['Englisch', 'Französisch'] as const) {
     test(`AT-22.1: Fremdwort erscheint und passt (${language})`, async ({ page }) => {
-      test.slow(); // 6 Runden hintereinander – im vollen Parallel-Lauf über 30 s
       await fakeSpeech(page);
       await startRound(page, language);
-      // mehrere Runden, damit auch lange Wörter vorkommen
+      // mehrere Wörter einer Runde, damit auch lange vorkommen (seit B-65 schläft der
+      // Begleiter nach jeder Runde, deshalb nicht mehr eine Runde pro Wort)
       for (let i = 0; i < 6; i++) {
         const word = await currentWord(page);
         await btn(page, flagName[language]).click();
         await expect(page.locator('.round__foreign')).toHaveText(word[key[language]]);
         await expectForeignFits(page);
-        await hold(page, 'Beenden');
-        await btn(page, 'Zurück').click();
-        await btn(page, 'Los geht’s').click();
+        await btn(page, 'Noch üben').click();
+        await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', word.id);
       }
     });
 
