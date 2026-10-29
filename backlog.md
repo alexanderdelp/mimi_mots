@@ -169,6 +169,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 
 ## M4 – Timer & Abschluss
 - [ ] **B-40 Timer-Logik**: Start beim ersten Wort, Pause bei `visibilitychange`/Hochformat, Ereignis „abgelaufen“; testbar mit Fake-Timers.
+  - Hinweis: Die E2E-Tests steuern die Uhr mit Playwrights Clock-API (`page.clock`), statt eines Test-Parameters wie `?dur=10s` – so braucht der Produktionsbuild keinen Test-Zugang.
+  - AT-40.1: Der Timer startet mit dem ersten Wort der Runde: Nach 4:59 min ist die Runde noch nicht abgelaufen, nach 5:00 min schon (bei Dauer 5 Minuten).
+  - AT-40.2: Bei Dauer 10 Minuten läuft die Runde erst nach 10:00 min ab.
+  - AT-40.3: Zeit auf der Startseite vor dem Tipp auf Play zählt nicht mit.
+  - AT-40.4: Geht die App in den Hintergrund (`visibilitychange`), pausiert der Timer und läuft beim Zurückkehren weiter.
+  - AT-40.5: Im Hochformat pausiert der Timer und läuft nach dem Zurückdrehen weiter.
+  - AT-40.6: Der Ablauf ändert die Runde nicht: kein Ton, kein Hinweis, das aktuelle Wort bleibt (Ansicht meldet nur intern `data-expired`).
 - [ ] **B-41 Timer-Zifferblatt**: SVG im Time-Timer-Stil (lila Sektor schrumpft im Uhrzeigersinn, Strichmarken, keine Ziffern), ~120 px oben rechts, aktualisiert ≥ 1×/s.
 - [ ] **B-42 Rundenende**: Nach Ablauf läuft das aktuelle Wort unverändert weiter (Aufdecken, Vorlesen beliebig oft); erst nach „Wusste ich“/„Noch üben“ (Lernstand gespeichert) kommt der Abschluss statt eines neuen Worts.
   - AK: E2E mit verkürzter Dauer (Test-Parameter `?dur=10s`, nur in Dev/Test): Timer läuft ab → Flagge mehrfach tippbar, Audio startet jeweils → Selbsteinschätzung → Abschluss; Fall „Timer läuft vor dem Aufdecken ab“ abgedeckt.

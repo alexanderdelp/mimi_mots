@@ -13,6 +13,7 @@ export type AppEvent =
   | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
   | { type: 'reveal' } // Fremdwort aufdecken (Tipp auf Flagge)
   | { type: 'rate'; rating: Rating; at: string } // Selbsteinschätzung (ISO-Zeitpunkt)
+  | { type: 'expire' } // Session-Timer abgelaufen (Runde läuft bis zur nächsten Bewertung weiter)
   | { type: 'orientation'; portrait: boolean };
 
 /** Begleiter, Sprache und Dauer sind gewählt. */
@@ -20,12 +21,13 @@ export function isComplete(settings: Settings): boolean {
   return settings.companion !== null && settings.language !== null && settings.durationMin !== null;
 }
 
-/** Lernrunde: Scheduler-Session, aktuelles Wort (null, bis das erste gewählt ist) und
- *  ob das Fremdwort schon aufgedeckt wurde. */
+/** Lernrunde: Scheduler-Session, aktuelles Wort (null, bis das erste gewählt ist), ob das
+ *  Fremdwort schon aufgedeckt wurde und ob die Zeit abgelaufen ist. */
 export interface RoundState {
   session: Session;
   wordId: string | null;
   revealed: boolean;
+  expired: boolean;
 }
 
 export interface AppState {
@@ -59,12 +61,19 @@ export function reduce(state: AppState, event: AppEvent): AppState {
     return changed ? { ...state, data: { ...state.data, settings } } : state;
   }
   if (event.type === 'word') {
-    if (state.view !== 'round') return state;
-    return { ...state, round: { session: event.session, wordId: event.id, revealed: false } };
+    if (state.view !== 'round' || !state.round) return state;
+    return {
+      ...state,
+      round: { ...state.round, session: event.session, wordId: event.id, revealed: false },
+    };
   }
   if (event.type === 'reveal') {
     if (state.view !== 'round' || !state.round?.wordId || state.round.revealed) return state;
     return { ...state, round: { ...state.round, revealed: true } };
+  }
+  if (event.type === 'expire') {
+    if (state.view !== 'round' || !state.round || state.round.expired) return state;
+    return { ...state, round: { ...state.round, expired: true } };
   }
   if (event.type === 'rate') {
     // Nur für ein aufgedecktes Wort; danach ist es wieder verdeckt, bis das nächste kommt.
@@ -92,7 +101,9 @@ export function reduce(state: AppState, event: AppEvent): AppState {
   if (view === state.view) return state;
   // Jede Lernrunde beginnt mit einer neuen Scheduler-Session.
   const round =
-    view === 'round' ? { session: createSession(), wordId: null, revealed: false } : state.round;
+    view === 'round'
+      ? { session: createSession(), wordId: null, revealed: false, expired: false }
+      : state.round;
   return { ...state, view, round };
 }
 
