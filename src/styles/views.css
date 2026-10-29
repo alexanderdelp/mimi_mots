@@ -130,3 +130,89 @@
 .portrait-overlay__icon {
   font-size: 96px;
 }
+
+/* Auswahlkachel (B-10): Rahmen als inset-Schatten, damit der Wechsel 2 px ↔ 5 px
+   die Größe nicht ändert. Größe per --tile-w/--tile-h, mindestens 88 × 88 px. */
+.choice-tile {
+  --tile-w: auto;
+  --tile-h: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: var(--tile-w);
+  height: var(--tile-h);
+  min-width: 88px;
+  min-height: 88px;
+  padding: 16px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  color: var(--lila-900);
+  font-size: 24px;
+  font-weight: 700;
+  box-shadow:
+    inset 0 0 0 2px var(--grau-700),
+    var(--shadow);
+  transition: background-color var(--transition);
+}
+
+.choice-tile[aria-pressed='true'] {
+  background: var(--lila-100);
+  box-shadow:
+    inset 0 0 0 5px var(--lila-700),
+    var(--shadow);
+}
+
+.choice-tile:focus-visible {
+  outline: 3px solid var(--lila-500);
+  outline-offset: 4px;
+}
+
+.choice-tile img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.choice-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.choice-group__title {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.choice-group__tiles {
+  display: flex;
+  gap: 24px;
+}
+
+/* Kachel-Vorschau (B-10), Platzhalter bis zur Startansicht (B-11). */
+.tile-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 24px;
+}
+
+.tile-preview .choice-tile {
+  --tile-w: 200px;
+  --tile-h: 260px;
+}
+
+.tile-preview__avatar {
+  height: 180px;
+  width: auto;
+}
+
+.tile-preview__flag {
+  width: 120px;
+  height: auto;
+  border-radius: 8px;
+}
