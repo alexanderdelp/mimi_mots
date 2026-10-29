@@ -250,3 +250,55 @@ describe('Aufdecken (B-22)', () => {
     expect(store.getState().round?.revealed).toBe(false);
   });
 });
+
+describe('Selbsteinschätzung (B-23)', () => {
+  const AT = '2026-10-29T12:00:00.000Z';
+  const session = { history: ['apfel'], introduced: ['apfel'] };
+  const revealedRound = () => {
+    const store = createStore(complete()); // Sprache: en
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    store.dispatch({ type: 'reveal' });
+    return store;
+  };
+
+  it('„Wusste ich“ setzt Box 1 und seen 1 in der gewählten Sprache', () => {
+    const store = revealedRound();
+    store.dispatch({ type: 'rate', rating: 'known', at: AT });
+    expect(store.getState().data.progress.en.apfel).toEqual({ box: 1, seen: 1, lastSeenAt: AT });
+    expect(store.getState().data.progress.fr).toEqual({});
+  });
+
+  it('„Noch üben“ setzt Box 0', () => {
+    const store = revealedRound();
+    store.dispatch({ type: 'rate', rating: 'practice', at: AT });
+    expect(store.getState().data.progress.en.apfel.box).toBe(0);
+  });
+
+  it('nach der Bewertung ist das Wort wieder verdeckt (kein doppeltes Bewerten)', () => {
+    const store = revealedRound();
+    store.dispatch({ type: 'rate', rating: 'known', at: AT });
+    expect(store.getState().round?.revealed).toBe(false);
+    const before = store.getState();
+    store.dispatch({ type: 'rate', rating: 'known', at: AT });
+    expect(store.getState()).toBe(before);
+  });
+
+  it('ohne Aufdecken wird nicht bewertet', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    const before = store.getState();
+    store.dispatch({ type: 'rate', rating: 'known', at: AT });
+    expect(store.getState()).toBe(before);
+  });
+
+  it('ändert die Daten nicht in-place', () => {
+    const store = revealedRound();
+    const data = store.getState().data;
+    const snapshot = structuredClone(data);
+    store.dispatch({ type: 'rate', rating: 'known', at: AT });
+    expect(data).toEqual(snapshot);
+    expect(store.getState().data).not.toBe(data);
+  });
+});

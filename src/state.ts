@@ -1,6 +1,6 @@
 // App-State: aktuelle Ansicht als einfache Zustandsmaschine, plus gespeicherte Daten
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
-import { createSession, type Session } from './scheduler';
+import { applyRating, createSession, type Rating, type Session } from './scheduler';
 import type { AppData, Settings } from './storage';
 
 export type ViewName = 'start' | 'round' | 'end';
@@ -12,6 +12,7 @@ export type AppEvent =
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
   | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
   | { type: 'reveal' } // Fremdwort aufdecken (Tipp auf Flagge)
+  | { type: 'rate'; rating: Rating; at: string } // Selbsteinschätzung (ISO-Zeitpunkt)
   | { type: 'orientation'; portrait: boolean };
 
 /** Begleiter, Sprache und Dauer sind gewählt. */
@@ -64,6 +65,27 @@ export function reduce(state: AppState, event: AppEvent): AppState {
   if (event.type === 'reveal') {
     if (state.view !== 'round' || !state.round?.wordId || state.round.revealed) return state;
     return { ...state, round: { ...state.round, revealed: true } };
+  }
+  if (event.type === 'rate') {
+    // Nur für ein aufgedecktes Wort; danach ist es wieder verdeckt, bis das nächste kommt.
+    const language = state.data.settings.language;
+    if (state.view !== 'round' || !state.round?.wordId || !state.round.revealed || !language) {
+      return state;
+    }
+    const progress = {
+      ...state.data.progress,
+      [language]: applyRating(
+        state.data.progress[language],
+        state.round.wordId,
+        event.rating,
+        new Date(event.at),
+      ),
+    };
+    return {
+      ...state,
+      data: { ...state.data, progress },
+      round: { ...state.round, revealed: false },
+    };
   }
   if (event.type === 'play' && !isComplete(state.data.settings)) return state;
   const view = nextView(state.view, event);

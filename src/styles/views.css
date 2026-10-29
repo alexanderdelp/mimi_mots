@@ -415,6 +415,53 @@
   hyphens: none;
 }
 
+.word-card--enter {
+  animation: word-card-enter 150ms ease-out;
+}
+
+@keyframes word-card-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Selbsteinschätzung (B-23): beide Buttons identisch gestaltet, nur Lila-Töne.
+   Vor dem Aufdecken unsichtbar, der Platz bleibt reserviert. */
 .round__rating {
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+  gap: clamp(24px, 4vw, 56px);
   height: 112px;
+  padding-top: 8px;
+}
+
+.view--round[data-revealed='false'] .round__rating {
+  visibility: hidden;
+}
+
+.rating-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: clamp(240px, 26vw, 320px);
+  height: 96px;
+  border-radius: var(--radius-l);
+  background: var(--lila-100);
+  color: var(--lila-900);
+  font-size: 28px;
+  font-weight: 800;
+  box-shadow:
+    inset 0 0 0 3px var(--lila-500),
+    var(--shadow);
+}
+
+.rating-button:active {
+  background: var(--lila-200);
+}
+
+.rating-button__icon {
+  font-size: 40px;
+  line-height: 1;
 }
