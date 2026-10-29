@@ -108,9 +108,13 @@ test.describe('B-23 Selbsteinschätzung', () => {
     expect(await page.locator('[data-view="round"] *').count()).toBe(childCount);
     const textAfter = (await page.locator('[data-view="round"]').innerText()).length;
     expect(textAfter).toBeLessThanOrEqual(textBefore + 20);
-    await expect(page.locator('[data-view="round"]')).not.toContainText(
-      /super|toll|richtig|falsch|prima|gut gemacht|punkt|stern/i,
-    );
+    // Lob-Wörter dürfen nirgends stehen – außer im Lernwort selbst (z. B. ⭐ „Stern“)
+    const uiText = await page.locator('[data-view="round"]').evaluate((el) => {
+      const copy = el.cloneNode(true) as HTMLElement;
+      copy.querySelectorAll('.word-card, .round__foreign').forEach((n) => n.remove());
+      return copy.textContent ?? '';
+    });
+    expect(uiText).not.toMatch(/super|toll|richtig|falsch|prima|gut gemacht|punkt|stern/i);
   });
 
   test('AT-23.6: 12 Wörter am Stück', async ({ page }) => {

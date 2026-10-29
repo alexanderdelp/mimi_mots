@@ -191,7 +191,12 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-42.3: Die Bewertung des letzten Worts wird gespeichert (Lernstand im Speicher), auch wenn danach der Abschluss kommt.
   - AT-42.4: Solange die Zeit nicht abgelaufen ist, führt eine Bewertung wie bisher zum nächsten Wort.
   - AT-42.5: [×] (gedrückt halten) beendet die Runde auch nach Ablauf sofort.
-- [ ] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Viel Spaß beim Spielen!“, Haus-Button → Start. Keine Statistik.
+- [x] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Viel Spaß beim Spielen!“, Haus-Button → Start. Keine Statistik.
+  - AT-43.1: Der Abschluss zeigt die Kopfleiste und den gewählten Begleiter groß (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) in der Pose „winkt“ (Mimi: Katze, Mots: Pony).
+  - AT-43.2: Der Text lautet „Viel Spaß beim Spielen!“; es gibt keine Zahlen, keine Anzahl Wörter, kein Lob und keine Bewertung.
+  - AT-43.3: Ein runder lila Haus-Button („Zurück“, nur Symbol) führt zur Startseite; die Auswahl ist dort noch vorbelegt.
+  - AT-43.4: Der Abschluss ist derselbe, egal ob die Runde per Zeitablauf (B-42) oder per [×] endet.
+  - AT-43.5: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen; Screenshot-Vergleich je Viewport.
 
 ## M5 – PWA & Offline
 - [ ] **B-50 Manifest & Icons**: Vorhandene Icons aus `public/icons/` einbinden (Manifest 192/512/maskable, `apple-touch-icon` 180), Meta-Tags für iOS; Platzhalter im Header durch `icon.svg` ersetzen. Skript `npm run icons` rendert die PNGs aus `icon.svg` neu (z. B. mit `sharp`), damit das Icon später einfach austauschbar ist.

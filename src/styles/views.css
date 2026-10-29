@@ -38,8 +38,7 @@
 }
 
 /* Runde lila Buttons nur mit Symbol: Play, Lautsprecher, Bewertung (Abschluss in B-43). */
-.round-button,
-.home-button {
+.round-button {
   display: grid;
   place-items: center;
   flex: none;
@@ -531,4 +530,33 @@
 
 .view--round[data-revealed='false'] .round__rating {
   visibility: hidden;
+}
+
+/* Abschluss (B-43): Kopfleiste, Begleiter winkt groß, Satz, Haus-Button */
+.view--end {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.end__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2.5dvh, 28px);
+  padding: 16px 24px clamp(24px, 4dvh, 40px);
+}
+
+.end__body .avatar {
+  --avatar-h: min(440px, 52dvh);
+}
+
+.end__text {
+  font-size: clamp(32px, 5dvh, 44px);
+  font-weight: 800;
+  text-align: center;
 }
