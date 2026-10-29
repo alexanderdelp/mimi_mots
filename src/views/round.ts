@@ -1,7 +1,7 @@
 // Lernrunde (anforderungen.md §3.2): Kopfleiste, Avatar zeigt auf die Wortkarte,
 // Lautsprecher zum Aufdecken und Vorlesen (Flagge daneben nur zur Anzeige), danach
 // Selbsteinschätzung. Freigehaltener Platz für den Timer (B-41).
-import { speak, stopSpeaking } from '../audio';
+import { createAudioPlayer } from '../audio';
 import { createAppHeader } from '../components/app-header';
 import { createAvatar, type Pose } from '../components/avatar';
 import { fitText } from '../components/fit-text';
@@ -14,6 +14,8 @@ import type { AppState, Store } from '../state';
 import type { ViewHandle } from './view';
 
 const WORD_IDS = WORDS.map((w) => w.id);
+/** Ein Player für alle Runden: auf iOS bleibt das Audio-Element nach dem ersten Tipp freigeschaltet. */
+const player = createAudioPlayer();
 const FOREIGN_MAX_PX = 56;
 const FOREIGN_MIN_PX = 28;
 /** Unter dieser Größe wird ein zu langes Wort lieber getrennt als weiter verkleinert. */
@@ -96,7 +98,7 @@ export function renderRound(store: Store): ViewHandle {
     const word = id ? getWord(id) : undefined;
     if (!word) return;
     store.dispatch({ type: 'reveal' });
-    speak(word[language], language);
+    player.play(word, language);
   });
 
   stage.append(avatarSlot, card, answer);
@@ -109,6 +111,7 @@ export function renderRound(store: Store): ViewHandle {
     button.dataset.rating = value;
     button.addEventListener('click', () => {
       if (!store.getState().round?.revealed) return;
+      player.stop();
       store.dispatch({ type: 'rate', rating: value, at: new Date().toISOString() });
       showNextWord(store);
     });
@@ -153,6 +156,9 @@ export function renderRound(store: Store): ViewHandle {
     else if (state.round?.revealed !== previous.round?.revealed) showForeign(state);
   });
 
+  // Aussprache der Sprache vorladen (je ~9 KB); fehlende Dateien merkt sich der Player
+  void player.preload(language, WORD_IDS);
+
   if (store.getState().round?.wordId) showWord(store.getState());
   else showNextWord(store);
 
@@ -161,7 +167,7 @@ export function renderRound(store: Store): ViewHandle {
     dispose() {
       unsubscribe();
       stopLongPress();
-      stopSpeaking();
+      player.stop();
     },
   };
 }

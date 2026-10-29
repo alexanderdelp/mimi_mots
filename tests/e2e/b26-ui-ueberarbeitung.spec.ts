@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { mediaCalls } from './helpers';
 
 const KEY = 'mimi-mots:v1';
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -15,6 +16,15 @@ test.beforeEach(async ({ page }) => {
       constructor(public text: string) {}
     }
     Object.defineProperty(window, 'SpeechSynthesisUtterance', { value: FakeUtterance });
+    const media: unknown[] = [];
+    (window as unknown as { __media: unknown[] }).__media = media;
+    HTMLMediaElement.prototype.play = function () {
+      media.push({ op: 'play', src: new URL(this.src).pathname, time: this.currentTime });
+      return Promise.resolve();
+    };
+    HTMLMediaElement.prototype.pause = function () {
+      media.push({ op: 'pause' });
+    };
     Object.defineProperty(window, 'speechSynthesis', {
       value: {
         cancel: () => calls.push({ op: 'cancel' }),
@@ -149,10 +159,13 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
     await speaker.click();
     await expect(page.locator('.round__foreign')).not.toHaveText('');
     await speaker.click();
+    // Englisch: Gerätestimme, jeder Tipp von vorn (Französisch: MP3, siehe B-31)
     const calls = await page.evaluate(
       () => (window as unknown as { __speech: SpeechCall[] }).__speech,
     );
     expect(calls.map((c) => c.op)).toEqual(['cancel', 'speak', 'cancel', 'speak']);
+    const media = await mediaCalls(page);
+    expect(media.filter((c) => c.op === 'play')).toEqual([]);
   });
 
   test('AT-26.7: Bewertung als runde Symbol-Buttons wie Play', async ({ page }) => {

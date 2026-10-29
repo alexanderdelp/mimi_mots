@@ -1,5 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
 import words from '../../src/data/words.json' with { type: 'json' };
+import { fakeMedia, mediaCalls } from './helpers';
+
+const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
+/** Seit B-31 Wiedergabe der MP3; Attrappe für Audio und Sprachausgabe. */
+const fakeSpeech = (page: Page) => fakeMedia(page);
 
 /** Hält einen Button gedrückt (Long-Press, z. B. [×] seit B-25). */
 async function hold(page: Page, name: string, ms = 700) {
@@ -9,35 +14,6 @@ async function hold(page: Page, name: string, ms = 700) {
   await page.waitForTimeout(ms);
   await page.mouse.up();
 }
-
-type SpeechCall = { op: 'cancel' } | { op: 'speak'; text: string; lang: string };
-
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
-
-/** Ersetzt die Sprachausgabe durch eine Attrappe, die alle Aufrufe mitschreibt. */
-async function fakeSpeech(page: Page) {
-  await page.addInitScript(() => {
-    const calls: unknown[] = [];
-    (window as unknown as { __speech: unknown[] }).__speech = calls;
-    class FakeUtterance {
-      lang = '';
-      voice = null;
-      rate = 1;
-      constructor(public text: string) {}
-    }
-    Object.defineProperty(window, 'SpeechSynthesisUtterance', { value: FakeUtterance });
-    Object.defineProperty(window, 'speechSynthesis', {
-      value: {
-        cancel: () => calls.push({ op: 'cancel' }),
-        speak: (u: FakeUtterance) => calls.push({ op: 'speak', text: u.text, lang: u.lang }),
-        getVoices: () => [],
-      },
-    });
-  });
-}
-
-const speechCalls = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __speech: SpeechCall[] }).__speech);
 
 async function startRound(page: Page, language: 'Englisch' | 'Französisch') {
   await page.goto('./');
@@ -65,7 +41,6 @@ const flagName = {
   Französisch: 'Auf Französisch anhören',
 } as const;
 const key = { Englisch: 'en', Französisch: 'fr' } as const;
-const lang = { Englisch: 'en-GB', Französisch: 'fr-FR' } as const;
 
 test.describe('B-22 Aufdecken', () => {
   for (const language of ['Englisch', 'Französisch'] as const) {
@@ -88,8 +63,20 @@ test.describe('B-22 Aufdecken', () => {
       await fakeSpeech(page);
       const word = await startRound(page, language);
       await btn(page, flagName[language]).click();
-      const speaks = (await speechCalls(page)).filter((c) => c.op === 'speak');
-      expect(speaks).toEqual([{ op: 'speak', text: word[key[language]], lang: lang[language] }]);
+      const calls = await mediaCalls(page);
+      if (key[language] === 'fr') {
+        // seit B-31: Französisch aus der vorproduzierten MP3
+        expect(calls.filter((c) => c.op === 'play')).toEqual([
+          { op: 'play', src: `/mimi_mots/audio/fr/${word.id}.mp3`, time: 0 },
+        ]);
+        expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
+      } else {
+        // Englisch mit der Gerätestimme (anforderungen.md §11)
+        expect(calls.filter((c) => c.op === 'speak')).toEqual([
+          { op: 'speak', text: word.en, lang: 'en-GB' },
+        ]);
+        expect(calls.filter((c) => c.op === 'play')).toEqual([]);
+      }
     });
   }
 
@@ -97,9 +84,14 @@ test.describe('B-22 Aufdecken', () => {
     await fakeSpeech(page);
     const word = await startRound(page, 'Französisch');
     for (let i = 0; i < 3; i++) await btn(page, 'Auf Französisch anhören').click();
-    const calls = await speechCalls(page);
-    const ops = calls.map((c) => c.op);
-    expect(ops).toEqual(['cancel', 'speak', 'cancel', 'speak', 'cancel', 'speak']);
+    const calls = await mediaCalls(page);
+    // jeder Tipp: anhalten, auf Anfang, abspielen
+    const plays = calls.filter((c) => c.op === 'play');
+    expect(plays).toHaveLength(3);
+    for (const p of plays)
+      expect(p).toMatchObject({ src: `/mimi_mots/audio/fr/${word.id}.mp3`, time: 0 });
+    const ops = calls.filter((c) => c.op === 'play' || c.op === 'pause').map((c) => c.op);
+    expect(ops).toEqual(['pause', 'play', 'pause', 'play', 'pause', 'play']);
     await expect(page.locator('.round__foreign')).toHaveText(word.fr);
   });
 
@@ -120,7 +112,7 @@ test.describe('B-22 Aufdecken', () => {
     await fakeSpeech(page);
     await startRound(page, 'Englisch');
     await page.waitForTimeout(500);
-    expect((await speechCalls(page)).filter((c) => c.op === 'speak')).toEqual([]);
+    expect((await mediaCalls(page)).filter((c) => c.op === 'speak' || c.op === 'play')).toEqual([]);
   });
 
   test('AT-22.6: ohne Sprachausgabe trotzdem aufdecken', async ({ page }) => {

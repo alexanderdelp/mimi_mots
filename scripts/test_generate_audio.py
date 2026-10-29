@@ -93,6 +93,10 @@ class HelperTests(unittest.TestCase):
             os.utime(ov, (time.time() + 10, time.time() + 10))
             self.assertTrue(ga.needs_update(ga.Job('a', 'en', 'a', out, ov), force=False))
 
+    def test_default_only_french(self):
+        self.assertEqual(ga.DEFAULT_LANGS, ['fr'])
+        self.assertIsNone(ga.parse_args([]).langs)
+
     def test_voices(self):
         self.assertEqual(ga.VOICES['en']['voice'], 'bf_emma')
         self.assertEqual(ga.VOICES['fr']['voice'], 'ff_siwis')
@@ -109,8 +113,9 @@ class AcceptanceTests(unittest.TestCase):
         cls.words.write_text(json.dumps(WORDS, ensure_ascii=False), encoding='utf-8')
         cls.out = root / 'audio'
         cls.overrides = root / 'overrides'
+        # beide Sprachen ausdrücklich: Englisch ist nicht mehr Standard, das Skript kann es aber
         cls.args = ['--words', str(cls.words), '--out', str(cls.out),
-                    '--overrides', str(cls.overrides)]
+                    '--overrides', str(cls.overrides), '--lang', 'en', '--lang', 'fr']
         cls.log = run_script(*cls.args)
         cls.files = sorted(cls.out.rglob('*.mp3'))
 
@@ -154,7 +159,8 @@ class AcceptanceTests(unittest.TestCase):
         log = run_script(*self.args)
         self.assertIn('nichts zu tun', log)
         self.assertEqual({p: p.read_bytes() for p in self.files}, before)
-        log = run_script(*self.args, '--force', '--id', 'apfel', '--lang', 'en')
+        base = self.args[: self.args.index('--lang')]
+        log = run_script(*base, '--force', '--id', 'apfel', '--lang', 'en', '--lang', 'en')
         self.assertIn('1 Datei(en) erzeugt', log)
 
     def test_at_30a_5_override_wins(self):
