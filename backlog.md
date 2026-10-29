@@ -138,7 +138,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-26.9: Lange Fremdwörter: Mehrwortbegriffe bis 22 Zeichen und Einzelwörter bis 25 Zeichen passen vollständig in den Fremdwort-Bereich, mindestens 36 px groß; Einzelwörter werden dafür notfalls getrennt (geprüft am echten Fremdwort-Feld mit der App-Logik, Unit-Tests für `fitText`).
   - Hinweis: Bestehende Tests werden angepasst (Kachelanzahl, „5 Min.“ → „5 Minuten“, Flaggen-Button → Lautsprecher-Button, Bewertungs-Buttons ohne Text).
 
-- [ ] **B-27 Lernansicht überarbeiten**: Dauer 3/7 statt 5/10 Minuten; [×] und Timer fest in der Kopfleiste; Fremdwort und Flagge in einer eigenen Karte, genauso groß wie die Karte des deutschen Worts; Begleiter größer links unten.
+- [x] **B-27 Lernansicht überarbeiten**: Dauer 3/7 statt 5/10 Minuten; [×] und Timer fest in der Kopfleiste; Fremdwort und Flagge in einer eigenen Karte, genauso groß wie die Karte des deutschen Worts; Begleiter größer links unten.
   - AT-27.1: Startseite: Dauer-Kacheln „3 Minuten“ und „7 Minuten“ (Sektor 18° bzw. 42°); Erststart: 3 Minuten vorbelegt.
   - AT-27.2: Gespeicherte alte Dauern werden übernommen: 5 → 3, 10 → 7 Minuten.
   - AT-27.3: Die Runde läuft bei 3 Minuten nach 3:00 ab, bei 7 Minuten nach 7:00.
