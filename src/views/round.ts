@@ -1,12 +1,13 @@
 // Lernrunde (anforderungen.md §3.2): Kopfleiste, Avatar zeigt auf die Wortkarte,
 // Lautsprecher zum Aufdecken und Vorlesen (Flagge daneben nur zur Anzeige), danach
-// Selbsteinschätzung. Freigehaltener Platz für den Timer (B-41).
+// Selbsteinschätzung; oben rechts das Timer-Zifferblatt.
 import { createAudioPlayer } from '../audio';
 import { createAppHeader } from '../components/app-header';
 import { createAvatar, type Pose } from '../components/avatar';
 import { fitText } from '../components/fit-text';
 import { roundButton } from '../components/icons';
 import { onLongPress } from '../components/long-press';
+import { createTimerDial } from '../components/timer-dial';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { WORDS, getWord, type Language } from '../data/words';
 import { pickNext, type Rating } from '../scheduler';
@@ -62,6 +63,8 @@ export function renderRound(store: Store): ViewHandle {
   // gedrückt halten (600 ms), damit ein versehentlicher Tipp die Runde nicht beendet
   const stopLongPress = onLongPress(close, () => store.dispatch({ type: 'finish' }));
   const timerSlot = el('div', 'round__timer');
+  const dial = createTimerDial();
+  timerSlot.append(dial.el);
   top.append(close, timerSlot);
 
   // Bühne: Avatar | Wortkarte | Flagge + Lautsprecher
@@ -167,8 +170,10 @@ export function renderRound(store: Store): ViewHandle {
   // Session-Timer: läuft ab dem ersten Wort, pausiert im Hintergrund und im Hochformat.
   // Der Ablauf ändert an der Runde nichts Sichtbares (§3.4); Abschluss erst nach Bewertung (B-42).
   view.dataset.expired = 'false';
+  const durationMs = (settings.durationMin ?? 5) * 60_000;
   const timer = createSessionTimer({
-    durationMs: (settings.durationMin ?? 5) * 60_000,
+    durationMs,
+    onTick: (remaining) => dial.setFraction(remaining / durationMs),
     onExpire: () => {
       view.dataset.expired = 'true';
       store.dispatch({ type: 'expire' });
