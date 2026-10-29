@@ -3,6 +3,7 @@
     "id": "apfel",
     "emoji": "🍎",
     "de": "Apfel",
+    "syllables": ["Ap", "fel"],
     "en": "apple",
     "fr": "la pomme"
   },
@@ -10,6 +11,7 @@
     "id": "banane",
     "emoji": "🍌",
     "de": "Banane",
+    "syllables": ["Ba", "na", "ne"],
     "en": "banana",
     "fr": "la banane"
   },
@@ -17,6 +19,7 @@
     "id": "erdbeere",
     "emoji": "🍓",
     "de": "Erdbeere",
+    "syllables": ["Erd", "bee", "re"],
     "en": "strawberry",
     "fr": "la fraise"
   },
@@ -24,6 +27,7 @@
     "id": "birne",
     "emoji": "🍐",
     "de": "Birne",
+    "syllables": ["Bir", "ne"],
     "en": "pear",
     "fr": "la poire"
   },
@@ -31,6 +35,7 @@
     "id": "kirsche",
     "emoji": "🍒",
     "de": "Kirsche",
+    "syllables": ["Kir", "sche"],
     "en": "cherry",
     "fr": "la cerise"
   },
@@ -38,6 +43,7 @@
     "id": "zitrone",
     "emoji": "🍋",
     "de": "Zitrone",
+    "syllables": ["Zi", "tro", "ne"],
     "en": "lemon",
     "fr": "le citron"
   },
@@ -45,6 +51,7 @@
     "id": "karotte",
     "emoji": "🥕",
     "de": "Karotte",
+    "syllables": ["Ka", "rot", "te"],
     "en": "carrot",
     "fr": "la carotte"
   },
@@ -52,6 +59,7 @@
     "id": "brot",
     "emoji": "🍞",
     "de": "Brot",
+    "syllables": ["Brot"],
     "en": "bread",
     "fr": "le pain"
   },
@@ -59,6 +67,7 @@
     "id": "kaese",
     "emoji": "🧀",
     "de": "Käse",
+    "syllables": ["Kä", "se"],
     "en": "cheese",
     "fr": "le fromage"
   },
@@ -66,6 +75,7 @@
     "id": "ei",
     "emoji": "🥚",
     "de": "Ei",
+    "syllables": ["Ei"],
     "en": "egg",
     "fr": "l'œuf"
   },
@@ -73,6 +83,7 @@
     "id": "milch",
     "emoji": "🥛",
     "de": "Milch",
+    "syllables": ["Milch"],
     "en": "milk",
     "fr": "le lait"
   },
@@ -80,6 +91,7 @@
     "id": "kuchen",
     "emoji": "🍰",
     "de": "Kuchen",
+    "syllables": ["Ku", "chen"],
     "en": "cake",
     "fr": "le gâteau"
   },
@@ -87,6 +99,7 @@
     "id": "eis",
     "emoji": "🍦",
     "de": "Eis",
+    "syllables": ["Eis"],
     "en": "ice cream",
     "fr": "la glace"
   },
@@ -94,6 +107,7 @@
     "id": "katze",
     "emoji": "🐱",
     "de": "Katze",
+    "syllables": ["Kat", "ze"],
     "en": "cat",
     "fr": "le chat"
   },
@@ -101,6 +115,7 @@
     "id": "hund",
     "emoji": "🐶",
     "de": "Hund",
+    "syllables": ["Hund"],
     "en": "dog",
     "fr": "le chien"
   },
@@ -108,6 +123,7 @@
     "id": "pferd",
     "emoji": "🐴",
     "de": "Pferd",
+    "syllables": ["Pferd"],
     "en": "horse",
     "fr": "le cheval"
   },
@@ -115,6 +131,7 @@
     "id": "maus",
     "emoji": "🐭",
     "de": "Maus",
+    "syllables": ["Maus"],
     "en": "mouse",
     "fr": "la souris"
   },
@@ -122,6 +139,7 @@
     "id": "hase",
     "emoji": "🐰",
     "de": "Hase",
+    "syllables": ["Ha", "se"],
     "en": "rabbit",
     "fr": "le lapin"
   },
@@ -129,6 +147,7 @@
     "id": "vogel",
     "emoji": "🐦",
     "de": "Vogel",
+    "syllables": ["Vo", "gel"],
     "en": "bird",
     "fr": "l'oiseau"
   },
@@ -136,6 +155,7 @@
     "id": "fisch",
     "emoji": "🐟",
     "de": "Fisch",
+    "syllables": ["Fisch"],
     "en": "fish",
     "fr": "le poisson"
   },
@@ -143,6 +163,7 @@
     "id": "kuh",
     "emoji": "🐮",
     "de": "Kuh",
+    "syllables": ["Kuh"],
     "en": "cow",
     "fr": "la vache"
   },
@@ -150,6 +171,7 @@
     "id": "schwein",
     "emoji": "🐷",
     "de": "Schwein",
+    "syllables": ["Schwein"],
     "en": "pig",
     "fr": "le cochon"
   },
@@ -157,6 +179,7 @@
     "id": "ente",
     "emoji": "🦆",
     "de": "Ente",
+    "syllables": ["En", "te"],
     "en": "duck",
     "fr": "le canard"
   },
@@ -164,6 +187,7 @@
     "id": "baer",
     "emoji": "🐻",
     "de": "Bär",
+    "syllables": ["Bär"],
     "en": "bear",
     "fr": "l'ours"
   },
@@ -171,6 +195,7 @@
     "id": "loewe",
     "emoji": "🦁",
     "de": "Löwe",
+    "syllables": ["Lö", "we"],
     "en": "lion",
     "fr": "le lion"
   },
@@ -178,6 +203,7 @@
     "id": "elefant",
     "emoji": "🐘",
     "de": "Elefant",
+    "syllables": ["E", "le", "fant"],
     "en": "elephant",
     "fr": "l'éléphant"
   },
@@ -185,6 +211,7 @@
     "id": "schmetterling",
     "emoji": "🦋",
     "de": "Schmetterling",
+    "syllables": ["Schmet", "ter", "ling"],
     "en": "butterfly",
     "fr": "le papillon"
   },
@@ -192,6 +219,7 @@
     "id": "frosch",
     "emoji": "🐸",
     "de": "Frosch",
+    "syllables": ["Frosch"],
     "en": "frog",
     "fr": "la grenouille"
   },
@@ -199,6 +227,7 @@
     "id": "ball",
     "emoji": "⚽",
     "de": "Ball",
+    "syllables": ["Ball"],
     "en": "ball",
     "fr": "le ballon"
   },
@@ -206,6 +235,7 @@
     "id": "haus",
     "emoji": "🏠",
     "de": "Haus",
+    "syllables": ["Haus"],
     "en": "house",
     "fr": "la maison"
   },
@@ -213,6 +243,7 @@
     "id": "auto",
     "emoji": "🚗",
     "de": "Auto",
+    "syllables": ["Au", "to"],
     "en": "car",
     "fr": "la voiture"
   },
@@ -220,6 +251,7 @@
     "id": "buch",
     "emoji": "📖",
     "de": "Buch",
+    "syllables": ["Buch"],
     "en": "book",
     "fr": "le livre"
   },
@@ -227,6 +259,7 @@
     "id": "baum",
     "emoji": "🌳",
     "de": "Baum",
+    "syllables": ["Baum"],
     "en": "tree",
     "fr": "l'arbre"
   },
@@ -234,6 +267,7 @@
     "id": "blume",
     "emoji": "🌸",
     "de": "Blume",
+    "syllables": ["Blu", "me"],
     "en": "flower",
     "fr": "la fleur"
   },
@@ -241,6 +275,7 @@
     "id": "sonne",
     "emoji": "☀️",
     "de": "Sonne",
+    "syllables": ["Son", "ne"],
     "en": "sun",
     "fr": "le soleil"
   },
@@ -248,6 +283,7 @@
     "id": "mond",
     "emoji": "🌙",
     "de": "Mond",
+    "syllables": ["Mond"],
     "en": "moon",
     "fr": "la lune"
   },
@@ -255,6 +291,7 @@
     "id": "stern",
     "emoji": "⭐",
     "de": "Stern",
+    "syllables": ["Stern"],
     "en": "star",
     "fr": "l'étoile"
   },
@@ -262,6 +299,7 @@
     "id": "schuh",
     "emoji": "👟",
     "de": "Schuh",
+    "syllables": ["Schuh"],
     "en": "shoe",
     "fr": "la chaussure"
   },
@@ -269,6 +307,7 @@
     "id": "hut",
     "emoji": "👒",
     "de": "Hut",
+    "syllables": ["Hut"],
     "en": "hat",
     "fr": "le chapeau"
   },
@@ -276,6 +315,7 @@
     "id": "fahrrad",
     "emoji": "🚲",
     "de": "Fahrrad",
+    "syllables": ["Fahr", "rad"],
     "en": "bike",
     "fr": "le vélo"
   },
@@ -283,6 +323,7 @@
     "id": "boot",
     "emoji": "⛵",
     "de": "Boot",
+    "syllables": ["Boot"],
     "en": "boat",
     "fr": "le bateau"
   },
@@ -290,6 +331,7 @@
     "id": "zug",
     "emoji": "🚂",
     "de": "Zug",
+    "syllables": ["Zug"],
     "en": "train",
     "fr": "le train"
   },
@@ -297,6 +339,7 @@
     "id": "regenschirm",
     "emoji": "☂️",
     "de": "Regenschirm",
+    "syllables": ["Re", "gen", "schirm"],
     "en": "umbrella",
     "fr": "le parapluie"
   },
@@ -304,6 +347,7 @@
     "id": "herz",
     "emoji": "❤️",
     "de": "Herz",
+    "syllables": ["Herz"],
     "en": "heart",
     "fr": "le cœur"
   },
@@ -311,6 +355,7 @@
     "id": "rot",
     "emoji": "🔴",
     "de": "rot",
+    "syllables": ["rot"],
     "en": "red",
     "fr": "rouge"
   },
@@ -318,6 +363,7 @@
     "id": "blau",
     "emoji": "🔵",
     "de": "blau",
+    "syllables": ["blau"],
     "en": "blue",
     "fr": "bleu"
   },
@@ -325,6 +371,7 @@
     "id": "gelb",
     "emoji": "🟡",
     "de": "gelb",
+    "syllables": ["gelb"],
     "en": "yellow",
     "fr": "jaune"
   },
@@ -332,6 +379,7 @@
     "id": "gruen",
     "emoji": "🟢",
     "de": "grün",
+    "syllables": ["grün"],
     "en": "green",
     "fr": "vert"
   },
@@ -339,6 +387,7 @@
     "id": "lila",
     "emoji": "🟣",
     "de": "lila",
+    "syllables": ["li", "la"],
     "en": "purple",
     "fr": "violet"
   },
@@ -346,6 +395,7 @@
     "id": "orange",
     "emoji": "🟠",
     "de": "orange",
+    "syllables": ["o", "ran", "ge"],
     "en": "orange",
     "fr": "orange"
   }

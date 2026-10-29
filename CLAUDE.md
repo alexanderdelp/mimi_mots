@@ -54,7 +54,7 @@ src/
   scheduler.ts       Wortauswahl (Leitner, gewichtet)
   timer.ts           Session-Timer (pausiert bei visibilitychange)
   audio.ts           Laden/Abspielen, Fallback Web Speech
-  data/words.ts      Wortliste (id, emoji, de, en, fr)
+  data/words.ts      Wortliste (id, emoji, de, syllables, en, fr)
   views/start.ts     Auswahl Begleiter, Sprache, Dauer
   views/round.ts     Lernrunde
   views/end.ts       Abschluss
@@ -75,6 +75,7 @@ tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright)
 --lila-50:  #F8F4FB;   /* Seitenhintergrund */
 --white:    #FFFFFF;
 --grau-700: #4A4458;   /* Rahmen nicht ausgewählt */
+--beere-600: #B03A75;  /* jede zweite Silbe des deutschen Worts (B-66) */
 --radius-l: 28px; --radius-m: 20px;
 --border-selected: 5px solid var(--lila-700);
 --border-default:  2px solid var(--grau-700);

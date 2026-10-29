@@ -6,7 +6,7 @@ const COLOR_EMOJIS = ['🔴', '🔵', '🟡', '🟢', '🟣', '🟠'];
 const isColor = (w: Word) => COLOR_EMOJIS.includes(w.emoji);
 
 /** Liest die Wortliste aus der Tabelle in anforderungen.md §10. */
-function wordsFromRequirements(): Word[] {
+function wordsFromRequirements(): Omit<Word, 'syllables'>[] {
   const section = readFileSync('anforderungen.md', 'utf8').split('## 10.')[1].split('## 11.')[0];
   return section
     .split('\n')
@@ -56,7 +56,9 @@ describe('Wortliste', () => {
   });
 
   it('stimmt Eintrag für Eintrag mit anforderungen.md §10 überein (AT-04.2)', () => {
-    expect(WORDS).toEqual(wordsFromRequirements());
+    // Silben (B-66) stehen nur in words.json, nicht in der Tabelle
+    const withoutSyllables = WORDS.map(({ id, emoji, de, en, fr }) => ({ id, emoji, de, en, fr }));
+    expect(withoutSyllables).toEqual(wordsFromRequirements());
   });
 
   it('words.json ist reines JSON für das Audio-Skript (AT-04.2)', () => {
@@ -67,5 +69,24 @@ describe('Wortliste', () => {
   it('getWord findet Wörter per id', () => {
     expect(getWord('apfel')).toMatchObject({ en: 'apple', fr: 'la pomme' });
     expect(getWord('gibtsnicht')).toBeUndefined();
+  });
+});
+
+describe('Silben (B-66)', () => {
+  it.each(WORDS.map((w) => [w.de, w.syllables] as const))(
+    'AT-66.1: %s – Silben ergeben das Wort',
+    (de, syllables) => {
+      expect(syllables.join('')).toBe(de);
+      for (const s of syllables) expect(s.length).toBeGreaterThan(0);
+    },
+  );
+
+  it.each([
+    ['Banane', ['Ba', 'na', 'ne']],
+    ['Schmetterling', ['Schmet', 'ter', 'ling']],
+    ['Elefant', ['E', 'le', 'fant']],
+    ['Hund', ['Hund']],
+  ])('Sprechsilben: %s', (de, syllables) => {
+    expect(WORDS.find((w) => w.de === de)!.syllables).toEqual(syllables);
   });
 });
