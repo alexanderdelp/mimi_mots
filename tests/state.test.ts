@@ -172,6 +172,7 @@ describe('Lernrunde (B-21)', () => {
     expect(store.getState().round).toEqual({
       session: { history: [], introduced: [] },
       wordId: null,
+      revealed: false,
     });
   });
 
@@ -179,7 +180,7 @@ describe('Lernrunde (B-21)', () => {
     const store = createStore(complete());
     store.dispatch({ type: 'play' });
     store.dispatch({ type: 'word', id: 'apfel', session });
-    expect(store.getState().round).toEqual({ session, wordId: 'apfel' });
+    expect(store.getState().round).toEqual({ session, wordId: 'apfel', revealed: false });
   });
 
   it('word wird außerhalb der Lernrunde ignoriert', () => {
@@ -207,5 +208,45 @@ describe('Lernrunde (B-21)', () => {
     store.dispatch({ type: 'orientation', portrait: true });
     store.dispatch({ type: 'orientation', portrait: false });
     expect(store.getState().round?.wordId).toBe('apfel');
+  });
+});
+
+describe('Aufdecken (B-22)', () => {
+  const session = { history: ['apfel'], introduced: ['apfel'] };
+  const inRound = () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    return store;
+  };
+
+  it('reveal deckt das aktuelle Wort auf', () => {
+    const store = inRound();
+    store.dispatch({ type: 'reveal' });
+    expect(store.getState().round?.revealed).toBe(true);
+  });
+
+  it('erneutes reveal ändert den State nicht', () => {
+    const store = inRound();
+    store.dispatch({ type: 'reveal' });
+    const before = store.getState();
+    store.dispatch({ type: 'reveal' });
+    expect(store.getState()).toBe(before);
+  });
+
+  it('reveal ohne Wort oder außerhalb der Runde wird ignoriert', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'reveal' });
+    expect(store.getState().round).toBeNull();
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'reveal' });
+    expect(store.getState().round?.revealed).toBe(false);
+  });
+
+  it('ein neues Wort ist wieder verdeckt', () => {
+    const store = inRound();
+    store.dispatch({ type: 'reveal' });
+    store.dispatch({ type: 'word', id: 'hund', session });
+    expect(store.getState().round?.revealed).toBe(false);
   });
 });

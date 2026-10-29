@@ -90,7 +90,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-21.5: [×] oben links, Karte mittig, Flagge rechts; auf allen drei Viewports liegt alles im Bildschirm, nichts überlappt, nichts scrollt.
   - AT-21.6: Das Wort bleibt gleich, solange nichts bewertet wird (auch nach Hochformat und zurück).
   - Hinweis: Platz für Avatar (B-24), Timer (B-41), Fremdwort (B-22) und Bewertungs-Buttons (B-23) wird schon freigehalten, damit das Layout später nicht springt.
-- [ ] **B-22 Aufdecken**: Tipp auf Flagge zeigt Fremdwort, spielt Audio; erneuter Tipp spielt erneut (von vorn).
+- [x] **B-22 Aufdecken**: Tipp auf Flagge zeigt Fremdwort, spielt Audio; erneuter Tipp spielt erneut (von vorn).
+  - AT-22.1: Tipp auf die Flagge zeigt das Fremdwort unter der Flagge (Französisch mit Artikel), vollständig sichtbar und innerhalb seines Bereichs – auch bei langen Wörtern.
+  - AT-22.2: Beim Tipp wird das Fremdwort genau einmal vorgelesen, in der richtigen Sprache (en-GB bzw. fr-FR).
+  - AT-22.3: Jeder weitere Tipp bricht die laufende Wiedergabe ab und startet sie von vorn; das Fremdwort bleibt sichtbar.
+  - AT-22.4: Das Aufdecken verschiebt nichts: Karte, Flagge und [×] bleiben pixelgleich.
+  - AT-22.5: Vor dem ersten Tipp wird nichts vorgelesen (kein Autoplay).
+  - AT-22.6: Ohne Sprachausgabe im Browser wird das Wort trotzdem aufgedeckt, ohne Fehler.
+  - Hinweis: Bis die MP3-Dateien da sind (B-30a/b, B-31), liest die Web-Speech-Stimme des Geräts vor (Fallback laut Anforderungen). In den Tests wird die Sprachausgabe durch eine Attrappe ersetzt, die Aufrufe mitschreibt.
 - [ ] **B-23 Selbsteinschätzung**: Nach erstem Aufdecken zwei gleichwertige Buttons „Wusste ich“ 👍 / „Noch üben“ 🔁 (lila, gleiche Größe); Tipp aktualisiert Lernstand und lädt nächstes Wort. Kein Feedback.
   - AK: E2E – Buttons vor Aufdecken unsichtbar; nach Tipp neues Wort; Storage aktualisiert.
 - [ ] **B-24 Avatar in der Runde**: Avatar links; Pose „zeigt“ bei neuem Wort, „freut“ nach Aufdecken; reiner Bildtausch; alle Posen vorgeladen.
