@@ -149,7 +149,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-30a.5: Liegt eine Datei in `audio-overrides/<lang>/<id>.(mp3|wav|m4a)`, wird sie statt Kokoro verwendet (gleiche Nachbearbeitung) und ersetzt eine ältere erzeugte Datei.
   - AT-30a.6: `npm run audio -- --help` läuft; fehlen Modell oder Stimmen, bricht das Skript mit verständlicher Meldung ab (Hinweis auf README).
   - AT-30a.7: Die README beschreibt die einmalige Einrichtung (venv, Pakete, Modell-Download) und nennt die Lizenzen (Kokoro Apache-2.0, SIWIS CC BY 4.0).
-- [ ] **B-30b Audio erzeugen & prüfen**: Dateien generieren, Hörprüfliste `audio-check.md` (id, ok/neu) zum Abhaken durch den Menschen.
+- [x] **B-30b Audio erzeugen & prüfen**: Dateien generieren, Hörprüfliste `audio-check.md` (id, ok/neu) zum Abhaken durch den Menschen.
+  - AT-30b.1: Für jedes Wort der Liste gibt es `public/audio/en/<id>.mp3` und `public/audio/fr/<id>.mp3`, keine überzähligen Dateien (Unit-Test).
+  - AT-30b.2: Gesamtgröße aller Audiodateien < 2 MB, jede Datei < 16 KB und gültiges MP3 (Unit-Test).
+  - AT-30b.3: Der Produktionsbuild liefert die Dateien unter `/mimi_mots/audio/<lang>/<id>.mp3` aus (Status 200, `audio/mpeg`).
+  - AT-30b.4: `audio-check.md` enthält jedes Wort genau einmal mit je einem Kästchen für Englisch und Französisch (Unit-Test).
+  - AT-30b.5: Die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server, nicht im Build) listet alle Wörter mit Abspiel-Buttons je Sprache.
+  - Menschliche Abnahme: Hörprüfung aller 100 Dateien, Ergebnis in `audio-check.md`.
 - [ ] **B-31 Audio-Modul**: Vorladen der Session-Dateien, Abspielen per `HTMLAudioElement`, Neustart bei erneutem Tipp, Fallback Web Speech (en-GB/fr-FR) bei fehlender Datei.
   - AK: Unit-Test für Fallback-Logik (gemockt); manueller Test auf iPad.
 
