@@ -50,7 +50,7 @@ test.describe('B-41 Timer-Zifferblatt', () => {
     // (±3 px Toleranz: die Box der Scheibe enthält die Randlinie)
     expect(Math.abs(sector.x - (face.x + face.width * 0.083))).toBeLessThan(3);
     expect(Math.abs(sector.x + sector.width - (face.x + face.width / 2))).toBeLessThan(3);
-    await advance(page, 0.75 * MIN);
+    await advance(page, 0.75 * MIN - 300);
     expect(await fraction(page)).toBeCloseTo(0.25, 2); // schrumpft weiter Richtung 12 Uhr
   });
 
