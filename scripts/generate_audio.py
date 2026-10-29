@@ -1,8 +1,8 @@
 """Erzeugt die Aussprache-Dateien public/audio/<lang>/<id>.mp3 (anforderungen.md §6).
 
 Ablauf je Wort und Sprache:
-  1. Quelle: eigene Aufnahme aus audio-overrides/<lang>/<id>.(mp3|wav|m4a), sonst Kokoro-TTS
-     (EN: bf_emma, britisch; FR: ff_siwis).
+  1. Quelle: eigene Aufnahme aus audio-overrides/<lang>/<id>.(mp3|wav|m4a), sonst TTS
+     (EN: Piper en_US-ljspeech-high; FR: Kokoro ff_siwis).
   2. Nachbearbeitung mit ffmpeg: Stille vorn/hinten weg, 150 ms Vorlauf, Lautheit −16 LUFS,
      MP3 mono 64 kbit/s.
 Vorhandene Dateien werden nur neu erzeugt, wenn eine neuere Override-Datei vorliegt oder
@@ -24,17 +24,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Englisch mit Piper: Kokoro (bf_emma u. a.) sprach bei Einzelwörtern einen falschen
+# Anfangslaut mit. ljspeech ist public domain; Piper-Stimmen auf Lessac-Basis sind nur für
+# Forschung lizenziert (anforderungen.md §11).
 VOICES = {
-    'en': {'voice': 'bf_emma', 'lang': 'en-gb'},
-    'fr': {'voice': 'ff_siwis', 'lang': 'fr-fr'},
+    'en': {'engine': 'piper', 'voice': 'en_US-ljspeech-high'},
+    'fr': {'engine': 'kokoro', 'voice': 'ff_siwis', 'lang': 'fr-fr'},
 }
-# Standardmäßig nur Französisch: bf_emma spricht bei englischen Einzelwörtern einen falschen
-# Anfangslaut mit; Englisch liest die App vorerst mit der Gerätestimme (anforderungen.md §11).
-# Mit --lang en lässt sich Englisch trotzdem erzeugen (z. B. für Tests oder eine neue Stimme).
-DEFAULT_LANGS = ['fr']
+DEFAULT_LANGS = ['en', 'fr']
+PIPER_URL = 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/high'
 MODEL_FILES = {
-    'kokoro-v1.0.onnx': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
-    'voices-v1.0.bin': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin',
+    'kokoro': {
+        'kokoro-v1.0.onnx': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
+        'voices-v1.0.bin': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin',
+    },
+    'piper': {
+        'piper/en_US-ljspeech-high.onnx': f'{PIPER_URL}/en_US-ljspeech-high.onnx',
+        'piper/en_US-ljspeech-high.onnx.json': f'{PIPER_URL}/en_US-ljspeech-high.onnx.json',
+    },
 }
 OVERRIDE_EXTENSIONS = ('.mp3', '.wav', '.m4a')
 
@@ -135,29 +142,66 @@ def postprocess(source: Path, output: Path) -> None:
         ])
 
 
-def synthesize(kokoro, text: str, lang: str, target: Path) -> None:
+class Engines:
+    """Lädt Kokoro bzw. Piper erst, wenn eine Sprache sie braucht."""
+
+    def __init__(self, models: Path):
+        self.models = models
+        self.loaded: dict[str, object] = {}
+
+    def get(self, engine: str):
+        if engine not in self.loaded:
+            if engine == 'kokoro':
+                from kokoro_onnx import Kokoro
+
+                self.loaded[engine] = Kokoro(
+                    str(self.models / 'kokoro-v1.0.onnx'), str(self.models / 'voices-v1.0.bin')
+                )
+            else:
+                from piper import PiperVoice
+
+                self.loaded[engine] = PiperVoice.load(
+                    str(self.models / 'piper' / f"{VOICES['en']['voice']}.onnx")
+                )
+        return self.loaded[engine]
+
+
+def synthesize(engines: Engines, text: str, lang: str, target: Path) -> None:
+    voice = VOICES[lang]
+    if voice['engine'] == 'piper':
+        import wave
+
+        from piper import SynthesisConfig
+
+        with wave.open(str(target), 'wb') as wav:
+            engines.get('piper').synthesize_wav(
+                text, wav, syn_config=SynthesisConfig(length_scale=1 / SPEED)
+            )
+        return
+
     import soundfile as sf
 
-    samples, rate = kokoro.create(
-        text, voice=VOICES[lang]['voice'], speed=SPEED, lang=VOICES[lang]['lang']
+    samples, rate = engines.get('kokoro').create(
+        text, voice=voice['voice'], speed=SPEED, lang=voice['lang']
     )
     sf.write(target, samples, rate)
 
 
-def ensure_models(models: Path, download: bool) -> None:
-    missing = [name for name in MODEL_FILES if not (models / name).is_file()]
+def ensure_models(models: Path, engines: set[str], download: bool) -> None:
+    files = {name: url for e in sorted(engines) for name, url in MODEL_FILES[e].items()}
+    missing = [name for name in files if not (models / name).is_file()]
     if not missing:
         return
     if not download:
         sys.exit(
-            f"Kokoro-Modell fehlt in {models}: {', '.join(missing)}.\n"
+            f"Sprachmodell fehlt in {models}: {', '.join(missing)}.\n"
             'Einrichtung siehe README.md (Abschnitt „Audio erzeugen“) oder mit '
-            '--download-models automatisch laden (~350 MB).'
+            '--download-models automatisch laden (Kokoro ~350 MB, Piper ~110 MB).'
         )
-    models.mkdir(parents=True, exist_ok=True)
     for name in missing:
         print(f'Lade {name} …')
-        urllib.request.urlretrieve(MODEL_FILES[name], models / name)
+        (models / name).parent.mkdir(parents=True, exist_ok=True)
+        urllib.request.urlretrieve(files[name], models / name)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -173,7 +217,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument('--id', dest='ids', action='append', help='nur diese Wort-id(s)')
     parser.add_argument('--force', action='store_true', help='auch vorhandene Dateien neu erzeugen')
     parser.add_argument('--download-models', action='store_true',
-                        help='fehlendes Kokoro-Modell automatisch herunterladen')
+                        help='fehlende Sprachmodelle (Kokoro, Piper) automatisch herunterladen')
     return parser.parse_args(argv)
 
 
@@ -194,19 +238,16 @@ def main(argv: list[str] | None = None) -> int:
         print('Alles aktuell – nichts zu tun.')
         return 0
 
-    kokoro = None
-    if any(job.override is None for job in jobs):
-        ensure_models(args.models, args.download_models)
-        from kokoro_onnx import Kokoro
-
-        kokoro = Kokoro(str(args.models / 'kokoro-v1.0.onnx'), str(args.models / 'voices-v1.0.bin'))
+    needed = {VOICES[job.lang]['engine'] for job in jobs if job.override is None}
+    ensure_models(args.models, needed, args.download_models)
+    engines = Engines(args.models)
 
     with tempfile.TemporaryDirectory() as tmp:
         for job in jobs:
             source = job.override
             if source is None:
                 source = Path(tmp) / f'{job.lang}-{job.word_id}.wav'
-                synthesize(kokoro, job.text, job.lang, source)
+                synthesize(engines, job.text, job.lang, source)
             postprocess(source, job.output)
             origin = 'Override' if job.override else VOICES[job.lang]['voice']
             print(f'{job.lang}/{job.word_id}.mp3  „{job.text}“  ({origin})')

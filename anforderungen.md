@@ -98,7 +98,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 ## 6. Audio
 - **Anforderung:** hochwertige, natürliche Aussprache, kostenlos, offline, klein.
 - **Lösung:** Audio wird einmalig vor dem Build lokal erzeugt und als statische Dateien ausgeliefert/gecacht.
-  - TTS: **Kokoro** (Open Source, Apache-2.0), Stimmen: EN `bf_emma` (britisch, passend zur UK-Flagge), FR `ff_siwis`. Alternative: **Piper** (fr_FR-siwis / en_GB-Stimmen). Lizenz der jeweiligen Stimme vor Nutzung prüfen.
+  - TTS: EN **Piper** `en_US-ljspeech-high` (LJ Speech, public domain), FR **Kokoro** `ff_siwis` (Apache-2.0). Lizenz der jeweiligen Stimme vor Nutzung prüfen.
   - Nachbearbeitung (ffmpeg): Stille trimmen, 150 ms Vorlauf, Lautheit normalisieren (−16 LUFS), MP3 mono 64 kbit/s.
   - Größe: ~8 KB/Wort → ~1 MB für 50 Wörter × 2 Sprachen.
   - Jede Datei wird einmal angehört; schlechte Dateien neu erzeugen (anderer Satzkontext/Stimme) oder durch eigene Aufnahme ersetzen. Override-Ordner `audio-overrides/` hat Vorrang.
@@ -204,6 +204,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
 - 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
+- 2026-10-29: Englisch aus vorproduzierten MP3s mit Piper `en_US-ljspeech-high` (B-64), ersetzt die Gerätestimme (klang unter Linux schlecht und hängt auf dem iPad von den installierten Stimmen ab). Im Klangvergleich fielen alle englischen Kokoro-Stimmen (`bf_*`, `bm_*`, `am_*`) durch. Unter den Piper-Stimmen fielen die auf Lessac aufbauenden (u. a. Amy) aus Lizenzgründen weg (Blizzard-2013-Daten nur für Forschung); ljspeech ist public domain. Die Stimme ist amerikanisch, die Flagge bleibt vorerst britisch. Der Web-Speech-Fallback bleibt en-GB.
 
 ## 12. Später (nicht in v1)
 - Weitere Dauern (z. B. 3 min), weitere Sprachen (Japanisch ist in der Startauswahl schon ausgegraut vorgesehen).

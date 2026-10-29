@@ -207,9 +207,9 @@ describe('createAudioPlayer (B-31)', () => {
     expect(audio.play).not.toHaveBeenCalled();
   });
 
-  it('Standard: Französisch mit MP3s, Englisch mit Gerätestimme', () => {
+  it('Standard: Englisch und Französisch mit MP3s (B-64)', () => {
     expect(LANGUAGE_INFO.fr.audioFiles).toBe(true);
-    expect(LANGUAGE_INFO.en.audioFiles).toBe(false);
+    expect(LANGUAGE_INFO.en.audioFiles).toBe(true);
   });
 
   it('stop ohne vorheriges Abspielen wirft nicht', () => {

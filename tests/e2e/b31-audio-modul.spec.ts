@@ -36,20 +36,15 @@ test.describe('B-31 Audio-Modul', () => {
     expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
   });
 
-  test('AT-31.1b: Englisch liest mit der Gerätestimme vor', async ({ page }) => {
+  test('AT-64.4: Englisch spielt die englische MP3', async ({ page }) => {
     await fakeMedia(page);
-    const requested: string[] = [];
-    page.on('request', (r) => r.url().includes('/audio/') && requested.push(r.url()));
     const word = await startRound(page, 'Englisch');
     await speaker(page).click();
-    await speaker(page).click();
     const calls = await mediaCalls(page);
-    expect(calls.filter((c) => c.op === 'speak')).toEqual([
-      { op: 'speak', text: word.en, lang: 'en-GB' },
-      { op: 'speak', text: word.en, lang: 'en-GB' },
+    expect(calls.filter((c) => c.op === 'play')).toEqual([
+      { op: 'play', src: `/mimi_mots/audio/en/${word.id}.mp3`, time: 0 },
     ]);
-    expect(calls.filter((c) => c.op === 'play')).toEqual([]);
-    expect(requested).toEqual([]);
+    expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
   });
 
   test('AT-31.2: jeder weitere Tipp spielt von vorn', async ({ page }) => {
@@ -61,19 +56,26 @@ test.describe('B-31 Audio-Modul', () => {
     for (const p of plays) expect(p).toMatchObject({ time: 0 });
   });
 
-  test('AT-31.3: französische Dateien werden vorgeladen, englische nicht', async ({ page }) => {
-    await fakeMedia(page);
-    const requested: string[] = [];
-    page.on('request', (r) => {
-      const path = new URL(r.url()).pathname;
-      if (path.includes('/audio/')) requested.push(path);
+  for (const [language, lang, other] of [
+    ['Französisch', 'fr', 'en'],
+    ['Englisch', 'en', 'fr'],
+  ] as const) {
+    test(`AT-31.3/AT-64.5: nur die Dateien der Sprache werden vorgeladen (${language})`, async ({
+      page,
+    }) => {
+      await fakeMedia(page);
+      const requested: string[] = [];
+      page.on('request', (r) => {
+        const path = new URL(r.url()).pathname;
+        if (path.includes('/audio/')) requested.push(path);
+      });
+      await startRound(page, language);
+      await expect
+        .poll(() => requested.filter((p) => p.includes(`/audio/${lang}/`)).length)
+        .toBe(words.length);
+      expect(requested.filter((p) => p.includes(`/audio/${other}/`))).toEqual([]);
     });
-    await startRound(page, 'Französisch');
-    await expect
-      .poll(() => requested.filter((p) => p.includes('/audio/fr/')).length)
-      .toBe(words.length);
-    expect(requested.filter((p) => p.includes('/audio/en/'))).toEqual([]);
-  });
+  }
 
   test('AT-31.4: fehlende Datei → Web Speech', async ({ page }) => {
     await fakeMedia(page);

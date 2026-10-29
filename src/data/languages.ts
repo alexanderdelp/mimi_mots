@@ -5,14 +5,13 @@ import type { Language } from './words';
 export interface LanguageInfo {
   name: string;
   flag: string;
-  /** true: Aussprache aus public/audio/<lang>/<id>.mp3 (Kokoro); false: Gerätestimme. */
+  /** true: Aussprache aus public/audio/<lang>/<id>.mp3; false: Gerätestimme. */
   audioFiles: boolean;
 }
 
 export const LANGUAGE_INFO: Record<Language, LanguageInfo> = {
-  // Kokoro (bf_emma) spricht bei englischen Einzelwörtern einen falschen Anfangslaut mit –
-  // Englisch daher vorerst über die Gerätestimme (anforderungen.md §11).
-  en: { name: 'Englisch', flag: 'flag_gb.svg', audioFiles: false },
+  // Englisch: Piper (en_US-ljspeech-high), Französisch: Kokoro (ff_siwis)
+  en: { name: 'Englisch', flag: 'flag_gb.svg', audioFiles: true },
   fr: { name: 'Französisch', flag: 'flag_fr.svg', audioFiles: true },
 };
 

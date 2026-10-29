@@ -1,5 +1,5 @@
-"""Tests für generate_audio.py: Unit-Tests der Hilfsfunktionen und Akzeptanztests B-30a,
-die das echte Skript (Kokoro + ffmpeg) in einem Temp-Ordner laufen lassen.
+"""Tests für generate_audio.py: Unit-Tests der Hilfsfunktionen und Akzeptanztests B-30a/B-64,
+die das echte Skript (Kokoro, Piper und ffmpeg) in einem Temp-Ordner laufen lassen.
 Aufruf: npm run test:audio
 """
 
@@ -93,17 +93,18 @@ class HelperTests(unittest.TestCase):
             os.utime(ov, (time.time() + 10, time.time() + 10))
             self.assertTrue(ga.needs_update(ga.Job('a', 'en', 'a', out, ov), force=False))
 
-    def test_default_only_french(self):
-        self.assertEqual(ga.DEFAULT_LANGS, ['fr'])
+    def test_default_both_languages(self):
+        self.assertEqual(ga.DEFAULT_LANGS, ['en', 'fr'])
         self.assertIsNone(ga.parse_args([]).langs)
 
     def test_voices(self):
-        self.assertEqual(ga.VOICES['en']['voice'], 'bf_emma')
+        self.assertEqual(ga.VOICES['en'], {'engine': 'piper', 'voice': 'en_US-ljspeech-high'})
+        self.assertEqual(ga.VOICES['fr']['engine'], 'kokoro')
         self.assertEqual(ga.VOICES['fr']['voice'], 'ff_siwis')
 
 
 class AcceptanceTests(unittest.TestCase):
-    """B-30a – echtes Skript mit Kokoro und ffmpeg."""
+    """B-30a/B-64 – echtes Skript mit Kokoro, Piper und ffmpeg."""
 
     @classmethod
     def setUpClass(cls):
@@ -113,9 +114,8 @@ class AcceptanceTests(unittest.TestCase):
         cls.words.write_text(json.dumps(WORDS, ensure_ascii=False), encoding='utf-8')
         cls.out = root / 'audio'
         cls.overrides = root / 'overrides'
-        # beide Sprachen ausdrücklich: Englisch ist nicht mehr Standard, das Skript kann es aber
         cls.args = ['--words', str(cls.words), '--out', str(cls.out),
-                    '--overrides', str(cls.overrides), '--lang', 'en', '--lang', 'fr']
+                    '--overrides', str(cls.overrides)]
         cls.log = run_script(*cls.args)
         cls.files = sorted(cls.out.rglob('*.mp3'))
 
@@ -127,7 +127,7 @@ class AcceptanceTests(unittest.TestCase):
         names = [f'{p.parent.name}/{p.name}' for p in self.files]
         self.assertEqual(names, ['en/apfel.mp3', 'en/katze.mp3', 'fr/apfel.mp3', 'fr/katze.mp3'])
         self.assertIn('„la pomme“  (ff_siwis)', self.log)
-        self.assertIn('„apple“  (bf_emma)', self.log)
+        self.assertIn('„apple“  (en_US-ljspeech-high)', self.log)
 
     def test_at_30a_2_format_and_size(self):
         for path in self.files:
@@ -159,8 +159,7 @@ class AcceptanceTests(unittest.TestCase):
         log = run_script(*self.args)
         self.assertIn('nichts zu tun', log)
         self.assertEqual({p: p.read_bytes() for p in self.files}, before)
-        base = self.args[: self.args.index('--lang')]
-        log = run_script(*base, '--force', '--id', 'apfel', '--lang', 'en', '--lang', 'en')
+        log = run_script(*self.args, '--force', '--id', 'apfel', '--lang', 'en', '--lang', 'en')
         self.assertIn('1 Datei(en) erzeugt', log)
 
     def test_at_30a_5_override_wins(self):
@@ -179,11 +178,13 @@ class AcceptanceTests(unittest.TestCase):
         self.assertAlmostEqual(ga.measure_loudness(target), ga.TARGET_LUFS, delta=1.5)
 
     def test_at_30a_6_missing_model_message(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaises(SystemExit) as ctx:
-                run_script('--words', str(self.words), '--out', str(Path(tmp) / 'a'),
-                           '--models', str(Path(tmp) / 'leer'))
-            self.assertIn('README', str(ctx.exception))
+        for lang, missing in [('fr', 'kokoro-v1.0.onnx'), ('en', 'en_US-ljspeech-high.onnx')]:
+            with self.subTest(lang), tempfile.TemporaryDirectory() as tmp:
+                with self.assertRaises(SystemExit) as ctx:
+                    run_script('--words', str(self.words), '--out', str(Path(tmp) / 'a'),
+                               '--models', str(Path(tmp) / 'leer'), '--lang', lang)
+                self.assertIn('README', str(ctx.exception))
+                self.assertIn(missing, str(ctx.exception))
 
 
 if __name__ == '__main__':

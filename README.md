@@ -34,7 +34,12 @@ Neue Versionen lädt die App still im Hintergrund; sie sind beim **nächsten Sta
 
 ## Audio erzeugen
 
-Die französische Aussprache liegt als fertige MP3-Dateien in `public/audio/fr/<id>.mp3` und wird mit der App ausgeliefert. Englisch liest die App vorerst mit der Stimme des Geräts vor (die Kokoro-Stimme `bf_emma` sprach einen falschen Anfangslaut mit, siehe `anforderungen.md` §11). Erzeugt werden sie **einmalig lokal** mit dem Open-Source-Sprachmodell [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) über [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) – ohne Internet zur Laufzeit.
+Die Aussprache liegt als fertige MP3-Dateien in `public/audio/<en|fr>/<id>.mp3` und wird mit der App ausgeliefert. Erzeugt werden sie **einmalig lokal** – ohne Internet zur Laufzeit – mit zwei Open-Source-Sprachmodellen:
+
+- **Englisch:** [Piper](https://github.com/OHF-Voice/piper1-gpl), Stimme `en_US-ljspeech-high`
+- **Französisch:** [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) über [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx), Stimme `ff_siwis`
+
+Warum zwei Modelle: Die englischen Kokoro-Stimmen sprachen bei Einzelwörtern einen falschen Anfangslaut mit (siehe `anforderungen.md` §11).
 
 ### Einmalige Einrichtung
 
@@ -42,8 +47,8 @@ Voraussetzungen: Python 3.12 und ffmpeg im `PATH` (Windows: `winget install Pyth
 
 ```bash
 python -m venv .venv
-.venv/Scripts/python -m pip install kokoro-onnx soundfile      # macOS/Linux: .venv/bin/python
-npm run audio -- --download-models                              # lädt Modell + Stimmen (~350 MB) nach .models/
+.venv/Scripts/python -m pip install kokoro-onnx soundfile piper-tts  # macOS/Linux: .venv/bin/python
+npm run audio -- --download-models  # lädt Kokoro (~350 MB) und Piper-Stimme (~110 MB) nach .models/
 ```
 
 `.venv/` und `.models/` werden nicht eingecheckt.
@@ -51,13 +56,13 @@ npm run audio -- --download-models                              # lädt Modell +
 ### Benutzung
 
 ```bash
-npm run audio                       # erzeugt fehlende Dateien (Standard: nur Französisch)
+npm run audio                       # erzeugt fehlende Dateien (Englisch und Französisch)
 npm run audio -- --id apfel --force # eine Datei neu erzeugen
-npm run audio -- --lang en          # Englisch trotzdem erzeugen (z. B. zum Ausprobieren)
+npm run audio -- --lang en          # nur eine Sprache
 npm run test:audio                  # Tests des Skripts (inkl. echter Erzeugung im Temp-Ordner)
 ```
 
-- Stimmen: Französisch `ff_siwis`; Englisch wäre `bf_emma` (britisch), wird wegen des falschen Anfangslauts derzeit nicht genutzt.
+- Stimmen: Englisch Piper `en_US-ljspeech-high` (amerikanisch), Französisch Kokoro `ff_siwis`.
 - Nachbearbeitung mit ffmpeg: Stille vorn/hinten entfernt, 150 ms Vorlauf, Lautheit −16 LUFS, MP3 mono 64 kbit/s.
 - **Eigene Aufnahmen:** Klingt ein Wort schlecht, eine Aufnahme als `audio-overrides/<lang>/<id>.mp3` (oder `.wav`, `.m4a`) ablegen und `npm run audio` erneut ausführen – sie hat Vorrang und wird genauso nachbearbeitet.
 
@@ -66,3 +71,5 @@ npm run test:audio                  # Tests des Skripts (inkl. echter Erzeugung 
 - Kokoro-82M (Modell und Stimmen): Apache-2.0.
 - Die französische Stimme `ff_siwis` wurde u. a. mit der *SIWIS French Speech Synthesis Database* trainiert (CC BY 4.0, Universität Edinburgh) – Namensnennung hiermit.
 - kokoro-onnx: MIT.
+- Piper (`piper-tts`): GPL-3.0 – nur lokal als Werkzeug benutzt, nicht Teil der App.
+- Englische Stimme `en_US-ljspeech-high`: trainiert auf dem *LJ Speech Dataset* (public domain). Bewusst keine der vielen Piper-Stimmen, die auf der Lessac-Stimme aufbauen (z. B. Amy): deren Trainingsdaten (Blizzard 2013) sind nur für Forschung lizenziert.
