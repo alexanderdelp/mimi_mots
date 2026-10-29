@@ -12,25 +12,40 @@ const ICONS = [
   'icons/icon-maskable.svg',
   'icons/icon-maskable-512.png',
 ];
-const POSES = ['ruhig', 'zeigt', 'freut', 'winkt'];
 
-/** Wartet, bis alle sichtbaren Avatarbilder vollständig geladen sind. */
-async function avatarsLoaded(page: Page) {
-  await page.waitForFunction(() =>
-    [...document.querySelectorAll<HTMLImageElement>('.avatar img')].every(
-      (img) => img.complete && img.naturalWidth > 0,
-    ),
-  );
+const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'speechSynthesis', {
+      value: { cancel() {}, speak() {}, getVoices: () => [] },
+    });
+  });
+});
+
+/** Startet eine Lernrunde mit dem Begleiter (seit B-24 zeigt sie den Avatar). */
+async function startRound(page: Page, companion: 'Mimi' | 'Mots') {
+  await page.goto('./');
+  await btn(page, companion).click();
+  await btn(page, 'Englisch').click();
+  await btn(page, 'Los geht’s').click();
+  await avatarLoaded(page);
 }
 
-async function avatarBoxes(page: Page) {
-  return page.locator('.avatar').evaluateAll((els) =>
-    els.map((el) => {
-      const box = el.getBoundingClientRect();
-      const img = el.querySelector('img')!.getBoundingClientRect();
-      return [box.x, box.y, box.width, box.height, img.x, img.y, img.width, img.height];
-    }),
-  );
+/** Wartet, bis das Avatarbild der Lernrunde vollständig geladen ist. */
+async function avatarLoaded(page: Page) {
+  await page.waitForFunction(() => {
+    const img = document.querySelector<HTMLImageElement>('.round__avatar .avatar img');
+    return !!img && img.complete && img.naturalWidth > 0;
+  });
+}
+
+async function avatarBox(page: Page) {
+  return page.locator('.round__avatar .avatar').evaluate((el) => {
+    const box = el.getBoundingClientRect();
+    const img = el.querySelector('img')!.getBoundingClientRect();
+    return [box.x, box.y, box.width, box.height, img.x, img.y, img.width, img.height];
+  });
 }
 
 test.describe('B-03 Assets einbinden', () => {
@@ -39,8 +54,7 @@ test.describe('B-03 Assets einbinden', () => {
       const res = await request.get(file);
       expect(res.status(), file).toBe(200);
     }
-    await page.goto('./?vorschau=avatar');
-    await avatarsLoaded(page);
+    await page.goto('./');
     for (const file of AVATARS) {
       const size = await page.evaluate(async (src) => {
         const img = new Image();
@@ -52,62 +66,60 @@ test.describe('B-03 Assets einbinden', () => {
     }
   });
 
-  test('AT-03.2: Posenwechsel verschiebt nichts', async ({ page }) => {
-    await page.goto('./?vorschau=avatar');
-    await avatarsLoaded(page);
-    const initial = await avatarBoxes(page);
-    expect(initial).toHaveLength(2);
-
-    for (const pose of POSES) {
-      await page.locator(`button[data-pose="${pose}"]`).click();
-      await expect(page.locator('.avatar').first()).toHaveAttribute('data-pose', pose);
-      await avatarsLoaded(page);
-      expect(await avatarBoxes(page), pose).toEqual(initial);
-    }
-  });
+  for (const companion of ['Mimi', 'Mots'] as const) {
+    test(`AT-03.2: Posenwechsel verschiebt nichts (${companion})`, async ({ page }) => {
+      await startRound(page, companion);
+      const zeigt = await avatarBox(page);
+      await page.getByRole('button', { name: 'Auf Englisch' }).click();
+      await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'freut');
+      await avatarLoaded(page);
+      expect(await avatarBox(page)).toEqual(zeigt);
+      await page.getByRole('button', { name: /Wusste ich/ }).click();
+      await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'zeigt');
+      expect(await avatarBox(page)).toEqual(zeigt);
+    });
+  }
 
   test('AT-03.3: nach dem Vorladen kein Request beim Posenwechsel', async ({ page }) => {
-    await page.goto('./?vorschau=avatar');
+    await startRound(page, 'Mots');
     await page.waitForLoadState('networkidle');
     await page.waitForFunction(() =>
-      performance
-        .getEntriesByType('resource')
-        .some(
-          (e) => e.name.includes('waving.png') && (e as PerformanceResourceTiming).responseEnd > 0,
-        ),
+      ['sitting', 'pointing', 'idle', 'waving'].every((p) =>
+        performance
+          .getEntriesByType('resource')
+          .some(
+            (e) =>
+              e.name.includes(`pony_${p}.png`) && (e as PerformanceResourceTiming).responseEnd > 0,
+          ),
+      ),
     );
 
     const requests: string[] = [];
     page.on('request', (req) => requests.push(req.url()));
-    for (const pose of POSES) {
-      await page.locator(`button[data-pose="${pose}"]`).click();
-      const complete = await page
-        .locator('.avatar img')
-        .evaluateAll((imgs) => imgs.every((i) => (i as HTMLImageElement).complete));
-      expect(complete, pose).toBe(true);
-    }
-    expect(requests).toEqual([]);
+    await page.getByRole('button', { name: 'Auf Englisch' }).click();
+    await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'freut');
+    const complete = await page
+      .locator('.round__avatar .avatar img')
+      .evaluate((i) => (i as HTMLImageElement).complete);
+    expect(complete).toBe(true);
+    expect(requests.filter((u) => u.includes('/avatars/'))).toEqual([]);
   });
 
   test('AT-03.4: höchstens 440 px hoch, unten ausgerichtet, nicht verzerrt', async ({ page }) => {
-    await page.goto('./?vorschau=avatar');
-    await avatarsLoaded(page);
-    const styles = await page.locator('.avatar').evaluateAll((els) =>
-      els.map((el) => {
-        const img = getComputedStyle(el.querySelector('img')!);
-        return {
-          height: el.getBoundingClientRect().height,
-          ratio: el.getBoundingClientRect().width / el.getBoundingClientRect().height,
-          fit: img.objectFit,
-          position: img.objectPosition,
-        };
-      }),
-    );
-    for (const s of styles) {
-      expect(s.height).toBeLessThanOrEqual(440);
-      expect(s.ratio).toBeCloseTo(384 / 440, 2);
-      expect(s.fit).toBe('contain');
-      expect(s.position).toMatch(/100%$/);
-    }
+    await startRound(page, 'Mimi');
+    const s = await page.locator('.round__avatar .avatar').evaluate((el) => {
+      const img = getComputedStyle(el.querySelector('img')!);
+      const r = el.getBoundingClientRect();
+      return {
+        height: r.height,
+        ratio: r.width / r.height,
+        fit: img.objectFit,
+        position: img.objectPosition,
+      };
+    });
+    expect(s.height).toBeLessThanOrEqual(440);
+    expect(s.ratio).toBeCloseTo(384 / 440, 2);
+    expect(s.fit).toBe('contain');
+    expect(s.position).toMatch(/100%$/);
   });
 });

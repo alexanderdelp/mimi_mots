@@ -1,6 +1,7 @@
-// Lernrunde (anforderungen.md §3.2): Wortkarte, Flagge zum Aufdecken und Vorlesen,
-// danach Selbsteinschätzung. Freigehaltener Platz für Avatar (B-24) und Timer (B-41).
+// Lernrunde (anforderungen.md §3.2): Avatar zeigt auf die Wortkarte, Flagge zum Aufdecken
+// und Vorlesen, danach Selbsteinschätzung. Freigehaltener Platz für den Timer (B-41).
 import { speak, stopSpeaking } from '../audio';
+import { createAvatar, type Pose } from '../components/avatar';
 import { fitText } from '../components/fit-text';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { WORDS, getWord, type Language } from '../data/words';
@@ -31,7 +32,8 @@ export function showNextWord(store: Store, rng?: () => number): void {
 }
 
 export function renderRound(store: Store): ViewHandle {
-  const language: Language = store.getState().data.settings.language ?? 'en';
+  const { settings } = store.getState().data;
+  const language: Language = settings.language ?? 'en';
 
   const view = el('main', 'view view--round');
   view.dataset.view = 'round';
@@ -48,7 +50,10 @@ export function renderRound(store: Store): ViewHandle {
 
   // Bühne: Avatar | Wortkarte | Flagge
   const stage = el('div', 'round__stage');
-  const avatar = el('div', 'round__avatar');
+  // Avatar links, damit die Zeigegeste nach rechts zur Karte geht; Posen nur per Bildtausch.
+  const avatarSlot = el('div', 'round__avatar');
+  const avatar = createAvatar(settings.companion ?? 'mimi', 'zeigt');
+  avatarSlot.append(avatar.el);
 
   const card = el('section', 'word-card');
   const emoji = el('div', 'word-card__emoji');
@@ -78,7 +83,7 @@ export function renderRound(store: Store): ViewHandle {
     speak(word[language], language);
   });
 
-  stage.append(avatar, card, answer);
+  stage.append(avatarSlot, card, answer);
 
   // Selbsteinschätzung: zwei gleichwertige Buttons, erst nach dem Aufdecken sichtbar.
   // Kein Feedback – der Tipp speichert den Lernstand und holt direkt das nächste Wort.
@@ -122,6 +127,9 @@ export function renderRound(store: Store): ViewHandle {
     const word = state.round?.wordId ? getWord(state.round.wordId) : undefined;
     const revealed = !!word && !!state.round?.revealed;
     view.dataset.revealed = String(revealed);
+    // neues Wort: zeigt auf die Aufgabe; aufgedeckt: freut sich, „spricht mit“
+    const pose: Pose = revealed ? 'freut' : 'zeigt';
+    if (avatar.pose !== pose) avatar.setPose(pose);
     foreign.textContent = revealed ? word[language] : '';
     if (revealed) fitText(foreign, FOREIGN_MAX_PX, FOREIGN_MIN_PX);
   };

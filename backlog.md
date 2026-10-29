@@ -21,10 +21,10 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 - [x] **B-03 Assets einbinden**: Gelieferte PNGs (Avatare, Flaggen) und Icons liegen bereits unverändert in `public/avatars/`, `public/flags/`, `public/icons/` (Namen laut CLAUDE.md). Asset-Mapping Pose → Datei in `src/components/avatar.ts`.
   - AK: Bildtausch zwischen Posen springt nicht (visueller Check im Dev-Server).
   - AT-03.1: Alle 8 Avatar-PNGs, beide Flaggen und alle Icons werden unter `/mimi_mots/…` mit Status 200 ausgeliefert; Avatare haben 384 × 440 px.
-  - AT-03.2: In der Avatar-Vorschau bleiben Position und Größe von Avatar-Box und Bild beim Wechsel durch alle 4 Posen beider Begleiter identisch.
-  - AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen.
-  - AT-03.4: Der Avatar wird höchstens 440 CSS-px hoch dargestellt, unten ausgerichtet und ohne Verzerrung (`object-fit: contain`).
-  - Hinweis: Die Avatar-Vorschau ist ein Platzhalter für den visuellen Check und wird mit B-06/B-11 durch den Router und die Startansicht ersetzt.
+  - AT-03.2: Position und Größe von Avatar-Box und Bild bleiben beim Posenwechsel identisch (seit B-24 in der Lernrunde geprüft: zeigt ↔ freut, beide Begleiter).
+  - AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen (seit B-24 in der Lernrunde).
+  - AT-03.4: Der Avatar wird höchstens 440 CSS-px hoch dargestellt, unten ausgerichtet und ohne Verzerrung (`object-fit: contain`) (seit B-24 in der Lernrunde).
+  - Hinweis: Die Avatar-Vorschau war ein Platzhalter für den visuellen Check; sie ist mit B-24 entfallen, die Tests laufen seitdem in der Lernrunde.
 - [x] **B-04 Wortliste**: `src/data/words.ts` mit Typ `Word { id, emoji, de, en, fr }` und Liste aus Anhang `anforderungen.md`. Export als JSON für das Audio-Skript.
   - AK: Test prüft eindeutige ids, keine leeren Felder.
   - AT-04.1: Alle 50 Emojis der Wortliste werden in WebKit als je ein einzelnes Bildzeichen dargestellt (kein Zerfall in mehrere Zeichen, kein leeres Kästchen).
@@ -41,7 +41,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-06.2: Ablauf Start → (Play) → Lernrunde → (Beenden) → Abschluss → (Zurück) → Start funktioniert; es ist immer genau eine Ansicht sichtbar.
   - AT-06.3: Neuladen während Lernrunde oder Abschluss startet wieder auf der Startansicht.
   - AT-06.4: Im Hochformat erscheint ein Overlay „iPad drehen“ über der aktuellen Ansicht; zurück ins Querformat ist es weg und dieselbe Ansicht ist unverändert da.
-  - AT-06.5: Die Avatar-Vorschau aus B-03 bleibt unter `?vorschau=avatar` erreichbar (bis die Lernrunde die Posen zeigt, B-24); die B-03-Tests nutzen diese Adresse.
+  - AT-06.5: ~~Avatar-Vorschau unter `?vorschau=avatar`~~ – mit B-24 entfallen; seitdem zeigt `?vorschau=avatar` die normale Startansicht.
   - Hinweis: Start-, Lernrunden- und Abschlussansicht sind Platzhalter mit je einer Schaltfläche; Inhalte folgen in B-11, B-21 ff. und B-43. Beenden per einfachem Tipp, Long-Press folgt in B-25.
 
 ## M1 – Startbildschirm
@@ -109,6 +109,12 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-23.7: Der Lernstand gilt pro Sprache: Bewertungen auf Französisch ändern den englischen Lernstand nicht.
   - AT-23.8: Das Erscheinen der Buttons verschiebt Karte, Flagge und Fremdwort nicht; alles bleibt im Bildschirm.
 - [ ] **B-24 Avatar in der Runde**: Avatar links; Pose „zeigt“ bei neuem Wort, „freut“ nach Aufdecken; reiner Bildtausch; alle Posen vorgeladen.
+  - AT-24.1: In der Lernrunde steht der gewählte Begleiter links neben der Karte (keine Überlappung), bei einem neuen Wort in der Pose „zeigt“.
+  - AT-24.2: Nach dem Aufdecken wechselt er zu „freut“; weitere Tipps auf die Flagge ändern daran nichts.
+  - AT-24.3: Beim nächsten Wort zeigt er wieder („zeigt“).
+  - AT-24.4: Mimi zeigt Katzen-, Mots Pony-Bilder.
+  - AT-24.5: Alle vier Posen des Begleiters sind nach dem Start der Runde geladen; der Avatar ist ≤ 440 px hoch, vollständig im Bildschirm und nicht animiert.
+  - Hinweis: Die Avatar-Vorschau (`?vorschau=avatar`) entfällt; AT-03.2–03.4 laufen jetzt in der Lernrunde, AT-06.5 prüft, dass die Adresse die Startansicht zeigt.
 - [ ] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
 
 ## M3 – Audio
