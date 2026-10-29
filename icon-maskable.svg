@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9A7CC4"/>
+      <stop offset="1" stop-color="#6A4C9C"/>
+    </linearGradient>
+  </defs>
+  <!-- Hintergrund vollflächig (iOS rundet selbst ab; maskable-sicher) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- Sprechblase mit Katzenohren (links) und Ponyohr (rechts) -->
+  <g transform="translate(256 262) scale(0.8)">
+    <!-- Katzenohr links -->
+    <path d="M-118 -78 L-104 -158 L-48 -112 Z" fill="#FFFFFF"/>
+    <path d="M-104 -96 L-98 -138 L-68 -112 Z" fill="#F7B8C8"/>
+    <!-- Ponyohr rechts (rundlicher) -->
+    <path d="M52 -110 C60 -150 92 -168 108 -160 C118 -138 114 -104 104 -80 Z" fill="#FFFFFF"/>
+    <path d="M70 -108 C76 -132 92 -146 100 -142 C104 -128 102 -110 96 -96 Z" fill="#F7B8C8"/>
+    <!-- Blase -->
+    <path d="M-150 -40 C-150 -100 -110 -120 0 -120 C110 -120 150 -100 150 -40
+             L150 50 C150 110 110 126 20 126 L-30 126 L-82 168 L-74 124
+             C-126 116 -150 96 -150 50 Z" fill="#FFFFFF"/>
+    <!-- Herz wie auf dem Halstuch -->
+    <path d="M0 78 C-60 36 -84 6 -84 -24 C-84 -52 -62 -70 -40 -70
+             C-22 -70 -8 -60 0 -44 C8 -60 22 -70 40 -70
+             C62 -70 84 -52 84 -24 C84 6 60 36 0 78 Z" fill="#8B5FD0"/>
+    <path d="M-50 -40 C-58 -30 -58 -18 -54 -8" stroke="#FFFFFF" stroke-opacity=".55"
+          stroke-width="10" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>
