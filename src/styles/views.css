@@ -305,3 +305,110 @@
   justify-content: center;
   padding: 0 24px clamp(24px, 4dvh, 40px);
 }
+
+/* Lernrunde (B-21): Kopfzeile, Bühne (Avatar | Karte | Flagge), Bewertungszeile.
+   Plätze für Avatar, Timer, Fremdwort und Bewertung sind fest reserviert. */
+.view--round {
+  justify-content: space-between;
+  gap: 0;
+  padding: 16px 24px;
+}
+
+.round__top {
+  align-self: stretch;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view--round .close-button {
+  position: static;
+}
+
+.round__timer {
+  width: 120px;
+  height: 120px;
+}
+
+.round__stage {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 40px);
+}
+
+.round__avatar {
+  flex: none;
+  width: clamp(150px, 19vw, 260px);
+  align-self: stretch;
+}
+
+.word-card {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: clamp(300px, 36vw, 480px);
+  padding: 24px 24px 32px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.word-card__emoji {
+  font-size: 34dvh;
+  line-height: 1.15;
+  height: 39dvh;
+}
+
+.word-card__de {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.round__answer {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: clamp(180px, 20vw, 260px);
+}
+
+.flag-button {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow:
+    inset 0 0 0 2px var(--grau-700),
+    var(--shadow);
+}
+
+.flag-button__img {
+  width: 76%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--lila-200);
+  pointer-events: none;
+}
+
+.round__foreign {
+  min-height: 1.3em;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.round__rating {
+  height: 112px;
+}

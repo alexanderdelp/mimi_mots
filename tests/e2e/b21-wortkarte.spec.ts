@@ -1,0 +1,102 @@
+import { expect, test, type Page } from '@playwright/test';
+import words from '../../src/data/words.json' with { type: 'json' };
+
+const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
+
+async function startRound(page: Page, language: 'Englisch' | 'Französisch' = 'Englisch') {
+  await page.goto('./');
+  await btn(page, 'Mimi').click();
+  await btn(page, language).click();
+  await btn(page, 'Los geht’s').click();
+  await expect(page.locator('[data-view="round"]')).toBeVisible();
+  const id = await page.locator('.word-card').getAttribute('data-word-id');
+  return words.find((w) => w.id === id)!;
+}
+
+test.describe('B-21 Wortkarte', () => {
+  test('AT-21.1: Emoji und deutsches Wort gehören zusammen', async ({ page }) => {
+    const word = await startRound(page);
+    expect(word).toBeDefined();
+    await expect(page.locator('.word-card__emoji')).toHaveText(word.emoji);
+    await expect(page.locator('.word-card__de')).toHaveText(word.de);
+  });
+
+  test('AT-21.2: Emoji groß, deutsches Wort darunter', async ({ page }) => {
+    await startRound(page);
+    const vh = page.viewportSize()!.height;
+    const emoji = (await page.locator('.word-card__emoji').boundingBox())!;
+    const german = (await page.locator('.word-card__de').boundingBox())!;
+    expect(emoji.height / vh).toBeGreaterThanOrEqual(0.35);
+    expect(emoji.height / vh).toBeLessThanOrEqual(0.45);
+    expect(german.y).toBeGreaterThanOrEqual(emoji.y + emoji.height - 1);
+  });
+
+  for (const [language, key] of [
+    ['Englisch', 'en'],
+    ['Französisch', 'fr'],
+  ] as const) {
+    test(`AT-21.3: Fremdwort verborgen (${language})`, async ({ page }) => {
+      const word = await startRound(page, language);
+      const text = await page.locator('body').innerText();
+      // Fremdwort darf nicht vorkommen (außer es ist identisch mit dem deutschen Wort)
+      if (word[key].toLowerCase() !== word.de.toLowerCase()) {
+        expect(text.toLowerCase()).not.toContain(word[key].toLowerCase());
+      }
+      await expect(page.locator('.round__foreign')).toHaveText('');
+      await expect(page.getByRole('button', { name: /Wusste ich|Noch üben/ })).toHaveCount(0);
+    });
+
+    test(`AT-21.4: Flaggen-Button für ${language}`, async ({ page }) => {
+      await startRound(page, language);
+      const flag = btn(page, `Auf ${language}`);
+      await expect(flag).toBeVisible();
+      await expect(flag.locator('img')).toHaveAttribute(
+        'src',
+        key === 'en' ? /flag_gb\.png$/ : /flag_fr\.png$/,
+      );
+      const box = (await flag.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(160);
+      expect(box.height).toBeGreaterThanOrEqual(88);
+    });
+  }
+
+  test('AT-21.5: Anordnung und alles im Bildschirm', async ({ page }) => {
+    await startRound(page);
+    const vp = page.viewportSize()!;
+    const get = async (sel: string) => (await page.locator(sel).boundingBox())!;
+    const close = await get('.close-button');
+    const card = await get('.word-card');
+    const flag = await get('.flag-button');
+
+    expect(close.x).toBeLessThan(vp.width * 0.15);
+    expect(close.y).toBeLessThan(vp.height * 0.15);
+    const cardCenter = card.x + card.width / 2;
+    expect(Math.abs(cardCenter - vp.width / 2)).toBeLessThan(vp.width * 0.1);
+    expect(flag.x).toBeGreaterThanOrEqual(card.x + card.width);
+
+    for (const [name, b] of Object.entries({ close, card, flag })) {
+      expect(b.x, name).toBeGreaterThanOrEqual(0);
+      expect(b.y, name).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width, name).toBeLessThanOrEqual(vp.width);
+      expect(b.y + b.height, name).toBeLessThanOrEqual(vp.height);
+    }
+    expect(close.y + close.height).toBeLessThanOrEqual(card.y);
+    const scroll = await page.evaluate(() => [
+      document.documentElement.scrollWidth,
+      document.documentElement.scrollHeight,
+    ]);
+    expect(scroll).toEqual([vp.width, vp.height]);
+  });
+
+  test('AT-21.6: Wort bleibt gleich, auch nach Hochformat', async ({ page }) => {
+    const word = await startRound(page);
+    const vp = page.viewportSize()!;
+    await page.setViewportSize({ width: vp.height, height: vp.width });
+    await expect(page.getByRole('alert')).toBeVisible();
+    await page.setViewportSize(vp);
+    await expect(page.getByRole('alert')).toBeHidden();
+    await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', word.id);
+    await page.waitForTimeout(300);
+    await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', word.id);
+  });
+});

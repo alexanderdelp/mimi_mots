@@ -3,12 +3,13 @@ import './styles/base.css';
 import './styles/views.css';
 import { load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
+import type { ViewHandle } from './views/view';
 import { renderStart } from './views/start';
 import { renderRound } from './views/round';
 import { renderEnd } from './views/end';
 import { renderAvatarPreview } from './views/avatar-preview';
 
-const VIEWS: Record<ViewName, (store: Store) => HTMLElement> = {
+const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
   start: renderStart,
   round: renderRound,
   end: renderEnd,
@@ -36,7 +37,12 @@ function start(app: HTMLElement) {
   const overlay = createPortraitOverlay();
   app.replaceChildren(viewRoot, overlay);
 
-  const showView = (name: ViewName) => viewRoot.replaceChildren(VIEWS[name](store));
+  let current: ViewHandle | null = null;
+  const showView = (name: ViewName) => {
+    current?.dispose?.();
+    current = VIEWS[name](store);
+    viewRoot.replaceChildren(current.el);
+  };
   const showOverlay = (portrait: boolean) => {
     overlay.hidden = !portrait;
     viewRoot.inert = portrait;

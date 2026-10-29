@@ -46,7 +46,7 @@ describe('nextView', () => {
 });
 
 describe('reduce', () => {
-  const base = { view: 'round' as const, portrait: false, data: defaults() };
+  const base: AppState = { view: 'round', portrait: false, data: defaults(), round: null };
 
   it('setzt portrait, ohne Ansicht oder Daten zu ändern', () => {
     const next = reduce(base, { type: 'orientation', portrait: true });
@@ -109,7 +109,12 @@ describe('createStore', () => {
 });
 
 describe('Auswahl (B-11)', () => {
-  const startState = (): AppState => ({ view: 'start', portrait: false, data: defaults() });
+  const startState = (): AppState => ({
+    view: 'start',
+    portrait: false,
+    data: defaults(),
+    round: null,
+  });
 
   it('isComplete braucht Begleiter, Sprache und Dauer', () => {
     expect(isComplete(defaults().settings)).toBe(false);
@@ -144,7 +149,7 @@ describe('Auswahl (B-11)', () => {
   });
 
   it('select wirkt nur auf der Startansicht', () => {
-    const state: AppState = { view: 'round', portrait: false, data: complete() };
+    const state: AppState = { view: 'round', portrait: false, data: complete(), round: null };
     expect(reduce(state, { type: 'select', settings: { companion: 'mots' } })).toBe(state);
   });
 
@@ -155,5 +160,52 @@ describe('Auswahl (B-11)', () => {
     store.dispatch({ type: 'select', settings: { companion: 'mimi', language: 'en' } });
     store.dispatch({ type: 'play' });
     expect(store.getState().view).toBe('round');
+  });
+});
+
+describe('Lernrunde (B-21)', () => {
+  const session = { history: ['apfel'], introduced: ['apfel'] };
+
+  it('Play startet eine neue Runde ohne Wort', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    expect(store.getState().round).toEqual({
+      session: { history: [], introduced: [] },
+      wordId: null,
+    });
+  });
+
+  it('word setzt aktuelles Wort und Session', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    expect(store.getState().round).toEqual({ session, wordId: 'apfel' });
+  });
+
+  it('word wird außerhalb der Lernrunde ignoriert', () => {
+    const store = createStore(complete());
+    const before = store.getState();
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    expect(store.getState()).toBe(before);
+  });
+
+  it('jede neue Runde beginnt mit leerer Session', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    store.dispatch({ type: 'finish' });
+    store.dispatch({ type: 'home' });
+    store.dispatch({ type: 'play' });
+    expect(store.getState().round?.session.history).toEqual([]);
+    expect(store.getState().round?.wordId).toBeNull();
+  });
+
+  it('Ausrichtung ändert das Wort nicht', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    store.dispatch({ type: 'orientation', portrait: true });
+    store.dispatch({ type: 'orientation', portrait: false });
+    expect(store.getState().round?.wordId).toBe('apfel');
   });
 });

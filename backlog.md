@@ -82,7 +82,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-20.6: Gleicher Seed → gleiche Wortfolge (reproduzierbar).
   - AT-20.7: Über mehrere Sessions werden nach und nach alle 50 Wörter eingeführt (spätestens nach 9 Sessions à 40 Wörtern, wenn alles gewusst wird).
   - AT-20.8: Ab 6 bekannten Wörtern ist in einer Session jedes 3. Wort neu (Positionen 3, 6, 9 …), bis 6 neue eingeführt sind.
-- [ ] **B-21 Wortkarte**: Emoji groß, deutsches Wort; Flaggen-Button; Fremdwort verborgen.
+- [x] **B-21 Wortkarte**: Emoji groß, deutsches Wort; Flaggen-Button; Fremdwort verborgen.
+  - AT-21.1: Nach Play zeigt die Lernrunde ein Wort aus der Wortliste: Emoji und deutsches Wort gehören zusammen.
+  - AT-21.2: Das Emoji ist groß (35–45 % der Bildschirmhöhe), das deutsche Wort steht darunter.
+  - AT-21.3: Das Fremdwort (Englisch bzw. Französisch) steht nirgends auf der Seite; Bewertungs-Buttons gibt es noch nicht.
+  - AT-21.4: Rechts neben der Karte steht ein großer Flaggen-Button (≥ 160 px breit) mit der Flagge der gewählten Sprache.
+  - AT-21.5: [×] oben links, Karte mittig, Flagge rechts; auf allen drei Viewports liegt alles im Bildschirm, nichts überlappt, nichts scrollt.
+  - AT-21.6: Das Wort bleibt gleich, solange nichts bewertet wird (auch nach Hochformat und zurück).
+  - Hinweis: Platz für Avatar (B-24), Timer (B-41), Fremdwort (B-22) und Bewertungs-Buttons (B-23) wird schon freigehalten, damit das Layout später nicht springt.
 - [ ] **B-22 Aufdecken**: Tipp auf Flagge zeigt Fremdwort, spielt Audio; erneuter Tipp spielt erneut (von vorn).
 - [ ] **B-23 Selbsteinschätzung**: Nach erstem Aufdecken zwei gleichwertige Buttons „Wusste ich“ 👍 / „Noch üben“ 🔁 (lila, gleiche Größe); Tipp aktualisiert Lernstand und lädt nächstes Wort. Kein Feedback.
   - AK: E2E – Buttons vor Aufdecken unsichtbar; nach Tipp neues Wort; Storage aktualisiert.

@@ -1,5 +1,6 @@
 // App-State: aktuelle Ansicht als einfache Zustandsmaschine, plus gespeicherte Daten
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
+import { createSession, type Session } from './scheduler';
 import type { AppData, Settings } from './storage';
 
 export type ViewName = 'start' | 'round' | 'end';
@@ -9,6 +10,7 @@ export type AppEvent =
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss → Start
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
+  | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
   | { type: 'orientation'; portrait: boolean };
 
 /** Begleiter, Sprache und Dauer sind gewählt. */
@@ -16,10 +18,17 @@ export function isComplete(settings: Settings): boolean {
   return settings.companion !== null && settings.language !== null && settings.durationMin !== null;
 }
 
+/** Lernrunde: Scheduler-Session und aktuelles Wort (null, bis das erste gewählt ist). */
+export interface RoundState {
+  session: Session;
+  wordId: string | null;
+}
+
 export interface AppState {
   view: ViewName;
   portrait: boolean;
   data: AppData;
+  round: RoundState | null;
 }
 
 /** Erlaubte Ansichtswechsel; alles andere wird ignoriert. */
@@ -45,9 +54,16 @@ export function reduce(state: AppState, event: AppEvent): AppState {
     );
     return changed ? { ...state, data: { ...state.data, settings } } : state;
   }
+  if (event.type === 'word') {
+    if (state.view !== 'round') return state;
+    return { ...state, round: { session: event.session, wordId: event.id } };
+  }
   if (event.type === 'play' && !isComplete(state.data.settings)) return state;
   const view = nextView(state.view, event);
-  return view === state.view ? state : { ...state, view };
+  if (view === state.view) return state;
+  // Jede Lernrunde beginnt mit einer neuen Scheduler-Session.
+  const round = view === 'round' ? { session: createSession(), wordId: null } : state.round;
+  return { ...state, view, round };
 }
 
 export type Listener = (state: AppState, previous: AppState) => void;
@@ -59,7 +75,7 @@ export interface Store {
 }
 
 export function createStore(data: AppData, portrait = false): Store {
-  let state: AppState = { view: 'start', portrait, data };
+  let state: AppState = { view: 'start', portrait, data, round: null };
   const listeners = new Set<Listener>();
   return {
     getState: () => state,
