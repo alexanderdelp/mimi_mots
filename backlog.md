@@ -168,7 +168,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: In den Tests werden `HTMLMediaElement.play/pause` und die Sprachausgabe durch Attrappen ersetzt, die Aufrufe mitschreiben. Offline-Verfügbarkeit folgt mit dem Service Worker (B-51).
 
 ## M4 – Timer & Abschluss
-- [ ] **B-40 Timer-Logik**: Start beim ersten Wort, Pause bei `visibilitychange`/Hochformat, Ereignis „abgelaufen“; testbar mit Fake-Timers.
+- [x] **B-40 Timer-Logik**: Start beim ersten Wort, Pause bei `visibilitychange`/Hochformat, Ereignis „abgelaufen“; testbar mit Fake-Timers.
   - Hinweis: Die E2E-Tests steuern die Uhr mit Playwrights Clock-API (`page.clock`), statt eines Test-Parameters wie `?dur=10s` – so braucht der Produktionsbuild keinen Test-Zugang.
   - AT-40.1: Der Timer startet mit dem ersten Wort der Runde: Nach 4:59 min ist die Runde noch nicht abgelaufen, nach 5:00 min schon (bei Dauer 5 Minuten).
   - AT-40.2: Bei Dauer 10 Minuten läuft die Runde erst nach 10:00 min ab.
@@ -176,14 +176,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-40.4: Geht die App in den Hintergrund (`visibilitychange`), pausiert der Timer und läuft beim Zurückkehren weiter.
   - AT-40.5: Im Hochformat pausiert der Timer und läuft nach dem Zurückdrehen weiter.
   - AT-40.6: Der Ablauf ändert die Runde nicht: kein Ton, kein Hinweis, das aktuelle Wort bleibt (Ansicht meldet nur intern `data-expired`).
-- [ ] **B-41 Timer-Zifferblatt**: SVG im Time-Timer-Stil (lila Sektor schrumpft im Uhrzeigersinn, Strichmarken, keine Ziffern), ~120 px oben rechts, aktualisiert ≥ 1×/s.
+- [x] **B-41 Timer-Zifferblatt**: SVG im Time-Timer-Stil (lila Sektor schrumpft im Uhrzeigersinn, Strichmarken, keine Ziffern), ~120 px oben rechts, aktualisiert ≥ 1×/s.
   - AT-41.1: Oben rechts unter der Kopfleiste steht ein rundes Zifferblatt (ca. 120 px) mit 12 Strichmarken, ohne Ziffern oder Text.
   - AT-41.2: Zu Beginn ist die ganze Scheibe lila (volle Scheibe = gewählte Dauer); nach der halben Zeit ist es ein Halbkreis von 6 bis 12 Uhr – der Sektor schrumpft im Uhrzeigersinn.
   - AT-41.3: Das Zifferblatt aktualisiert sich mindestens einmal pro Sekunde.
   - AT-41.4: Nach Ablauf ist kein lila Sektor mehr zu sehen; kein Blinken, keine Animation.
   - AT-41.5: Während einer Pause (Hintergrund, Hochformat) bleibt der Sektor stehen.
   - AT-41.6: Das Zifferblatt nutzt nur Token-Farben, ist nicht antippbar und liegt vollständig im Bildschirm, ohne andere Elemente zu überlappen.
-- [ ] **B-42 Rundenende**: Nach Ablauf läuft das aktuelle Wort unverändert weiter (Aufdecken, Vorlesen beliebig oft); erst nach „Wusste ich“/„Noch üben“ (Lernstand gespeichert) kommt der Abschluss statt eines neuen Worts.
+- [x] **B-42 Rundenende**: Nach Ablauf läuft das aktuelle Wort unverändert weiter (Aufdecken, Vorlesen beliebig oft); erst nach „Wusste ich“/„Noch üben“ (Lernstand gespeichert) kommt der Abschluss statt eines neuen Worts.
   - AK: E2E mit verkürzter Dauer (Test-Parameter `?dur=10s`, nur in Dev/Test): Timer läuft ab → Flagge mehrfach tippbar, Audio startet jeweils → Selbsteinschätzung → Abschluss; Fall „Timer läuft vor dem Aufdecken ab“ abgedeckt.
   - Hinweis: Statt `?dur=10s` steuern die Tests die Uhr mit Playwrights Clock-API (siehe B-40); seit B-26 ersetzt der Lautsprecher die Flagge.
   - AT-42.1: Läuft die Zeit **vor** dem Aufdecken ab, bleibt das Wort; der Lautsprecher deckt auf und spielt mehrfach (jeweils von vorn); erst nach „Wusste ich“/„Noch üben“ kommt der Abschluss statt eines neuen Worts.
