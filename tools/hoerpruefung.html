@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hörprüfung – Mimi &amp; Mots</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: ui-rounded, system-ui, sans-serif;
+        background: #f8f4fb;
+        color: #3b2a63;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 900px;
+      }
+      td,
+      th {
+        padding: 8px 12px;
+        border-bottom: 1px solid #dccdee;
+        text-align: left;
+        font-size: 18px;
+      }
+      button {
+        min-width: 56px;
+        min-height: 44px;
+        border: none;
+        border-radius: 22px;
+        background: #6a4c9c;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      button.missing {
+        background: #4a4458;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hörprüfung Audio (nur im Dev-Server)</h1>
+    <p>▶ spielt die Datei ab. Ergebnisse bitte in <code>audio-check.md</code> abhaken.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>Deutsch</th>
+          <th>Englisch</th>
+          <th></th>
+          <th>Französisch</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <script type="module">
+      import words from '../src/data/words.json';
+
+      const base = import.meta.env.BASE_URL;
+      const audio = new Audio();
+
+      const playButton = (lang, id) => {
+        const button = document.createElement('button');
+        button.textContent = '▶';
+        button.setAttribute('aria-label', `${lang} ${id} abspielen`);
+        button.addEventListener('click', () => {
+          audio.src = `${base}audio/${lang}/${id}.mp3?t=${Date.now()}`;
+          audio.play().catch(() => button.classList.add('missing'));
+        });
+        return button;
+      };
+
+      const cell = (content) => {
+        const td = document.createElement('td');
+        td.append(content);
+        return td;
+      };
+
+      document.querySelector('#rows').append(
+        ...words.map((w) => {
+          const tr = document.createElement('tr');
+          tr.append(
+            cell(w.id),
+            cell(`${w.emoji} ${w.de}`),
+            cell(w.en),
+            cell(playButton('en', w.id)),
+            cell(w.fr),
+            cell(playButton('fr', w.id)),
+          );
+          return tr;
+        }),
+      );
+    </script>
+  </body>
+</html>
