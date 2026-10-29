@@ -378,7 +378,7 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  width: clamp(180px, 20vw, 260px);
+  width: clamp(200px, 25vw, 300px);
 }
 
 .flag-button {
@@ -401,12 +401,18 @@
   pointer-events: none;
 }
 
+/* Fester Bereich für bis zu zwei Zeilen à 56 px, damit das Aufdecken nichts verschiebt;
+   lange Wörter werden per fitText() kleiner gesetzt. */
 .round__foreign {
-  min-height: 1.3em;
+  width: 100%;
+  height: 136px;
+  overflow: hidden;
   font-size: 56px;
   font-weight: 800;
-  line-height: 1.3;
+  line-height: 1.2;
   text-align: center;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .round__rating {

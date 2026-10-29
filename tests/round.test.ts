@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WORDS, getWord } from '../src/data/words';
 import { seededRng } from '../src/scheduler';
 import { defaults } from '../src/storage';
@@ -80,5 +80,62 @@ describe('renderRound', () => {
     const { el } = renderRound(store);
     expect(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId).toBe('hund');
     expect(store.getState().round!.session.history).toEqual(['hund']);
+  });
+});
+
+describe('Aufdecken in der Lernrunde (B-22)', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  function withSpeech() {
+    const synth = { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] };
+    vi.stubGlobal('speechSynthesis', synth);
+    vi.stubGlobal(
+      'SpeechSynthesisUtterance',
+      class {
+        lang = '';
+        constructor(public text: string) {}
+      },
+    );
+    return synth;
+  }
+
+  it('Tipp auf Flagge zeigt das Fremdwort und liest es vor', () => {
+    const synth = withSpeech();
+    const store = roundStore('fr');
+    const { el } = renderRound(store);
+    const word = getWord(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId!)!;
+    el.querySelector<HTMLButtonElement>('.flag-button')!.click();
+    expect(el.querySelector('.round__foreign')!.textContent).toBe(word.fr);
+    expect(el.querySelector('.round__foreign')!.getAttribute('lang')).toBe('fr');
+    expect(synth.speak).toHaveBeenCalledTimes(1);
+    expect(synth.speak.mock.calls[0][0].text).toBe(word.fr);
+  });
+
+  it('erneuter Tipp liest erneut von vorn vor', () => {
+    const synth = withSpeech();
+    const { el } = renderRound(roundStore('en'));
+    const flag = el.querySelector<HTMLButtonElement>('.flag-button')!;
+    flag.click();
+    flag.click();
+    flag.click();
+    expect(synth.speak).toHaveBeenCalledTimes(3);
+    expect(synth.cancel).toHaveBeenCalledTimes(3);
+  });
+
+  it('neues Wort verdeckt das Fremdwort wieder', () => {
+    withSpeech();
+    const store = roundStore('en');
+    const { el } = renderRound(store);
+    el.querySelector<HTMLButtonElement>('.flag-button')!.click();
+    store.dispatch({ type: 'word', id: 'hund', session: store.getState().round!.session });
+    expect(el.querySelector('.round__foreign')!.textContent).toBe('');
+    expect(el.dataset.revealed).toBe('false');
+  });
+
+  it('dispose beendet eine laufende Wiedergabe', () => {
+    const synth = withSpeech();
+    const { dispose } = renderRound(roundStore('en'));
+    dispose!();
+    expect(synth.cancel).toHaveBeenCalled();
   });
 });

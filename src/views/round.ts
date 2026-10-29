@@ -1,5 +1,7 @@
-// Lernrunde (anforderungen.md §3.2). B-21: Wortkarte und Flaggen-Button, Fremdwort verborgen.
-// Freigehaltener Platz für Avatar (B-24), Timer (B-41), Fremdwort (B-22), Bewertung (B-23).
+// Lernrunde (anforderungen.md §3.2): Wortkarte, Flagge zum Aufdecken und Vorlesen.
+// Freigehaltener Platz für Avatar (B-24), Timer (B-41), Bewertung (B-23).
+import { speak, stopSpeaking } from '../audio';
+import { fitText } from '../components/fit-text';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { WORDS, getWord, type Language } from '../data/words';
 import { pickNext } from '../scheduler';
@@ -7,6 +9,8 @@ import type { AppState, Store } from '../state';
 import type { ViewHandle } from './view';
 
 const WORD_IDS = WORDS.map((w) => w.id);
+const FOREIGN_MAX_PX = 56;
+const FOREIGN_MIN_PX = 28;
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -61,8 +65,18 @@ export function renderRound(store: Store): ViewHandle {
   flagImg.alt = '';
   flagImg.draggable = false;
   flag.append(flagImg);
-  const foreign = el('p', 'round__foreign'); // bleibt leer bis zum Aufdecken (B-22)
+  const foreign = el('p', 'round__foreign'); // bleibt leer bis zum Aufdecken
+  foreign.lang = language;
   answer.append(flag, foreign);
+
+  // Tipp auf Flagge: aufdecken und (erneut, von vorn) vorlesen
+  flag.addEventListener('click', () => {
+    const id = store.getState().round?.wordId;
+    const word = id ? getWord(id) : undefined;
+    if (!word) return;
+    store.dispatch({ type: 'reveal' });
+    speak(word[language], language);
+  });
 
   stage.append(avatar, card, answer);
 
@@ -78,14 +92,30 @@ export function renderRound(store: Store): ViewHandle {
     emoji.textContent = word.emoji;
     emoji.setAttribute('aria-label', word.de);
     german.textContent = word.de;
+    showForeign(state);
+  };
+
+  const showForeign = (state: AppState) => {
+    const word = state.round?.wordId ? getWord(state.round.wordId) : undefined;
+    const revealed = !!word && !!state.round?.revealed;
+    view.dataset.revealed = String(revealed);
+    foreign.textContent = revealed ? word[language] : '';
+    if (revealed) fitText(foreign, FOREIGN_MAX_PX, FOREIGN_MIN_PX);
   };
 
   const unsubscribe = store.subscribe((state, previous) => {
     if (state.round?.wordId !== previous.round?.wordId) showWord(state);
+    else if (state.round?.revealed !== previous.round?.revealed) showForeign(state);
   });
 
   if (store.getState().round?.wordId) showWord(store.getState());
   else showNextWord(store);
 
-  return { el: view, dispose: unsubscribe };
+  return {
+    el: view,
+    dispose() {
+      unsubscribe();
+      stopSpeaking();
+    },
+  };
 }
