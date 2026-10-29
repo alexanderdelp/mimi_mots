@@ -139,7 +139,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: Bestehende Tests werden angepasst (Kachelanzahl, „5 Min.“ → „5 Minuten“, Flaggen-Button → Lautsprecher-Button, Bewertungs-Buttons ohne Text).
 
 ## M3 – Audio
-- [ ] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
+- [x] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
   - AK: Skript erzeugt `public/audio/{en,fr}/<id>.mp3`; Gesamtgröße < 2 MB.
   - Hinweis: Kein Browser beteiligt – die Akzeptanztests rufen das echte Skript mit Kokoro und ffmpeg in einem Temp-Ordner auf (`scripts/test_generate_audio.py`, `npm run test:audio`, Python-`unittest`).
   - AT-30a.1: Für zwei Testwörter erzeugt das Skript `<out>/en/<id>.mp3` und `<out>/fr/<id>.mp3` (EN mit `bf_emma`, FR mit `ff_siwis`, FR mit Artikel).
@@ -149,14 +149,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-30a.5: Liegt eine Datei in `audio-overrides/<lang>/<id>.(mp3|wav|m4a)`, wird sie statt Kokoro verwendet (gleiche Nachbearbeitung) und ersetzt eine ältere erzeugte Datei.
   - AT-30a.6: `npm run audio -- --help` läuft; fehlen Modell oder Stimmen, bricht das Skript mit verständlicher Meldung ab (Hinweis auf README).
   - AT-30a.7: Die README beschreibt die einmalige Einrichtung (venv, Pakete, Modell-Download) und nennt die Lizenzen (Kokoro Apache-2.0, SIWIS CC BY 4.0).
-- [ ] **B-30b Audio erzeugen & prüfen**: Dateien generieren, Hörprüfliste `audio-check.md` (id, ok/neu) zum Abhaken durch den Menschen.
+- [x] **B-30b Audio erzeugen & prüfen**: Dateien generieren, Hörprüfliste `audio-check.md` (id, ok/neu) zum Abhaken durch den Menschen.
   - AT-30b.1: Für jedes Wort der Liste gibt es `public/audio/fr/<id>.mp3`, keine überzähligen Dateien; für Englisch gibt es keine MP3s (Entscheidung §11: Gerätestimme) (Unit-Test).
   - AT-30b.2: Gesamtgröße aller Audiodateien < 2 MB, jede Datei < 16 KB und gültiges MP3 (Unit-Test).
   - AT-30b.3: Der Produktionsbuild liefert die Dateien unter `/mimi_mots/audio/<lang>/<id>.mp3` aus (Status 200, `audio/mpeg`).
   - AT-30b.4: `audio-check.md` enthält jedes Wort genau einmal mit einem Kästchen für Französisch (Unit-Test).
   - AT-30b.5: Die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server, nicht im Build) listet alle Wörter mit einem Abspiel-Button für Französisch.
   - Menschliche Abnahme: Hörprüfung der 50 französischen Dateien, Ergebnis in `audio-check.md`. Englisch (bf_emma) fiel im Klangvergleich durch einen falschen Anfangslaut durch.
-- [ ] **B-31 Audio-Modul**: Vorladen der Session-Dateien, Abspielen per `HTMLAudioElement`, Neustart bei erneutem Tipp, Fallback Web Speech (en-GB/fr-FR) bei fehlender Datei.
+- [x] **B-31 Audio-Modul**: Vorladen der Session-Dateien, Abspielen per `HTMLAudioElement`, Neustart bei erneutem Tipp, Fallback Web Speech (en-GB/fr-FR) bei fehlender Datei.
   - AK: Unit-Test für Fallback-Logik (gemockt); manueller Test auf iPad.
   - AT-31.1: Französisch: Tipp auf den Lautsprecher spielt die MP3 des Worts (`audio/fr/<id>.mp3`) über `HTMLAudioElement`; Web Speech wird dabei nicht benutzt.
   - AT-31.1b: Englisch: Tipp auf den Lautsprecher liest direkt mit der Gerätestimme vor (en-GB); es wird keine MP3 angefragt oder abgespielt.
@@ -186,6 +186,10 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 - [ ] **B-60 Layout-Prüfung**: Screenshot-Tests aller Views auf 3 Viewports; keine Überläufe; Kontrast geprüft.
 - [ ] **B-61 Leitprinzipien-Review**: Checkliste – keine Bewertung/Belohnung, keine Avatar-Animation, ≥ 88 px Touch-Ziele, wenig Text.
 - [ ] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten.
+
+## Nach Abschluss
+- [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
+  - Optional: Englisch erneut prüfen (Kokoro `bf_emma` hatte einen falschen Anfangslaut, derzeit Gerätestimme).
 
 ## Später
 - Weitere Dauern und Sprachen · Themenwahl · Elternbereich (Reset) · Eigene Illustrationen
