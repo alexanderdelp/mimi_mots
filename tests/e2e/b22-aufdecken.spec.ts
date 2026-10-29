@@ -45,6 +45,7 @@ const key = { Englisch: 'en', Französisch: 'fr' } as const;
 test.describe('B-22 Aufdecken', () => {
   for (const language of ['Englisch', 'Französisch'] as const) {
     test(`AT-22.1: Fremdwort erscheint und passt (${language})`, async ({ page }) => {
+      test.slow(); // 6 Runden hintereinander – im vollen Parallel-Lauf über 30 s
       await fakeSpeech(page);
       await startRound(page, language);
       // mehrere Runden, damit auch lange Wörter vorkommen
