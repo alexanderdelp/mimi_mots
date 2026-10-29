@@ -108,7 +108,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-23.6: 12 Wörter hintereinander bewerten: nie dasselbe Wort innerhalb von 3 anderen; alle bewerteten Wörter stehen im Lernstand.
   - AT-23.7: Der Lernstand gilt pro Sprache: Bewertungen auf Französisch ändern den englischen Lernstand nicht.
   - AT-23.8: Das Erscheinen der Buttons verschiebt Karte, Flagge und Fremdwort nicht; alles bleibt im Bildschirm.
-- [ ] **B-24 Avatar in der Runde**: Avatar links; Pose „zeigt“ bei neuem Wort, „freut“ nach Aufdecken; reiner Bildtausch; alle Posen vorgeladen.
+- [x] **B-24 Avatar in der Runde**: Avatar links; Pose „zeigt“ bei neuem Wort, „freut“ nach Aufdecken; reiner Bildtausch; alle Posen vorgeladen.
   - AT-24.1: In der Lernrunde steht der gewählte Begleiter links neben der Karte (keine Überlappung), bei einem neuen Wort in der Pose „zeigt“.
   - AT-24.2: Nach dem Aufdecken wechselt er zu „freut“; weitere Tipps auf die Flagge ändern daran nichts.
   - AT-24.3: Beim nächsten Wort zeigt er wieder („zeigt“).
