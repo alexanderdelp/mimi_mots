@@ -24,7 +24,7 @@ describe('renderEnd (B-43)', () => {
     const { el } = renderEnd(endStore());
     expect(el.querySelector('header.app-header h1')!.textContent).toBe('Mimi & Mots');
     expect(el.querySelector('.end__text')!.textContent).toBe(END_TEXT);
-    expect(END_TEXT).toBe('Viel Spaß beim Spielen!');
+    expect(END_TEXT).toBe('Bis zum nächsten Mal!');
     expect(el.textContent).not.toMatch(/\d/);
   });
 

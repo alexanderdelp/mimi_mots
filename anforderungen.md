@@ -32,7 +32,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - **Auswahlzustand:** ausgewählt = dicker lila Rahmen (5 px, `--lila-700`) + Hintergrund `--lila-100`; nicht ausgewählt = dünner dunkelgrauer Rahmen (2 px, `--grau-700`) + weißer Hintergrund. Größe der Kacheln ändert sich nicht.
 - **Play-Button** (rund, lila, ≥ 96 px) unten mittig. Aktiv, sobald alle drei Gruppen eine Auswahl haben.
 - Letzte Auswahl (Begleiter, Sprache, Dauer) wird gespeichert und beim nächsten Start vorbelegt. Beim allerersten Start: Dauer vorbelegt, Begleiter und Sprache leer.
-- Fragen bleiben als kurze Überschrift („Wer begleitet dich?“, „Welche Sprache?“, „Wie lange?“).
+- Fragen bleiben als kurze Überschrift („Wer begleitet dich?“, „In welcher Sprache?“, „Wie lange?“).
 
 ### 3.2 Lernrunde
 **Layout (quer):**
@@ -60,7 +60,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 
 ### 3.3 Abschluss
 - Avatar-Pose „winkt“, groß.
-- Kurzer Text: „Viel Spaß beim Spielen!“ (o. ä., ohne Leistungsbezug).
+- Kurzer Text: „Bis zum nächsten Mal!“ (o. ä., ohne Leistungsbezug).
 - Button „Zurück“ (Haus-Icon) → Startbildschirm.
 - Keine Zusammenfassung, keine Anzahl Wörter.
 
@@ -202,6 +202,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Aussprache: Französisch aus vorproduzierten Kokoro-MP3s (`ff_siwis`, Hörprüfung ok). Englisch vorerst live über die Gerätestimme (Web Speech, en-GB): Kokoro `bf_emma` sprach im Klangvergleich bei jedem Wort einen falschen Anfangslaut mit (z. B. „egg“ → „leg“); weder Einblenden noch Satzkontext halfen. Pro Sprache steuert `audioFiles` in `src/data/languages.ts`, ob MP3s genutzt werden. Später prüfen: Piper (en_GB) oder eigene Aufnahmen.
 - 2026-10-29: Timer-Zifferblatt (B-41): Die volle Scheibe entspricht der gewählten Dauer (5 bzw. 10 Minuten), nicht einer 60-Minuten-Skala wie beim echten Time Timer – auf 120 px wäre ein 30°-Keil für ein Kind kaum ablesbar. Die Uhr-Symbole der Startseite zeigen weiterhin 5 bzw. 10 von 60 Minuten, damit sich die Kacheln unterscheiden.
 - 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
+- 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
 
 ## 12. Später (nicht in v1)

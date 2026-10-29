@@ -106,7 +106,7 @@ describe('deaktivierte Kachel (B-26)', () => {
   it('wird in einer Gruppe nie ausgewählt', () => {
     const onChange = vi.fn();
     const group = createChoiceGroup(
-      'Welche Sprache?',
+      'In welcher Sprache?',
       [
         { value: 'en', content: [] },
         { value: 'ja', content: [], disabled: true },

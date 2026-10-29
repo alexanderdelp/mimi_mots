@@ -59,7 +59,7 @@ export function renderStart(store: Store): ViewHandle {
   );
 
   const languages = createChoiceGroup<Language | 'ja'>(
-    'Welche Sprache?',
+    'In welcher Sprache?',
     [
       ...LANGUAGES.map((language) => ({
         value: language,

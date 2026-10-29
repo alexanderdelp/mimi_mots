@@ -54,7 +54,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: Geprüft wird in der Vorschau `?vorschau=kacheln` (Begleiter-, Flaggen- und Dauer-Kacheln), bis die Startansicht (B-11) die Kacheln nutzt.
 - [x] **B-11 Startansicht**: Header mit Icon + Titel; Gruppen Begleiter, Sprache, Dauer (nur „5 Min.“ mit Uhr-Symbol); Play-Button. Layout laut Mockup, passt auf alle Ziel-Viewports.
   - AK: Play erst aktiv, wenn alle drei Gruppen gewählt; Screenshot-Tests für 3 Viewports.
-  - AT-11.1: Header mit App-Icon und „Mimi & Mots“; drei Gruppen mit den Überschriften „Wer begleitet dich?“, „Welche Sprache?“, „Wie lange?“.
+  - AT-11.1: Header mit App-Icon und „Mimi & Mots“; drei Gruppen mit den Überschriften „Wer begleitet dich?“, „In welcher Sprache?“, „Wie lange?“.
   - AT-11.2: Begleiter-Kacheln zeigen Bild (Pose „ruhig“) und Namen; Sprach-Kacheln nur die Flagge ohne Text; Dauer-Kachel ein Uhr-Symbol und „5 Min.“.
   - AT-11.3: Ohne gespeicherte Auswahl ist nur „5 Min.“ ausgewählt und Play deaktiviert; ein Tipp auf das deaktivierte Play bewirkt nichts.
   - AT-11.4: Play wird erst aktiv, wenn Begleiter und Sprache gewählt sind; Tipp auf Play startet die Lernrunde.
@@ -147,6 +147,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-27.6: Der Begleiter steht links unten (Unterkante wie die Bewertungszeile), ist größer als bisher (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) und überlappt keine Karte.
   - AT-27.7: Die Bewertungs-Buttons liegen mittig unter den beiden Karten.
   - AT-27.8: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen.
+  - AT-27.9: Texte: Überschrift der Sprachgruppe „In welcher Sprache?“, Satz im Abschluss „Bis zum nächsten Mal!“ (frühere Akzeptanztests B-11/B-26/B-43 entsprechend angepasst).
   - Hinweis: Frühere Tests mit 5/10 Minuten, der alten Kopfleiste und der Antwortspalte (B-11, B-21, B-22, B-25, B-26, B-40–B-43) werden angepasst; die Screenshots von Start- und Abschlussseite werden neu erzeugt (höhere Kopfleiste).
 
 ## M3 – Audio
@@ -202,9 +203,9 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-42.3: Die Bewertung des letzten Worts wird gespeichert (Lernstand im Speicher), auch wenn danach der Abschluss kommt.
   - AT-42.4: Solange die Zeit nicht abgelaufen ist, führt eine Bewertung wie bisher zum nächsten Wort.
   - AT-42.5: [×] (gedrückt halten) beendet die Runde auch nach Ablauf sofort.
-- [x] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Viel Spaß beim Spielen!“, Haus-Button → Start. Keine Statistik.
+- [x] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Bis zum nächsten Mal!“, Haus-Button → Start. Keine Statistik.
   - AT-43.1: Der Abschluss zeigt die Kopfleiste und den gewählten Begleiter groß (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) in der Pose „winkt“ (Mimi: Katze, Mots: Pony).
-  - AT-43.2: Der Text lautet „Viel Spaß beim Spielen!“; es gibt keine Zahlen, keine Anzahl Wörter, kein Lob und keine Bewertung.
+  - AT-43.2: Der Text lautet „Bis zum nächsten Mal!“; es gibt keine Zahlen, keine Anzahl Wörter, kein Lob und keine Bewertung.
   - AT-43.3: Ein runder lila Haus-Button („Zurück“, nur Symbol) führt zur Startseite; die Auswahl ist dort noch vorbelegt.
   - AT-43.4: Der Abschluss ist derselbe, egal ob die Runde per Zeitablauf (B-42) oder per [×] endet.
   - AT-43.5: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen; Screenshot-Vergleich je Viewport.

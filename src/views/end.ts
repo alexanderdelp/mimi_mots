@@ -6,7 +6,7 @@ import { roundButton } from '../components/icons';
 import type { Store } from '../state';
 import type { ViewHandle } from './view';
 
-export const END_TEXT = 'Viel Spaß beim Spielen!';
+export const END_TEXT = 'Bis zum nächsten Mal!';
 
 export function renderEnd(store: Store): ViewHandle {
   const view = document.createElement('main');

@@ -61,7 +61,7 @@ test.describe('B-43 Abschlussansicht', () => {
       await btn(page, 'Wusste ich').click();
     }
     await closeRound(page);
-    await expect(view(page, 'end').locator('.end__text')).toHaveText('Viel Spaß beim Spielen!');
+    await expect(view(page, 'end').locator('.end__text')).toHaveText('Bis zum nächsten Mal!');
     const text = await view(page, 'end').innerText();
     expect(text).not.toMatch(/\d/);
     expect(text).not.toMatch(/super|toll|richtig|falsch|prima|gut gemacht|punkt|stern|wörter/i);
@@ -91,7 +91,7 @@ test.describe('B-43 Abschlussansicht', () => {
     await btn(page, 'Auf Französisch anhören').click();
     await btn(page, 'Noch üben').click();
     await expect(view(page, 'end')).toBeVisible();
-    await expect(view(page, 'end').locator('.end__text')).toHaveText('Viel Spaß beim Spielen!');
+    await expect(view(page, 'end').locator('.end__text')).toHaveText('Bis zum nächsten Mal!');
     await expect(view(page, 'end').locator('.avatar')).toHaveAttribute('data-pose', 'winkt');
     await expect(btn(page, 'Zurück')).toBeVisible();
   });

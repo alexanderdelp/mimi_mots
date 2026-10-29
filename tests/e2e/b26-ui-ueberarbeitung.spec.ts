@@ -73,7 +73,7 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
   });
 
   test('AT-26.3: Sprachen 2 × 2 mit Japanisch ausgegraut', async ({ page }) => {
-    const group = page.getByRole('group', { name: 'Welche Sprache?' });
+    const group = page.getByRole('group', { name: 'In welcher Sprache?' });
     await expect(group.getByRole('button')).toHaveCount(3);
     const [en, fr, ja] = [
       btn(page, 'Englisch'),

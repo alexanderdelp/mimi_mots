@@ -23,10 +23,10 @@ test.describe('B-11 Startansicht', () => {
     await expect(header.getByRole('heading', { level: 1 })).toHaveText('Mimi & Mots');
     await expect(page.getByRole('heading', { level: 2 })).toHaveText([
       'Wer begleitet dich?',
-      'Welche Sprache?',
+      'In welcher Sprache?',
       'Wie lange?',
     ]);
-    for (const name of ['Wer begleitet dich?', 'Welche Sprache?', 'Wie lange?']) {
+    for (const name of ['Wer begleitet dich?', 'In welcher Sprache?', 'Wie lange?']) {
       await expect(page.getByRole('group', { name })).toBeVisible();
     }
   });
