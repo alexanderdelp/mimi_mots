@@ -26,7 +26,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 ### 3.1 Startbildschirm
 - Header: App-Icon + „Mimi & Mots“.
 - **Begleiter:** zwei große Kacheln (Mimi, Mots) mit Bild (Pose „ruhig“) und Name.
-- **Sprache:** flache Kacheln mit Flagge, ohne Text, im 2 × 2-Raster: Englisch (`flag_gb.png`), Französisch (`flag_fr.png`), Japanisch (`flag_jp.svg`, ausgegraut, noch nicht wählbar), vierter Platz frei.
+- **Sprache:** flache Kacheln mit Flagge, ohne Text, im 2 × 2-Raster: Englisch (`flag_gb.svg`), Französisch (`flag_fr.svg`), Japanisch (`flag_jp.svg`, ausgegraut, noch nicht wählbar), vierter Platz frei.
 - **Dauer:** zwei flache Kacheln untereinander, nur mit Uhr-Symbol (Optik wie Timer, Sektor zeigt 5 bzw. 10 Minuten), ohne Text. 5 Minuten ist beim Erststart vorausgewählt.
 - **Kachelgrößen:** Kacheln einer Gruppe sind gleich groß; Sprach- und Dauer-Kacheln sind halb so hoch wie die Begleiter-Kacheln.
 - **Auswahlzustand:** ausgewählt = dicker lila Rahmen (5 px, `--lila-700`) + Hintergrund `--lila-100`; nicht ausgewählt = dünner dunkelgrauer Rahmen (2 px, `--grau-700`) + weißer Hintergrund. Größe der Kacheln ändert sich nicht.
@@ -196,6 +196,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Takt neuer Wörter (§5): Solange weniger als 6 Wörter bekannt sind, wird mit neuen aufgefüllt; sonst ist jedes 3. Wort neu, bis 6 neue eingeführt sind. Bekannte Wörter werden nach Leitner-Box gewichtet. Grund: Mit „neues Wort als gewichteter Platz“ kamen in späteren Sessions nur noch 2–3 neue Wörter.
 - 2026-10-29: Ausnahme von der 200-ms-Regel (Leitprinzip 4): Beim Gedrückthalten von [×] füllt sich ein Fortschrittsring über 600 ms (= Long-Press-Dauer). Er ist Rückmeldung auf eine Bedienung, keine Deko; bei „Bewegung reduzieren“ ohne Animation.
 - 2026-10-29: UI-Überarbeitung (B-26): Dauer 5 oder 10 Minuten (nur Uhr-Symbol); Sprachkacheln flach im 2 × 2-Raster mit Japanisch ausgegraut; Kopfleiste auch in der Lernrunde; Lautsprecher-Button statt Tipp auf die Flagge; Bewertung als runde lila Buttons nur mit Symbol. Kacheln sind nur noch innerhalb einer Gruppe gleich groß.
+- 2026-10-29: Flaggen GB/FR als SVG statt der gelieferten PNGs (214 × 143 px waren auf dem Retina-iPad in der großen Darstellung unscharf); alle Flaggen im Seitenverhältnis 3 : 2.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
 
 ## 12. Später (nicht in v1)

@@ -58,7 +58,7 @@ describe('renderRound', () => {
     const { el } = renderRound(roundStore('fr'));
     const speaker = el.querySelector('.speak-button')!;
     expect(speaker.getAttribute('aria-label')).toBe('Auf Französisch anhören');
-    expect(el.querySelector('.round__flag')!.getAttribute('src')).toMatch(/flag_fr\.png$/);
+    expect(el.querySelector('.round__flag')!.getAttribute('src')).toMatch(/flag_fr\.svg$/);
   });
 
   it('aktualisiert die Karte beim nächsten Wort und meldet sich mit dispose ab', () => {
