@@ -90,7 +90,17 @@ Regeln: Auswahlkacheln haben immer gleiche Größe; Rahmendicke-Wechsel darf das
 - Layout mit `100dvh`/`100dvw`, Größen per `clamp()`/`min(vw, vh)`, damit nichts überläuft.
 
 ## Arbeitsweise
-- Arbeite `backlog.md` von oben nach unten ab. Pro Aufgabe: umsetzen → Tests → Häkchen in `backlog.md` setzen → kurzer Commit (`feat: B-12 Timer-Zifferblatt`).
+- Arbeite `backlog.md` von oben nach unten ab, eine Aufgabe nach der anderen.
+- **Umgebung zuerst:** Wird für eine Aufgabe neue Software benötigt (z. B. Python, ffmpeg, Playwright-Browser), wird sie gemeinsam installiert, bevor die Umsetzung beginnt.
+- **Ablauf pro Aufgabe:**
+  1. Feature-Branch von aktuellem `main` anlegen (`feat/b-12-timer-zifferblatt`, `chore/…`, `fix/…`).
+  2. **Vor der Umsetzung** E2E-Akzeptanztests ausdenken und als Liste unter der Aufgabe in `backlog.md` eintragen (`AT-12.1 …`), dann als Playwright-Tests umsetzen.
+  3. Implementieren; dabei sinnvolle Unit-Tests (Vitest) ergänzen.
+  4. **Fertig** ist eine Aufgabe, wenn sie funktional korrekt umgesetzt ist und **alle** bisher existierenden Akzeptanz- und Unit-Tests grün sind (plus Lint und die Definition of Done unten).
+  5. Übergabe zur **lokalen Abnahme** durch den Menschen (Dev-Server/Preview, ggf. iPad). Ohne Abnahme kein Pull Request.
+  6. Nach grüner Abnahme: Häkchen in `backlog.md`, Commit (`feat: B-12 Timer-Zifferblatt`), Push, Pull Request nach `main` erstellen und mergen.
+  7. Nach erfolgreichem Merge den Feature-Branch lokal und auf GitHub löschen, `main` lokal aktualisieren.
+- Nie direkt auf `main` committen.
 - Vor größeren Entscheidungen, die von `anforderungen.md` abweichen: fragen.
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.
 - Keine neuen Abhängigkeiten ohne Begründung. Keine CDN-Links.
@@ -99,5 +109,7 @@ Regeln: Auswahlkacheln haben immer gleiche Größe; Rahmendicke-Wechsel darf das
 ## Definition of Done
 - Ansicht passt ohne Scrollen auf 1024 × 768, 1180 × 820, 1366 × 1024 (Playwright-Screenshot-Test).
 - Funktioniert offline nach erstem Laden (im Flugmodus geprüft).
-- Keine Konsolenfehler, Lint grün, Tests grün.
+- Keine Konsolenfehler, Lint grün, alle Unit- und Akzeptanztests grün (auch die früherer Aufgaben).
+- Akzeptanztests der Aufgabe stehen in `backlog.md` und sind als Playwright-Tests umgesetzt.
+- Lokale Abnahme durch den Menschen erfolgt.
 - Keine bewertenden Elemente (Leitprinzip 1) eingeschlichen.
