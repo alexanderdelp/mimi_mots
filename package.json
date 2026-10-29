@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "lint": "eslint . && prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "audio": "node scripts/run-python.mjs scripts/generate_audio.py",
+    "test:audio": "node scripts/run-python.mjs scripts/test_generate_audio.py"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
