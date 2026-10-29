@@ -55,6 +55,21 @@ describe('renderRound', () => {
     expect(card.querySelector('.word-card__de')!.textContent).toBe(word.de);
   });
 
+  it('AT-66.2/66.3: deutsches Wort in Silben, abwechselnd a/b', () => {
+    const store = roundStore();
+    store.dispatch({ type: 'play' });
+    const { el } = renderRound(store);
+    store.dispatch({ type: 'word', id: 'banane', session: store.getState().round!.session });
+    const spans = [...el.querySelectorAll<HTMLElement>('.word-card__de .word-card__syllable')];
+    expect(spans.map((s) => s.textContent)).toEqual(['Ba', 'na', 'ne']);
+    expect(spans.map((s) => s.className.split('--')[1])).toEqual(['a', 'b', 'a']);
+    store.dispatch({ type: 'word', id: 'hund', session: store.getState().round!.session });
+    const one = el.querySelectorAll('.word-card__de .word-card__syllable');
+    expect([...one].map((s) => s.className)).toEqual([
+      'word-card__syllable word-card__syllable--a',
+    ]);
+  });
+
   it('enthält das Fremdwort nicht', () => {
     const store = roundStore('fr');
     const { el } = renderRound(store);

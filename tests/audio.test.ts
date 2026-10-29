@@ -87,7 +87,14 @@ describe('speak', () => {
 });
 
 describe('createAudioPlayer (B-31)', () => {
-  const word = { id: 'apfel', emoji: '🍎', de: 'Apfel', en: 'apple', fr: 'la pomme' };
+  const word = {
+    id: 'apfel',
+    emoji: '🍎',
+    de: 'Apfel',
+    syllables: ['Ap', 'fel'],
+    en: 'apple',
+    fr: 'la pomme',
+  };
 
   /** Attrappe für ein Audio-Element; play() liefert das übergebene Ergebnis. */
   function fakeAudio(playResult: () => Promise<void> = () => Promise.resolve()) {

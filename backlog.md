@@ -263,6 +263,12 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-65.7: Das Icon in der Kopfleiste der Schlafseite 600 ms gedrückt halten → Startseite, beide Begleiter wach, beide Dauern frei, Auswahl wie zuletzt. Kürzer halten oder tippen bewirkt nichts. Kein Hinweis: Das Icon ist keine Schaltfläche (keine Rolle, kein Name) und verändert sich beim Drücken nicht.
   - AT-65.9: Wird die App an einem späteren Tag geöffnet (oder nach Mitternacht aus dem Hintergrund zurückgeholt), sind alle Begleiter wach und alle Dauern frei. Maßgeblich ist das lokale Datum des Einschlafens.
   - AT-65.8: Schlafseite und Startseite mit schlafendem Begleiter passen ohne Scrollen auf 1024 × 768, 1180 × 820 und 1366 × 1024 (Screenshot).
+- [x] **B-66 Silbenfarben**: Das deutsche Wort auf der Wortkarte wird silbenweise abwechselnd gefärbt (Silbenmethode für Leseanfänger): 1., 3., … Silbe in der Schriftfarbe `--lila-900`, 2., 4., … in der neuen Farbe `--beere-600` (#B03A75, Kontrast auf Weiß 5,7 : 1). Die Silben (Sprechsilben, wie in der Grundschule) stehen von Hand gepflegt in `words.json` (`syllables`).
+  - AT-66.1: Jedes Wort hat `syllables`; zusammengesetzt ergeben sie genau das deutsche Wort, keine Silbe ist leer (Unit-Test).
+  - AT-66.2: Auf der Wortkarte stehen die Silben in Reihenfolge; ungerade Silben in `--lila-900`, gerade in `--beere-600` (z. B. „Ba|na|ne“: lila, beere, lila).
+  - AT-66.3: Einsilbige Wörter (z. B. „Hund“) sind einfarbig in `--lila-900`.
+  - AT-66.4: `--beere-600` hat auf Weiß einen Kontrast ≥ 4,5 : 1 und unterscheidet sich deutlich von `--lila-900` (Unit-Test).
+  - AT-66.5: Das Wort bleibt ein Wort: keine Abstände oder Trennzeichen, Text der Karte = deutsches Wort; lange Wörter („Schmetterling“, „Regenschirm“) passen weiterhin auf allen drei Viewports.
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später

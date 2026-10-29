@@ -94,7 +94,9 @@ test.describe('B-23 Selbsteinschätzung', () => {
     await startRound(page);
     await flag(page).click();
     const textBefore = (await page.locator('[data-view="round"]').innerText()).length;
-    const childCount = await page.locator('[data-view="round"] *').count();
+    // Silben-Spans (B-66) hängen vom Wort ab und zählen nicht mit
+    const elements = () => page.locator('[data-view="round"] *:not(.word-card__syllable)').count();
+    const childCount = await elements();
     const t0 = Date.now();
     await known(page).click();
     await expect(page.locator('.word-card__de')).not.toHaveText('');
@@ -105,7 +107,7 @@ test.describe('B-23 Selbsteinschätzung', () => {
     });
     for (const d of elapsed) expect(d).toBeLessThanOrEqual(200);
     // keine neuen Elemente (Lob, Häkchen, Sterne …)
-    expect(await page.locator('[data-view="round"] *').count()).toBe(childCount);
+    expect(await elements()).toBe(childCount);
     const textAfter = (await page.locator('[data-view="round"]').innerText()).length;
     expect(textAfter).toBeLessThanOrEqual(textBefore + 20);
     // Lob-Wörter dürfen nirgends stehen – außer im Lernwort selbst (z. B. ⭐ „Stern“)

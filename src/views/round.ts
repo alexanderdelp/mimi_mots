@@ -137,7 +137,14 @@ export function renderRound(store: Store): ViewHandle {
     card.classList.add('word-card--enter');
     emoji.textContent = word.emoji;
     emoji.setAttribute('aria-label', word.de);
-    german.textContent = word.de;
+    // Silbenmethode (B-66): jede zweite Silbe in einer zweiten Farbe, ohne Trennzeichen
+    german.replaceChildren(
+      ...word.syllables.map((syllable, i) => {
+        const span = el('span', `word-card__syllable word-card__syllable--${i % 2 ? 'b' : 'a'}`);
+        span.textContent = syllable;
+        return span;
+      }),
+    );
     showForeign(state);
   };
 

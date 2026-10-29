@@ -8,6 +8,7 @@
   --lila-50: #f8f4fb; /* Seitenhintergrund */
   --white: #ffffff;
   --grau-700: #4a4458; /* Rahmen nicht ausgewählt */
+  --beere-600: #b03a75; /* jede zweite Silbe des deutschen Worts (B-66) */
   --radius-l: 28px;
   --radius-m: 20px;
   --border-selected: 5px solid var(--lila-700);

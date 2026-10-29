@@ -9,6 +9,8 @@ export interface Word {
   id: string;
   emoji: string;
   de: string;
+  /** Sprechsilben des deutschen Worts für die Silbenfarben (B-66); zusammen = `de`. */
+  syllables: string[];
   /** Englisch, ohne Artikel. */
   en: string;
   /** Französisch, Nomen mit bestimmtem Artikel (la pomme, l'œuf); Farben ohne. */
