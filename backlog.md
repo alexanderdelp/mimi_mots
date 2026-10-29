@@ -211,20 +211,20 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-43.5: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen; Screenshot-Vergleich je Viewport.
 
 ## M5 – PWA & Offline
-- [ ] **B-50 Manifest & Icons**: Vorhandene Icons aus `public/icons/` einbinden (Manifest 192/512/maskable, `apple-touch-icon` 180), Meta-Tags für iOS; Platzhalter im Header durch `icon.svg` ersetzen. Skript `npm run icons` rendert die PNGs aus `icon.svg` neu (z. B. mit `sharp`), damit das Icon später einfach austauschbar ist.
+- [x] **B-50 Manifest & Icons**: Vorhandene Icons aus `public/icons/` einbinden (Manifest 192/512/maskable, `apple-touch-icon` 180), Meta-Tags für iOS; Platzhalter im Header durch `icon.svg` ersetzen. Skript `npm run icons` rendert die PNGs aus `icon.svg` neu (z. B. mit `sharp`), damit das Icon später einfach austauschbar ist.
   - AT-50.1: Die Seite verlinkt das Manifest, das `apple-touch-icon` (180 px), ein SVG-Favicon und setzt `theme-color` #6A4C9C, `apple-mobile-web-app-capable` = yes, Statusleiste `default`, App-Titel „Mimi & Mots“.
   - AT-50.2: Das Manifest wird ausgeliefert: Name „Mimi & Mots“, `display: standalone`, `orientation: landscape`, `lang: de`, `theme_color` #6A4C9C, `background_color` #F8F4FB, `start_url`/`scope` = `/mimi_mots/`, Icons 192, 512 und maskable 512.
   - AT-50.3: Alle im Manifest und in der Seite genannten Icons werden ausgeliefert (Status 200) und haben die angegebene Größe.
   - AT-50.4: `npm run icons` rendert `icon-180/192/512.png` aus `icon.svg` und `icon-maskable-512.png` aus `icon-maskable.svg` in den richtigen Größen (Unit-Test in einem Temp-Ordner).
   - AT-50.5: Die Kopfleiste zeigt `icons/icon.svg` (seit B-11 umgesetzt, Test bleibt bestehen).
-- [ ] **B-51 Service Worker**: vite-plugin-pwa, Precache aller Assets inkl. Audio, stilles Update beim nächsten Start.
+- [x] **B-51 Service Worker**: vite-plugin-pwa, Precache aller Assets inkl. Audio, stilles Update beim nächsten Start.
   - AK: Nach erstem Laden im Flugmodus vollständig nutzbar (Start → Runde mit Audio → Abschluss).
   - AT-51.1: Nach dem ersten Laden ist ein Service Worker aktiv (Bereich `/mimi_mots/`) und kontrolliert die Seite nach dem Neuladen.
   - AT-51.2: Der Precache enthält alle Dateien der App: Seite, Skripte, Styles, Schrift, Manifest, alle Avatare, Flaggen, Icons und alle 50 französischen MP3s; die Abhörseite (`tools/`) nicht.
   - AT-51.3: Offline (wie im Flugmodus): Neuladen zeigt die Startseite; eine französische Runde spielt die MP3 (kein Fallback), lässt sich bewerten und endet im Abschluss; kein Request schlägt fehl.
   - AT-51.4: Stilles Update: kein Hinweis oder Dialog; der neue Service Worker übernimmt nicht sofort (kein `skipWaiting`/`clientsClaim`), sondern beim nächsten Start.
   - AT-51.5: Alle vorab gespeicherten Dateien zusammen sind kleiner als 5 MB (Leitprinzip 5).
-- [ ] **B-52 Hochformat-Overlay**: Avatar + Dreh-Symbol, Timer pausiert.
+- [x] **B-52 Hochformat-Overlay**: Avatar + Dreh-Symbol, Timer pausiert.
   - AT-52.1: Im Hochformat deckt ein Overlay die ganze App ab: gewählter Begleiter in der Pose „ruhig“, ein Dreh-Symbol (SVG, kein Emoji) und der Text „iPad drehen“.
   - AT-52.2: Ist noch kein Begleiter gewählt (Erststart), zeigt das Overlay Mimi; nach Wahl von Mots zeigt es Mots.
   - AT-52.3: Die Ansicht darunter ist gesperrt und bleibt erhalten: Nach dem Zurückdrehen geht es mit derselben Ansicht und demselben Wort weiter.
