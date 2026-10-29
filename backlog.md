@@ -30,8 +30,12 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-04.1: Alle 50 Emojis der Wortliste werden in WebKit als je ein einzelnes Bildzeichen dargestellt (kein Zerfall in mehrere Zeichen, kein leeres Kästchen).
   - AT-04.2: Die Wortliste liegt als `src/data/words.json` vor, die das Audio-Skript direkt lesen kann, und stimmt Eintrag für Eintrag mit der Tabelle in `anforderungen.md` §10 überein (Unit-Test).
   - Hinweis: B-04 hat noch keine Oberfläche; AT-04.1 prüft die Darstellung in einer leeren Testseite.
-- [ ] **B-05 Storage-Modul**: `load()`, `save()`, Defaults, Versionsfeld, robust bei kaputtem JSON.
+- [x] **B-05 Storage-Modul**: `load()`, `save()`, Defaults, Versionsfeld, robust bei kaputtem JSON.
   - AK: Unit-Tests für Defaults, Roundtrip, kaputte Daten.
+  - AT-05.1: Die App startet ohne Konsolenfehler, wenn unter `mimi-mots:v1` kaputtes JSON, ein falscher Datentyp, eine unbekannte Version oder ungültige Einträge liegen.
+  - AT-05.2: Die App startet ohne Fehler, wenn `localStorage` nicht verfügbar ist (Zugriff wirft, wie im privaten Modus).
+  - AT-05.3: Gültige gespeicherte Daten bleiben beim Start und nach Neuladen unverändert erhalten.
+  - Hinweis: Der Roundtrip Speichern → Neuladen über die Oberfläche wird mit B-12 (AT „Auswahl merken“) geprüft; bis dahin per Unit-Test.
 - [ ] **B-06 Router/State**: Views `start | round | end`, einfache Zustandsmaschine; Hochformat-Overlay (B-30) vorbereiten.
 
 ## M1 – Startbildschirm
