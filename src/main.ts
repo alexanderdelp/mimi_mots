@@ -1,8 +1,10 @@
 import './styles/tokens.css';
 import './styles/base.css';
+import './styles/views.css';
+import { renderAvatarPreview } from './views/avatar-preview';
 
-// Einstieg. Router und Views folgen in B-06 ff.
+// Einstieg. Bis zum Router (B-06) zeigt die App die Avatar-Vorschau aus B-03.
 const app = document.querySelector<HTMLDivElement>('#app');
 if (app) {
-  app.textContent = 'Mimi & Mots';
+  renderAvatarPreview(app);
 }
