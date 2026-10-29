@@ -199,6 +199,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Flaggen GB/FR als SVG statt der gelieferten PNGs (214 × 143 px waren auf dem Retina-iPad in der großen Darstellung unscharf); alle Flaggen im Seitenverhältnis 3 : 2.
 - 2026-10-29: Audio (M3): Kokoro über `kokoro-onnx` (gleiches Modell, ohne PyTorch); Python-Umgebung `.venv`, Modell in `.models/` (beides nicht eingecheckt). Beim Start einer Runde werden alle Audiodateien der gewählten Sprache vorgeladen (~450 KB). Hörprüfung über die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server) und `audio-check.md`.
 - 2026-10-29: Aussprache: Französisch aus vorproduzierten Kokoro-MP3s (`ff_siwis`, Hörprüfung ok). Englisch vorerst live über die Gerätestimme (Web Speech, en-GB): Kokoro `bf_emma` sprach im Klangvergleich bei jedem Wort einen falschen Anfangslaut mit (z. B. „egg“ → „leg“); weder Einblenden noch Satzkontext halfen. Pro Sprache steuert `audioFiles` in `src/data/languages.ts`, ob MP3s genutzt werden. Später prüfen: Piper (en_GB) oder eigene Aufnahmen.
+- 2026-10-29: Timer-Zifferblatt (B-41): Die volle Scheibe entspricht der gewählten Dauer (5 bzw. 10 Minuten), nicht einer 60-Minuten-Skala wie beim echten Time Timer – auf 120 px wäre ein 30°-Keil für ein Kind kaum ablesbar. Die Uhr-Symbole der Startseite zeigen weiterhin 5 bzw. 10 von 60 Minuten, damit sich die Kacheln unterscheiden.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
 
 ## 12. Später (nicht in v1)
