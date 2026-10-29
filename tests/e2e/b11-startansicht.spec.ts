@@ -34,8 +34,8 @@ test.describe('B-11 Startansicht', () => {
   test('AT-11.2: Inhalte der Kacheln', async ({ page }) => {
     await expect(btn(page, 'Mimi').locator('img')).toHaveAttribute('src', /cat_sitting\.png$/);
     await expect(btn(page, 'Mots').locator('img')).toHaveAttribute('src', /pony_sitting\.png$/);
-    await expect(btn(page, 'Englisch').locator('img')).toHaveAttribute('src', /flag_gb\.png$/);
-    await expect(btn(page, 'Französisch').locator('img')).toHaveAttribute('src', /flag_fr\.png$/);
+    await expect(btn(page, 'Englisch').locator('img')).toHaveAttribute('src', /flag_gb\.svg$/);
+    await expect(btn(page, 'Französisch').locator('img')).toHaveAttribute('src', /flag_fr\.svg$/);
     for (const name of ['Englisch', 'Französisch']) {
       expect(await btn(page, name).innerText()).toBe(''); // nur Flagge, kein Text
     }

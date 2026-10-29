@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 const AVATARS = ['cat', 'pony'].flatMap((a) =>
   ['sitting', 'pointing', 'idle', 'waving'].map((p) => `avatars/${a}_${p}.png`),
 );
-const FLAGS = ['flags/flag_gb.png', 'flags/flag_fr.png'];
+const FLAGS = ['flags/flag_gb.svg', 'flags/flag_fr.svg', 'flags/flag_jp.svg'];
 const ICONS = [
   'icons/icon.svg',
   'icons/icon-180.png',

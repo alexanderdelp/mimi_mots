@@ -20,7 +20,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-02.5: Die Nunito-Schrift wird von der eigenen Domain geladen (keine externen Requests) und ist nach dem Laden verfügbar.
 - [x] **B-03 Assets einbinden**: Gelieferte PNGs (Avatare, Flaggen) und Icons liegen bereits unverändert in `public/avatars/`, `public/flags/`, `public/icons/` (Namen laut CLAUDE.md). Asset-Mapping Pose → Datei in `src/components/avatar.ts`.
   - AK: Bildtausch zwischen Posen springt nicht (visueller Check im Dev-Server).
-  - AT-03.1: Alle 8 Avatar-PNGs, beide Flaggen und alle Icons werden unter `/mimi_mots/…` mit Status 200 ausgeliefert; Avatare haben 384 × 440 px.
+  - AT-03.1: Alle 8 Avatar-PNGs, alle Flaggen (seit dem Flaggen-Update als SVG) und alle Icons werden unter `/mimi_mots/…` mit Status 200 ausgeliefert; Avatare haben 384 × 440 px.
   - AT-03.2: Position und Größe von Avatar-Box und Bild bleiben beim Posenwechsel identisch (seit B-24 in der Lernrunde geprüft: zeigt ↔ freut, beide Begleiter).
   - AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen (seit B-24 in der Lernrunde).
   - AT-03.4: Der Avatar wird höchstens 440 CSS-px hoch dargestellt, unten ausgerichtet und ohne Verzerrung (`object-fit: contain`) (seit B-24 in der Lernrunde).

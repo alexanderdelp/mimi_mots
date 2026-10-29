@@ -42,7 +42,7 @@ public/
   avatars/   cat_sitting.png, cat_pointing.png, cat_idle.png, cat_waving.png
              pony_sitting.png, pony_pointing.png, pony_idle.png, pony_waving.png
              (Originaldateien, transparente PNGs, 384 × 440 – unverändert übernehmen)
-  flags/     flag_gb.png, flag_fr.png (Originale)
+  flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg (scharfe Vektorflaggen)
   audio/     en/<wortId>.mp3, fr/<wortId>.mp3
   icons/     icon.svg (Quelle), icon-180.png, icon-192.png, icon-512.png,
              icon-maskable.svg, icon-maskable-512.png (austauschbar, siehe B-50)

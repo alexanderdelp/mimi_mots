@@ -51,7 +51,7 @@ test.describe('B-21 Wortkarte', () => {
       // seit B-26: Flagge nur zur Anzeige, daneben der runde Lautsprecher-Button
       const flag = page.locator('.round__flag');
       await expect(flag).toBeVisible();
-      await expect(flag).toHaveAttribute('src', key === 'en' ? /flag_gb\.png$/ : /flag_fr\.png$/);
+      await expect(flag).toHaveAttribute('src', key === 'en' ? /flag_gb\.svg$/ : /flag_fr\.svg$/);
       const speaker = btn(page, `Auf ${language} anhören`);
       await expect(speaker).toBeVisible();
       const box = (await speaker.boundingBox())!;

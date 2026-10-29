@@ -91,9 +91,15 @@ describe('createAvatar', () => {
 });
 
 describe('Flaggen und Icons', () => {
-  it.each(['flags/flag_gb.png', 'flags/flag_fr.png'])('%s liegt in public/', (file) => {
-    expect(existsSync(`public/${file}`)).toBe(true);
-  });
+  it.each(['flags/flag_gb.svg', 'flags/flag_fr.svg', 'flags/flag_jp.svg'])(
+    '%s ist eine Vektorflagge im Format 3 : 2',
+    (file) => {
+      const svg = readFileSync(`public/${file}`, 'utf8');
+      const width = Number(svg.match(/<svg[^>]*\swidth="(\d+)"/)![1]);
+      const height = Number(svg.match(/<svg[^>]*\sheight="(\d+)"/)![1]);
+      expect(width / height).toBeCloseTo(3 / 2, 5);
+    },
+  );
 
   it.each([
     'icon.svg',
