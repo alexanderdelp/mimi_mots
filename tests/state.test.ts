@@ -13,7 +13,7 @@ import {
 /** Daten mit vollständiger Auswahl, damit Play erlaubt ist. */
 const complete = () => {
   const data = defaults();
-  data.settings = { companion: 'mimi', language: 'en', durationMin: 5 };
+  data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
   return data;
 };
 
@@ -132,13 +132,13 @@ describe('Auswahl (B-11)', () => {
     let state = startState();
     state = reduce(state, { type: 'select', settings: { companion: 'mots' } });
     state = reduce(state, { type: 'select', settings: { language: 'fr' } });
-    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', durationMin: 5 });
+    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', durationMin: 3 });
     expect(reduce(state, { type: 'play' }).view).toBe('round');
   });
 
   it('select ohne Änderung liefert denselben State', () => {
     const state = startState();
-    expect(reduce(state, { type: 'select', settings: { durationMin: 5 } })).toBe(state);
+    expect(reduce(state, { type: 'select', settings: { durationMin: 3 } })).toBe(state);
   });
 
   it('select ändert die Daten nicht in-place', () => {

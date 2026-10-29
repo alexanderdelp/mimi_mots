@@ -5,7 +5,7 @@ import { END_TEXT, renderEnd } from '../src/views/end';
 
 function endStore(companion: 'mimi' | 'mots' = 'mots') {
   const data = defaults();
-  data.settings = { companion, language: 'fr', durationMin: 5 };
+  data.settings = { companion, language: 'fr', durationMin: 3 };
   const store = createStore(data);
   store.dispatch({ type: 'play' });
   store.dispatch({ type: 'finish' });
@@ -24,7 +24,7 @@ describe('renderEnd (B-43)', () => {
     const { el } = renderEnd(endStore());
     expect(el.querySelector('header.app-header h1')!.textContent).toBe('Mimi & Mots');
     expect(el.querySelector('.end__text')!.textContent).toBe(END_TEXT);
-    expect(END_TEXT).toBe('Viel Spaß beim Spielen!');
+    expect(END_TEXT).toBe('Bis zum nächsten Mal!');
     expect(el.textContent).not.toMatch(/\d/);
   });
 

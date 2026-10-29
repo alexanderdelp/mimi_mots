@@ -48,8 +48,7 @@ export function renderRound(store: Store): ViewHandle {
   const view = el('main', 'view view--round');
   view.dataset.view = 'round';
 
-  // Unter der Kopfleiste: [×] links, Platz für den Timer rechts
-  const top = el('div', 'round__top');
+  // In der Kopfleiste: [×] links, Timer rechts
   const close = el('button', 'close-button');
   close.type = 'button';
   close.setAttribute('aria-label', 'Beenden');
@@ -65,23 +64,20 @@ export function renderRound(store: Store): ViewHandle {
   const timerSlot = el('div', 'round__timer');
   const dial = createTimerDial();
   timerSlot.append(dial.el);
-  top.append(close, timerSlot);
 
-  // Bühne: Avatar | Wortkarte | Flagge + Lautsprecher
-  const stage = el('div', 'round__stage');
-  // Avatar links, damit die Zeigegeste nach rechts zur Karte geht; Posen nur per Bildtausch.
+  // Avatar links unten, damit die Zeigegeste nach rechts zu den Karten geht; nur Bildtausch.
   const avatarSlot = el('div', 'round__avatar');
   const avatar = createAvatar(settings.companion ?? 'mimi', 'zeigt');
   avatarSlot.append(avatar.el);
 
-  const card = el('section', 'word-card');
+  // Zwei gleich große Karten: links das deutsche Wort, rechts Flagge, Fremdwort, Lautsprecher
+  const card = el('section', 'round-card word-card');
   const emoji = el('div', 'word-card__emoji');
   emoji.setAttribute('role', 'img');
   const german = el('p', 'word-card__de');
   card.append(emoji, german);
 
-  const answer = el('div', 'round__answer');
-  const speakRow = el('div', 'round__speak');
+  const answer = el('section', 'round-card round__answer');
   const flag = el('img', 'round__flag');
   flag.src = flagUrl(language);
   flag.alt = LANGUAGE_INFO[language].name;
@@ -91,10 +87,9 @@ export function renderRound(store: Store): ViewHandle {
     'speaker',
     'speak-button',
   );
-  speakRow.append(flag, speaker);
   const foreign = el('p', 'round__foreign'); // bleibt leer bis zum Aufdecken
   foreign.lang = language;
-  answer.append(speakRow, foreign);
+  answer.append(flag, foreign, speaker);
 
   // Tipp auf den Lautsprecher: aufdecken und (erneut, von vorn) vorlesen
   speaker.addEventListener('click', () => {
@@ -105,7 +100,8 @@ export function renderRound(store: Store): ViewHandle {
     player.play(word, language);
   });
 
-  stage.append(avatarSlot, card, answer);
+  const cards = el('div', 'round__cards');
+  cards.append(card, answer);
 
   // Selbsteinschätzung: zwei gleichwertige runde Buttons nur mit Symbol, erst nach dem
   // Aufdecken sichtbar. Kein Feedback – der Tipp speichert und holt das nächste Wort.
@@ -128,8 +124,8 @@ export function renderRound(store: Store): ViewHandle {
   );
 
   const body = el('div', 'round__body');
-  body.append(top, stage, rating);
-  view.append(createAppHeader(), body);
+  body.append(avatarSlot, cards, rating);
+  view.append(createAppHeader({ start: close, end: timerSlot }), body);
 
   const showWord = (state: AppState) => {
     const word = state.round?.wordId ? getWord(state.round.wordId) : undefined;
@@ -171,7 +167,7 @@ export function renderRound(store: Store): ViewHandle {
   // Session-Timer: läuft ab dem ersten Wort, pausiert im Hintergrund und im Hochformat.
   // Der Ablauf ändert an der Runde nichts Sichtbares (§3.4); Abschluss erst nach Bewertung (B-42).
   view.dataset.expired = 'false';
-  const durationMs = (settings.durationMin ?? 5) * 60_000;
+  const durationMs = (settings.durationMin ?? 3) * 60_000;
   const timer = createSessionTimer({
     durationMs,
     onTick: (remaining) => dial.setFraction(remaining / durationMs),

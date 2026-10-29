@@ -12,7 +12,7 @@ import {
 
 const valid = (): AppData => ({
   version: 1,
-  settings: { companion: 'mots', language: 'fr', durationMin: 5 },
+  settings: { companion: 'mots', language: 'fr', durationMin: 3 },
   progress: {
     fr: { apfel: { box: 2, seen: 5, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
     en: { hund: { box: 0, seen: 1, lastSeenAt: '2026-10-28T09:30:00.000Z' } },
@@ -35,7 +35,7 @@ describe('defaults', () => {
   it('Erststart: nur die Dauer ist vorbelegt, kein Lernstand', () => {
     expect(defaults()).toEqual({
       version: 1,
-      settings: { companion: null, language: null, durationMin: 5 },
+      settings: { companion: null, language: null, durationMin: 3 },
       progress: { en: {}, fr: {} },
     });
   });
@@ -101,14 +101,22 @@ describe('sanitize', () => {
   it('ersetzt ungültige Einstellungen einzeln durch Defaults', () => {
     const data = sanitize({
       ...valid(),
-      settings: { companion: 'hund', language: 'fr', durationMin: 7 },
+      settings: { companion: 'hund', language: 'fr', durationMin: 9 },
     });
-    expect(data.settings).toEqual({ companion: null, language: 'fr', durationMin: 5 });
+    expect(data.settings).toEqual({ companion: null, language: 'fr', durationMin: 3 });
   });
 
-  it('akzeptiert 10 Minuten als Dauer (B-26)', () => {
-    const data = sanitize({ ...valid(), settings: { ...valid().settings, durationMin: 10 } });
-    expect(data.settings.durationMin).toBe(10);
+  it('akzeptiert 7 Minuten als Dauer (B-27)', () => {
+    const data = sanitize({ ...valid(), settings: { ...valid().settings, durationMin: 7 } });
+    expect(data.settings.durationMin).toBe(7);
+  });
+
+  it.each([
+    [5, 3],
+    [10, 7],
+  ])('übernimmt die alte Dauer %i als %i Minuten (B-27)', (old, now) => {
+    const data = sanitize({ ...valid(), settings: { ...valid().settings, durationMin: old } });
+    expect(data.settings.durationMin).toBe(now);
   });
 
   it('akzeptiert null als „noch nicht gewählt“', () => {
@@ -155,12 +163,12 @@ describe('persistOnChange (B-12)', () => {
     const store = createStore(defaults());
     persistOnChange(store);
     store.dispatch({ type: 'select', settings: { companion: 'mots' } });
-    expect(load().settings).toEqual({ companion: 'mots', language: null, durationMin: 5 });
+    expect(load().settings).toEqual({ companion: 'mots', language: null, durationMin: 3 });
   });
 
   it('speichert nicht bei Ansichts- oder Ausrichtungswechsel', () => {
     const data = defaults();
-    data.settings = { companion: 'mimi', language: 'en', durationMin: 5 };
+    data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
     const store = createStore(data);
     const write = vi.fn(() => true);
     persistOnChange(store, write);
@@ -173,7 +181,7 @@ describe('persistOnChange (B-12)', () => {
     const store = createStore(defaults());
     const write = vi.fn(() => true);
     persistOnChange(store, write);
-    store.dispatch({ type: 'select', settings: { durationMin: 5 } });
+    store.dispatch({ type: 'select', settings: { durationMin: 3 } });
     expect(write).not.toHaveBeenCalled();
   });
 

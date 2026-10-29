@@ -48,32 +48,32 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     await page.goto('./');
   });
 
-  test('AT-26.1: Dauer 5 und 10 Minuten nur als Uhr', async ({ page }) => {
+  test('AT-26.1: zwei Dauern nur als Uhr (seit B-27: 3/7 Minuten)', async ({ page }) => {
     const group = page.getByRole('group', { name: 'Wie lange?' });
     await expect(group.getByRole('button')).toHaveCount(2);
-    const five = btn(page, '5 Minuten');
-    const ten = btn(page, '10 Minuten');
+    const five = btn(page, '3 Minuten');
+    const ten = btn(page, '7 Minuten');
     for (const tile of [five, ten]) expect(await tile.innerText()).toBe('');
-    await expect(five.locator('svg.clock-icon')).toHaveAttribute('data-angle', '30');
-    await expect(ten.locator('svg.clock-icon')).toHaveAttribute('data-angle', '60');
+    await expect(five.locator('svg.clock-icon')).toHaveAttribute('data-angle', '18');
+    await expect(ten.locator('svg.clock-icon')).toHaveAttribute('data-angle', '42');
     const [b5, b10] = [await box(five), await box(ten)];
     expect(b10.y).toBeGreaterThan(b5.y + b5.height - 1); // untereinander
     expect(b10.x).toBeCloseTo(b5.x, 0);
   });
 
-  test('AT-26.2: 10 Minuten wählen und merken', async ({ page }) => {
-    await expect(btn(page, '5 Minuten')).toHaveAttribute('aria-pressed', 'true');
-    await btn(page, '10 Minuten').click();
-    await expect(btn(page, '10 Minuten')).toHaveAttribute('aria-pressed', 'true');
-    await expect(btn(page, '5 Minuten')).toHaveAttribute('aria-pressed', 'false');
+  test('AT-26.2: längere Dauer wählen und merken', async ({ page }) => {
+    await expect(btn(page, '3 Minuten')).toHaveAttribute('aria-pressed', 'true');
+    await btn(page, '7 Minuten').click();
+    await expect(btn(page, '7 Minuten')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, '3 Minuten')).toHaveAttribute('aria-pressed', 'false');
     await page.reload();
-    await expect(btn(page, '10 Minuten')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, '7 Minuten')).toHaveAttribute('aria-pressed', 'true');
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.settings.durationMin).toBe(10);
+    expect(stored.settings.durationMin).toBe(7);
   });
 
   test('AT-26.3: Sprachen 2 × 2 mit Japanisch ausgegraut', async ({ page }) => {
-    const group = page.getByRole('group', { name: 'Welche Sprache?' });
+    const group = page.getByRole('group', { name: 'In welcher Sprache?' });
     await expect(group.getByRole('button')).toHaveCount(3);
     const [en, fr, ja] = [
       btn(page, 'Englisch'),
@@ -97,11 +97,11 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     const vp = page.viewportSize()!;
     const big = await box(btn(page, 'Mimi'));
     const small = await Promise.all(
-      ['Englisch', 'Französisch', 'Japanisch (bald)', '5 Minuten', '10 Minuten'].map((n) =>
+      ['Englisch', 'Französisch', 'Japanisch (bald)', '3 Minuten', '7 Minuten'].map((n) =>
         box(btn(page, n)),
       ),
     );
-    const gap = (await box(btn(page, '10 Minuten'))).y - (small[3].y + small[3].height);
+    const gap = (await box(btn(page, '7 Minuten'))).y - (small[3].y + small[3].height);
     for (const s of small) {
       expect(s.width).toBeCloseTo(big.width, 0);
       expect(s.height).toBeCloseTo((big.height - gap) / 2, 0);
@@ -125,8 +125,11 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
     expect(await box(header)).toEqual(startHeader);
     const close = await box(btn(page, 'Beenden'));
     const timer = await box(page.locator('.round__timer'));
-    expect(close.y).toBeGreaterThanOrEqual(startHeader.y + startHeader.height);
-    expect(timer.y).toBeGreaterThanOrEqual(startHeader.y + startHeader.height);
+    // seit B-27 liegen [×] und Timer in der Kopfleiste
+    for (const b of [close, timer]) {
+      expect(b.y).toBeGreaterThanOrEqual(startHeader.y);
+      expect(b.y + b.height).toBeLessThanOrEqual(startHeader.y + startHeader.height);
+    }
     expect(close.x).toBeLessThan(page.viewportSize()!.width / 4);
     expect(timer.x).toBeGreaterThan((page.viewportSize()!.width * 3) / 4);
   });
@@ -142,17 +145,16 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
     const speaker = btn(page, 'Auf Englisch anhören');
     const s = await box(speaker);
     const f = await box(flag);
-    const column = await box(page.locator('.round__answer'));
+    const card = await box(page.locator('.round__answer'));
     expect(s.width).toBe(s.height);
-    expect(f.width).toBeGreaterThanOrEqual(column.width * 0.8); // große Flagge
-    // Lautsprecher überlappt die rechte untere Ecke der Flagge ein Stück
-    const ox = Math.min(f.x + f.width, s.x + s.width) - Math.max(f.x, s.x);
-    const oy = Math.min(f.y + f.height, s.y + s.height) - Math.max(f.y, s.y);
-    expect(ox).toBeGreaterThan(0);
-    expect(oy).toBeGreaterThan(0);
-    expect(ox * oy).toBeLessThanOrEqual((f.width * f.height) / 4);
-    expect(s.x + s.width / 2).toBeGreaterThan(f.x + f.width / 2);
-    expect(s.y + s.height / 2).toBeGreaterThan(f.y + f.height / 2);
+    // seit B-27: Flagge oben und Lautsprecher unten in der rechten Karte, ohne Überlappung
+    for (const b of [s, f]) {
+      expect(b.x).toBeGreaterThanOrEqual(card.x);
+      expect(b.x + b.width).toBeLessThanOrEqual(card.x + card.width);
+      expect(b.y).toBeGreaterThanOrEqual(card.y);
+      expect(b.y + b.height).toBeLessThanOrEqual(card.y + card.height);
+    }
+    expect(s.y).toBeGreaterThanOrEqual(f.y + f.height);
     await expect(speaker).toHaveCSS('background-color', 'rgb(106, 76, 156)');
     await expect(speaker.locator('svg')).toHaveAttribute('data-icon', 'speaker');
 
@@ -214,7 +216,8 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
         const [a, b] = [parts[i], parts[j]];
         const overlap =
           a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-        const wanted = /round__flag/.test(a.n + b.n) && /speak-button/.test(a.n + b.n);
+        const pair = a.n + ' ' + b.n;
+        const wanted = /app-header/.test(pair) && /close-button|round__timer/.test(pair);
         if (!wanted) expect(overlap, `${a.n} / ${b.n}`).toBe(false);
       }
     }

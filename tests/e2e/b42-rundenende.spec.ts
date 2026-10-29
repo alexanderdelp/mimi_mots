@@ -12,13 +12,13 @@ test.beforeEach(async ({ page }) => {
   await page.goto('./');
   await btn(page, 'Mimi').click();
   await btn(page, 'Französisch').click();
-  await btn(page, '5 Minuten').click();
+  await btn(page, '3 Minuten').click();
   await btn(page, 'Los geht’s').click();
   await expect(view(page, 'round')).toBeVisible();
 });
 
 async function expire(page: Page) {
-  await page.clock.fastForward(5 * MIN + 1000);
+  await page.clock.fastForward(3 * MIN + 1000);
   await page.clock.runFor(300);
   await expect(view(page, 'round')).toHaveAttribute('data-expired', 'true');
 }

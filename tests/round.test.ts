@@ -16,7 +16,7 @@ beforeEach(() => {
 
 function roundStore(language: 'en' | 'fr' = 'en') {
   const data = defaults();
-  data.settings = { companion: 'mimi', language, durationMin: 5 };
+  data.settings = { companion: 'mimi', language, durationMin: 3 };
   const store = createStore(data);
   store.dispatch({ type: 'play' });
   return store;
@@ -59,7 +59,10 @@ describe('renderRound', () => {
     const store = roundStore('fr');
     const { el } = renderRound(store);
     const word = getWord(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId!)!;
-    expect(el.textContent).not.toContain(word.fr);
+    // ohne die deutsche Karte prüfen: bei „orange“ ist das Fremdwort gleich dem deutschen Wort
+    const copy = el.cloneNode(true) as HTMLElement;
+    copy.querySelector('.word-card')!.remove();
+    expect(copy.textContent).not.toContain(word.fr);
     expect(el.querySelector('.round__foreign')!.textContent).toBe('');
   });
 
@@ -236,7 +239,7 @@ describe('Avatar in der Lernrunde (B-24)', () => {
     vi.stubGlobal('speechSynthesis', { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] });
     vi.stubGlobal('SpeechSynthesisUtterance', class {});
     const data = defaults();
-    data.settings = { companion: 'mots', language: 'en', durationMin: 5 };
+    data.settings = { companion: 'mots', language: 'en', durationMin: 3 };
     const store = createStore(data);
     store.dispatch({ type: 'play' });
     const { el } = renderRound(store);

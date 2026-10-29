@@ -8,8 +8,10 @@ export const STORAGE_KEY = 'mimi-mots:v1';
 export const VERSION = 1;
 
 export const LANGUAGES: readonly Language[] = ['en', 'fr'];
-export const DURATIONS = [5, 10] as const;
+export const DURATIONS = [3, 7] as const;
 export type DurationMin = (typeof DURATIONS)[number];
+/** Frühere Dauern (bis B-27) → heutige Entsprechung, damit die Auswahl erhalten bleibt. */
+const LEGACY_DURATIONS: Record<number, DurationMin> = { 5: 3, 10: 7 };
 
 export const MAX_BOX = 4;
 
@@ -39,7 +41,7 @@ export interface AppData {
 export function defaults(): AppData {
   return {
     version: VERSION,
-    settings: { companion: null, language: null, durationMin: 5 },
+    settings: { companion: null, language: null, durationMin: 3 },
     progress: { en: {}, fr: {} },
   };
 }
@@ -57,7 +59,11 @@ function sanitizeSettings(raw: unknown): Settings {
   return {
     companion: oneOf<Companion | null>([...COMPANIONS, null], raw.companion, d.companion),
     language: oneOf<Language | null>([...LANGUAGES, null], raw.language, d.language),
-    durationMin: oneOf<DurationMin | null>([...DURATIONS, null], raw.durationMin, d.durationMin),
+    durationMin: oneOf<DurationMin | null>(
+      [...DURATIONS, null],
+      LEGACY_DURATIONS[raw.durationMin as number] ?? raw.durationMin,
+      d.durationMin,
+    ),
   };
 }
 

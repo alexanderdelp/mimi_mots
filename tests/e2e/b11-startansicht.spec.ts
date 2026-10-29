@@ -23,10 +23,10 @@ test.describe('B-11 Startansicht', () => {
     await expect(header.getByRole('heading', { level: 1 })).toHaveText('Mimi & Mots');
     await expect(page.getByRole('heading', { level: 2 })).toHaveText([
       'Wer begleitet dich?',
-      'Welche Sprache?',
+      'In welcher Sprache?',
       'Wie lange?',
     ]);
-    for (const name of ['Wer begleitet dich?', 'Welche Sprache?', 'Wie lange?']) {
+    for (const name of ['Wer begleitet dich?', 'In welcher Sprache?', 'Wie lange?']) {
       await expect(page.getByRole('group', { name })).toBeVisible();
     }
   });
@@ -40,7 +40,7 @@ test.describe('B-11 Startansicht', () => {
       expect(await btn(page, name).innerText()).toBe(''); // nur Flagge, kein Text
     }
     // seit B-26: nur Uhr-Symbol, kein Text
-    const dauer = btn(page, '5 Minuten');
+    const dauer = btn(page, '3 Minuten');
     await expect(dauer.locator('svg.clock-icon')).toBeVisible();
     expect(await dauer.innerText()).toBe('');
   });
@@ -49,7 +49,7 @@ test.describe('B-11 Startansicht', () => {
     for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');
     }
-    await expect(btn(page, '5 Minuten')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, '3 Minuten')).toHaveAttribute('aria-pressed', 'true');
     const play = btn(page, 'Los geht’s');
     await expect(play).toBeDisabled();
     await play.click({ force: true });

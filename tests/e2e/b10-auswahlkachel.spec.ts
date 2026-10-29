@@ -65,7 +65,7 @@ test.describe('B-10 Auswahlkachel', () => {
     const mots = page.getByRole('button', { name: 'Mots' });
     const en = page.getByRole('button', { name: 'Englisch' });
     const fr = page.getByRole('button', { name: 'Französisch' });
-    const dauer = page.getByRole('button', { name: '5 Minuten' });
+    const dauer = page.getByRole('button', { name: '3 Minuten' });
 
     for (const t of [mimi, mots, en, fr]) await expect(t).toHaveAttribute('aria-pressed', 'false');
     await expect(dauer).toHaveAttribute('aria-pressed', 'true');
@@ -99,7 +99,7 @@ test.describe('B-10 Auswahlkachel', () => {
     const sizes = await tiles(page).evaluateAll((els) =>
       els.map((el) => el.getBoundingClientRect()),
     );
-    expect(sizes).toHaveLength(7); // seit B-26: + 10 Minuten, + Japanisch
+    expect(sizes).toHaveLength(7); // seit B-26: + zweite Dauer, + Japanisch
     for (const s of sizes) {
       expect(s.width).toBeGreaterThanOrEqual(88);
       expect(s.height).toBeGreaterThanOrEqual(88);
