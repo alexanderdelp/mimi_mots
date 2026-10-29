@@ -225,6 +225,12 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-51.4: Stilles Update: kein Hinweis oder Dialog; der neue Service Worker übernimmt nicht sofort (kein `skipWaiting`/`clientsClaim`), sondern beim nächsten Start.
   - AT-51.5: Alle vorab gespeicherten Dateien zusammen sind kleiner als 5 MB (Leitprinzip 5).
 - [ ] **B-52 Hochformat-Overlay**: Avatar + Dreh-Symbol, Timer pausiert.
+  - AT-52.1: Im Hochformat deckt ein Overlay die ganze App ab: gewählter Begleiter in der Pose „ruhig“, ein Dreh-Symbol (SVG, kein Emoji) und der Text „iPad drehen“.
+  - AT-52.2: Ist noch kein Begleiter gewählt (Erststart), zeigt das Overlay Mimi; nach Wahl von Mots zeigt es Mots.
+  - AT-52.3: Die Ansicht darunter ist gesperrt und bleibt erhalten: Nach dem Zurückdrehen geht es mit derselben Ansicht und demselben Wort weiter.
+  - AT-52.4: Der Timer pausiert im Hochformat (abgedeckt durch AT-40.5 und AT-41.5).
+  - AT-52.5: In allen drei Hochformat-Größen (768 × 1024, 820 × 1180, 1024 × 1366) ist alles sichtbar, nichts scrollt.
+  - AT-52.6: Begleiter und Dreh-Symbol sind statisch (keine Animation).
 - [ ] **B-53 Deployment GitHub Pages**: GitHub Action (Build + `actions/deploy-pages`) bei Push auf `main`; Vite `base` = Repo-Pfad; README mit Einrichtung (Pages-Quelle „GitHub Actions“) und Anleitung „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
   - AK: App unter `https://<user>.github.io/<repo>/` erreichbar, installierbar, offline nutzbar.
 

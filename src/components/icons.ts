@@ -20,6 +20,12 @@ const ICONS = {
     '<path d="M64 36 A18 18 0 0 1 64 64" /><path d="M73 25 A32 32 0 0 1 73 75" /></g>',
   // Haus: Dach und Körper mit Tür
   home: '<path d="M50 16 L86 48 H76 V84 H58 V62 H42 V84 H24 V48 H14 Z" fill="currentColor" stroke="currentColor" stroke-width="4" stroke-linejoin="round" />',
+  // Drehen: iPad hochkant, gebogener Pfeil nach rechts zur Querlage
+  rotate:
+    '<rect x="14" y="24" width="38" height="60" rx="7" fill="none" stroke="currentColor" stroke-width="6" />' +
+    '<circle cx="33" cy="76" r="3" fill="currentColor" />' +
+    '<g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M48 16 A36 36 0 0 1 86 50" /><path d="M76 46 L86 54 L94 42" /></g>',
 } as const;
 
 export type IconName = keyof typeof ICONS;

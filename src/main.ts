@@ -1,6 +1,8 @@
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/views.css';
+import { createAvatar } from './components/avatar';
+import { icon } from './components/icons';
 import { load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
 import type { ViewHandle } from './views/view';
@@ -16,14 +18,36 @@ const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
 
 const PORTRAIT_QUERY = '(orientation: portrait)';
 
-/** Hochformat-Hinweis; Gestaltung mit Avatar folgt in B-52. */
-function createPortraitOverlay(): HTMLElement {
+/**
+ * Hochformat-Hinweis (B-52): gewählter Begleiter (ruhig), Dreh-Symbol und „iPad drehen“.
+ * iOS ignoriert die Ausrichtung im Manifest, deshalb dieser Hinweis statt einer Sperre.
+ */
+function createPortraitOverlay(store: Store): HTMLElement {
   const overlay = document.createElement('div');
   overlay.className = 'portrait-overlay';
   overlay.setAttribute('role', 'alert');
-  overlay.innerHTML =
-    '<span class="portrait-overlay__icon" aria-hidden="true">🔄</span><p>iPad drehen</p>';
   overlay.hidden = true;
+
+  const avatarSlot = document.createElement('div');
+  avatarSlot.className = 'portrait-overlay__avatar';
+  // Bild erst setzen, wenn das Overlay erscheint – sonst lädt der Browser es unnötig im Hintergrund
+  let shownCompanion: string | null = null;
+  const showCompanion = () => {
+    const companion = store.getState().data.settings.companion ?? 'mimi';
+    if (companion === shownCompanion) return;
+    shownCompanion = companion;
+    avatarSlot.replaceChildren(createAvatar(companion, 'ruhig').el);
+  };
+  store.subscribe((state) => {
+    if (state.portrait) showCompanion();
+  });
+  if (store.getState().portrait) showCompanion();
+
+  const text = document.createElement('p');
+  text.className = 'portrait-overlay__text';
+  text.textContent = 'iPad drehen';
+
+  overlay.append(avatarSlot, icon('rotate', 'portrait-overlay__icon'), text);
   return overlay;
 }
 
@@ -33,7 +57,7 @@ function start(app: HTMLElement) {
 
   const viewRoot = document.createElement('div');
   viewRoot.className = 'view-root';
-  const overlay = createPortraitOverlay();
+  const overlay = createPortraitOverlay(store);
   app.replaceChildren(viewRoot, overlay);
 
   let current: ViewHandle | null = null;
