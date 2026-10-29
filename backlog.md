@@ -217,8 +217,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-50.3: Alle im Manifest und in der Seite genannten Icons werden ausgeliefert (Status 200) und haben die angegebene Größe.
   - AT-50.4: `npm run icons` rendert `icon-180/192/512.png` aus `icon.svg` und `icon-maskable-512.png` aus `icon-maskable.svg` in den richtigen Größen (Unit-Test in einem Temp-Ordner).
   - AT-50.5: Die Kopfleiste zeigt `icons/icon.svg` (seit B-11 umgesetzt, Test bleibt bestehen).
-- [ ] **B-51 Service Worker**: vite-plugin-pwa, Precache aller Assets inkl. Audio, stilles Update beim nächsten Start.
+- [x] **B-51 Service Worker**: vite-plugin-pwa, Precache aller Assets inkl. Audio, stilles Update beim nächsten Start.
   - AK: Nach erstem Laden im Flugmodus vollständig nutzbar (Start → Runde mit Audio → Abschluss).
+  - AT-51.1: Nach dem ersten Laden ist ein Service Worker aktiv (Bereich `/mimi_mots/`) und kontrolliert die Seite nach dem Neuladen.
+  - AT-51.2: Der Precache enthält alle Dateien der App: Seite, Skripte, Styles, Schrift, Manifest, alle Avatare, Flaggen, Icons und alle 50 französischen MP3s; die Abhörseite (`tools/`) nicht.
+  - AT-51.3: Offline (wie im Flugmodus): Neuladen zeigt die Startseite; eine französische Runde spielt die MP3 (kein Fallback), lässt sich bewerten und endet im Abschluss; kein Request schlägt fehl.
+  - AT-51.4: Stilles Update: kein Hinweis oder Dialog; der neue Service Worker übernimmt nicht sofort (kein `skipWaiting`/`clientsClaim`), sondern beim nächsten Start.
+  - AT-51.5: Alle vorab gespeicherten Dateien zusammen sind kleiner als 5 MB (Leitprinzip 5).
 - [ ] **B-52 Hochformat-Overlay**: Avatar + Dreh-Symbol, Timer pausiert.
 - [ ] **B-53 Deployment GitHub Pages**: GitHub Action (Build + `actions/deploy-pages`) bei Push auf `main`; Vite `base` = Repo-Pfad; README mit Einrichtung (Pages-Quelle „GitHub Actions“) und Anleitung „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
   - AK: App unter `https://<user>.github.io/<repo>/` erreichbar, installierbar, offline nutzbar.
