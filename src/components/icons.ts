@@ -18,6 +18,8 @@ const ICONS = {
     '<path d="M16 38 H32 L52 20 V80 L32 62 H16 Z" fill="currentColor" stroke="currentColor" stroke-width="4" stroke-linejoin="round" />' +
     '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round">' +
     '<path d="M64 36 A18 18 0 0 1 64 64" /><path d="M73 25 A32 32 0 0 1 73 75" /></g>',
+  // Haus: Dach und Körper mit Tür
+  home: '<path d="M50 16 L86 48 H76 V84 H58 V62 H42 V84 H24 V48 H14 Z" fill="currentColor" stroke="currentColor" stroke-width="4" stroke-linejoin="round" />',
 } as const;
 
 export type IconName = keyof typeof ICONS;
