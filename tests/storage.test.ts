@@ -1,5 +1,14 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { STORAGE_KEY, defaults, load, sanitize, save, type AppData } from '../src/storage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createStore } from '../src/state';
+import {
+  STORAGE_KEY,
+  defaults,
+  load,
+  persistOnChange,
+  sanitize,
+  save,
+  type AppData,
+} from '../src/storage';
 
 const valid = (): AppData => ({
   version: 1,
@@ -133,5 +142,57 @@ describe('sanitize', () => {
 
   it('nutzt leeren Lernstand, wenn progress kein Objekt ist', () => {
     expect(sanitize({ ...valid(), progress: [] }).progress).toEqual({ en: {}, fr: {} });
+  });
+});
+
+describe('persistOnChange (B-12)', () => {
+  it('speichert bei geänderter Auswahl in localStorage', () => {
+    const store = createStore(defaults());
+    persistOnChange(store);
+    store.dispatch({ type: 'select', settings: { companion: 'mots' } });
+    expect(load().settings).toEqual({ companion: 'mots', language: null, durationMin: 5 });
+  });
+
+  it('speichert nicht bei Ansichts- oder Ausrichtungswechsel', () => {
+    const data = defaults();
+    data.settings = { companion: 'mimi', language: 'en', durationMin: 5 };
+    const store = createStore(data);
+    const write = vi.fn(() => true);
+    persistOnChange(store, write);
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'orientation', portrait: true });
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it('speichert nicht, wenn die Auswahl gleich bleibt', () => {
+    const store = createStore(defaults());
+    const write = vi.fn(() => true);
+    persistOnChange(store, write);
+    store.dispatch({ type: 'select', settings: { durationMin: 5 } });
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it('behält den Lernstand beim Speichern der Auswahl', () => {
+    save(valid());
+    const store = createStore(load());
+    persistOnChange(store);
+    store.dispatch({ type: 'select', settings: { companion: 'mimi' } });
+    expect(load().progress).toEqual(valid().progress);
+    expect(load().settings.companion).toBe('mimi');
+  });
+
+  it('läuft ohne Fehler weiter, wenn Speichern fehlschlägt', () => {
+    const store = createStore(defaults());
+    persistOnChange(store, () => false);
+    expect(() => store.dispatch({ type: 'select', settings: { language: 'fr' } })).not.toThrow();
+    expect(store.getState().data.settings.language).toBe('fr');
+  });
+
+  it('liefert eine Abmeldefunktion', () => {
+    const store = createStore(defaults());
+    const write = vi.fn(() => true);
+    persistOnChange(store, write)();
+    store.dispatch({ type: 'select', settings: { companion: 'mots' } });
+    expect(write).not.toHaveBeenCalled();
   });
 });

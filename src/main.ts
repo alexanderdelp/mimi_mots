@@ -1,7 +1,7 @@
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/views.css';
-import { load } from './storage';
+import { load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
 import { renderStart } from './views/start';
 import { renderRound } from './views/round';
@@ -42,6 +42,7 @@ function start(app: HTMLElement) {
     viewRoot.inert = portrait;
   };
 
+  persistOnChange(store);
   store.subscribe((state, previous) => {
     if (state.view !== previous.view) showView(state.view);
     if (state.portrait !== previous.portrait) showOverlay(state.portrait);
