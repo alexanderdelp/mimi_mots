@@ -71,8 +71,17 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-12.6: Ist `localStorage` gesperrt, funktionieren Auswahl und Play trotzdem ohne Fehler (nur ohne Merken).
 
 ## M2 – Lernrunde
-- [ ] **B-20 Scheduler**: reine Funktion laut anforderungen.md §5 (Leitner-Gewichte, max. 6 neue, Abstand ≥ 3, injizierbarer Zufall).
+- [x] **B-20 Scheduler**: reine Funktion laut anforderungen.md §5 (Leitner-Gewichte, max. 6 neue, Abstand ≥ 3, injizierbarer Zufall).
   - AK: Unit-Tests: Gewichtung statistisch plausibel, Abstand eingehalten, Neue-Limit, Auffüllen bei wenig Bekannten, Update-Regeln.
+  - Hinweis: B-20 hat keine Oberfläche; die Akzeptanztests simulieren ganze Sessions mit dem echten Scheduler (Vitest, `tests/scheduler.acceptance.test.ts`). Sichtbar wird er ab B-21/B-23.
+  - AT-20.1: In 500 simulierten Sessions à 60 Wörtern erscheint ein Wort nie, bevor mindestens 3 andere Wörter dran waren.
+  - AT-20.2: Keine Session führt mehr als 6 neue Wörter ein.
+  - AT-20.3: Erste Session (leerer Lernstand): die ersten 6 Wörter sind 6 verschiedene neue Wörter; danach kommen keine weiteren neuen.
+  - AT-20.4: Gewichtung: Bei Wörtern gleichmäßig in Box 0–4 entspricht die Häufigkeit der Gewichtswahl 8 : 5 : 3 : 2 : 1 (±10 %); in ganzen Sessions kommen Wörter niedrigerer Boxen häufiger dran als die höherer Boxen.
+  - AT-20.5: Bewertung: „Wusste ich“ → Box + 1 (max. 4), „Noch üben“ → Box 0; `seen` + 1, `lastSeenAt` = jetzt; andere Wörter und die Eingabe bleiben unverändert.
+  - AT-20.6: Gleicher Seed → gleiche Wortfolge (reproduzierbar).
+  - AT-20.7: Über mehrere Sessions werden nach und nach alle 50 Wörter eingeführt (spätestens nach 9 Sessions à 40 Wörtern, wenn alles gewusst wird).
+  - AT-20.8: Ab 6 bekannten Wörtern ist in einer Session jedes 3. Wort neu (Positionen 3, 6, 9 …), bis 6 neue eingeführt sind.
 - [ ] **B-21 Wortkarte**: Emoji groß, deutsches Wort; Flaggen-Button; Fremdwort verborgen.
 - [ ] **B-22 Aufdecken**: Tipp auf Flagge zeigt Fremdwort, spielt Audio; erneuter Tipp spielt erneut (von vorn).
 - [ ] **B-23 Selbsteinschätzung**: Nach erstem Aufdecken zwei gleichwertige Buttons „Wusste ich“ 👍 / „Noch üben“ 🔁 (lila, gleiche Größe); Tipp aktualisiert Lernstand und lädt nächstes Wort. Kein Feedback.
