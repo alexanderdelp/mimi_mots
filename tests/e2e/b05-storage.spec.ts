@@ -40,7 +40,7 @@ test.describe('B-05 Storage-Modul', () => {
       const errors = collectErrors(page);
       await seed(page, value);
       await page.goto('./');
-      await expect(page.locator('.avatar').first()).toBeVisible();
+      await expect(page.locator('[data-view="start"]')).toBeVisible();
       expect(errors).toEqual([]);
     });
   }
@@ -55,18 +55,18 @@ test.describe('B-05 Storage-Modul', () => {
       });
     });
     await page.goto('./');
-    await expect(page.locator('.avatar').first()).toBeVisible();
+    await expect(page.locator('[data-view="start"]')).toBeVisible();
     expect(errors).toEqual([]);
   });
 
   test('AT-05.3: gültige Daten bleiben beim Start und nach Neuladen erhalten', async ({ page }) => {
     await seed(page, VALID);
     await page.goto('./');
-    await expect(page.locator('.avatar').first()).toBeVisible();
+    await expect(page.locator('[data-view="start"]')).toBeVisible();
     expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBe(VALID);
 
     await page.reload();
-    await expect(page.locator('.avatar').first()).toBeVisible();
+    await expect(page.locator('[data-view="start"]')).toBeVisible();
     expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBe(VALID);
   });
 });

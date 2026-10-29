@@ -36,7 +36,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-05.2: Die App startet ohne Fehler, wenn `localStorage` nicht verfügbar ist (Zugriff wirft, wie im privaten Modus).
   - AT-05.3: Gültige gespeicherte Daten bleiben beim Start und nach Neuladen unverändert erhalten.
   - Hinweis: Der Roundtrip Speichern → Neuladen über die Oberfläche wird mit B-12 (AT „Auswahl merken“) geprüft; bis dahin per Unit-Test.
-- [ ] **B-06 Router/State**: Views `start | round | end`, einfache Zustandsmaschine; Hochformat-Overlay (B-30) vorbereiten.
+- [x] **B-06 Router/State**: Views `start | round | end`, einfache Zustandsmaschine; Hochformat-Overlay (B-52) vorbereiten.
+  - AT-06.1: Beim Öffnen der App ist die Startansicht aktiv, und es ist genau eine Ansicht im DOM.
+  - AT-06.2: Ablauf Start → (Play) → Lernrunde → (Beenden) → Abschluss → (Zurück) → Start funktioniert; es ist immer genau eine Ansicht sichtbar.
+  - AT-06.3: Neuladen während Lernrunde oder Abschluss startet wieder auf der Startansicht.
+  - AT-06.4: Im Hochformat erscheint ein Overlay „iPad drehen“ über der aktuellen Ansicht; zurück ins Querformat ist es weg und dieselbe Ansicht ist unverändert da.
+  - AT-06.5: Die Avatar-Vorschau aus B-03 bleibt unter `?vorschau=avatar` erreichbar (bis die Lernrunde die Posen zeigt, B-24); die B-03-Tests nutzen diese Adresse.
+  - Hinweis: Start-, Lernrunden- und Abschlussansicht sind Platzhalter mit je einer Schaltfläche; Inhalte folgen in B-11, B-21 ff. und B-43. Beenden per einfachem Tipp, Long-Press folgt in B-25.
 
 ## M1 – Startbildschirm
 - [ ] **B-10 Komponente Auswahlkachel**: Zustände ausgewählt (5 px lila, `--lila-100`) / nicht ausgewählt (2 px dunkelgrau, weiß); kein Layout-Sprung beim Wechsel; ≥ 88 px; `aria-pressed`.

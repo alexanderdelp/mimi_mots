@@ -39,7 +39,7 @@ test.describe('B-03 Assets einbinden', () => {
       const res = await request.get(file);
       expect(res.status(), file).toBe(200);
     }
-    await page.goto('./');
+    await page.goto('./?vorschau=avatar');
     await avatarsLoaded(page);
     for (const file of AVATARS) {
       const size = await page.evaluate(async (src) => {
@@ -53,7 +53,7 @@ test.describe('B-03 Assets einbinden', () => {
   });
 
   test('AT-03.2: Posenwechsel verschiebt nichts', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?vorschau=avatar');
     await avatarsLoaded(page);
     const initial = await avatarBoxes(page);
     expect(initial).toHaveLength(2);
@@ -67,7 +67,7 @@ test.describe('B-03 Assets einbinden', () => {
   });
 
   test('AT-03.3: nach dem Vorladen kein Request beim Posenwechsel', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?vorschau=avatar');
     await page.waitForLoadState('networkidle');
     await page.waitForFunction(() =>
       performance
@@ -90,7 +90,7 @@ test.describe('B-03 Assets einbinden', () => {
   });
 
   test('AT-03.4: höchstens 440 px hoch, unten ausgerichtet, nicht verzerrt', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./?vorschau=avatar');
     await avatarsLoaded(page);
     const styles = await page.locator('.avatar').evaluateAll((els) =>
       els.map((el) => {
