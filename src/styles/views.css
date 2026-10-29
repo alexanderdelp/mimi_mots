@@ -1,0 +1,60 @@
+/* Avatar: feste Box im Seitenverhältnis der PNGs (384 × 440), Bild unten ausgerichtet,
+   damit der Posenwechsel nicht springt. Höhe per --avatar-h steuerbar, max. 440 px. */
+.avatar {
+  --avatar-h: min(440px, 60dvh);
+  flex: none;
+  height: min(var(--avatar-h), 440px);
+  aspect-ratio: 384 / 440;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+}
+
+/* Avatar-Vorschau (B-03), Platzhalter bis Router/Startansicht (B-06/B-11). */
+.avatar-preview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+}
+
+.avatar-preview__stage {
+  display: flex;
+  align-items: flex-end;
+  gap: 48px;
+}
+
+.avatar-preview__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.avatar-preview__buttons button {
+  min-width: 88px;
+  min-height: 88px;
+  padding: 0 20px;
+  border-radius: var(--radius-m);
+  background: var(--white);
+  box-shadow:
+    inset 0 0 0 2px var(--grau-700),
+    var(--shadow);
+  font-size: 22px;
+  color: var(--lila-900);
+}
+
+.avatar-preview__buttons button[aria-pressed='true'] {
+  background: var(--lila-100);
+  box-shadow:
+    inset 0 0 0 5px var(--lila-700),
+    var(--shadow);
+}
