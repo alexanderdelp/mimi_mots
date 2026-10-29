@@ -1,7 +1,8 @@
 // Abschluss – Platzhalter bis B-43 (Avatar winkt, Text, Haus-Button).
 import type { Store } from '../state';
+import type { ViewHandle } from './view';
 
-export function renderEnd(store: Store): HTMLElement {
+export function renderEnd(store: Store): ViewHandle {
   const view = document.createElement('main');
   view.className = 'view view--end';
   view.dataset.view = 'end';
@@ -14,5 +15,5 @@ export function renderEnd(store: Store): HTMLElement {
   home.addEventListener('click', () => store.dispatch({ type: 'home' }));
 
   view.append(home);
-  return view;
+  return { el: view };
 }

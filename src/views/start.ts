@@ -1,8 +1,10 @@
 // Startansicht (anforderungen.md §3.1): Begleiter, Sprache, Dauer wählen, dann Play.
 import { COMPANIONS, COMPANION_NAMES, avatarUrl, type Companion } from '../components/avatar';
 import { createChoiceGroup } from '../components/choice-tile';
+import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import type { Language } from '../data/words';
 import { isComplete, type Store } from '../state';
+import type { ViewHandle } from './view';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const base = import.meta.env.BASE_URL;
@@ -63,12 +65,9 @@ function header(): HTMLElement {
   return el;
 }
 
-const LANGUAGE_OPTIONS: { value: Language; label: string; flag: string }[] = [
-  { value: 'en', label: 'Englisch', flag: 'flag_gb.png' },
-  { value: 'fr', label: 'Französisch', flag: 'flag_fr.png' },
-];
+const LANGUAGES: Language[] = ['en', 'fr'];
 
-export function renderStart(store: Store): HTMLElement {
+export function renderStart(store: Store): ViewHandle {
   const { settings } = store.getState().data;
 
   const play = document.createElement('button');
@@ -99,10 +98,10 @@ export function renderStart(store: Store): HTMLElement {
 
   const languages = createChoiceGroup<Language>(
     'Welche Sprache?',
-    LANGUAGE_OPTIONS.map((o) => ({
-      value: o.value,
-      label: o.label,
-      content: [img(`${base}flags/${o.flag}`, 'start__flag')],
+    LANGUAGES.map((language) => ({
+      value: language,
+      label: LANGUAGE_INFO[language].name,
+      content: [img(flagUrl(language), 'start__flag')],
     })),
     settings.language,
     (language) => {
@@ -138,5 +137,5 @@ export function renderStart(store: Store): HTMLElement {
   view.className = 'view view--start';
   view.dataset.view = 'start';
   view.append(header(), groups, footer);
-  return view;
+  return { el: view };
 }
