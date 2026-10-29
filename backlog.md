@@ -45,7 +45,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: Start-, Lernrunden- und Abschlussansicht sind Platzhalter mit je einer Schaltfläche; Inhalte folgen in B-11, B-21 ff. und B-43. Beenden per einfachem Tipp, Long-Press folgt in B-25.
 
 ## M1 – Startbildschirm
-- [ ] **B-10 Komponente Auswahlkachel**: Zustände ausgewählt (5 px lila, `--lila-100`) / nicht ausgewählt (2 px dunkelgrau, weiß); kein Layout-Sprung beim Wechsel; ≥ 88 px; `aria-pressed`.
+- [x] **B-10 Komponente Auswahlkachel**: Zustände ausgewählt (5 px lila, `--lila-100`) / nicht ausgewählt (2 px dunkelgrau, weiß); kein Layout-Sprung beim Wechsel; ≥ 88 px; `aria-pressed`.
+  - AT-10.1: Nicht ausgewählte Kachel: weißer Hintergrund, 2 px Rahmen in `--grau-700`; ausgewählte Kachel: Hintergrund `--lila-100`, 5 px Rahmen in `--lila-700`.
+  - AT-10.2: Tipp auf eine Kachel wählt sie aus; in einer Gruppe ist immer genau eine ausgewählt; erneuter Tipp auf die ausgewählte ändert nichts; `aria-pressed` spiegelt den Zustand.
+  - AT-10.3: Ein Auswahlwechsel verschiebt nichts: Position und Größe aller Kacheln und ihrer Inhalte bleiben pixelgleich.
+  - AT-10.4: Jede Kachel ist auf allen drei Viewports mindestens 88 × 88 px groß.
+  - AT-10.5: Kacheln verwenden in beiden Zuständen nur Farben aus den Design-Tokens (kein Rot/Grün, Leitprinzip 1).
+  - Hinweis: Geprüft wird in der Vorschau `?vorschau=kacheln` (Begleiter-, Flaggen- und Dauer-Kacheln), bis die Startansicht (B-11) die Kacheln nutzt.
 - [ ] **B-11 Startansicht**: Header mit Icon + Titel; Gruppen Begleiter, Sprache, Dauer (nur „5 Min.“ mit Uhr-Symbol); Play-Button. Layout laut Mockup, passt auf alle Ziel-Viewports.
   - AK: Play erst aktiv, wenn alle drei Gruppen gewählt; Screenshot-Tests für 3 Viewports.
 - [ ] **B-12 Auswahl merken**: Letzte Auswahl speichern und vorbelegen; Erststart: nur Dauer vorbelegt.
