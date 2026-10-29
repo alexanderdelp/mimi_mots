@@ -1,6 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
 import words from '../../src/data/words.json' with { type: 'json' };
 
+/** Hält einen Button gedrückt (Long-Press, z. B. [×] seit B-25). */
+async function hold(page: Page, name: string, ms = 700) {
+  const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(ms);
+  await page.mouse.up();
+}
+
 type SpeechCall = { op: 'cancel' } | { op: 'speak'; text: string; lang: string };
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -66,7 +75,7 @@ test.describe('B-22 Aufdecken', () => {
         await btn(page, flagName[language]).click();
         await expect(page.locator('.round__foreign')).toHaveText(word[key[language]]);
         await expectForeignFits(page);
-        await btn(page, 'Beenden').click();
+        await hold(page, 'Beenden');
         await btn(page, 'Zurück').click();
         await btn(page, 'Los geht’s').click();
       }

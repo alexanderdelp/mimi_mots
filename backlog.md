@@ -115,7 +115,15 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-24.4: Mimi zeigt Katzen-, Mots Pony-Bilder.
   - AT-24.5: Alle vier Posen des Begleiters sind nach dem Start der Runde geladen; der Avatar ist ≤ 440 px hoch, vollständig im Bildschirm und nicht animiert.
   - Hinweis: Die Avatar-Vorschau (`?vorschau=avatar`) entfällt; AT-03.2–03.4 laufen jetzt in der Lernrunde, AT-06.5 prüft, dass die Adresse die Startansicht zeigt.
-- [ ] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
+- [x] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
+  - AT-25.1: [×] steht oben links, ist mindestens 88 × 88 px groß und unaufdringlich (weiß, dünner grauer Rand).
+  - AT-25.2: Ein kurzer Tipp auf [×] beendet die Runde nicht.
+  - AT-25.3: Gedrückt halten (≥ 600 ms) führt zum Abschluss.
+  - AT-25.4: Loslassen vor 600 ms oder Wegziehen des Fingers bricht ab; erneutes Halten zählt neu.
+  - AT-25.5: Während des Haltens ist [×] sichtbar gedrückt (Hintergrund `--lila-100`), danach wieder weiß.
+  - AT-25.6: Bereits bewertete Wörter bleiben im Lernstand; das aktuelle, unbewertete Wort wird nicht gezählt.
+  - AT-25.7: Während des Haltens füllt sich ein lila Ring um [×] im Uhrzeigersinn (nach ~300 ms etwa halb voll); beim Loslassen ist er sofort weg. Bei „Bewegung reduzieren“ ist er während des Haltens sofort voll.
+  - Hinweis: Frühere Tests, die [×] nur antippen (B-06, B-12, B-22), halten es jetzt gedrückt.
 
 ## M3 – Audio
 - [ ] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
