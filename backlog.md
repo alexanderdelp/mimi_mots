@@ -211,7 +211,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-43.5: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen; Screenshot-Vergleich je Viewport.
 
 ## M5 – PWA & Offline
-- [ ] **B-50 Manifest & Icons**: Vorhandene Icons aus `public/icons/` einbinden (Manifest 192/512/maskable, `apple-touch-icon` 180), Meta-Tags für iOS; Platzhalter im Header durch `icon.svg` ersetzen. Skript `npm run icons` rendert die PNGs aus `icon.svg` neu (z. B. mit `sharp`), damit das Icon später einfach austauschbar ist.
+- [x] **B-50 Manifest & Icons**: Vorhandene Icons aus `public/icons/` einbinden (Manifest 192/512/maskable, `apple-touch-icon` 180), Meta-Tags für iOS; Platzhalter im Header durch `icon.svg` ersetzen. Skript `npm run icons` rendert die PNGs aus `icon.svg` neu (z. B. mit `sharp`), damit das Icon später einfach austauschbar ist.
   - AT-50.1: Die Seite verlinkt das Manifest, das `apple-touch-icon` (180 px), ein SVG-Favicon und setzt `theme-color` #6A4C9C, `apple-mobile-web-app-capable` = yes, Statusleiste `default`, App-Titel „Mimi & Mots“.
   - AT-50.2: Das Manifest wird ausgeliefert: Name „Mimi & Mots“, `display: standalone`, `orientation: landscape`, `lang: de`, `theme_color` #6A4C9C, `background_color` #F8F4FB, `start_url`/`scope` = `/mimi_mots/`, Icons 192, 512 und maskable 512.
   - AT-50.3: Alle im Manifest und in der Seite genannten Icons werden ausgeliefert (Status 200) und haben die angegebene Größe.
