@@ -45,6 +45,12 @@ export function renderRound(store: Store): ViewHandle {
   close.type = 'button';
   close.setAttribute('aria-label', 'Beenden');
   close.textContent = '×';
+  // Fortschrittsring: füllt sich während des Haltens (Ausnahme von der 200-ms-Regel, §11)
+  close.insertAdjacentHTML(
+    'beforeend',
+    '<svg class="close-button__ring" viewBox="0 0 100 100" aria-hidden="true">' +
+      '<circle cx="50" cy="50" r="46" pathLength="100" /></svg>',
+  );
   // gedrückt halten (600 ms), damit ein versehentlicher Tipp die Runde nicht beendet
   const stopLongPress = onLongPress(close, () => store.dispatch({ type: 'finish' }));
   const timer = el('div', 'round__timer');

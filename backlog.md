@@ -122,6 +122,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-25.4: Loslassen vor 600 ms oder Wegziehen des Fingers bricht ab; erneutes Halten zählt neu.
   - AT-25.5: Während des Haltens ist [×] sichtbar gedrückt (Hintergrund `--lila-100`), danach wieder weiß.
   - AT-25.6: Bereits bewertete Wörter bleiben im Lernstand; das aktuelle, unbewertete Wort wird nicht gezählt.
+  - AT-25.7: Während des Haltens füllt sich ein lila Ring um [×] im Uhrzeigersinn (nach ~300 ms etwa halb voll); beim Loslassen ist er sofort weg. Bei „Bewegung reduzieren“ ist er während des Haltens sofort voll.
   - Hinweis: Frühere Tests, die [×] nur antippen (B-06, B-12, B-22), halten es jetzt gedrückt.
 
 ## M3 – Audio

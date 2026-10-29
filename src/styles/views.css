@@ -278,12 +278,40 @@
 }
 
 .view--round .close-button {
-  position: static;
+  position: relative;
   touch-action: none;
 }
 
 .close-button[data-pressing] {
   background: var(--lila-100);
+}
+
+/* Fortschrittsring beim Gedrückthalten: füllt sich linear in 600 ms (= Long-Press-Dauer)
+   im Uhrzeigersinn ab 12 Uhr; beim Loslassen sofort weg. Bei „Bewegung reduzieren“
+   setzt base.css die Dauer auf 0 – der Ring ist dann während des Haltens sofort voll. */
+.close-button__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.close-button__ring circle {
+  fill: none;
+  stroke: var(--lila-700);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  opacity: 0;
+}
+
+.close-button[data-pressing] .close-button__ring circle {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition: stroke-dashoffset 600ms linear;
 }
 
 .round__timer {

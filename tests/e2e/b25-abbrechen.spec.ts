@@ -103,3 +103,32 @@ test.describe('B-25 Abbrechen', () => {
     expect(progress[current]).toBeUndefined();
   });
 });
+
+test.describe('B-25 Fortschrittsring', () => {
+  const ring = (page: Page) =>
+    page.locator('.close-button__ring circle').evaluate((c) => {
+      const s = getComputedStyle(c);
+      return { offset: parseFloat(s.strokeDashoffset), opacity: parseFloat(s.opacity) };
+    });
+
+  test('AT-25.7: Ring füllt sich beim Halten, verschwindet beim Loslassen', async ({ page }) => {
+    expect((await ring(page)).opacity).toBe(0);
+    await pressOnClose(page);
+    await page.waitForTimeout(300);
+    const half = await ring(page);
+    expect(half.opacity).toBe(1);
+    expect(half.offset).toBeGreaterThan(15);
+    expect(half.offset).toBeLessThan(85);
+    await page.mouse.up();
+    expect(await ring(page)).toEqual({ offset: 100, opacity: 0 });
+    await expect(page.locator('[data-view="round"]')).toBeVisible();
+  });
+
+  test('AT-25.7: bei „Bewegung reduzieren“ sofort voll', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await pressOnClose(page);
+    await page.waitForTimeout(50);
+    expect(await ring(page)).toEqual({ offset: 0, opacity: 1 });
+    await page.mouse.up();
+  });
+});
