@@ -116,7 +116,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-24.5: Alle vier Posen des Begleiters sind nach dem Start der Runde geladen; der Avatar ist ≤ 440 px hoch, vollständig im Bildschirm und nicht animiert.
   - Hinweis: Die Avatar-Vorschau (`?vorschau=avatar`) entfällt; AT-03.2–03.4 laufen jetzt in der Lernrunde, AT-06.5 prüft, dass die Adresse die Startansicht zeigt.
 - [x] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
-  - AT-25.1: [×] steht oben links, ist mindestens 88 × 88 px groß und unaufdringlich (weiß, dünner grauer Rand).
+  - AT-25.1: [×] steht oben links (seit B-26 direkt unter der Kopfleiste), ist mindestens 88 × 88 px groß und unaufdringlich (weiß, dünner grauer Rand).
   - AT-25.2: Ein kurzer Tipp auf [×] beendet die Runde nicht.
   - AT-25.3: Gedrückt halten (≥ 600 ms) führt zum Abschluss.
   - AT-25.4: Loslassen vor 600 ms oder Wegziehen des Fingers bricht ab; erneutes Halten zählt neu.
@@ -124,6 +124,19 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-25.6: Bereits bewertete Wörter bleiben im Lernstand; das aktuelle, unbewertete Wort wird nicht gezählt.
   - AT-25.7: Während des Haltens füllt sich ein lila Ring um [×] im Uhrzeigersinn (nach ~300 ms etwa halb voll); beim Loslassen ist er sofort weg. Bei „Bewegung reduzieren“ ist er während des Haltens sofort voll.
   - Hinweis: Frühere Tests, die [×] nur antippen (B-06, B-12, B-22), halten es jetzt gedrückt.
+
+## UI-Überarbeitung (nach M2)
+- [x] **B-26 UI-Überarbeitung**: Dauer 5/10 Minuten nur mit Uhr; Sprachkacheln flach im 2 × 2-Raster mit Japanisch (ausgegraut); Kopfleiste auch in der Lernrunde; runder lila Lautsprecher-Button statt Tipp auf die Flagge; „Wusste ich“/„Noch üben“ als runde lila Buttons nur mit Symbol.
+  - AT-26.1: Startseite: Dauer-Gruppe mit zwei Kacheln untereinander („5 Minuten“, „10 Minuten“ für Screenreader), nur Uhr-Symbol ohne Text; der lila Sektor zeigt 5 bzw. 10 Minuten (30° bzw. 60°).
+  - AT-26.2: 10 Minuten lässt sich wählen, wird gespeichert und nach Neuladen vorbelegt; Erststart: 5 Minuten vorbelegt.
+  - AT-26.3: Sprach-Gruppe im 2 × 2-Raster: Englisch, Französisch, Japanisch (ausgegraut, deaktiviert, Tipp bewirkt nichts), vierter Platz leer.
+  - AT-26.4: Sprach- und Dauer-Kacheln sind gleich groß und halb so hoch wie die Begleiter-Kacheln (inkl. Abstand); innerhalb jeder Gruppe gleich groß; alles ≥ 88 px und im Bildschirm.
+  - AT-26.5: Lernseite hat dieselbe Kopfleiste wie die Startseite (Icon + „Mimi & Mots“); [×] und Timer-Platz liegen darunter links bzw. rechts.
+  - AT-26.6: Rechts neben der Karte: große Flagge der Sprache (≥ 80 % der Spaltenbreite, nur Anzeige, nicht antippbar); der runde lila Lautsprecher-Button überlappt ihre rechte untere Ecke ein Stück (höchstens ein Viertel der Flaggenfläche). Tipp auf den Lautsprecher deckt auf und liest vor, erneuter Tipp liest von vorn.
+  - AT-26.7: „Wusste ich“ und „Noch üben“ sind runde lila Buttons wie der Play-Button, gleich groß, nur mit weißem Symbol, ohne sichtbaren Text (Screenreader-Namen bleiben).
+  - AT-26.8: Auf allen drei Viewports passt die Lernseite ohne Überlappung (außer der gewollten Flaggen-Ecke) und ohne Scrollen; Screenshots der Startseite aktualisiert.
+  - AT-26.9: Lange Fremdwörter: Mehrwortbegriffe bis 22 Zeichen und Einzelwörter bis 25 Zeichen passen vollständig in den Fremdwort-Bereich, mindestens 36 px groß; Einzelwörter werden dafür notfalls getrennt (geprüft am echten Fremdwort-Feld mit der App-Logik, Unit-Tests für `fitText`).
+  - Hinweis: Bestehende Tests werden angepasst (Kachelanzahl, „5 Min.“ → „5 Minuten“, Flaggen-Button → Lautsprecher-Button, Bewertungs-Buttons ohne Text).
 
 ## M3 – Audio
 - [ ] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).

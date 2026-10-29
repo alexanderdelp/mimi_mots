@@ -37,9 +37,12 @@
   font-weight: 800;
 }
 
-/* Runde Schaltflächen (Feinschliff Abbrechen/Abschluss in B-25/B-43). */
-.play-button,
+/* Runde lila Buttons nur mit Symbol: Play, Lautsprecher, Bewertung (Abschluss in B-43). */
+.round-button,
 .home-button {
+  display: grid;
+  place-items: center;
+  flex: none;
   width: 112px;
   height: 112px;
   border-radius: 50%;
@@ -47,6 +50,19 @@
   color: var(--white);
   font-size: 48px;
   box-shadow: var(--shadow);
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.round-button svg {
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+}
+
+.round-button:active:not(:disabled) {
+  background: var(--lila-900);
 }
 
 .close-button {
@@ -130,6 +146,14 @@
   -webkit-user-drag: none;
 }
 
+/* Noch nicht verfügbare Option (z. B. Japanisch): ausgegraut, nicht wählbar. */
+.choice-tile:disabled {
+  filter: grayscale(1);
+  opacity: 0.45;
+  box-shadow: inset 0 0 0 2px var(--grau-700);
+  cursor: default;
+}
+
 .choice-group {
   display: flex;
   flex-direction: column;
@@ -147,19 +171,6 @@
   gap: 24px;
 }
 
-.play-button {
-  display: grid;
-  place-items: center;
-  transition:
-    background-color var(--transition),
-    color var(--transition);
-}
-
-.play-button svg {
-  width: 56px;
-  height: 56px;
-}
-
 .play-button:disabled {
   background: var(--lila-200);
   color: var(--white);
@@ -167,9 +178,14 @@
   cursor: default;
 }
 
-/* Startansicht (B-11): Header oben, drei Gruppen in einer Reihe, Play unten mittig.
-   Alle Kacheln gleich groß; Größen skalieren mit dem Viewport. */
+/* Startansicht (B-11, B-26): Header oben, drei Gruppen in einer Reihe, Play unten mittig.
+   Begleiter-Kacheln hoch; Sprach- und Dauer-Kacheln halb so hoch (inkl. Abstand), damit
+   zwei untereinander passen. Innerhalb einer Gruppe sind alle Kacheln gleich groß. */
 .view--start {
+  --start-tile-w: clamp(150px, 15vw, 220px);
+  --start-tile-h: clamp(210px, 36dvh, 340px);
+  --start-tile-gap: 16px;
+  --start-tile-small-h: calc((var(--start-tile-h) - var(--start-tile-gap)) / 2);
   justify-content: flex-start;
   gap: 0;
   padding: 0;
@@ -207,9 +223,27 @@
 }
 
 .view--start .choice-tile {
-  --tile-w: clamp(150px, 15vw, 220px);
-  --tile-h: clamp(210px, 36dvh, 340px);
+  --tile-w: var(--start-tile-w);
+  --tile-h: var(--start-tile-h);
   padding: 10px;
+}
+
+.start__group--language .choice-tile,
+.start__group--duration .choice-tile {
+  --tile-h: var(--start-tile-small-h);
+}
+
+/* Sprachen im 2 × 2-Raster (vierter Platz frei), Dauer untereinander */
+.start__group--language .choice-group__tiles {
+  display: grid;
+  grid-template-columns: repeat(2, var(--start-tile-w));
+  grid-auto-rows: var(--start-tile-small-h);
+  gap: var(--start-tile-gap) 24px;
+}
+
+.start__group--duration .choice-group__tiles {
+  flex-direction: column;
+  gap: var(--start-tile-gap);
 }
 
 .start__avatar {
@@ -219,21 +253,21 @@
   object-fit: contain;
 }
 
-.start__name,
-.start__duration {
+.start__name {
   font-size: clamp(22px, 3dvh, 28px);
 }
 
 .start__flag {
-  width: 80%;
-  height: auto;
+  width: 72%;
+  max-height: 80%;
+  object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 0 0 1px var(--lila-200);
 }
 
 .clock-icon {
-  width: 55%;
-  height: auto;
+  height: 78%;
+  width: auto;
 }
 
 .clock-icon__face {
@@ -262,19 +296,38 @@
   padding: 0 24px clamp(24px, 4dvh, 40px);
 }
 
-/* Lernrunde (B-21): Kopfzeile, Bühne (Avatar | Karte | Flagge), Bewertungszeile.
-   Plätze für Avatar, Timer, Fremdwort und Bewertung sind fest reserviert. */
+/* Lernrunde (B-21, B-26): Kopfleiste wie auf der Startseite; darunter Bühne
+   (Avatar | Karte | Flagge + Lautsprecher) und Bewertungszeile. [×] und Timer liegen
+   oben links bzw. rechts über den Seitenspalten. Alle Plätze sind fest reserviert. */
 .view--round {
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0;
+  padding: 0;
+}
+
+.round__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
   padding: 16px 24px;
 }
 
 .round__top {
-  align-self: stretch;
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  right: 24px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.round__top > * {
+  pointer-events: auto;
 }
 
 .view--round .close-button {
@@ -373,27 +426,34 @@
 
 .round__answer {
   flex: none;
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 16px;
   width: clamp(200px, 25vw, 300px);
+  /* Platz für den Timer oben rechts freihalten */
+  padding-top: 120px;
 }
 
-.flag-button {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: var(--radius-l);
-  background: var(--white);
-  box-shadow:
-    inset 0 0 0 2px var(--grau-700),
-    var(--shadow);
+/* Große Flagge (nur Anzeige); der Lautsprecher-Button sitzt rechts unten und
+   überlappt die Ecke der Flagge ein Stück. */
+.round__speak {
+  position: relative;
+  align-self: stretch;
+  padding-bottom: 56px; /* untere Hälfte des Lautsprechers ragt unter die Flagge */
 }
 
-.flag-button__img {
-  width: 76%;
+.round__speak .speak-button {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.round__flag {
+  display: block;
+  width: 88%;
   height: auto;
   border-radius: 8px;
   box-shadow: 0 0 0 1px var(--lila-200);
@@ -414,6 +474,13 @@
   hyphens: none;
 }
 
+/* Rückfallstufe für sehr lange Einzelwörter (fitText): Silbentrennung statt Abschneiden */
+.round__foreign.fit-text--break {
+  overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
 .word-card--enter {
   animation: word-card-enter 150ms ease-out;
 }
@@ -424,43 +491,16 @@
   }
 }
 
-/* Selbsteinschätzung (B-23): beide Buttons identisch gestaltet, nur Lila-Töne.
+/* Selbsteinschätzung (B-23, B-26): zwei identische runde lila Buttons nur mit Symbol.
    Vor dem Aufdecken unsichtbar, der Platz bleibt reserviert. */
 .round__rating {
   align-self: stretch;
   display: flex;
   justify-content: center;
-  gap: clamp(24px, 4vw, 56px);
+  gap: clamp(48px, 8vw, 96px);
   height: 112px;
-  padding-top: 8px;
 }
 
 .view--round[data-revealed='false'] .round__rating {
   visibility: hidden;
-}
-
-.rating-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: clamp(240px, 26vw, 320px);
-  height: 96px;
-  border-radius: var(--radius-l);
-  background: var(--lila-100);
-  color: var(--lila-900);
-  font-size: 28px;
-  font-weight: 800;
-  box-shadow:
-    inset 0 0 0 3px var(--lila-500),
-    var(--shadow);
-}
-
-.rating-button:active {
-  background: var(--lila-200);
-}
-
-.rating-button__icon {
-  font-size: 40px;
-  line-height: 1;
 }

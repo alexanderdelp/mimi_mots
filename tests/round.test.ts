@@ -56,9 +56,9 @@ describe('renderRound', () => {
 
   it('Flaggen-Button passt zur Sprache', () => {
     const { el } = renderRound(roundStore('fr'));
-    const flag = el.querySelector('.flag-button')!;
-    expect(flag.getAttribute('aria-label')).toBe('Auf Französisch');
-    expect(flag.querySelector('img')!.getAttribute('src')).toMatch(/flag_fr\.png$/);
+    const speaker = el.querySelector('.speak-button')!;
+    expect(speaker.getAttribute('aria-label')).toBe('Auf Französisch anhören');
+    expect(el.querySelector('.round__flag')!.getAttribute('src')).toMatch(/flag_fr\.png$/);
   });
 
   it('aktualisiert die Karte beim nächsten Wort und meldet sich mit dispose ab', () => {
@@ -104,7 +104,7 @@ describe('Aufdecken in der Lernrunde (B-22)', () => {
     const store = roundStore('fr');
     const { el } = renderRound(store);
     const word = getWord(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId!)!;
-    el.querySelector<HTMLButtonElement>('.flag-button')!.click();
+    el.querySelector<HTMLButtonElement>('.speak-button')!.click();
     expect(el.querySelector('.round__foreign')!.textContent).toBe(word.fr);
     expect(el.querySelector('.round__foreign')!.getAttribute('lang')).toBe('fr');
     expect(synth.speak).toHaveBeenCalledTimes(1);
@@ -114,7 +114,7 @@ describe('Aufdecken in der Lernrunde (B-22)', () => {
   it('erneuter Tipp liest erneut von vorn vor', () => {
     const synth = withSpeech();
     const { el } = renderRound(roundStore('en'));
-    const flag = el.querySelector<HTMLButtonElement>('.flag-button')!;
+    const flag = el.querySelector<HTMLButtonElement>('.speak-button')!;
     flag.click();
     flag.click();
     flag.click();
@@ -126,7 +126,7 @@ describe('Aufdecken in der Lernrunde (B-22)', () => {
     withSpeech();
     const store = roundStore('en');
     const { el } = renderRound(store);
-    el.querySelector<HTMLButtonElement>('.flag-button')!.click();
+    el.querySelector<HTMLButtonElement>('.speak-button')!.click();
     store.dispatch({ type: 'word', id: 'hund', session: store.getState().round!.session });
     expect(el.querySelector('.round__foreign')!.textContent).toBe('');
     expect(el.dataset.revealed).toBe('false');
@@ -154,21 +154,26 @@ describe('Selbsteinschätzung in der Lernrunde (B-23)', () => {
 
   it('hat zwei Buttons „Wusste ich“ und „Noch üben“', () => {
     const { el } = setup();
-    const labels = [...el.querySelectorAll('.rating-button')].map((b) => b.textContent);
-    expect(labels).toEqual(['👍Wusste ich', '🔁Noch üben']);
+    const buttons = [...el.querySelectorAll('.rating-button')];
+    expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual(['Wusste ich', 'Noch üben']);
+    expect(buttons.map((b) => b.textContent)).toEqual(['', '']); // nur Symbol
+    expect(buttons.map((b) => b.querySelector('svg')!.dataset.icon)).toEqual([
+      'thumbsUp',
+      'repeat',
+    ]);
   });
 
   it('Buttons sind vor dem Aufdecken verborgen (data-revealed=false)', () => {
     const { el, q } = setup();
     expect(el.dataset.revealed).toBe('false');
-    q('.flag-button').click();
+    q('.speak-button').click();
     expect(el.dataset.revealed).toBe('true');
   });
 
   it('Tipp speichert den Lernstand und zeigt ein neues, verdecktes Wort', () => {
     const { store, el, q } = setup();
     const first = q('.word-card').dataset.wordId!;
-    q('.flag-button').click();
+    q('.speak-button').click();
     q('[data-rating="known"]').click();
     expect(store.getState().data.progress.en[first]).toMatchObject({ box: 1, seen: 1 });
     expect(q('.word-card').dataset.wordId).not.toBe(first);
@@ -201,7 +206,7 @@ describe('Avatar in der Lernrunde (B-24)', () => {
     expect(avatar.dataset.pose).toBe('zeigt');
     expect(img.getAttribute('src')).toMatch(/pony_pointing\.png$/);
 
-    el.querySelector<HTMLButtonElement>('.flag-button')!.click();
+    el.querySelector<HTMLButtonElement>('.speak-button')!.click();
     expect(avatar.dataset.pose).toBe('freut');
     expect(img.getAttribute('src')).toMatch(/pony_idle\.png$/);
 

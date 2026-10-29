@@ -7,6 +7,8 @@ export interface ChoiceTileOptions {
   /** Name für Screenreader, wenn der Inhalt keinen Text hat (z. B. nur Flagge). */
   label?: string;
   selected?: boolean;
+  /** Ausgegraut und nicht wählbar (z. B. eine Sprache, die noch kommt). */
+  disabled?: boolean;
   onSelect?: () => void;
 }
 
@@ -22,7 +24,10 @@ export function createChoiceTile(options: ChoiceTileOptions): ChoiceTile {
   el.className = 'choice-tile';
   if (options.label) el.setAttribute('aria-label', options.label);
   el.append(...options.content);
-  el.addEventListener('click', () => options.onSelect?.());
+  el.disabled = options.disabled ?? false;
+  el.addEventListener('click', () => {
+    if (!el.disabled) options.onSelect?.();
+  });
 
   let selected = false;
   const setSelected = (value: boolean) => {
@@ -46,6 +51,7 @@ export interface ChoiceOption<T extends string> {
   value: T;
   content: readonly Node[];
   label?: string;
+  disabled?: boolean;
 }
 
 export interface ChoiceGroup<T extends string> {
@@ -77,6 +83,7 @@ export function createChoiceGroup<T extends string>(
       createChoiceTile({
         content: option.content,
         label: option.label,
+        disabled: option.disabled,
         selected: option.value === initial,
         onSelect: () => select(option.value),
       }),

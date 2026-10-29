@@ -35,8 +35,8 @@ test.describe('B-23 Selbsteinschätzung', () => {
     await flag(page).click();
     await expect(known(page)).toBeVisible();
     await expect(practice(page)).toBeVisible();
-    await expect(known(page)).toContainText('👍');
-    await expect(practice(page)).toContainText('🔁');
+    await expect(known(page).locator('svg')).toHaveAttribute('data-icon', 'thumbsUp');
+    await expect(practice(page).locator('svg')).toHaveAttribute('data-icon', 'repeat');
   });
 
   test('AT-23.2: gleich groß, gleich gestaltet, nur Token-Farben', async ({ page }) => {
@@ -143,7 +143,7 @@ test.describe('B-23 Selbsteinschätzung', () => {
     await startRound(page);
     const boxes = () =>
       page
-        .locator('.close-button, .word-card, .flag-button, .round__foreign, .round__rating')
+        .locator('.close-button, .word-card, .speak-button, .round__foreign, .round__rating')
         .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
     const before = await boxes();
     await flag(page).click();

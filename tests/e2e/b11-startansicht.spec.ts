@@ -39,16 +39,17 @@ test.describe('B-11 Startansicht', () => {
     for (const name of ['Englisch', 'Französisch']) {
       expect(await btn(page, name).innerText()).toBe(''); // nur Flagge, kein Text
     }
-    const dauer = btn(page, '5 Min.');
+    // seit B-26: nur Uhr-Symbol, kein Text
+    const dauer = btn(page, '5 Minuten');
     await expect(dauer.locator('svg.clock-icon')).toBeVisible();
-    await expect(dauer).toHaveText('5 Min.');
+    expect(await dauer.innerText()).toBe('');
   });
 
   test('AT-11.3: Erststart – nur Dauer gewählt, Play deaktiviert', async ({ page }) => {
     for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');
     }
-    await expect(btn(page, '5 Min.')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, '5 Minuten')).toHaveAttribute('aria-pressed', 'true');
     const play = btn(page, 'Los geht’s');
     await expect(play).toBeDisabled();
     await play.click({ force: true });
@@ -90,13 +91,16 @@ test.describe('B-11 Startansicht', () => {
       }
     }
     const tiles = boxes.filter((b) => b.name.includes('choice-tile'));
-    expect(tiles).toHaveLength(5);
+    expect(tiles).toHaveLength(7);
     for (const t of tiles) {
       expect(t.w).toBeGreaterThanOrEqual(88);
       expect(t.h).toBeGreaterThanOrEqual(88);
-      expect(t.w).toBeCloseTo(tiles[0].w, 1); // alle Kacheln gleich groß
-      expect(t.h).toBeCloseTo(tiles[0].h, 1);
+      expect(t.w).toBeCloseTo(tiles[0].w, 1); // alle Kacheln gleich breit
     }
+    // seit B-26: Begleiter hoch, Sprache/Dauer flach – jeweils innerhalb der Gruppe gleich
+    const [mimi, mots, ...small] = tiles;
+    expect(mots.h).toBeCloseTo(mimi.h, 1);
+    for (const t of small) expect(t.h).toBeCloseTo(small[0].h, 1);
     const play = boxes.find((b) => b.name.includes('play-button'))!;
     expect(play.w).toBeGreaterThanOrEqual(96);
     expect(play.h).toBe(play.w);

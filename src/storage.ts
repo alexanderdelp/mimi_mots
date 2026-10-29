@@ -8,7 +8,7 @@ export const STORAGE_KEY = 'mimi-mots:v1';
 export const VERSION = 1;
 
 export const LANGUAGES: readonly Language[] = ['en', 'fr'];
-export const DURATIONS = [5] as const;
+export const DURATIONS = [5, 10] as const;
 export type DurationMin = (typeof DURATIONS)[number];
 
 export const MAX_BOX = 4;

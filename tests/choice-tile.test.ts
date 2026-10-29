@@ -88,3 +88,35 @@ describe('createChoiceGroup', () => {
     expect(a.el.querySelector('h2')!.id).not.toBe(b.el.querySelector('h2')!.id);
   });
 });
+
+describe('deaktivierte Kachel (B-26)', () => {
+  it('ist deaktiviert und löst nichts aus', () => {
+    const onSelect = vi.fn();
+    const tile = createChoiceTile({
+      content: [],
+      label: 'Japanisch (bald)',
+      disabled: true,
+      onSelect,
+    });
+    expect(tile.el.disabled).toBe(true);
+    tile.el.dispatchEvent(new MouseEvent('click'));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('wird in einer Gruppe nie ausgewählt', () => {
+    const onChange = vi.fn();
+    const group = createChoiceGroup(
+      'Welche Sprache?',
+      [
+        { value: 'en', content: [] },
+        { value: 'ja', content: [], disabled: true },
+      ],
+      null,
+      onChange,
+    );
+    group.tiles.get('ja')!.el.dispatchEvent(new MouseEvent('click'));
+    expect(group.value).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+    expect(group.tiles.get('ja')!.el.getAttribute('aria-pressed')).toBe('false');
+  });
+});

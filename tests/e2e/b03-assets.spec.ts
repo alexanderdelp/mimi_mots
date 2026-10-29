@@ -70,7 +70,7 @@ test.describe('B-03 Assets einbinden', () => {
     test(`AT-03.2: Posenwechsel verschiebt nichts (${companion})`, async ({ page }) => {
       await startRound(page, companion);
       const zeigt = await avatarBox(page);
-      await page.getByRole('button', { name: 'Auf Englisch' }).click();
+      await page.getByRole('button', { name: 'Auf Englisch anhören' }).click();
       await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'freut');
       await avatarLoaded(page);
       expect(await avatarBox(page)).toEqual(zeigt);
@@ -96,7 +96,7 @@ test.describe('B-03 Assets einbinden', () => {
 
     const requests: string[] = [];
     page.on('request', (req) => requests.push(req.url()));
-    await page.getByRole('button', { name: 'Auf Englisch' }).click();
+    await page.getByRole('button', { name: 'Auf Englisch anhören' }).click();
     await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'freut');
     const complete = await page
       .locator('.round__avatar .avatar img')

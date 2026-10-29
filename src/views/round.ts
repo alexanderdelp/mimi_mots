@@ -1,8 +1,11 @@
-// Lernrunde (anforderungen.md §3.2): Avatar zeigt auf die Wortkarte, Flagge zum Aufdecken
-// und Vorlesen, danach Selbsteinschätzung. Freigehaltener Platz für den Timer (B-41).
+// Lernrunde (anforderungen.md §3.2): Kopfleiste, Avatar zeigt auf die Wortkarte,
+// Lautsprecher zum Aufdecken und Vorlesen (Flagge daneben nur zur Anzeige), danach
+// Selbsteinschätzung. Freigehaltener Platz für den Timer (B-41).
 import { speak, stopSpeaking } from '../audio';
+import { createAppHeader } from '../components/app-header';
 import { createAvatar, type Pose } from '../components/avatar';
 import { fitText } from '../components/fit-text';
+import { roundButton } from '../components/icons';
 import { onLongPress } from '../components/long-press';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { WORDS, getWord, type Language } from '../data/words';
@@ -13,6 +16,8 @@ import type { ViewHandle } from './view';
 const WORD_IDS = WORDS.map((w) => w.id);
 const FOREIGN_MAX_PX = 56;
 const FOREIGN_MIN_PX = 28;
+/** Unter dieser Größe wird ein zu langes Wort lieber getrennt als weiter verkleinert. */
+const FOREIGN_BREAK_BELOW_PX = 36;
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -39,7 +44,7 @@ export function renderRound(store: Store): ViewHandle {
   const view = el('main', 'view view--round');
   view.dataset.view = 'round';
 
-  // Kopfzeile: [×] links, Platz für den Timer rechts
+  // Unter der Kopfleiste: [×] links, Platz für den Timer rechts
   const top = el('div', 'round__top');
   const close = el('button', 'close-button');
   close.type = 'button';
@@ -56,7 +61,7 @@ export function renderRound(store: Store): ViewHandle {
   const timer = el('div', 'round__timer');
   top.append(close, timer);
 
-  // Bühne: Avatar | Wortkarte | Flagge
+  // Bühne: Avatar | Wortkarte | Flagge + Lautsprecher
   const stage = el('div', 'round__stage');
   // Avatar links, damit die Zeigegeste nach rechts zur Karte geht; Posen nur per Bildtausch.
   const avatarSlot = el('div', 'round__avatar');
@@ -70,20 +75,23 @@ export function renderRound(store: Store): ViewHandle {
   card.append(emoji, german);
 
   const answer = el('div', 'round__answer');
-  const flag = el('button', 'flag-button');
-  flag.type = 'button';
-  flag.setAttribute('aria-label', `Auf ${LANGUAGE_INFO[language].name}`);
-  const flagImg = el('img', 'flag-button__img');
-  flagImg.src = flagUrl(language);
-  flagImg.alt = '';
-  flagImg.draggable = false;
-  flag.append(flagImg);
+  const speakRow = el('div', 'round__speak');
+  const flag = el('img', 'round__flag');
+  flag.src = flagUrl(language);
+  flag.alt = LANGUAGE_INFO[language].name;
+  flag.draggable = false;
+  const speaker = roundButton(
+    `Auf ${LANGUAGE_INFO[language].name} anhören`,
+    'speaker',
+    'speak-button',
+  );
+  speakRow.append(flag, speaker);
   const foreign = el('p', 'round__foreign'); // bleibt leer bis zum Aufdecken
   foreign.lang = language;
-  answer.append(flag, foreign);
+  answer.append(speakRow, foreign);
 
-  // Tipp auf Flagge: aufdecken und (erneut, von vorn) vorlesen
-  flag.addEventListener('click', () => {
+  // Tipp auf den Lautsprecher: aufdecken und (erneut, von vorn) vorlesen
+  speaker.addEventListener('click', () => {
     const id = store.getState().round?.wordId;
     const word = id ? getWord(id) : undefined;
     if (!word) return;
@@ -93,19 +101,12 @@ export function renderRound(store: Store): ViewHandle {
 
   stage.append(avatarSlot, card, answer);
 
-  // Selbsteinschätzung: zwei gleichwertige Buttons, erst nach dem Aufdecken sichtbar.
-  // Kein Feedback – der Tipp speichert den Lernstand und holt direkt das nächste Wort.
+  // Selbsteinschätzung: zwei gleichwertige runde Buttons nur mit Symbol, erst nach dem
+  // Aufdecken sichtbar. Kein Feedback – der Tipp speichert und holt das nächste Wort.
   const rating = el('div', 'round__rating');
-  const rateButton = (value: Rating, icon: string, label: string) => {
-    const button = el('button', 'rating-button');
-    button.type = 'button';
+  const rateButton = (value: Rating, name: 'thumbsUp' | 'repeat', label: string) => {
+    const button = roundButton(label, name, 'rating-button');
     button.dataset.rating = value;
-    const iconEl = el('span', 'rating-button__icon');
-    iconEl.setAttribute('aria-hidden', 'true');
-    iconEl.textContent = icon;
-    const labelEl = el('span', 'rating-button__label');
-    labelEl.textContent = label;
-    button.append(iconEl, labelEl);
     button.addEventListener('click', () => {
       if (!store.getState().round?.revealed) return;
       store.dispatch({ type: 'rate', rating: value, at: new Date().toISOString() });
@@ -113,9 +114,14 @@ export function renderRound(store: Store): ViewHandle {
     });
     return button;
   };
-  rating.append(rateButton('known', '👍', 'Wusste ich'), rateButton('practice', '🔁', 'Noch üben'));
+  rating.append(
+    rateButton('known', 'thumbsUp', 'Wusste ich'),
+    rateButton('practice', 'repeat', 'Noch üben'),
+  );
 
-  view.append(top, stage, rating);
+  const body = el('div', 'round__body');
+  body.append(top, stage, rating);
+  view.append(createAppHeader(), body);
 
   const showWord = (state: AppState) => {
     const word = state.round?.wordId ? getWord(state.round.wordId) : undefined;
@@ -139,7 +145,7 @@ export function renderRound(store: Store): ViewHandle {
     const pose: Pose = revealed ? 'freut' : 'zeigt';
     if (avatar.pose !== pose) avatar.setPose(pose);
     foreign.textContent = revealed ? word[language] : '';
-    if (revealed) fitText(foreign, FOREIGN_MAX_PX, FOREIGN_MIN_PX);
+    if (revealed) fitText(foreign, FOREIGN_MAX_PX, FOREIGN_MIN_PX, FOREIGN_BREAK_BELOW_PX);
   };
 
   const unsubscribe = store.subscribe((state, previous) => {
