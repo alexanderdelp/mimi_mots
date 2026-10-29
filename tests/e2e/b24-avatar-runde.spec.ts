@@ -32,7 +32,7 @@ test.describe('B-24 Avatar in der Runde', () => {
 
   test('AT-24.2: nach dem Aufdecken „freut“, bleibt dabei', async ({ page }) => {
     await startRound(page);
-    const flag = btn(page, 'Auf Französisch');
+    const flag = btn(page, 'Auf Französisch anhören');
     await flag.click();
     await expect(avatar(page)).toHaveAttribute('data-pose', 'freut');
     expect(await avatarSrc(page)).toMatch(/cat_idle\.png$/);
@@ -44,7 +44,7 @@ test.describe('B-24 Avatar in der Runde', () => {
   test('AT-24.3: nächstes Wort → wieder „zeigt“', async ({ page }) => {
     await startRound(page);
     for (const rating of [/Wusste ich/, /Noch üben/]) {
-      await btn(page, 'Auf Französisch').click();
+      await btn(page, 'Auf Französisch anhören').click();
       await expect(avatar(page)).toHaveAttribute('data-pose', 'freut');
       await page.getByRole('button', { name: rating }).click();
       await expect(avatar(page)).toHaveAttribute('data-pose', 'zeigt');
@@ -55,7 +55,7 @@ test.describe('B-24 Avatar in der Runde', () => {
   test('AT-24.4: Mots zeigt Pony-Bilder', async ({ page }) => {
     await startRound(page, 'Mots');
     expect(await avatarSrc(page)).toMatch(/pony_pointing\.png$/);
-    await btn(page, 'Auf Französisch').click();
+    await btn(page, 'Auf Französisch anhören').click();
     await expect(avatar(page).locator('img')).toHaveAttribute('src', /pony_idle\.png$/);
   });
 
@@ -72,7 +72,7 @@ test.describe('B-24 Avatar in der Runde', () => {
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.y).toBeGreaterThanOrEqual(0);
     expect(box.y + box.height).toBeLessThanOrEqual(vp.height);
-    await btn(page, 'Auf Französisch').click();
+    await btn(page, 'Auf Französisch anhören').click();
     const animations = await avatar(page).evaluate((el) => [
       ...el.getAnimations(),
       ...el.querySelector('img')!.getAnimations(),

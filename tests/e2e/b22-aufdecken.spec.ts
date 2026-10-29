@@ -60,7 +60,10 @@ async function expectForeignFits(page: Page) {
   expect(fit).toEqual({ fitsX: true, fitsY: true });
 }
 
-const flagName = { Englisch: 'Auf Englisch', Französisch: 'Auf Französisch' } as const;
+const flagName = {
+  Englisch: 'Auf Englisch anhören',
+  Französisch: 'Auf Französisch anhören',
+} as const;
 const key = { Englisch: 'en', Französisch: 'fr' } as const;
 const lang = { Englisch: 'en-GB', Französisch: 'fr-FR' } as const;
 
@@ -93,7 +96,7 @@ test.describe('B-22 Aufdecken', () => {
   test('AT-22.3: erneuter Tipp startet von vorn', async ({ page }) => {
     await fakeSpeech(page);
     const word = await startRound(page, 'Französisch');
-    for (let i = 0; i < 3; i++) await btn(page, 'Auf Französisch').click();
+    for (let i = 0; i < 3; i++) await btn(page, 'Auf Französisch anhören').click();
     const calls = await speechCalls(page);
     const ops = calls.map((c) => c.op);
     expect(ops).toEqual(['cancel', 'speak', 'cancel', 'speak', 'cancel', 'speak']);
@@ -105,10 +108,10 @@ test.describe('B-22 Aufdecken', () => {
     await startRound(page, 'Englisch');
     const boxes = () =>
       page
-        .locator('.close-button, .word-card, .flag-button, .round__foreign')
+        .locator('.close-button, .word-card, .speak-button, .round__foreign')
         .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
     const before = await boxes();
-    await btn(page, 'Auf Englisch').click();
+    await btn(page, 'Auf Englisch anhören').click();
     await expect(page.locator('.round__foreign')).not.toHaveText('');
     expect(await boxes()).toEqual(before);
   });
@@ -128,7 +131,7 @@ test.describe('B-22 Aufdecken', () => {
       Object.defineProperty(window, 'speechSynthesis', { value: undefined });
     });
     const word = await startRound(page, 'Englisch');
-    await btn(page, 'Auf Englisch').click();
+    await btn(page, 'Auf Englisch anhören').click();
     await expect(page.locator('.round__foreign')).toHaveText(word.en);
     expect(errors).toEqual([]);
   });

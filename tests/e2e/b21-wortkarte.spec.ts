@@ -48,15 +48,15 @@ test.describe('B-21 Wortkarte', () => {
 
     test(`AT-21.4: Flaggen-Button für ${language}`, async ({ page }) => {
       await startRound(page, language);
-      const flag = btn(page, `Auf ${language}`);
+      // seit B-26: Flagge nur zur Anzeige, daneben der runde Lautsprecher-Button
+      const flag = page.locator('.round__flag');
       await expect(flag).toBeVisible();
-      await expect(flag.locator('img')).toHaveAttribute(
-        'src',
-        key === 'en' ? /flag_gb\.png$/ : /flag_fr\.png$/,
-      );
-      const box = (await flag.boundingBox())!;
-      expect(box.width).toBeGreaterThanOrEqual(160);
-      expect(box.height).toBeGreaterThanOrEqual(88);
+      await expect(flag).toHaveAttribute('src', key === 'en' ? /flag_gb\.png$/ : /flag_fr\.png$/);
+      const speaker = btn(page, `Auf ${language} anhören`);
+      await expect(speaker).toBeVisible();
+      const box = (await speaker.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(96);
+      expect(box.height).toBeGreaterThanOrEqual(96);
     });
   }
 
@@ -66,7 +66,7 @@ test.describe('B-21 Wortkarte', () => {
     const get = async (sel: string) => (await page.locator(sel).boundingBox())!;
     const close = await get('.close-button');
     const card = await get('.word-card');
-    const flag = await get('.flag-button');
+    const flag = await get('.speak-button');
 
     expect(close.x).toBeLessThan(vp.width * 0.15);
     expect(close.y).toBeLessThan(vp.height * 0.15);
@@ -80,7 +80,8 @@ test.describe('B-21 Wortkarte', () => {
       expect(b.x + b.width, name).toBeLessThanOrEqual(vp.width);
       expect(b.y + b.height, name).toBeLessThanOrEqual(vp.height);
     }
-    expect(close.y + close.height).toBeLessThanOrEqual(card.y);
+    // [×] liegt seit B-26 links über der Avatar-Spalte, neben der Karte
+    expect(close.x + close.width).toBeLessThanOrEqual(card.x);
     const scroll = await page.evaluate(() => [
       document.documentElement.scrollWidth,
       document.documentElement.scrollHeight,

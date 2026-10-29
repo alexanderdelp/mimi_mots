@@ -78,7 +78,7 @@ tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright)
 --border-default:  2px solid var(--grau-700);
 --shadow: 0 6px 18px rgba(59, 42, 99, .12);
 ```
-Regeln: Auswahlkacheln haben immer gleiche Größe; Rahmendicke-Wechsel darf das Layout nicht verschieben (`outline` oder `box-shadow inset` statt `border`, oder feste Box mit `box-sizing` und Innenabstand-Ausgleich).
+Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wechsel darf das Layout nicht verschieben (`outline` oder `box-shadow inset` statt `border`, oder feste Box mit `box-sizing` und Innenabstand-Ausgleich).
 
 ## iPad/PWA-Besonderheiten
 - `display: standalone`, `apple-mobile-web-app-capable`, `apple-touch-icon`, Statusleiste `default`.

@@ -106,6 +106,11 @@ describe('sanitize', () => {
     expect(data.settings).toEqual({ companion: null, language: 'fr', durationMin: 5 });
   });
 
+  it('akzeptiert 10 Minuten als Dauer (B-26)', () => {
+    const data = sanitize({ ...valid(), settings: { ...valid().settings, durationMin: 10 } });
+    expect(data.settings.durationMin).toBe(10);
+  });
+
   it('akzeptiert null als „noch nicht gewählt“', () => {
     const data = sanitize({
       ...valid(),

@@ -29,7 +29,10 @@ test.describe('B-25 Abbrechen', () => {
     const vp = page.viewportSize()!;
     const box = (await close(page).boundingBox())!;
     expect(box.x).toBeLessThan(vp.width * 0.1);
-    expect(box.y).toBeLessThan(vp.height * 0.1);
+    // seit B-26 direkt unter der Kopfleiste
+    const header = (await page.locator('header.app-header').boundingBox())!;
+    expect(box.y).toBeGreaterThanOrEqual(header.y + header.height);
+    expect(box.y).toBeLessThan(header.y + header.height + vp.height * 0.1);
     expect(box.width).toBeGreaterThanOrEqual(88);
     expect(box.height).toBeGreaterThanOrEqual(88);
     await expect(close(page)).toHaveCSS('background-color', 'rgb(255, 255, 255)');
@@ -86,11 +89,11 @@ test.describe('B-25 Abbrechen', () => {
     const rated: string[] = [];
     for (let i = 0; i < 2; i++) {
       rated.push((await page.locator('.word-card').getAttribute('data-word-id'))!);
-      await btn(page, 'Auf Englisch').click();
+      await btn(page, 'Auf Englisch anhören').click();
       await page.getByRole('button', { name: /Wusste ich/ }).click();
     }
     const current = (await page.locator('.word-card').getAttribute('data-word-id'))!;
-    await btn(page, 'Auf Englisch').click(); // aufgedeckt, aber nicht bewertet
+    await btn(page, 'Auf Englisch anhören').click(); // aufgedeckt, aber nicht bewertet
     await pressOnClose(page);
     await page.waitForTimeout(700);
     await page.mouse.up();
