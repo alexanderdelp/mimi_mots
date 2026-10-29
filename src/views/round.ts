@@ -117,7 +117,8 @@ export function renderRound(store: Store): ViewHandle {
       if (!store.getState().round?.revealed) return;
       player.stop();
       store.dispatch({ type: 'rate', rating: value, at: new Date().toISOString() });
-      showNextWord(store);
+      // nach Ablauf der Zeit hat der Store schon zum Abschluss gewechselt
+      if (store.getState().view === 'round') showNextWord(store);
     });
     return button;
   };

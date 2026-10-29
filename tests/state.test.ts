@@ -356,3 +356,39 @@ describe('Zeitablauf (B-40)', () => {
     expect(store.getState().round?.expired).toBe(false);
   });
 });
+
+describe('Rundenende (B-42)', () => {
+  const AT = '2026-10-29T12:00:00.000Z';
+  const session = { history: ['apfel'], introduced: ['apfel'] };
+  const revealed = (expired: boolean) => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    if (expired) store.dispatch({ type: 'expire' });
+    store.dispatch({ type: 'reveal' });
+    return store;
+  };
+
+  it('nach Ablauf führt die Bewertung zum Abschluss und speichert den Lernstand', () => {
+    const store = revealed(true);
+    store.dispatch({ type: 'rate', rating: 'known', at: AT });
+    expect(store.getState().view).toBe('end');
+    expect(store.getState().data.progress.en.apfel).toEqual({ box: 1, seen: 1, lastSeenAt: AT });
+  });
+
+  it('ohne Ablauf bleibt die Bewertung in der Runde', () => {
+    const store = revealed(false);
+    store.dispatch({ type: 'rate', rating: 'practice', at: AT });
+    expect(store.getState().view).toBe('round');
+  });
+
+  it('nach Ablauf ohne Aufdecken bewirkt eine Bewertung nichts', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'apfel', session });
+    store.dispatch({ type: 'expire' });
+    const before = store.getState();
+    store.dispatch({ type: 'rate', rating: 'known', at: AT });
+    expect(store.getState()).toBe(before);
+  });
+});

@@ -90,8 +90,10 @@ export function reduce(state: AppState, event: AppEvent): AppState {
         new Date(event.at),
       ),
     };
+    // Nach Ablauf der Zeit kommt statt des nächsten Worts der Abschluss (§3.4, B-42).
     return {
       ...state,
+      view: state.round.expired ? 'end' : state.view,
       data: { ...state.data, progress },
       round: { ...state.round, revealed: false },
     };
