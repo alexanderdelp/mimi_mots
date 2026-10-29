@@ -32,7 +32,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - **Auswahlzustand:** ausgewählt = dicker lila Rahmen (5 px, `--lila-700`) + Hintergrund `--lila-100`; nicht ausgewählt = dünner dunkelgrauer Rahmen (2 px, `--grau-700`) + weißer Hintergrund. Größe der Kacheln ändert sich nicht.
 - **Play-Button** (rund, lila, ≥ 96 px) unten mittig. Aktiv, sobald alle drei Gruppen eine Auswahl haben.
 - Letzte Auswahl (Begleiter, Sprache, Dauer) wird gespeichert und beim nächsten Start vorbelegt. Beim allerersten Start: Dauer vorbelegt, Begleiter und Sprache leer.
-- Fragen bleiben als kurze Überschrift („Wer begleitet dich?“, „In welcher Sprache?“, „Wie lange?“).
+- Fragen bleiben als kurze Überschrift („Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“).
 
 ### 3.2 Lernrunde
 **Layout (quer):**
@@ -110,7 +110,8 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 ```json
 { "version": 1,
   "settings": { "companion": "mimi", "language": "fr", "durationMin": 5 },
-  "progress": { "fr": { "apfel": { "box": 2, "seen": 5, "lastSeenAt": "…" } }, "en": {} } }
+  "progress": { "fr": { "apfel": { "box": 2, "seen": 5, "lastSeenAt": "…" } }, "en": {} },
+  "rest": { "sleeping": ["mimi"], "usedDurations": [3], "since": "2026-10-30" } }
 ```
 - Beschädigte/fehlende Daten → Defaults, kein Absturz. Versionsfeld für spätere Migration.
 - Hinweis: Als Home-Bildschirm-App ist der Speicher unter iOS stabil; im Safari-Tab kann er nach längerer Nichtnutzung gelöscht werden.
@@ -204,6 +205,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
 - 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
+- 2026-10-30: Schlafende Begleiter (B-65): Mit dem Erreichen der Abschlussseite (Zeitablauf oder [×]) schläft der Begleiter ein und die gespielte Dauer ist verbraucht; beides ist auf der Startseite ausgegraut, der Begleiter mit Schlafbild. Ist nur noch ein Begleiter bzw. eine Dauer frei, ist sie vorausgewählt. Schlafen beide (oder sind alle Dauern verbraucht), kommt statt der Startseite die Schlafseite mit „Gute Nacht und bis morgen!“. Aufwecken nur durch 600 ms Halten des Icons in der Kopfleiste der Schlafseite, absichtlich ohne Hinweis. An einem späteren Tag (lokales Datum) wachen alle von selbst auf – beim App-Start und beim Zurückholen aus dem Hintergrund. Gespeichert in `rest` (mit `since` = Tag des Einschlafens) im selben localStorage-Schlüssel (ältere Daten ohne `rest` = alle wach). `both_sleeping.png` ist die gelieferte Grafik `cat_and_pony_sleeping.png`: Sie hatte ein ins Bild gemaltes Schachbrett statt echter Transparenz; das wurde per Flutfüllung vom Rand entfernt, zugeschnitten und auf 1213 × 663 px verkleinert (1,5 MB → 250 KB). Einzelne Schlafbilder sind noch Platzhalter (entsättigte Sitz-Pose mit „Zzz“).
 - 2026-10-29: Englisch aus vorproduzierten MP3s mit Piper `en_US-ljspeech-high` (B-64), ersetzt die Gerätestimme (klang unter Linux schlecht und hängt auf dem iPad von den installierten Stimmen ab). Im Klangvergleich fielen alle englischen Kokoro-Stimmen (`bf_*`, `bm_*`, `am_*`) durch. Unter den Piper-Stimmen fielen die auf Lessac aufbauenden (u. a. Amy) aus Lizenzgründen weg (Blizzard-2013-Daten nur für Forschung); ljspeech ist public domain. Die Stimme ist amerikanisch, die Flagge bleibt vorerst britisch. Der Web-Speech-Fallback bleibt en-GB.
 
 ## 12. Später (nicht in v1)

@@ -22,11 +22,11 @@ test.describe('B-11 Startansicht', () => {
     await expect(header.locator('img')).toHaveAttribute('src', /icons\/icon\.svg$/);
     await expect(header.getByRole('heading', { level: 1 })).toHaveText('Mimi & Mots');
     await expect(page.getByRole('heading', { level: 2 })).toHaveText([
-      'Wer begleitet dich?',
+      'Wer soll dich begleiten?',
       'In welcher Sprache?',
       'Wie lange?',
     ]);
-    for (const name of ['Wer begleitet dich?', 'In welcher Sprache?', 'Wie lange?']) {
+    for (const name of ['Wer soll dich begleiten?', 'In welcher Sprache?', 'Wie lange?']) {
       await expect(page.getByRole('group', { name })).toBeVisible();
     }
   });

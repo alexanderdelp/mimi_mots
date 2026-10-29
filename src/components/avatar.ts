@@ -22,6 +22,16 @@ export function avatarUrl(companion: Companion, pose: Pose): string {
   return `${import.meta.env.BASE_URL}avatars/${FILE_PREFIX[companion]}_${POSE_FILE[pose]}.png`;
 }
 
+/** Schlafbild eines Begleiters (B-65, Platzhalter bis zur fertigen Grafik). */
+export function sleepingAvatarUrl(companion: Companion): string {
+  return `${import.meta.env.BASE_URL}avatars/${FILE_PREFIX[companion]}_sleeping.png`;
+}
+
+/** Beide Begleiter schlafend, für die Schlafseite (B-65, Platzhalter). */
+export function bothSleepingUrl(): string {
+  return `${import.meta.env.BASE_URL}avatars/both_sleeping.png`;
+}
+
 // Vorgeladene Bilder bleiben referenziert, damit der Browser sie im Speicher hält.
 const preloaded = new Map<string, HTMLImageElement>();
 

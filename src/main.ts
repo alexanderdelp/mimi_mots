@@ -9,11 +9,13 @@ import type { ViewHandle } from './views/view';
 import { renderStart } from './views/start';
 import { renderRound } from './views/round';
 import { renderEnd } from './views/end';
+import { renderSleep } from './views/sleep';
 
 const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
   start: renderStart,
   round: renderRound,
   end: renderEnd,
+  sleep: renderSleep,
 };
 
 const PORTRAIT_QUERY = '(orientation: portrait)';
@@ -79,6 +81,10 @@ function start(app: HTMLElement) {
   portraitQuery.addEventListener('change', (e) =>
     store.dispatch({ type: 'orientation', portrait: e.matches }),
   );
+  // Als Home-Bildschirm-App bleibt sie oft im Speicher: beim Zurückholen den Tag prüfen (B-65).
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') store.dispatch({ type: 'day' });
+  });
 
   showView(store.getState().view);
   showOverlay(store.getState().portrait);

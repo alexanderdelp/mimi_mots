@@ -4,6 +4,7 @@ import {
   STORAGE_KEY,
   defaults,
   load,
+  localDay,
   persistOnChange,
   sanitize,
   save,
@@ -17,6 +18,7 @@ const valid = (): AppData => ({
     fr: { apfel: { box: 2, seen: 5, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
     en: { hund: { box: 0, seen: 1, lastSeenAt: '2026-10-28T09:30:00.000Z' } },
   },
+  rest: { sleeping: [], usedDurations: [7], since: '2026-10-29' },
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -37,6 +39,7 @@ describe('defaults', () => {
       version: 1,
       settings: { companion: null, language: null, durationMin: 3 },
       progress: { en: {}, fr: {} },
+      rest: { sleeping: [], usedDurations: [], since: null },
     });
   });
 
@@ -155,6 +158,48 @@ describe('sanitize', () => {
 
   it('nutzt leeren Lernstand, wenn progress kein Objekt ist', () => {
     expect(sanitize({ ...valid(), progress: [] }).progress).toEqual({ en: {}, fr: {} });
+  });
+});
+
+describe('Schlaf und verbrauchte Dauern (B-65)', () => {
+  it('Erststart: alle wach, alle Dauern frei', () => {
+    expect(defaults().rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+  });
+
+  it('ältere Daten ohne rest: alle wach', () => {
+    const old: Partial<AppData> = valid();
+    delete old.rest;
+    expect(sanitize(old).rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+    expect(sanitize(old).progress).toEqual(valid().progress);
+  });
+
+  it('verwirft Unbekanntes und Doppeltes, sortiert fest', () => {
+    const data = sanitize({
+      ...valid(),
+      rest: {
+        sleeping: ['mots', 'hund', 'mimi', 'mots'],
+        usedDurations: [7, 5, 3, '3'],
+        since: '30.10.2026',
+      },
+    });
+    expect(data.rest).toEqual({ sleeping: ['mimi', 'mots'], usedDurations: [3, 7], since: null });
+  });
+
+  it.each([null, 'x', { sleeping: 'mimi', usedDurations: {} }])(
+    'ungültiges rest %j → leer',
+    (rest) => {
+      expect(sanitize({ ...valid(), rest }).rest).toEqual({
+        sleeping: [],
+        usedDurations: [],
+        since: null,
+      });
+    },
+  );
+});
+
+describe('localDay (B-65)', () => {
+  it('lokales Datum mit führenden Nullen', () => {
+    expect(localDay(new Date(2026, 0, 5, 23, 59))).toBe('2026-01-05');
   });
 });
 

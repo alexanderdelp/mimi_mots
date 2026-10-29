@@ -572,3 +572,40 @@
   font-weight: 800;
   text-align: center;
 }
+
+/* Schlafseite (B-65): Kopfleiste, beide Begleiter schlafend, ein Satz. Das Icon der
+   Kopfleiste weckt per Gedrückthalten – ohne sichtbare Rückmeldung. */
+.view--sleep {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.view--sleep .app-header__icon {
+  touch-action: none;
+}
+
+.sleep__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2.5dvh, 28px);
+  padding: 16px 24px clamp(24px, 4dvh, 40px);
+}
+
+.sleep__picture {
+  height: min(440px, 52dvh);
+  max-width: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.sleep__text {
+  font-size: clamp(32px, 5dvh, 44px);
+  font-weight: 800;
+  text-align: center;
+}
