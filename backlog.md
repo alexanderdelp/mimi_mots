@@ -139,7 +139,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: Bestehende Tests werden angepasst (Kachelanzahl, „5 Min.“ → „5 Minuten“, Flaggen-Button → Lautsprecher-Button, Bewertungs-Buttons ohne Text).
 
 ## M3 – Audio
-- [ ] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
+- [x] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
   - AK: Skript erzeugt `public/audio/{en,fr}/<id>.mp3`; Gesamtgröße < 2 MB.
   - Hinweis: Kein Browser beteiligt – die Akzeptanztests rufen das echte Skript mit Kokoro und ffmpeg in einem Temp-Ordner auf (`scripts/test_generate_audio.py`, `npm run test:audio`, Python-`unittest`).
   - AT-30a.1: Für zwei Testwörter erzeugt das Skript `<out>/en/<id>.mp3` und `<out>/fr/<id>.mp3` (EN mit `bf_emma`, FR mit `ff_siwis`, FR mit Artikel).
