@@ -49,11 +49,15 @@ VOICE_OPTIONS = {
     'fr': {
         'kokoro-siwis': VOICES['fr'],
         'piper-tom': {'engine': 'piper', 'voice': 'fr_FR-tom-medium'},
+        'melo-fr': {'engine': 'melo', 'voice': 'FR', 'speaker': 'FR'},
     },
 }
 # „word“: das Wort allein; „dot“: mit Punkt („egg.“) – endet dann oft sauberer
 VARIANTS = {'word': '', 'dot': '.'}
 CHOICES_FILE = ROOT / 'audio-choices.json'
+# MeloTTS braucht Python 3.10 und eigene Pakete – eigene Umgebung, Aufruf als Unterprozess (B-79)
+MELO_PYTHON = ROOT / '.venv-melo' / 'bin' / 'python'
+MELO_SCRIPT = ROOT / 'scripts' / 'melo_synth.py'
 CANDIDATES_DIR = ROOT / 'tools' / 'stimmwahl'
 # Vorgelesen wird die Kana-Lesung, damit Kanji wie 月 nicht falsch gelesen werden (げつ statt つき).
 TEXT_FIELDS = {'ja': 'jaKana'}
@@ -73,6 +77,26 @@ def piper_files(voice: str) -> dict[str, str]:
 
 def model_files(voice: dict) -> dict[str, str]:
     return piper_files(voice['voice']) if voice['engine'] == 'piper' else KOKORO_FILES
+
+
+def melo_batch(jobs: list['Job'], tmp: Path) -> dict[Path, Path]:
+    """Erzeugt alle MeloTTS-Aufnahmen in einem Unterprozess (Modell lädt nur einmal)."""
+    if not jobs:
+        return {}
+    if not MELO_PYTHON.is_file():
+        sys.exit('MeloTTS fehlt (.venv-melo) – Einrichtung siehe README.md (Abschnitt „Audio erzeugen“).')
+    wavs = {job.output: tmp / f'melo-{i}.wav' for i, job in enumerate(jobs)}
+    texts = {job.output: job.text for job in jobs}
+    order = tmp / 'melo.json'
+    order.write_text(json.dumps({
+        'language': jobs[0].voice['voice'],
+        'speaker': jobs[0].voice['speaker'],
+        'speed': SPEED,
+        'items': [{'text': texts[out], 'out': str(wav)} for out, wav in wavs.items()],
+    }), encoding='utf-8')
+    subprocess.run([str(MELO_PYTHON), str(MELO_SCRIPT), str(order)], check=True,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return wavs
 OVERRIDE_EXTENSIONS = ('.mp3', '.wav', '.m4a')
 
 TARGET_LUFS = -16.0
@@ -364,12 +388,13 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     needed = list({json.dumps(j.voice, sort_keys=True): j.voice for j in jobs if j.override is None}.values())
-    ensure_models(args.models, needed, args.download_models)
+    ensure_models(args.models, [v for v in needed if v['engine'] != 'melo'], args.download_models)
     engines = Engines(args.models)
 
     with tempfile.TemporaryDirectory() as tmp:
+        melo = melo_batch([j for j in jobs if j.override is None and j.voice['engine'] == 'melo'], Path(tmp))
         for job in jobs:
-            source = job.override
+            source = job.override or melo.get(job.output)
             if source is None:
                 source = Path(tmp) / f'{job.lang}-{job.word_id}.wav'
                 synthesize(engines, job.text, job.voice, source)

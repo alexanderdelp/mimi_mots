@@ -1,4 +1,5 @@
 node_modules/
+.venv-melo/
 dist/
 playwright-report/
 test-results/

@@ -64,6 +64,20 @@ cd ../..
 
 Für Windows/macOS gibt es den Downloader und das Wheel ebenfalls auf der [Release-Seite](https://github.com/VOICEVOX/voicevox_core/releases).
 
+**MeloTTS (Französisch, Option der Stimmwahl, B-79):** braucht Python 3.10 und alte Paketversionen, deshalb eine eigene Umgebung `.venv-melo` (nicht eingecheckt). Mit [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv python install 3.10 && uv venv --python 3.10 .venv-melo
+uv pip install --python .venv-melo/bin/python --index-strategy unsafe-best-match \
+  --extra-index-url https://download.pytorch.org/whl/cpu torch torchaudio \
+  "git+https://github.com/myshell-ai/MeloTTS.git" "setuptools<70"
+# MeloTTS lädt beim Start auch Japanisch – das kleine Wörterbuch genügt:
+ln -sfn "$PWD/.venv-melo/lib/python3.10/site-packages/unidic_lite/dicdir" \
+  .venv-melo/lib/python3.10/site-packages/unidic/dicdir
+```
+
+Die Modelle (~630 MB) lädt MeloTTS beim ersten Lauf in den Hugging-Face-Cache.
+
 `.venv/` und `.models/` werden nicht eingecheckt.
 
 ### Benutzung
@@ -88,5 +102,5 @@ npm run test:audio                  # Tests des Skripts (inkl. echter Erzeugung 
 - Piper (`piper-tts`): GPL-3.0 – nur lokal als Werkzeug benutzt, nicht Teil der App.
 - Englische Stimme `en_US-ljspeech-high`: trainiert auf dem *LJ Speech Dataset* (public domain). Bewusst keine der vielen Piper-Stimmen, die auf der Lessac-Stimme aufbauen (z. B. Amy): deren Trainingsdaten (Blizzard 2013) sind nur für Forschung lizenziert.
 - VOICEVOX CORE: MIT; VOICEVOX ONNX Runtime und Stimmmodelle: eigene Nutzungsbedingungen (kostenlos, auch kommerziell, Namensnennung nötig).
-- Französisch wählbar (B-79): Piper `fr_FR-tom-medium` (Modell unter AGPLv3, https://git.bksp.space/Tjiho/French-tts-model-piper).
+- Französisch wählbar (B-79): MeloTTS (MIT) mit dem Sprachmodell `dbmdz/bert-base-french-europeana-cased` (MIT) und Piper `fr_FR-tom-medium` (Modell unter AGPLv3, https://git.bksp.space/Tjiho/French-tts-model-piper).
 - **Japanische Aussprache: VOICEVOX:冥鳴ひまり** ([Nutzungsbedingungen](https://www.meimeihimari.com/terms-of-use)).
