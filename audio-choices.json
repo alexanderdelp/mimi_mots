@@ -244,5 +244,251 @@
       "voice": "piper-cori",
       "variant": "word"
     }
+  },
+  "fr": {
+    "acht": {
+      "voice": "piper-tom",
+      "variant": "word"
+    },
+    "apfel": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "auto": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "baer": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "ball": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "banane": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "baum": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "birne": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "blau": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "blume": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "boot": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "brot": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "buch": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "drei": {
+      "voice": "melo-fr",
+      "variant": "word"
+    },
+    "ei": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "eins": {
+      "voice": "melo-fr",
+      "variant": "dot"
+    },
+    "eis": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "elefant": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "ente": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "erdbeere": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "fahrrad": {
+      "voice": "melo-fr",
+      "variant": "word"
+    },
+    "fisch": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "frosch": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "fuenf": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "gelb": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "gruen": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "hase": {
+      "voice": "melo-fr",
+      "variant": "word"
+    },
+    "haus": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "herz": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "hund": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "hut": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "kaese": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "karotte": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "katze": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "kirsche": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "kuchen": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "kuh": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "lila": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "loewe": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "maus": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "milch": {
+      "voice": "melo-fr",
+      "variant": "word"
+    },
+    "mond": {
+      "voice": "melo-fr",
+      "variant": "word"
+    },
+    "neun": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "null": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "orange": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "pferd": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "regenschirm": {
+      "voice": "melo-fr",
+      "variant": "word"
+    },
+    "rot": {
+      "voice": "melo-fr",
+      "variant": "word"
+    },
+    "schmetterling": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "schuh": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "schwein": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "sechs": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "sieben": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "sonne": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "stern": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "vier": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "vogel": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    },
+    "zehn": {
+      "voice": "piper-tom",
+      "variant": "word"
+    },
+    "zitrone": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "zug": {
+      "voice": "kokoro-siwis",
+      "variant": "word"
+    },
+    "zwei": {
+      "voice": "kokoro-siwis",
+      "variant": "dot"
+    }
   }
 }
