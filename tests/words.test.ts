@@ -4,6 +4,8 @@ import { WORDS, getWord, type Word } from '../src/data/words';
 
 const COLOR_EMOJIS = ['🔴', '🔵', '🟡', '🟢', '🟣', '🟠'];
 const isColor = (w: Word) => COLOR_EMOJIS.includes(w.emoji);
+/** Zahlen 0–10 (B-68): Tasten-Emoji wie 0️⃣ … 🔟. */
+const isNumber = (w: Word) => /^(\d\uFE0F\u20E3|🔟)$/u.test(w.emoji);
 
 /** Liest die Wortliste aus der Tabelle in anforderungen.md §10. */
 function wordsFromRequirements(): Omit<Word, 'syllables'>[] {
@@ -21,8 +23,8 @@ function wordsFromRequirements(): Omit<Word, 'syllables'>[] {
 }
 
 describe('Wortliste', () => {
-  it('enthält 50 Wörter', () => {
-    expect(WORDS).toHaveLength(50);
+  it('enthält 61 Wörter (50 + Zahlen 0–10, B-68)', () => {
+    expect(WORDS).toHaveLength(61);
   });
 
   it('hat eindeutige ids', () => {
@@ -44,9 +46,9 @@ describe('Wortliste', () => {
     for (const w of WORDS) expect(w.id).toMatch(/^[a-z]+$/);
   });
 
-  it('französische Nomen haben einen bestimmten Artikel, Farben nicht', () => {
+  it('französische Nomen haben einen bestimmten Artikel, Farben und Zahlen nicht', () => {
     for (const w of WORDS) {
-      if (isColor(w)) expect(w.fr, w.id).not.toMatch(/^(le |la |l')/);
+      if (isColor(w) || isNumber(w)) expect(w.fr, w.id).not.toMatch(/^(le |la |l')/);
       else expect(w.fr, w.id).toMatch(/^(le |la |l')\S/);
     }
   });
@@ -105,6 +107,46 @@ describe('Japanisch (B-67)', () => {
       const kanaOnly = /^[ぁ-ゖァ-ヺー]+$/.test(w.ja);
       if (kanaOnly) expect(w.jaKana, w.id).toBe(w.ja);
       else expect(w.jaKana, w.id).not.toBe(w.ja);
+    }
+  });
+});
+
+describe('Zahlen 0–10 (B-68)', () => {
+  const numbers = WORDS.filter(isNumber);
+
+  it('AT-68.1: elf Zahlen in Reihenfolge', () => {
+    expect(numbers.map((w) => w.en)).toEqual([
+      'zero',
+      'one',
+      'two',
+      'three',
+      'four',
+      'five',
+      'six',
+      'seven',
+      'eight',
+      'nine',
+      'ten',
+    ]);
+    expect(numbers.map((w) => w.ja)).toEqual([
+      'ゼロ',
+      '一',
+      '二',
+      '三',
+      '四',
+      '五',
+      '六',
+      '七',
+      '八',
+      '九',
+      '十',
+    ]);
+  });
+
+  it('AT-68.2: ohne Artikel, Deutsch klein', () => {
+    for (const w of numbers) {
+      expect(w.fr, w.id).not.toMatch(/^(le |la |l'|un |une )\S/);
+      expect(w.de, w.id).toBe(w.de.toLowerCase());
     }
   });
 });

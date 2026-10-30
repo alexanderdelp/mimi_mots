@@ -498,5 +498,115 @@
     "fr": "orange",
     "ja": "オレンジ",
     "jaKana": "オレンジ"
+  },
+  {
+    "id": "null",
+    "emoji": "0️⃣",
+    "de": "null",
+    "syllables": ["null"],
+    "en": "zero",
+    "fr": "zéro",
+    "ja": "ゼロ",
+    "jaKana": "ゼロ"
+  },
+  {
+    "id": "eins",
+    "emoji": "1️⃣",
+    "de": "eins",
+    "syllables": ["eins"],
+    "en": "one",
+    "fr": "un",
+    "ja": "一",
+    "jaKana": "いち"
+  },
+  {
+    "id": "zwei",
+    "emoji": "2️⃣",
+    "de": "zwei",
+    "syllables": ["zwei"],
+    "en": "two",
+    "fr": "deux",
+    "ja": "二",
+    "jaKana": "に"
+  },
+  {
+    "id": "drei",
+    "emoji": "3️⃣",
+    "de": "drei",
+    "syllables": ["drei"],
+    "en": "three",
+    "fr": "trois",
+    "ja": "三",
+    "jaKana": "さん"
+  },
+  {
+    "id": "vier",
+    "emoji": "4️⃣",
+    "de": "vier",
+    "syllables": ["vier"],
+    "en": "four",
+    "fr": "quatre",
+    "ja": "四",
+    "jaKana": "よん"
+  },
+  {
+    "id": "fuenf",
+    "emoji": "5️⃣",
+    "de": "fünf",
+    "syllables": ["fünf"],
+    "en": "five",
+    "fr": "cinq",
+    "ja": "五",
+    "jaKana": "ご"
+  },
+  {
+    "id": "sechs",
+    "emoji": "6️⃣",
+    "de": "sechs",
+    "syllables": ["sechs"],
+    "en": "six",
+    "fr": "six",
+    "ja": "六",
+    "jaKana": "ろく"
+  },
+  {
+    "id": "sieben",
+    "emoji": "7️⃣",
+    "de": "sieben",
+    "syllables": ["sie", "ben"],
+    "en": "seven",
+    "fr": "sept",
+    "ja": "七",
+    "jaKana": "なな"
+  },
+  {
+    "id": "acht",
+    "emoji": "8️⃣",
+    "de": "acht",
+    "syllables": ["acht"],
+    "en": "eight",
+    "fr": "huit",
+    "ja": "八",
+    "jaKana": "はち"
+  },
+  {
+    "id": "neun",
+    "emoji": "9️⃣",
+    "de": "neun",
+    "syllables": ["neun"],
+    "en": "nine",
+    "fr": "neuf",
+    "ja": "九",
+    "jaKana": "きゅう"
+  },
+  {
+    "id": "zehn",
+    "emoji": "🔟",
+    "de": "zehn",
+    "syllables": ["zehn"],
+    "en": "ten",
+    "fr": "dix",
+    "ja": "十",
+    "jaKana": "じゅう"
   }
 ]
