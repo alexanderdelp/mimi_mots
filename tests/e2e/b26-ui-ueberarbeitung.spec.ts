@@ -72,31 +72,46 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     expect(stored.settings.durationMin).toBe(7);
   });
 
-  test('AT-26.3/AT-73.1: Sprachen 2 × 2, Japanisch standardmäßig ausgegraut', async ({ page }) => {
+  test('AT-26.3/AT-81.1: Erststart – nur Englisch und Französisch, nebeneinander', async ({
+    page,
+  }) => {
     const group = page.getByRole('group', { name: 'In welcher Sprache?' });
-    await expect(group.getByRole('button')).toHaveCount(3);
-    const [en, fr, ja] = [btn(page, 'Englisch'), btn(page, 'Französisch'), btn(page, 'Japanisch')];
-    await expect(en).toBeEnabled();
-    await expect(fr).toBeEnabled();
-    await expect(ja).toBeDisabled();
-    await expect(ja.locator('img')).toHaveAttribute('src', /flag_jp\.svg$/);
-
-    const [bEn, bFr, bJa] = [await box(en), await box(fr), await box(ja)];
-    expect(bFr.y).toBeCloseTo(bEn.y, 0); // erste Zeile: EN | FR
+    await expect(group.getByRole('button')).toHaveCount(2);
+    const [en, fr] = [btn(page, 'Englisch'), btn(page, 'Französisch')];
+    await expect(en.locator('img')).toHaveAttribute('src', /flag_gb\.svg$/);
+    await expect(fr.locator('img')).toHaveAttribute('src', /flag_fr\.svg$/);
+    const [bEn, bFr] = [await box(en), await box(fr)];
+    expect(bFr.y).toBeCloseTo(bEn.y, 0); // eine Zeile: EN | FR
     expect(bFr.x).toBeGreaterThan(bEn.x);
-    expect(bJa.x).toBeCloseTo(bEn.x, 0); // zweite Zeile: JA | (leer)
-    expect(bJa.y).toBeGreaterThan(bEn.y + bEn.height - 1);
+  });
+
+  test('AT-81.3: eingeschaltete Sprachen im Raster mit zwei Spalten (EN | FR / IT)', async ({
+    page,
+  }) => {
+    await page.evaluate((k) => {
+      const data = JSON.parse(localStorage.getItem(k) ?? '{"version":1}');
+      localStorage.setItem(k, JSON.stringify({ ...data, enabledLanguages: ['en', 'fr', 'it'] }));
+    }, KEY);
+    await page.reload();
+    const it = btn(page, 'Italienisch');
+    await expect(it.locator('img')).toHaveAttribute('src', /flag_it\.svg$/);
+    const [bEn, bFr, bIt] = [
+      await box(btn(page, 'Englisch')),
+      await box(btn(page, 'Französisch')),
+      await box(it),
+    ];
+    expect(bFr.y).toBeCloseTo(bEn.y, 0);
+    expect(bIt.x).toBeCloseTo(bEn.x, 0); // zweite Zeile links
+    expect(bIt.y).toBeGreaterThan(bEn.y + bEn.height - 1);
   });
 
   test('AT-26.4: Kachelgrößen', async ({ page }) => {
     const vp = page.viewportSize()!;
     const big = await box(btn(page, 'Mimi'));
     const small = await Promise.all(
-      ['Englisch', 'Französisch', 'Japanisch', '3 Minuten', '7 Minuten'].map((n) =>
-        box(btn(page, n)),
-      ),
+      ['Englisch', 'Französisch', '3 Minuten', '7 Minuten'].map((n) => box(btn(page, n))),
     );
-    const gap = (await box(btn(page, '7 Minuten'))).y - (small[3].y + small[3].height);
+    const gap = (await box(btn(page, '7 Minuten'))).y - (small[2].y + small[2].height);
     for (const s of small) {
       expect(s.width).toBeCloseTo(big.width, 0);
       expect(s.height).toBeCloseTo((big.height - gap) / 2, 0);
@@ -105,7 +120,7 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
       expect(s.x + s.width).toBeLessThanOrEqual(vp.width);
     }
     // zwei flache Kacheln ergeben zusammen genau die Höhe einer Begleiter-Kachel
-    expect(small[4].y + small[4].height - small[3].y).toBeCloseTo(big.height, 0);
+    expect(small[3].y + small[3].height - small[2].y).toBeCloseTo(big.height, 0);
   });
 });
 

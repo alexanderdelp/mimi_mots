@@ -2,7 +2,8 @@
 
 Ablauf je Wort und Sprache:
   1. Quelle: eigene Aufnahme aus audio-overrides/<lang>/<id>.(mp3|wav|m4a), sonst TTS
-     (EN: Piper en_US-ljspeech-high; FR: Kokoro ff_siwis; JA: VOICEVOX 冥鳴ひまり aus `jaKana`).
+     (EN: Piper en_US-ljspeech-high; FR: Kokoro ff_siwis; JA: VOICEVOX 冥鳴ひまり aus `jaKana`;
+     IT: Kokoro if_sara).
   2. Nachbearbeitung mit ffmpeg: Stille vorn/hinten weg, 150 ms Vorlauf, Lautheit −16 LUFS,
      MP3 mono 64 kbit/s.
 Vorhandene Dateien werden nur neu erzeugt, wenn eine neuere Override-Datei vorliegt oder
@@ -33,8 +34,9 @@ VOICES = {
     'en': {'engine': 'piper', 'voice': 'en_US-ljspeech-high'},
     'fr': {'engine': 'kokoro', 'voice': 'ff_siwis', 'lang': 'fr-fr'},
     'ja': {'engine': 'voicevox', 'voice': '冥鳴ひまり', 'style': 14},
+    'it': {'engine': 'kokoro', 'voice': 'if_sara', 'lang': 'it'},
 }
-DEFAULT_LANGS = ['en', 'fr', 'ja']
+DEFAULT_LANGS = ['en', 'fr', 'ja', 'it']
 # B-78: Stimmoptionen je Sprache für die Stimmwahl-Seite (tools/stimmwahl.html). Je Wort steht die
 # Wahl (Stimme + Variante) in audio-choices.json; ohne Eintrag gilt VOICES mit Variante „word“.
 VOICE_OPTIONS = {
@@ -51,9 +53,24 @@ VOICE_OPTIONS = {
         'piper-tom': {'engine': 'piper', 'voice': 'fr_FR-tom-medium'},
         'melo-fr': {'engine': 'melo', 'voice': 'FR', 'speaker': 'FR'},
     },
+    # B-80: Kokoro hat zwei italienische Stimmen; Piper riccardo (M-AILABS, frei nutzbar) nur in
+    # x_low-Qualität. Piper paola entfällt (Lessac-Basis, nur Forschung), MeloTTS kann kein Italienisch.
+    'it': {
+        'kokoro-sara': VOICES['it'],
+        'kokoro-nicola': {'engine': 'kokoro', 'voice': 'im_nicola', 'lang': 'it'},
+        'piper-riccardo': {'engine': 'piper', 'voice': 'it_IT-riccardo-x_low'},
+    },
+    # B-85: Japanisch hat nur eine Stimme – die Stimmwahl dient hier der Prüfung („Wort“, „Wort。“, keins)
+    'ja': {'voicevox-himari': VOICES['ja']},
 }
 # „word“: das Wort allein; „dot“: mit Punkt („egg.“) – endet dann oft sauberer
 VARIANTS = {'word': '', 'dot': '.'}
+# Japanisch endet mit dem japanischen Punkt
+DOTS = {'ja': '。'}
+
+
+def variant_suffix(lang: str, variant: str) -> str:
+    return DOTS.get(lang, VARIANTS[variant]) if VARIANTS[variant] else ''
 CHOICES_FILE = ROOT / 'audio-choices.json'
 # MeloTTS braucht Python 3.10 und eigene Pakete – eigene Umgebung, Aufruf als Unterprozess (B-79)
 MELO_PYTHON = ROOT / '.venv-melo' / 'bin' / 'python'
@@ -122,12 +139,18 @@ def load_choices(path: Path = CHOICES_FILE) -> dict:
     return json.loads(path.read_text(encoding='utf-8')) if path.is_file() else {}
 
 
+def is_rejected(choices: dict, lang: str, word_id: str) -> bool:
+    """B-85: „keins“ gewählt (null) – das Wort bekommt in dieser Sprache keine Datei."""
+    words = choices.get(lang, {})
+    return word_id in words and words[word_id] is None
+
+
 def resolve_voice(choices: dict, lang: str, word_id: str) -> tuple[dict, str, str]:
     """(Stimme, Textzusatz, Beschriftung) für ein Wort – gewählte Option oder Standard."""
     choice = choices.get(lang, {}).get(word_id)
     if choice and choice.get('voice') in VOICE_OPTIONS.get(lang, {}) and choice.get('variant') in VARIANTS:
         voice = VOICE_OPTIONS[lang][choice['voice']]
-        return voice, VARIANTS[choice['variant']], f"{choice['voice']}, {choice['variant']}"
+        return voice, variant_suffix(lang, choice['variant']), f"{choice['voice']}, {choice['variant']}"
     return VOICES[lang], '', VOICES[lang]['voice']
 
 
@@ -159,6 +182,8 @@ def plan_jobs(
         if ids and word['id'] not in ids:
             continue
         for lang in langs:
+            if is_rejected(choices or {}, lang, word['id']):
+                continue
             voice, suffix, label = resolve_voice(choices or {}, lang, word['id'])
             jobs.append(
                 Job(
@@ -181,12 +206,12 @@ def plan_candidates(words: list[dict], lang: str, out: Path, ids: list[str] | No
         if ids and word['id'] not in ids:
             continue
         for key, voice in VOICE_OPTIONS[lang].items():
-            for variant, suffix in VARIANTS.items():
+            for variant in VARIANTS:
                 jobs.append(
                     Job(
                         word_id=word['id'],
                         lang=lang,
-                        text=word[TEXT_FIELDS.get(lang, lang)] + suffix,
+                        text=word[TEXT_FIELDS.get(lang, lang)] + variant_suffix(lang, variant),
                         output=out / lang / f'{key}-{variant}' / f"{word['id']}.mp3",
                         override=None,
                         voice=voice,

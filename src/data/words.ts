@@ -2,7 +2,7 @@
 // damit das Audio-Skript (scripts/generate_audio.py) sie direkt lesen kann.
 import data from './words.json';
 
-export type Language = 'en' | 'fr' | 'ja';
+export type Language = 'en' | 'fr' | 'ja' | 'it';
 
 export interface Word {
   /** Eindeutig, nur a–z; zugleich Dateiname der Audiodatei (`audio/<lang>/<id>.mp3`). */
@@ -15,6 +15,8 @@ export interface Word {
   en: string;
   /** Französisch, Nomen mit bestimmtem Artikel (la pomme, l'œuf); Farben ohne. */
   fr: string;
+  /** Italienisch, Nomen mit bestimmtem Artikel (la mela, il gatto, l'uovo); Farben und Zahlen ohne (B-80). */
+  it: string;
   /** Japanisch in üblicher Schreibweise (Kanji, Hiragana oder Katakana), B-67. */
   ja: string;
   /** Lesung in Kana – Vorlage für die Aussprache (`jaKana`), nicht angezeigt. */

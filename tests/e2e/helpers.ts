@@ -1,9 +1,22 @@
 // Gemeinsame Hilfen für E2E-Tests.
 import type { Page } from '@playwright/test';
+import choices from '../../audio-choices.json' with { type: 'json' };
+import words from '../../src/data/words.json' with { type: 'json' };
+
+/** B-84: Wortschatz einer Sprache – Wörter mit gewählter Aufnahme (wie src/data/vocabulary.ts). */
+export function vocabularyIds(lang: string): string[] {
+  const chosen = (choices as Record<string, Record<string, unknown>>)[lang] ?? {};
+  return words.filter((w) => chosen[w.id] != null).map((w) => w.id);
+}
 
 /** Schaltet Japanisch für den Test frei (seit B-73 standardmäßig aus), ohne sonst etwas zu speichern. */
 export async function enableJapanese(page: Page) {
-  await page.addInitScript(() => {
+  await enableLanguages(page, ['en', 'fr', 'ja']);
+}
+
+/** Schaltet die Sprachen für den Test frei (Japanisch und Italienisch sind standardmäßig aus). */
+export async function enableLanguages(page: Page, enabled: string[]) {
+  await page.addInitScript((enabledLanguages) => {
     const key = 'mimi-mots:v1';
     if (localStorage.getItem(key)) return;
     localStorage.setItem(
@@ -11,11 +24,11 @@ export async function enableJapanese(page: Page) {
       JSON.stringify({
         version: 1,
         settings: { companion: null, language: null, durationMin: 3 },
-        progress: { en: {}, fr: {}, ja: {} },
-        enabledLanguages: ['en', 'fr', 'ja'],
+        progress: { en: {}, fr: {}, ja: {}, it: {} },
+        enabledLanguages,
       }),
     );
-  });
+  }, enabled);
 }
 
 export type MediaCall =

@@ -1,5 +1,6 @@
 // Startansicht (anforderungen.md §3.1): Begleiter, Sprache, Dauer wählen, dann Play.
-// Schlafende Begleiter, verbrauchte Dauern und ausgeschaltete Sprachen sind ausgegraut (B-65/B-73).
+// Schlafende Begleiter und verbrauchte Dauern sind ausgegraut (B-65). Sprachen erscheinen nur, wenn
+// sie eingeschaltet sind und Wörter haben (B-81/B-84) – ausgeschaltete fehlen ganz.
 import {
   COMPANIONS,
   COMPANION_NAMES,
@@ -8,12 +9,12 @@ import {
   type Companion,
 } from '../components/avatar';
 import { createAppHeader, onIconHold } from '../components/app-header';
-import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
+import { createChoiceGroup } from '../components/choice-tile';
 import { clockIcon, icon } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import type { Language } from '../data/words';
-import { MIN_KNOWN_FOR_KNOWN_ONLY, isComplete, seenCount, type Store } from '../state';
-import { DURATIONS, LANGUAGES, type DurationMin } from '../storage';
+import { isComplete, playableLanguages, type Store } from '../state';
+import { DURATIONS, type DurationMin } from '../storage';
 import type { ViewHandle } from './view';
 
 function img(src: string, className: string): HTMLImageElement {
@@ -33,27 +34,17 @@ function text(value: string, className?: string): HTMLSpanElement {
 }
 
 export function renderStart(store: Store): ViewHandle {
-  const { settings, rest, enabledLanguages } = store.getState().data;
+  const { data } = store.getState();
+  const { settings, rest } = data;
 
   const play = document.createElement('button');
   play.type = 'button';
   play.className = 'round-button play-button';
   play.setAttribute('aria-label', 'Los geht’s');
   play.append(icon('play'));
-  // B-75: „Nur bekannte“ – nur für die nächste Runde, bei jedem Betreten wieder abgewählt
-  const knownOnly = createChoiceTile({
-    content: [text('Nur bekannte Wörter', 'start__known-label')],
-    onSelect: () => knownOnly.setSelected(!knownOnly.selected),
-  });
-  knownOnly.el.classList.add('start__known');
-  play.addEventListener('click', () =>
-    store.dispatch({ type: 'play', knownOnly: knownOnly.selected }),
-  );
+  play.addEventListener('click', () => store.dispatch({ type: 'play' }));
   const updatePlay = () => {
-    const { data } = store.getState();
-    play.disabled = !isComplete(data.settings);
-    knownOnly.el.disabled = seenCount(data) < MIN_KNOWN_FOR_KNOWN_ONLY;
-    if (knownOnly.el.disabled) knownOnly.setSelected(false);
+    play.disabled = !isComplete(store.getState().data.settings);
   };
 
   const companions = createChoiceGroup<Companion>(
@@ -80,10 +71,9 @@ export function renderStart(store: Store): ViewHandle {
 
   const languages = createChoiceGroup<Language>(
     'In welcher Sprache?',
-    LANGUAGES.map((language) => ({
+    playableLanguages(data).map((language) => ({
       value: language,
       label: LANGUAGE_INFO[language].name,
-      disabled: !enabledLanguages.includes(language), // im Elternbereich ausgeschaltet (B-73)
       content: [img(flagUrl(language), 'start__flag')],
     })),
     settings.language,
@@ -110,6 +100,8 @@ export function renderStart(store: Store): ViewHandle {
 
   companions.el.classList.add('start__group--companion');
   languages.el.classList.add('start__group--language');
+  // eine Sprache: eine Spalte, sonst zwei (2 × 2 bei vier Sprachen)
+  languages.el.style.setProperty('--language-columns', String(Math.min(2, languages.tiles.size)));
   duration.el.classList.add('start__group--duration');
 
   const groups = document.createElement('div');
@@ -118,7 +110,7 @@ export function renderStart(store: Store): ViewHandle {
 
   const footer = document.createElement('div');
   footer.className = 'start__footer';
-  footer.append(knownOnly.el, play);
+  footer.append(play);
   updatePlay();
 
   const view = document.createElement('main');

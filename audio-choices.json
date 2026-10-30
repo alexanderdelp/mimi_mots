@@ -490,5 +490,127 @@
       "voice": "kokoro-siwis",
       "variant": "dot"
     }
+  },
+  "it": {
+    "apfel": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "banane": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "birne": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "brot": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "ei": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "eis": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "erdbeere": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "hund": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "kaese": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "karotte": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "katze": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "kirsche": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "kuchen": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "milch": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "pferd": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    },
+    "zitrone": {
+      "voice": "kokoro-sara",
+      "variant": "word"
+    }
+  },
+  "ja": {
+    "acht": null,
+    "blume": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "drei": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "eins": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "fuenf": null,
+    "gruen": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "herz": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "lila": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "mond": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "neun": null,
+    "null": null,
+    "sechs": null,
+    "sieben": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "sonne": {
+      "voice": "voicevox-himari",
+      "variant": "word"
+    },
+    "vier": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "zehn": null,
+    "zug": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    },
+    "zwei": {
+      "voice": "voicevox-himari",
+      "variant": "dot"
+    }
   }
 }

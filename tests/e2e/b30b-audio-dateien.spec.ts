@@ -1,12 +1,18 @@
 import { expect, test } from './fixtures';
+import choices from '../../audio-choices.json' with { type: 'json' };
 import words from '../../src/data/words.json' with { type: 'json' };
+
+/** B-85: für „keins“ (null) gibt es keine Datei. */
+const rejected = (lang: string, id: string) =>
+  (choices as Record<string, Record<string, unknown>>)[lang]?.[id] === null;
 
 test.describe('B-30b Audio erzeugen', () => {
   test('AT-30b.3: Audiodateien werden unter /mimi_mots/audio/ ausgeliefert', async ({
     request,
   }) => {
-    for (const lang of ['en', 'fr', 'ja']) {
+    for (const lang of ['en', 'fr', 'ja', 'it']) {
       for (const word of words) {
+        if (rejected(lang, word.id)) continue;
         const res = await request.get(`audio/${lang}/${word.id}.mp3`);
         expect(res.status(), `${lang}/${word.id}`).toBe(200);
         expect(res.headers()['content-type'], `${lang}/${word.id}`).toMatch(/audio\/mpeg/);

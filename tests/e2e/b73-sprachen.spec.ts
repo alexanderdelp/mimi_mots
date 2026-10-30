@@ -18,24 +18,31 @@ async function openAdmin(page: Page) {
   await expect(page.locator('[data-view="admin"]')).toBeVisible();
 }
 
-test.describe('B-73 Sprachen ein-/ausschalten', () => {
-  test('AT-73.1: Erststart – Englisch und Französisch wählbar, Japanisch ausgegraut', async ({
+// B-81: ausgeschaltete Sprachen fehlen auf der Startseite ganz (vorher ausgegraut). Italienisch
+// statt Japanisch, weil eine Sprache nur mit gewählten Aufnahmen spielbar ist (B-84).
+const gone = (page: Page, name: string) => expect(btn(page, name)).toHaveCount(0);
+
+test.describe('B-73/B-81 Sprachen ein-/ausschalten', () => {
+  test('AT-73.1/AT-81.1: Erststart – nur Englisch und Französisch, die anderen fehlen', async ({
     page,
   }) => {
     await prepare(page);
     await page.goto('./');
     await expect(btn(page, 'Englisch')).toBeEnabled();
     await expect(btn(page, 'Französisch')).toBeEnabled();
-    await expect(btn(page, 'Japanisch')).toBeDisabled();
+    await gone(page, 'Japanisch');
+    await gone(page, 'Italienisch');
+    const group = page.getByRole('group', { name: 'In welcher Sprache?' });
+    await expect(group.getByRole('button')).toHaveCount(2);
   });
 
-  test('AT-73.2/73.3: im Elternbereich ein- und ausschalten, letzte bleibt an', async ({
+  test('AT-73.2/73.3/AT-81.2: im Elternbereich ein- und ausschalten, letzte bleibt an', async ({
     page,
   }) => {
     await prepare(page);
     await page.goto('./');
     await openAdmin(page);
-    await btn(page, 'Japanisch').click();
+    await btn(page, 'Italienisch').click();
     const width = async () => (await page.locator('.admin__toggle').boundingBox())!.width;
     const offWidth = await width();
     await btn(page, 'Sprache einschalten').click();
@@ -45,18 +52,18 @@ test.describe('B-73 Sprachen ein-/ausschalten', () => {
     await btn(page, 'Sprache ausschalten').click();
     await btn(page, 'Französisch').click();
     await btn(page, 'Sprache ausschalten').click();
-    await btn(page, 'Japanisch').click();
+    await btn(page, 'Italienisch').click();
     await expect(btn(page, 'Sprache ausschalten')).toBeDisabled(); // die letzte aktive
-    expect((await stored(page)).enabledLanguages).toEqual(['ja']);
+    expect((await stored(page)).enabledLanguages).toEqual(['it']);
 
     await btn(page, 'Zurück').click();
-    await expect(btn(page, 'Englisch')).toBeDisabled();
-    await expect(btn(page, 'Französisch')).toBeDisabled();
-    await expect(btn(page, 'Japanisch')).toBeEnabled();
+    await gone(page, 'Englisch');
+    await gone(page, 'Französisch');
+    await expect(btn(page, 'Italienisch')).toBeEnabled();
     // AT-73.4: nur noch eine aktiv → vorausgewählt
-    await expect(btn(page, 'Japanisch')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, 'Italienisch')).toHaveAttribute('aria-pressed', 'true');
     await page.reload();
-    await expect(btn(page, 'Japanisch')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, 'Italienisch')).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('AT-73.4: gewählte Sprache ausgeschaltet → keine Sprache gewählt, Play aus', async ({
@@ -68,15 +75,15 @@ test.describe('B-73 Sprachen ein-/ausschalten', () => {
     await btn(page, 'Französisch').click();
     await expect(btn(page, 'Los geht’s')).toBeEnabled();
     await openAdmin(page);
-    await btn(page, 'Japanisch').click();
+    await btn(page, 'Italienisch').click();
     await btn(page, 'Sprache einschalten').click();
     await btn(page, 'Französisch').click();
     await btn(page, 'Sprache ausschalten').click();
     await btn(page, 'Zurück').click();
-    for (const name of ['Englisch', 'Japanisch']) {
+    for (const name of ['Englisch', 'Italienisch']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');
     }
-    await expect(btn(page, 'Französisch')).toBeDisabled();
+    await gone(page, 'Französisch');
     await expect(btn(page, 'Los geht’s')).toBeDisabled();
   });
 });

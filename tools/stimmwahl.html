@@ -81,9 +81,8 @@
       tr.done td:first-child::after {
         content: ' ✓';
       }
-      .note {
-        color: #4a4458;
-        font-size: 14px;
+      tr.none td:first-child::after {
+        content: ' –';
       }
       #status {
         min-height: 1.4em;
@@ -98,10 +97,11 @@
       Je Wort alle Stimmen der Sprache als „Wort“ und „Wort.“ (mit Punkt) anhören. Ein Klick auf den
       runden Knopf übernimmt die Aufnahme sofort in die App, merkt die Wahl in
       <code>audio-choices.json</code> und hakt das Wort in <code>audio-check.md</code> ab (✓). „App“
-      spielt, was die App gerade abspielt.
+      spielt, was die App gerade abspielt. Taugt keine Aufnahme: „keins“ – dann fehlt das Wort in
+      dieser Sprache in der App (–).
     </p>
     <p>
-      <label><input type="checkbox" id="open-only" /> nur noch nicht abgehakte Wörter</label>
+      <label><input type="checkbox" id="open-only" /> nur noch nicht entschiedene Wörter</label>
     </p>
     <p id="status" role="status"></p>
     <div class="scroll">
@@ -113,7 +113,7 @@
     <script type="module">
       import words from '../src/data/words.json';
 
-      // Stimmoptionen wie VOICE_OPTIONS in scripts/generate_audio.py (B-78/B-79)
+      // Stimmoptionen wie VOICE_OPTIONS in scripts/generate_audio.py (B-78/B-79/B-80/B-85)
       const LANGUAGES = {
         en: {
           name: 'Englisch',
@@ -130,6 +130,18 @@
             'kokoro-siwis': 'Kokoro siwis',
             'piper-tom': 'Piper tom (AGPL)',
             'melo-fr': 'MeloTTS',
+          },
+        },
+        ja: {
+          name: 'Japanisch',
+          voices: { 'voicevox-himari': 'VOICEVOX 冥鳴ひまり' },
+        },
+        it: {
+          name: 'Italienisch',
+          voices: {
+            'kokoro-sara': 'Kokoro sara',
+            'kokoro-nicola': 'Kokoro nicola',
+            'piper-riccardo': 'Piper riccardo',
           },
         },
       };
@@ -174,7 +186,7 @@
         Object.values(VOICES)
           .map((v) => `<th class="voice" colspan="2">${v}</th>`)
           .join('') +
-        '<th>Notiz</th></tr>';
+        '<th class="voice">keins</th></tr>';
 
       async function choose(id, voice, variant) {
         status.textContent = 'Speichere …';
@@ -188,7 +200,11 @@
           return;
         }
         state = body;
-        status.textContent = `„${words.find((w) => w.id === id)[LANG]}“: ${VOICES[voice]}, ${VARIANTS[variant]} übernommen.`;
+        const word = words.find((w) => w.id === id)[LANG];
+        status.textContent =
+          voice === null
+            ? `„${word}“: keins – fehlt in der App.`
+            : `„${word}“: ${VOICES[voice]}, ${VARIANTS[variant]} übernommen.`;
         render();
       }
 
@@ -196,11 +212,12 @@
         const rows = document.getElementById('rows');
         rows.replaceChildren();
         for (const w of words) {
-          const done = state.checked[w.id]?.[LANG] ?? false;
-          if (openOnly.checked && done) continue;
           const chosen = state.choices[LANG]?.[w.id];
+          // entschieden: Aufnahme gewählt oder „keins“ (null)
+          if (openOnly.checked && chosen !== undefined) continue;
           const tr = document.createElement('tr');
-          tr.classList.toggle('done', done);
+          tr.classList.toggle('done', state.checked[w.id]?.[LANG] ?? false);
+          tr.classList.toggle('none', chosen === null);
           const name = document.createElement('td');
           name.textContent = `${w.emoji} ${w[LANG]}`;
           const app = document.createElement('td');
@@ -228,10 +245,20 @@
               tr.append(td);
             });
           }
-          const note = document.createElement('td');
-          note.className = 'note';
-          note.textContent = state.notes[w.id] ?? '';
-          tr.append(note);
+          const none = document.createElement('td');
+          none.className = 'first';
+          const noneOption = document.createElement('span');
+          noneOption.className = 'option';
+          noneOption.classList.toggle('chosen', chosen === null);
+          const noneRadio = document.createElement('input');
+          noneRadio.type = 'radio';
+          noneRadio.name = w.id;
+          noneRadio.checked = chosen === null;
+          noneRadio.title = 'keine Aufnahme – Wort fehlt in der App';
+          noneRadio.addEventListener('change', () => choose(w.id, null, null));
+          noneOption.append(noneRadio);
+          none.append(noneOption);
+          tr.append(none);
           rows.append(tr);
         }
       }

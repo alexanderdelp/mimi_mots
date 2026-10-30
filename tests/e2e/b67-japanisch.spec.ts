@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
-import { enableJapanese, fakeMedia, mediaCalls } from './helpers';
+import { enableJapanese, fakeMedia, mediaCalls, vocabularyIds } from './helpers';
 
 const KEY = 'mimi-mots:v1';
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -22,6 +22,9 @@ const currentWord = async (page: Page) => {
 test.beforeEach(async ({ page }) => {
   await enableJapanese(page); // seit B-73 standardmäßig aus
 });
+
+// B-84: ohne gewählte Aufnahmen hat Japanisch keine Wörter und erscheint nicht zur Auswahl
+test.skip(vocabularyIds('ja').length === 0, 'Japanisch hat noch keine gewählten Aufnahmen');
 
 test.describe('B-67 Japanisch', () => {
   test('AT-67.4: Japanisch ist wählbar und wird gemerkt', async ({ page }) => {
@@ -70,7 +73,7 @@ test.describe('B-67 Japanisch', () => {
     await startRound(page);
     await expect
       .poll(() => requested.filter((p) => p.includes('/audio/ja/')).length)
-      .toBe(words.length);
+      .toBe(vocabularyIds('ja').length);
     expect(requested.filter((p) => !p.includes('/audio/ja/'))).toEqual([]);
   });
 

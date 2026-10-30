@@ -11,10 +11,11 @@ export interface LanguageInfo {
 
 export const LANGUAGE_INFO: Record<Language, LanguageInfo> = {
   // Englisch: Piper (en_US-ljspeech-high), Französisch: Kokoro (ff_siwis),
-  // Japanisch: VOICEVOX (冥鳴ひまり)
+  // Japanisch: VOICEVOX (冥鳴ひまり), Italienisch: Kokoro (Stimmwahl je Wort, B-80)
   en: { name: 'Englisch', flag: 'flag_gb.svg', audioFiles: true },
   fr: { name: 'Französisch', flag: 'flag_fr.svg', audioFiles: true },
   ja: { name: 'Japanisch', flag: 'flag_jp.svg', audioFiles: true },
+  it: { name: 'Italienisch', flag: 'flag_it.svg', audioFiles: true },
 };
 
 export function flagUrl(language: Language): string {

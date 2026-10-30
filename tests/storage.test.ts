@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { hasVocabulary } from '../src/data/vocabulary';
 import { createStore } from '../src/state';
 import {
+  LANGUAGES,
   STORAGE_KEY,
   defaults,
   load,
@@ -8,6 +10,7 @@ import {
   persistOnChange,
   sanitize,
   save,
+  withWords,
   type AppData,
 } from '../src/storage';
 
@@ -18,10 +21,12 @@ const valid = (): AppData => ({
     fr: { apfel: { box: 2, seen: 5, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
     en: { hund: { box: 0, seen: 1, lastSeenAt: '2026-10-28T09:30:00.000Z' } },
     ja: { katze: { box: 1, seen: 2, lastSeenAt: '2026-10-30T08:00:00.000Z' } },
+    it: { hase: { box: 4, seen: 7, lastSeenAt: '2026-10-30T09:00:00.000Z' } },
   },
   rest: { sleeping: [], usedDurations: [7], since: '2026-10-29' },
-  enabledLanguages: ['en', 'ja'],
+  enabledLanguages: ['en', 'it'],
   tutorialDone: true,
+  brakeNew: false,
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -41,10 +46,11 @@ describe('defaults', () => {
     expect(defaults()).toEqual({
       version: 1,
       settings: { companion: null, language: null, durationMin: 3 },
-      progress: { en: {}, fr: {}, ja: {} },
+      progress: { en: {}, fr: {}, ja: {}, it: {} },
       rest: { sleeping: [], usedDurations: [], since: null },
       enabledLanguages: ['en', 'fr'],
       tutorialDone: false,
+      brakeNew: true,
     });
   });
 
@@ -162,7 +168,12 @@ describe('sanitize', () => {
   });
 
   it('nutzt leeren Lernstand, wenn progress kein Objekt ist', () => {
-    expect(sanitize({ ...valid(), progress: [] }).progress).toEqual({ en: {}, fr: {}, ja: {} });
+    expect(sanitize({ ...valid(), progress: [] }).progress).toEqual({
+      en: {},
+      fr: {},
+      ja: {},
+      it: {},
+    });
   });
 });
 
@@ -217,8 +228,8 @@ describe('Aktive Sprachen (B-73)', () => {
 
   it('verwirft Unbekanntes und Doppeltes; leer → Standard', () => {
     expect(
-      sanitize({ ...valid(), enabledLanguages: ['ja', 'de', 'ja', 'fr'] }).enabledLanguages,
-    ).toEqual(['fr', 'ja']);
+      sanitize({ ...valid(), enabledLanguages: ['it', 'de', 'it', 'fr'] }).enabledLanguages,
+    ).toEqual(['fr', 'it']);
     expect(sanitize({ ...valid(), enabledLanguages: [] }).enabledLanguages).toEqual(['en', 'fr']);
     expect(sanitize({ ...valid(), enabledLanguages: 'ja' }).enabledLanguages).toEqual(['en', 'fr']);
   });
@@ -231,6 +242,36 @@ describe('Tutorial (B-74)', () => {
     expect(sanitize(old).tutorialDone).toBe(false);
     expect(sanitize({ ...valid(), tutorialDone: 'ja' }).tutorialDone).toBe(false);
     expect(sanitize(valid()).tutorialDone).toBe(true);
+  });
+});
+
+describe('Nur Sprachen mit Wörtern (B-86)', () => {
+  const empty = LANGUAGES.find((l) => !hasVocabulary(l));
+
+  it.skipIf(!empty)(
+    'AT-86.1: Sprachen ohne Wörter fallen weg; bleibt nichts, gilt der Standard',
+    () => {
+      expect(withWords(['fr', empty!])).toEqual(['fr']);
+      expect(withWords([empty!])).toEqual(['en', 'fr']);
+      expect(sanitize({ ...valid(), enabledLanguages: [empty] }).enabledLanguages).toEqual([
+        'en',
+        'fr',
+      ]);
+    },
+  );
+
+  it('AT-86.1: Standard beim Erststart nur mit Wörtern', () => {
+    for (const l of defaults().enabledLanguages) expect(hasVocabulary(l), l).toBe(true);
+  });
+});
+
+describe('Bremse für neue Wörter (B-82)', () => {
+  it('AT-82.2: Standard an; nur ein echtes false schaltet sie aus', () => {
+    const old: Partial<AppData> = valid();
+    delete old.brakeNew;
+    expect(sanitize(old).brakeNew).toBe(true);
+    expect(sanitize({ ...valid(), brakeNew: 'nein' }).brakeNew).toBe(true);
+    expect(sanitize(valid()).brakeNew).toBe(false);
   });
 });
 

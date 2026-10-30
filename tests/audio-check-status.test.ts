@@ -5,20 +5,17 @@ import { WORDS } from '../src/data/words';
 import { isChecked, parseAudioCheck } from '../tools/audio-check-status';
 
 const SAMPLE = `
-| id | Deutsch | Englisch | ok | Französisch | ok | Japanisch | ok | neu |
-|---|---|---|---|---|---|---|---|---|
-| apfel | 🍎 Apfel | apple | [x] | la pomme | [X] | りんご | [ ] |  |
-| banane | 🍌 Banane | banana | [ ] | la banane | [x] | バナナ | [ ] | Englisch klingt komisch |
+| id | Deutsch | Englisch | ok | Französisch | ok | Japanisch | ok | Italienisch | ok |
+|---|---|---|---|---|---|---|---|---|---|
+| apfel | 🍎 Apfel | apple | [x] | la pomme | [X] | りんご | [ ] | la mela | [x] |
+| banane | 🍌 Banane | banana | [ ] | la banane | [x] | バナナ | [ ] | la banana | [ ] |
 `;
 
 describe('parseAudioCheck (B-71)', () => {
-  it('AT-71.1: liest je Sprache abgehakt oder offen und die Notiz', () => {
+  it('AT-71.1/AT-85.3: liest je Sprache abgehakt oder offen (ohne Notizspalte)', () => {
     const rows = parseAudioCheck(SAMPLE);
-    expect(rows.get('apfel')).toEqual({ checked: { en: true, fr: true, ja: false }, note: '' });
-    expect(rows.get('banane')).toEqual({
-      checked: { en: false, fr: true, ja: false },
-      note: 'Englisch klingt komisch',
-    });
+    expect(rows.get('apfel')).toEqual({ checked: { en: true, fr: true, ja: false, it: true } });
+    expect(rows.get('banane')).toEqual({ checked: { en: false, fr: true, ja: false, it: false } });
     expect(rows.has('id')).toBe(false);
   });
 

@@ -114,6 +114,7 @@ test.describe('B-74 Tutorial', () => {
 
     // Schlafseite → Elternbereich: Tutorial zurücksetzen, aufwecken, nächste Runde zeigt es
     await hold(page, '.app-header__icon');
+    await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
     await btn(page, 'Tutorial zurücksetzen').click();
     await expect(btn(page, 'Tutorial zurücksetzen')).toBeDisabled();
     await btn(page, 'Tiere aufwecken').click();

@@ -26,7 +26,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 ### 3.1 Startbildschirm
 - Header: App-Icon + „Mimi & Mots“.
 - **Begleiter:** zwei große Kacheln (Mimi, Mots) mit Bild (Pose „ruhig“) und Name.
-- **Sprache:** flache Kacheln mit Flagge, ohne Text, im 2 × 2-Raster: Englisch (`flag_gb.svg`), Französisch (`flag_fr.svg`), Japanisch (`flag_jp.svg`, ausgegraut, noch nicht wählbar), vierter Platz frei.
+- **Sprache:** flache Kacheln mit Flagge, ohne Text, in einem Raster mit höchstens zwei Spalten (bis 2 × 2): Englisch (`flag_gb.svg`), Französisch (`flag_fr.svg`), Japanisch (`flag_jp.svg`), Italienisch (`flag_it.svg`, B-80). Es erscheinen nur Sprachen, die im Elternbereich eingeschaltet sind (B-73/B-81) und mindestens ein Wort mit gewählter Aufnahme haben (B-84); Japanisch und Italienisch sind standardmäßig ausgeschaltet.
 - **Dauer:** zwei flache Kacheln untereinander, nur mit Uhr-Symbol (Optik wie Timer, Sektor zeigt 3 bzw. 7 Minuten), ohne Text. 3 Minuten ist beim Erststart vorausgewählt.
 - **Kachelgrößen:** Kacheln einer Gruppe sind gleich groß; Sprach- und Dauer-Kacheln sind halb so hoch wie die Begleiter-Kacheln.
 - **Auswahlzustand:** ausgewählt = dicker lila Rahmen (5 px, `--lila-700`) + Hintergrund `--lila-100`; nicht ausgewählt = dünner dunkelgrauer Rahmen (2 px, `--grau-700`) + weißer Hintergrund. Größe der Kacheln ändert sich nicht.
@@ -131,71 +131,71 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - Performance: Startbildschirm < 1 s nach Cache, keine Layout-Sprünge.
 
 ## 10. Anhang: Wortliste v1
-FR-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üblicher Schreibweise (Kanji, Hiragana oder Katakana), dazu die Kana-Lesung für die Aussprache.
+FR- und IT-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üblicher Schreibweise (Kanji, Hiragana oder Katakana), dazu die Kana-Lesung für die Aussprache.
 
-| id | Emoji | DE | EN | FR | JA | JA (Lesung) |
-|---|---|---|---|---|---|---|
-| apfel | 🍎 | Apfel | apple | la pomme | りんご | りんご |
-| banane | 🍌 | Banane | banana | la banane | バナナ | バナナ |
-| erdbeere | 🍓 | Erdbeere | strawberry | la fraise | いちご | いちご |
-| birne | 🍐 | Birne | pear | la poire | 梨 | なし |
-| kirsche | 🍒 | Kirsche | cherry | la cerise | さくらんぼ | さくらんぼ |
-| zitrone | 🍋 | Zitrone | lemon | le citron | レモン | レモン |
-| karotte | 🥕 | Karotte | carrot | la carotte | にんじん | にんじん |
-| brot | 🍞 | Brot | bread | le pain | パン | パン |
-| kaese | 🧀 | Käse | cheese | le fromage | チーズ | チーズ |
-| ei | 🥚 | Ei | egg | l'œuf | 卵 | たまご |
-| milch | 🥛 | Milch | milk | le lait | 牛乳 | ぎゅうにゅう |
-| kuchen | 🍰 | Kuchen | cake | le gâteau | ケーキ | ケーキ |
-| eis | 🍦 | Eis | ice cream | la glace | アイス | アイス |
-| katze | 🐱 | Katze | cat | le chat | 猫 | ねこ |
-| hund | 🐶 | Hund | dog | le chien | 犬 | いぬ |
-| pferd | 🐴 | Pferd | horse | le cheval | 馬 | うま |
-| maus | 🐭 | Maus | mouse | la souris | ねずみ | ねずみ |
-| hase | 🐰 | Hase | rabbit | le lapin | うさぎ | うさぎ |
-| vogel | 🐦 | Vogel | bird | l'oiseau | 鳥 | とり |
-| fisch | 🐟 | Fisch | fish | le poisson | 魚 | さかな |
-| kuh | 🐮 | Kuh | cow | la vache | 牛 | うし |
-| schwein | 🐷 | Schwein | pig | le cochon | 豚 | ぶた |
-| ente | 🦆 | Ente | duck | le canard | カモ | カモ |
-| baer | 🐻 | Bär | bear | l'ours | 熊 | くま |
-| loewe | 🦁 | Löwe | lion | le lion | ライオン | ライオン |
-| elefant | 🐘 | Elefant | elephant | l'éléphant | 象 | ぞう |
-| schmetterling | 🦋 | Schmetterling | butterfly | le papillon | ちょうちょ | ちょうちょ |
-| frosch | 🐸 | Frosch | frog | la grenouille | かえる | かえる |
-| ball | ⚽ | Ball | ball | le ballon | ボール | ボール |
-| haus | 🏠 | Haus | house | la maison | 家 | いえ |
-| auto | 🚗 | Auto | car | la voiture | 車 | くるま |
-| buch | 📖 | Buch | book | le livre | 本 | ほん |
-| baum | 🌳 | Baum | tree | l'arbre | 木 | き |
-| blume | 🌸 | Blume | flower | la fleur | 花 | はな |
-| sonne | ☀️ | Sonne | sun | le soleil | 太陽 | たいよう |
-| mond | 🌙 | Mond | moon | la lune | 月 | つき |
-| stern | ⭐ | Stern | star | l'étoile | 星 | ほし |
-| schuh | 👟 | Schuh | shoe | la chaussure | 靴 | くつ |
-| hut | 👒 | Hut | hat | le chapeau | 帽子 | ぼうし |
-| fahrrad | 🚲 | Fahrrad | bike | le vélo | 自転車 | じてんしゃ |
-| boot | ⛵ | Boot | boat | le bateau | 船 | ふね |
-| zug | 🚂 | Zug | train | le train | 電車 | でんしゃ |
-| regenschirm | ☂️ | Regenschirm | umbrella | le parapluie | 傘 | かさ |
-| herz | ❤️ | Herz | heart | le cœur | ハート | ハート |
-| rot | 🔴 | rot | red | rouge | 赤 | あか |
-| blau | 🔵 | blau | blue | bleu | 青 | あお |
-| gelb | 🟡 | gelb | yellow | jaune | 黄色 | きいろ |
-| gruen | 🟢 | grün | green | vert | 緑 | みどり |
-| lila | 🟣 | lila | purple | violet | 紫 | むらさき |
-| orange | 🟠 | orange | orange | orange | オレンジ | オレンジ |
-| null | 0️⃣ | null | zero | zéro | ゼロ | ゼロ |
-| eins | 1️⃣ | eins | one | un | 一 | いち |
-| zwei | 2️⃣ | zwei | two | deux | 二 | に |
-| drei | 3️⃣ | drei | three | trois | 三 | さん |
-| vier | 4️⃣ | vier | four | quatre | 四 | よん |
-| fuenf | 5️⃣ | fünf | five | cinq | 五 | ご |
-| sechs | 6️⃣ | sechs | six | six | 六 | ろく |
-| sieben | 7️⃣ | sieben | seven | sept | 七 | なな |
-| acht | 8️⃣ | acht | eight | huit | 八 | はち |
-| neun | 9️⃣ | neun | nine | neuf | 九 | きゅう |
-| zehn | 🔟 | zehn | ten | dix | 十 | じゅう |
+| id | Emoji | DE | EN | FR | IT | JA | JA (Lesung) |
+|---|---|---|---|---|---|---|---|
+| apfel | 🍎 | Apfel | apple | la pomme | la mela | りんご | りんご |
+| banane | 🍌 | Banane | banana | la banane | la banana | バナナ | バナナ |
+| erdbeere | 🍓 | Erdbeere | strawberry | la fraise | la fragola | いちご | いちご |
+| birne | 🍐 | Birne | pear | la poire | la pera | 梨 | なし |
+| kirsche | 🍒 | Kirsche | cherry | la cerise | la ciliegia | さくらんぼ | さくらんぼ |
+| zitrone | 🍋 | Zitrone | lemon | le citron | il limone | レモン | レモン |
+| karotte | 🥕 | Karotte | carrot | la carotte | la carota | にんじん | にんじん |
+| brot | 🍞 | Brot | bread | le pain | il pane | パン | パン |
+| kaese | 🧀 | Käse | cheese | le fromage | il formaggio | チーズ | チーズ |
+| ei | 🥚 | Ei | egg | l'œuf | l'uovo | 卵 | たまご |
+| milch | 🥛 | Milch | milk | le lait | il latte | 牛乳 | ぎゅうにゅう |
+| kuchen | 🍰 | Kuchen | cake | le gâteau | la torta | ケーキ | ケーキ |
+| eis | 🍦 | Eis | ice cream | la glace | il gelato | アイス | アイス |
+| katze | 🐱 | Katze | cat | le chat | il gatto | 猫 | ねこ |
+| hund | 🐶 | Hund | dog | le chien | il cane | 犬 | いぬ |
+| pferd | 🐴 | Pferd | horse | le cheval | il cavallo | 馬 | うま |
+| maus | 🐭 | Maus | mouse | la souris | il topo | ねずみ | ねずみ |
+| hase | 🐰 | Hase | rabbit | le lapin | il coniglio | うさぎ | うさぎ |
+| vogel | 🐦 | Vogel | bird | l'oiseau | l'uccello | 鳥 | とり |
+| fisch | 🐟 | Fisch | fish | le poisson | il pesce | 魚 | さかな |
+| kuh | 🐮 | Kuh | cow | la vache | la mucca | 牛 | うし |
+| schwein | 🐷 | Schwein | pig | le cochon | il maiale | 豚 | ぶた |
+| ente | 🦆 | Ente | duck | le canard | l'anatra | カモ | カモ |
+| baer | 🐻 | Bär | bear | l'ours | l'orso | 熊 | くま |
+| loewe | 🦁 | Löwe | lion | le lion | il leone | ライオン | ライオン |
+| elefant | 🐘 | Elefant | elephant | l'éléphant | l'elefante | 象 | ぞう |
+| schmetterling | 🦋 | Schmetterling | butterfly | le papillon | la farfalla | ちょうちょ | ちょうちょ |
+| frosch | 🐸 | Frosch | frog | la grenouille | la rana | かえる | かえる |
+| ball | ⚽ | Ball | ball | le ballon | la palla | ボール | ボール |
+| haus | 🏠 | Haus | house | la maison | la casa | 家 | いえ |
+| auto | 🚗 | Auto | car | la voiture | la macchina | 車 | くるま |
+| buch | 📖 | Buch | book | le livre | il libro | 本 | ほん |
+| baum | 🌳 | Baum | tree | l'arbre | l'albero | 木 | き |
+| blume | 🌸 | Blume | flower | la fleur | il fiore | 花 | はな |
+| sonne | ☀️ | Sonne | sun | le soleil | il sole | 太陽 | たいよう |
+| mond | 🌙 | Mond | moon | la lune | la luna | 月 | つき |
+| stern | ⭐ | Stern | star | l'étoile | la stella | 星 | ほし |
+| schuh | 👟 | Schuh | shoe | la chaussure | la scarpa | 靴 | くつ |
+| hut | 👒 | Hut | hat | le chapeau | il cappello | 帽子 | ぼうし |
+| fahrrad | 🚲 | Fahrrad | bike | le vélo | la bicicletta | 自転車 | じてんしゃ |
+| boot | ⛵ | Boot | boat | le bateau | la barca | 船 | ふね |
+| zug | 🚂 | Zug | train | le train | il treno | 電車 | でんしゃ |
+| regenschirm | ☂️ | Regenschirm | umbrella | le parapluie | l'ombrello | 傘 | かさ |
+| herz | ❤️ | Herz | heart | le cœur | il cuore | ハート | ハート |
+| rot | 🔴 | rot | red | rouge | rosso | 赤 | あか |
+| blau | 🔵 | blau | blue | bleu | blu | 青 | あお |
+| gelb | 🟡 | gelb | yellow | jaune | giallo | 黄色 | きいろ |
+| gruen | 🟢 | grün | green | vert | verde | 緑 | みどり |
+| lila | 🟣 | lila | purple | violet | viola | 紫 | むらさき |
+| orange | 🟠 | orange | orange | orange | arancione | オレンジ | オレンジ |
+| null | 0️⃣ | null | zero | zéro | zero | ゼロ | ゼロ |
+| eins | 1️⃣ | eins | one | un | uno | 一 | いち |
+| zwei | 2️⃣ | zwei | two | deux | due | 二 | に |
+| drei | 3️⃣ | drei | three | trois | tre | 三 | さん |
+| vier | 4️⃣ | vier | four | quatre | quattro | 四 | よん |
+| fuenf | 5️⃣ | fünf | five | cinq | cinque | 五 | ご |
+| sechs | 6️⃣ | sechs | six | six | sei | 六 | ろく |
+| sieben | 7️⃣ | sieben | seven | sept | sette | 七 | なな |
+| acht | 8️⃣ | acht | eight | huit | otto | 八 | はち |
+| neun | 9️⃣ | neun | nine | neuf | nove | 九 | きゅう |
+| zehn | 🔟 | zehn | ten | dix | dieci | 十 | じゅう |
 
 ## 11. Entscheidungen
 - 2026-10-29: Wortliste v1 bestätigt.
@@ -216,6 +216,13 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üb
 - 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
 - 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
+- 2026-10-30: Sprachen nur eingeschaltet sichtbar (B-81): Ausgeschaltete Sprachen fehlen auf der Startseite ganz statt ausgegraut – die Startseite wirkte zu voll. Das Raster hat höchstens zwei Spalten und ist immer zwei Kachelzeilen hoch, damit die Überschrift mit den anderen Gruppen auf einer Linie bleibt.
+- 2026-10-30: Bremse statt „Nur bekannte Wörter“ (B-82, ersetzt B-75): keine Kachel mehr auf der Startseite. Stattdessen ein Schalter „Neue Wörter bremsen“ im Elternbereich (Standard: an, auch für bisher gespeicherte Daten): Stehen in der Sprache 6 oder mehr Wörter auf Stufe 0 („noch üben“), kommen keine neuen dazu. Der Scheduler prüft das bei jedem Wort, neue Wörter kommen also wieder, sobald genug gefestigt ist. Das Kind sieht davon nichts.
+- 2026-10-30: Elternbereich mit zwei Reitern (B-83) rechts in der Kopfleiste: „Sprachen“ (Lernstand, zurücksetzen, ein-/ausschalten) und „Sonstiges“ (Tiere aufwecken, Tutorial zurücksetzen, Bremse) – jeweils mit kurzer Erklärung. Sprachkacheln im Elternbereich 100 statt 120 px breit, damit vier Flaggen auf 1024 px passen. Beim Öffnen ist immer „Sprachen“ gewählt.
+- 2026-10-30: Elternbereich-Feinschliff (B-86): Zurück-Pfeil statt Haus (es geht zurück zur Auswahl, nicht „nach Hause“). Die Bremse ist eine Auswahlkachel „Bremsen“ wie bei der Tierauswahl statt „Ist an/aus“. Kein Hinweis auf die Stimmwahl in der App, nur „Noch keine Wörter vorhanden“. Sprachen ohne Wörter lassen sich nicht einschalten, die letzte Sprache mit Wörtern nicht ausschalten; gespeicherte Daten werden beim Laden entsprechend bereinigt (ohne verbleibende Sprache gilt der Standard). So kann die Startseite nie ohne Sprache sein und Play nicht ohne Sprache aktiv.
+- 2026-10-30: Wortschatz = Wörter mit gewählter Aufnahme (B-84): In einer Sprache kommen nur Wörter vor, für die auf der Stimmwahl-Seite eine Aufnahme gewählt wurde – lieber ein Wort weglassen als eine schlechte Aussprache anbieten. Quelle ist `audio-choices.json` (beim Bauen eingelesen); `audio-check.md` zeigt denselben Stand als Häkchen. Eine Sprache ohne solche Wörter erscheint nicht auf der Startseite, der Elternbereich zeigt „Noch keine Wörter vorhanden“. Fehlt das Probewort Apfel, nimmt das Tutorial das erste Wort des Wortschatzes. Lernstand von Wörtern, die herausfallen, bleibt gespeichert und gilt wieder, wenn sie zurückkommen.
+- 2026-10-30: Stimmwahl „keins“ (B-85): je Wort eine Option „keins“, wenn keine Aufnahme taugt – gespeichert als `null` in `audio-choices.json`, die App-Datei wird gelöscht, der Haken in `audio-check.md` entfernt; `npm run audio` erzeugt dafür keine Datei mehr. Die Notizspalte („neu“) entfällt in `audio-check.md`, Abhör- und Stimmwahl-Seite. Japanisch ist jetzt auch in der Stimmwahl (eine Stimme, „Wort“ und „Wort。“), damit es geprüft werden kann.
+- 2026-10-30: Italienisch (B-80): vierte Lernsprache, füllt den freien Platz im 2 × 2-Raster (EN | FR / JA | IT); standardmäßig ausgeschaltet wie Japanisch. Nomen mit bestimmtem Artikel wie im Französischen (il/lo/la/l'), Farben und Zahlen ohne. Wortwahl kindgerecht: ⚽ „la palla“, 🚗 „la macchina“, 🍰 „la torta“. Stimmen zur Wahl je Wort (Stimmwahl wie B-78): Kokoro `if_sara` (Standard) und `im_nicola` (Apache-2.0) sowie Piper `it_IT-riccardo-x_low` (M-AILABS-Daten, frei nutzbar, aber nur x_low-Qualität). Piper `paola` entfällt (Lessac-Basis, nur Forschung), MeloTTS kann kein Italienisch, MMS-TTS und XTTS sind nur nicht-kommerziell. Alle Audiodateien zusammen bleiben mit vier Sprachen bei ca. 1,6 MB (Grenze 3 MB).
 - 2026-10-31: Stimmwahl Französisch (B-79): Optionen Kokoro ff_siwis, Piper tom (AGPL-Modell, Lizenzwirkung auf Aufnahmen unklar – nur nach bewusster Entscheidung wählen) und MeloTTS (MIT; eigene Umgebung mit Python 3.10, Aufruf als Unterprozess); Piper mls war unverständlich. Grenzen für Audiodateien auf 32 KB je Datei und 3 MB gesamt angehoben (langsamere Sprecher, z. B. Piper cori).
 - 2026-10-31: Stimmwahl je Wort (B-78): Statt einer Stimme pro Sprache kann je Wort eine von mehreren Stimmen (Englisch: Piper ljspeech, kristin, cori; Kokoro af_heart) als „Wort“ oder „Wort.“ gewählt werden. Der Vergleich (rohes WAV, beschnitten, MP3, „Wort.“, Satz) zeigte: Das Beschneiden bei −45 dB kappt teils über 100 ms leises Wortende; „Wort.“ endet bei manchen Stimmen sauberer. Gewählte Dateien werden kopiert statt neu erzeugt, weil Piper nicht bitgleich reproduziert. Die Wahl gilt als Hörprüfung (Häkchen in `audio-check.md`). B-63 (französische Aussprache) entfällt zugunsten dieses Wegs.
 - 2026-10-31: iPhone (B-76): zusätzlicher Test-Viewport iPhone 15/16 quer (852 × 393, wie als Home-Bildschirm-App), nur Querformat wie beim iPad. Für niedrige Bildschirme (Höhe ≤ 500 px) gibt es ein kompaktes Layout mit gleicher Anordnung und kleineren Maßen; Schaltflächen dort mindestens 44 px (Apple-Mindestmaß), die 88 px gelten fürs iPad. Tests mit Hochformat-Wechsel per Größenänderung laufen nur auf iPad-Viewports, weil die iPhone-Emulation dabei kein Orientierungs-Ereignis auslöst; der Hochformat-Hinweis selbst wird auf 393 × 852 geprüft.
@@ -241,10 +248,10 @@ Automatisch geprüft (`tests/e2e/b60-layout.spec.ts`, `b61-leitprinzipien.spec.t
 - [x] **Kontrast:** jeder sichtbare Text ≥ 4,5 : 1 (große Schrift ≥ 3 : 1); ausgegraute Kacheln sind nach WCAG ausgenommen.
 
 Von Hand durchgesehen – sichtbare Texte (alle Deutsch, kurz, du-Form bzw. neutral):
-Kind-Ansichten: „Mimi & Mots“, „Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“, „Mimi“, „Mots“, „Nur bekannte Wörter“ (B-75), „Bis zum nächsten Mal!“, „Gute Nacht und bis morgen!“ (Hochformat-Hinweis seit B-72 ohne Text, „iPad drehen“ nur für Screenreader); Tutorial (B-74): „Schön, dass du da bist!“, „Ich erkläre dir, was du hier machst.“, „Tippe hier – so klingt das Wort.“, „Wusstest du es? Dann tippe hier.“, „Noch nicht? Dann tippe hier.“, „Und jetzt viel Erfolg – los geht’s!“; Schaltflächen nur mit Symbol (Namen nur für Screenreader: „Los geht’s“, „Beenden“, „Wusste ich“, „Noch üben“, „Zurück“, „Auf … anhören“). Elternbereich: „Lernstand“, „Neu“, „Stufe 0–4“, „noch nicht dran“, „noch üben“, „sicher“, „Lernstand zurücksetzen“, „Wirklich zurücksetzen?“, „Ja, zurücksetzen“, „Abbrechen“, „Tiere aufwecken“, „Sprache ausschalten/einschalten“, „Tutorial zurücksetzen“.
+Kind-Ansichten: „Mimi & Mots“, „Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“, „Mimi“, „Mots“, „Bis zum nächsten Mal!“, „Gute Nacht und bis morgen!“ (Hochformat-Hinweis seit B-72 ohne Text, „iPad drehen“ nur für Screenreader); Tutorial (B-74): „Schön, dass du da bist!“, „Ich erkläre dir, was du hier machst.“, „Tippe hier – so klingt das Wort.“, „Wusstest du es? Dann tippe hier.“, „Noch nicht? Dann tippe hier.“, „Und jetzt viel Erfolg – los geht’s!“; Schaltflächen nur mit Symbol (Namen nur für Screenreader: „Los geht’s“, „Beenden“, „Wusste ich“, „Noch üben“, „Zurück“, „Auf … anhören“). Elternbereich: „Lernstand“, „Neu“, „Stufe 0–4“, „noch nicht dran“, „noch üben“, „sicher“, „Lernstand zurücksetzen“, „Wirklich zurücksetzen?“, „Ja, zurücksetzen“, „Abbrechen“, „Tiere aufwecken“, „Sprache ausschalten/einschalten“, „Tutorial zurücksetzen“; seit B-83 Reiter „Sprachen“/„Sonstiges“, dort „Schlafen“, „Tutorial“, „Neue Wörter bremsen“, „Ist an/aus“ mit je einer kurzen Erklärung; „Noch keine Wörter vorhanden“ (B-84/B-86), Kachel „Bremsen“ (B-86).
 Ergebnis: keine Abweichung gefunden, nichts zu ändern.
 
 ## 12. Später (nicht in v1)
-- Weitere Dauern (z. B. 3 min), weitere Sprachen (Japanisch ist in der Startauswahl schon ausgegraut vorgesehen).
+- Weitere Dauern (z. B. 3 min), weitere Sprachen (das 2 × 2-Raster ist mit EN, FR, JA, IT voll).
 - Themenwahl (Tiere, Essen …).
 - Eigene Illustrationen statt Emoji.

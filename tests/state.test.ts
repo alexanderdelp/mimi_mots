@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { defaults, type AppData } from '../src/storage';
+import { hasVocabulary } from '../src/data/vocabulary';
+import { LANGUAGES, defaults, type AppData } from '../src/storage';
 import {
   createStore,
   createStore as createStoreAt,
   isComplete,
-  seenCount,
+  canToggleLanguage,
   nextView,
+  playableLanguages,
   reduce,
   type AppEvent,
   type AppState,
@@ -176,7 +178,6 @@ describe('Lernrunde (B-21)', () => {
       wordId: null,
       revealed: false,
       expired: false,
-      knownOnly: false,
     });
   });
 
@@ -189,7 +190,6 @@ describe('Lernrunde (B-21)', () => {
       wordId: 'apfel',
       revealed: false,
       expired: false,
-      knownOnly: false,
     });
   });
 
@@ -591,9 +591,14 @@ describe('Elternbereich (B-69)', () => {
   it('resetProgress leert nur die gewählte Sprache', () => {
     const data = complete();
     const entry = { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' };
-    data.progress = { en: { apfel: entry }, fr: { hund: entry }, ja: { katze: entry } };
+    data.progress = { en: { apfel: entry }, fr: { hund: entry }, ja: { katze: entry }, it: {} };
     const next = reduce(at('admin', data), { type: 'resetProgress', language: 'fr' });
-    expect(next.data.progress).toEqual({ en: { apfel: entry }, fr: {}, ja: { katze: entry } });
+    expect(next.data.progress).toEqual({
+      en: { apfel: entry },
+      fr: {},
+      ja: { katze: entry },
+      it: {},
+    });
     expect(next.view).toBe('admin');
   });
 
@@ -622,10 +627,32 @@ describe('Aktive Sprachen (B-73)', () => {
 
   it('AT-73.2: Elternbereich schaltet eine Sprache an und aus', () => {
     let state = at('admin');
-    state = reduce(state, { type: 'toggleLanguage', language: 'ja' });
-    expect(state.data.enabledLanguages).toEqual(['en', 'fr', 'ja']);
+    state = reduce(state, { type: 'toggleLanguage', language: 'it' }); // it hat Wörter (B-84)
+    expect(state.data.enabledLanguages).toEqual(['en', 'fr', 'it']);
     state = reduce(state, { type: 'toggleLanguage', language: 'en' });
-    expect(state.data.enabledLanguages).toEqual(['fr', 'ja']);
+    expect(state.data.enabledLanguages).toEqual(['fr', 'it']);
+  });
+
+  it('AT-86.3: Sprache ohne Wörter lässt sich nicht einschalten', () => {
+    const empty = LANGUAGES.find((l) => !hasVocabulary(l));
+    if (!empty) return; // alle Sprachen haben Wörter
+    const state = at('admin');
+    expect(canToggleLanguage(state.data, empty)).toBe(false);
+    expect(reduce(state, { type: 'toggleLanguage', language: empty })).toBe(state);
+  });
+
+  it('AT-86.4: die letzte Sprache mit Wörtern bleibt an, auch neben einer ohne Wörter', () => {
+    const empty = LANGUAGES.find((l) => !hasVocabulary(l));
+    if (!empty) return;
+    const data = complete();
+    data.enabledLanguages = ['fr', empty]; // z. B. aus alten Daten
+    const state = at('admin', data);
+    expect(canToggleLanguage(data, 'fr')).toBe(false);
+    expect(reduce(state, { type: 'toggleLanguage', language: 'fr' })).toBe(state);
+    // die ohne Wörter darf aus
+    expect(
+      reduce(state, { type: 'toggleLanguage', language: empty }).data.enabledLanguages,
+    ).toEqual(['fr']);
   });
 
   it('AT-73.3: die letzte aktive Sprache bleibt an', () => {
@@ -642,10 +669,10 @@ describe('Aktive Sprachen (B-73)', () => {
 
   it('AT-73.4: gewählte Sprache ausgeschaltet → keine Wahl, bei nur einer aktiven → diese', () => {
     let state = at('admin'); // gewählt: en, aktiv: en, fr
-    state = reduce(state, { type: 'toggleLanguage', language: 'ja' });
+    state = reduce(state, { type: 'toggleLanguage', language: 'it' }); // it hat Wörter (B-84)
     state = reduce(state, { type: 'toggleLanguage', language: 'en' });
     expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBeNull();
-    state = reduce(state, { type: 'toggleLanguage', language: 'ja' });
+    state = reduce(state, { type: 'toggleLanguage', language: 'it' });
     expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBe('fr');
   });
 });
@@ -667,25 +694,47 @@ describe('Tutorial (B-74)', () => {
   });
 });
 
-describe('Nur bekannte (B-75)', () => {
-  const entry = { box: 1, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' };
-  const withSeen = (n: number) => {
-    const data = complete();
-    data.progress.en = Object.fromEntries(
-      ['apfel', 'hund', 'katze', 'maus', 'ei', 'brot', 'kuh'].slice(0, n).map((id) => [id, entry]),
-    );
-    return data;
-  };
-  const play = (n: number, knownOnly: boolean) =>
-    reduce(
-      { view: 'start', portrait: false, data: withSeen(n), round: null },
-      { type: 'play', knownOnly },
-    ).round!.knownOnly;
+describe('Bremse für neue Wörter (B-82)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
 
-  it('gilt ab 6 gesehenen Wörtern der gewählten Sprache, sonst nicht', () => {
-    expect(seenCount(withSeen(5))).toBe(5);
-    expect(play(6, true)).toBe(true);
-    expect(play(5, true)).toBe(false);
-    expect(play(7, false)).toBe(false);
+  it('AT-82.2: toggleBrake schaltet im Elternbereich um, sonst nicht', () => {
+    const admin = at('admin');
+    expect(admin.data.brakeNew).toBe(true);
+    const off = reduce(admin, { type: 'toggleBrake' });
+    expect(off.data.brakeNew).toBe(false);
+    expect(reduce(off, { type: 'toggleBrake' }).data.brakeNew).toBe(true);
+    const start = at('start');
+    expect(reduce(start, { type: 'toggleBrake' })).toBe(start);
+  });
+});
+
+describe('Spielbare Sprachen (B-81/B-84)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+
+  it('nur eingeschaltet und mit Wortschatz', () => {
+    const data = complete();
+    data.enabledLanguages = ['en', 'fr', 'ja', 'it'];
+    const expected = LANGUAGES.filter((l) => hasVocabulary(l));
+    expect(playableLanguages(data)).toEqual(expected);
+    data.enabledLanguages = ['fr'];
+    expect(playableLanguages(data)).toEqual(['fr']);
+  });
+
+  it('eine Sprache ohne Wortschatz ist nicht wählbar', () => {
+    const empty = LANGUAGES.find((l) => !hasVocabulary(l));
+    if (!empty) return; // alle Sprachen haben Wörter
+    const start = at('start');
+    start.data.enabledLanguages = [...LANGUAGES];
+    expect(reduce(start, { type: 'select', settings: { language: empty } })).toBe(start);
   });
 });

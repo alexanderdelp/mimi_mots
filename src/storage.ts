@@ -1,13 +1,14 @@
 // Persistenz in localStorage (anforderungen.md §7): ein Schlüssel, versioniert.
 // Kaputte oder fehlende Daten führen nie zum Absturz, sondern zu Defaults.
 import { COMPANIONS, type Companion } from './components/avatar';
+import { hasVocabulary } from './data/vocabulary';
 import type { Language } from './data/words';
 import type { Store } from './state';
 
 export const STORAGE_KEY = 'mimi-mots:v1';
 export const VERSION = 1;
 
-export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja'];
+export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja', 'it'];
 export const DURATIONS = [3, 7] as const;
 export type DurationMin = (typeof DURATIONS)[number];
 /** Frühere Dauern (bis B-27) → heutige Entsprechung, damit die Auswahl erhalten bleibt. */
@@ -48,20 +49,36 @@ export interface AppData {
   enabledLanguages: Language[];
   /** B-74: Tutorial der Lernrunde schon gesehen (im Elternbereich zurücksetzbar). */
   tutorialDone: boolean;
+  /** B-82: keine neuen Wörter, solange viele auf „noch üben“ stehen (Schalter im Elternbereich). */
+  brakeNew: boolean;
 }
 
-/** Standard: Englisch und Französisch aktiv, Japanisch aus (B-73). */
+/** Standard: Englisch und Französisch aktiv, Japanisch und Italienisch aus (B-73/B-80). */
 export const DEFAULT_ENABLED_LANGUAGES: readonly Language[] = ['en', 'fr'];
+
+/**
+ * B-86: Eingeschaltet sein können nur Sprachen mit Wörtern (B-84), und mindestens eine ist an –
+ * sonst stünde die Startseite ohne Sprache da. Fällt alles weg, gilt der Standard bzw. jede
+ * Sprache mit Wörtern.
+ */
+export function withWords(enabled: readonly Language[]): Language[] {
+  for (const candidate of [enabled, DEFAULT_ENABLED_LANGUAGES, LANGUAGES]) {
+    const usable = LANGUAGES.filter((l) => candidate.includes(l) && hasVocabulary(l));
+    if (usable.length > 0) return usable;
+  }
+  return [];
+}
 
 /** Erststart: nur die Dauer ist vorbelegt (anforderungen.md §3.1). */
 export function defaults(): AppData {
   return {
     version: VERSION,
     settings: { companion: null, language: null, durationMin: 3 },
-    progress: { en: {}, fr: {}, ja: {} },
+    progress: { en: {}, fr: {}, ja: {}, it: {} },
     rest: { sleeping: [], usedDurations: [], since: null },
-    enabledLanguages: [...DEFAULT_ENABLED_LANGUAGES],
+    enabledLanguages: withWords(DEFAULT_ENABLED_LANGUAGES),
     tutorialDone: false,
+    brakeNew: true,
   };
 }
 
@@ -109,8 +126,7 @@ function sanitizeRest(raw: unknown): Rest {
 }
 
 function sanitizeEnabled(raw: unknown): Language[] {
-  const enabled = subsetOf(LANGUAGES, raw);
-  return enabled.length > 0 ? enabled : [...DEFAULT_ENABLED_LANGUAGES];
+  return withWords(subsetOf(LANGUAGES, raw));
 }
 
 function sanitizeWordProgress(raw: unknown): WordProgress | null {
@@ -146,6 +162,7 @@ export function sanitize(raw: unknown): AppData {
     rest: sanitizeRest(raw.rest),
     enabledLanguages: sanitizeEnabled(raw.enabledLanguages),
     tutorialDone: raw.tutorialDone === true,
+    brakeNew: raw.brakeNew !== false, // fehlt bei älteren Daten → an
   };
 }
 

@@ -1,7 +1,7 @@
 // B-60/B-61: führt reproduzierbar zu jeder Ansicht und prüft sie im Browser (Überlauf, Kontrast,
 // Farben, Schaltflächen, Bewegung). Zufall und Uhr sind festgelegt.
 import { expect, type Page } from '@playwright/test';
-import { fakeMedia } from './helpers';
+import { fakeMedia, vocabularyIds } from './helpers';
 
 const KEY = 'mimi-mots:v1';
 export const TODAY = new Date(2026, 9, 30, 10, 0);
@@ -9,7 +9,7 @@ export const TODAY = new Date(2026, 9, 30, 10, 0);
 export const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
 interface Seed {
-  language?: 'en' | 'fr' | 'ja';
+  language?: 'en' | 'fr' | 'ja' | 'it';
   sleeping?: string[];
   usedDurations?: number[];
   /** Tutorial noch nicht gesehen (B-74); sonst gilt es als gesehen. */
@@ -42,8 +42,8 @@ export async function prepare(page: Page, seed?: Seed) {
       JSON.stringify({
         version: 1,
         settings: { companion: 'mimi', language: seed.language ?? 'fr', durationMin: 3 },
-        progress: { en: {}, fr: {}, ja: {} },
-        enabledLanguages: ['en', 'fr', 'ja'],
+        progress: { en: {}, fr: {}, ja: {}, it: {} },
+        enabledLanguages: ['en', 'fr', 'ja', 'it'],
         ...(seed.tutorial ? { tutorialDone: false } : {}),
         rest: {
           sleeping: seed.sleeping ?? [],
@@ -78,16 +78,22 @@ export async function startView(page: Page) {
   await expect(page.locator('[data-view="start"]')).toBeVisible();
 }
 
-const LANGUAGE_NAME = { en: 'Englisch', fr: 'Französisch', ja: 'Japanisch' } as const;
+const LANGUAGE_NAME = {
+  en: 'Englisch',
+  fr: 'Französisch',
+  ja: 'Japanisch',
+  it: 'Italienisch',
+} as const;
+type Lang = keyof typeof LANGUAGE_NAME;
 
-export async function roundView(page: Page, language: 'en' | 'fr' | 'ja' = 'fr') {
+export async function roundView(page: Page, language: Lang = 'fr') {
   await startView(page);
   await btn(page, LANGUAGE_NAME[language]).click();
   await btn(page, 'Los geht’s').click();
   await expect(page.locator('[data-view="round"]')).toBeVisible();
 }
 
-export async function revealedView(page: Page, language: 'en' | 'fr' | 'ja' = 'fr') {
+export async function revealedView(page: Page, language: Lang = 'fr') {
   await roundView(page, language);
   await btn(page, `Auf ${LANGUAGE_NAME[language]} anhören`).click();
   await expect(page.locator('.round__foreign')).not.toHaveText('');
@@ -118,7 +124,9 @@ export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<v
   { name: 'runde-verdeckt', seed: {}, open: (p) => roundView(p) },
   { name: 'runde-en', seed: {}, open: (p) => revealedView(p, 'en') },
   { name: 'runde-fr', seed: {}, open: (p) => revealedView(p, 'fr') },
-  { name: 'runde-ja', seed: {}, open: (p) => revealedView(p, 'ja') },
+  ...(['ja', 'it'] as const)
+    .filter((l) => vocabularyIds(l).length > 0) // B-84: nur Sprachen mit Wörtern
+    .map((l) => ({ name: `runde-${l}`, seed: {}, open: (p: Page) => revealedView(p, l) })),
   { name: 'abschluss', seed: {}, open: endView },
   {
     name: 'schlafseite',

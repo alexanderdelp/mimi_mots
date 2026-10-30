@@ -1,6 +1,6 @@
 // B-78: Stimmwahl – Auswahl speichern, Datei übernehmen, Hörprüfliste abhaken.
 import { describe, expect, it } from 'vitest';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -11,10 +11,10 @@ import {
   readState,
 } from '../tools/stimmwahl-store';
 
-const CHECK = `| id | Deutsch | Englisch | ok | Französisch | ok | Japanisch | ok | neu |
-|---|---|---|---|---|---|---|---|---|
-| apfel | 🍎 Apfel | apple | [ ] | la pomme | [x] | りんご | [ ] | klingt komisch |
-| ei | 🥚 Ei | egg | [ ] | l'œuf | [ ] | 卵（たまご） | [ ] |  |
+const CHECK = `| id | Deutsch | Englisch | ok | Französisch | ok | Japanisch | ok | Italienisch | ok |
+|---|---|---|---|---|---|---|---|---|---|
+| apfel | 🍎 Apfel | apple | [ ] | la pomme | [x] | りんご | [ ] | la mela | [ ] |
+| ei | 🥚 Ei | egg | [ ] | l'œuf | [ ] | 卵（たまご） | [ ] | l'uovo | [ ] |
 `;
 
 function sandbox() {
@@ -38,7 +38,9 @@ describe('Stimmwahl (B-78)', () => {
 
   it('markChecked hakt nur das Wort in der Sprache ab', () => {
     const md = markChecked(CHECK, 'ei', 'en');
-    expect(md).toContain("| ei | 🥚 Ei | egg | [x] | l'œuf | [ ] | 卵（たまご） | [ ] |  |");
+    expect(md).toContain(
+      "| ei | 🥚 Ei | egg | [x] | l'œuf | [ ] | 卵（たまご） | [ ] | l'uovo | [ ] |",
+    );
     expect(md).toContain('| apfel | 🍎 Apfel | apple | [ ] |');
   });
 
@@ -49,7 +51,27 @@ describe('Stimmwahl (B-78)', () => {
     const state = readState(files);
     expect(state.choices.en!.ei).toEqual({ voice: 'piper-cori', variant: 'dot' });
     expect(state.checked.ei.en).toBe(true);
-    expect(state.notes.apfel).toBe('klingt komisch');
+  });
+
+  it('AT-80.3: hakt Italienisch in der eigenen Spalte ab', () => {
+    const md = markChecked(CHECK, 'ei', 'it');
+    expect(md).toContain(
+      "| ei | 🥚 Ei | egg | [ ] | l'œuf | [ ] | 卵（たまご） | [ ] | l'uovo | [x] |",
+    );
+  });
+
+  it('AT-85.1: „keins“ löscht die App-Datei, merkt null und nimmt den Haken weg', () => {
+    const files = sandbox();
+    choose(files, 'en', 'ei', { voice: 'piper-cori', variant: 'dot' });
+    choose(files, 'en', 'ei', null);
+    expect(existsSync(join(files.audio, 'en', 'ei.mp3'))).toBe(false);
+    const state = readState(files);
+    expect(state.choices.en!.ei).toBeNull();
+    expect(state.checked.ei.en).toBe(false);
+    expect(readFileSync(files.check, 'utf8')).toContain('| ei | 🥚 Ei | egg | [ ] |');
+    // danach wieder eine Aufnahme wählen geht
+    choose(files, 'en', 'ei', { voice: 'piper-cori', variant: 'dot' });
+    expect(readState(files).checked.ei.en).toBe(true);
   });
 
   it('choose lehnt Unbekanntes ab, ohne etwas zu ändern', () => {

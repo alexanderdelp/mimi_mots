@@ -1,10 +1,15 @@
 // Vorlesen des Fremdworts (anforderungen.md §6): vorproduzierte MP3s über HTMLAudioElement
 // (nicht Web Audio – wegen der iOS-Stummschaltung). Hat die Sprache keine MP3s, fehlt eine
-// Datei oder scheitert das Abspielen, liest die Web Speech API des Geräts vor (en-GB / fr-FR / ja-JP).
+// Datei oder scheitert das Abspielen, liest die Web Speech API des Geräts vor (en-GB / fr-FR / ja-JP / it-IT).
 import { LANGUAGE_INFO } from './data/languages';
 import type { Language, Word } from './data/words';
 
-export const SPEECH_LANG: Record<Language, string> = { en: 'en-GB', fr: 'fr-FR', ja: 'ja-JP' };
+export const SPEECH_LANG: Record<Language, string> = {
+  en: 'en-GB',
+  fr: 'fr-FR',
+  ja: 'ja-JP',
+  it: 'it-IT',
+};
 
 export function audioUrl(language: Language, id: string): string {
   return `${import.meta.env.BASE_URL}audio/${language}/${id}.mp3`;
