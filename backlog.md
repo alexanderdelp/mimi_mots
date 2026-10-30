@@ -260,7 +260,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-65.4: Verbraucht wird beim Erreichen der Abschlussseite: Neuladen auf der Abschlussseite und danach jeder App-Start zeigt den Begleiter schlafend (localStorage).
   - AT-65.5: Nach der Abschlussseite des zweiten Begleiters führt der Haus-Button zur Schlafseite: gleiche Kopfleiste wie überall, Bild beider Begleiter schlafend, Satz „Gute Nacht und bis morgen!“, keine Schaltfläche.
   - AT-65.6: Schlafen beide, startet die App mit der Schlafseite.
-  - AT-65.7: Das Icon in der Kopfleiste der Schlafseite 600 ms gedrückt halten → Startseite, beide Begleiter wach, beide Dauern frei, Auswahl wie zuletzt. Kürzer halten oder tippen bewirkt nichts. Kein Hinweis: Das Icon ist keine Schaltfläche (keine Rolle, kein Name) und verändert sich beim Drücken nicht.
+  - AT-65.7 (seit B-69 geändert: Aufwecken im Elternbereich, siehe AT-69.1/69.3; ursprünglich:) Das Icon in der Kopfleiste der Schlafseite 600 ms gedrückt halten → Startseite, beide Begleiter wach, beide Dauern frei, Auswahl wie zuletzt. Kürzer halten oder tippen bewirkt nichts. Kein Hinweis: Das Icon ist keine Schaltfläche (keine Rolle, kein Name) und verändert sich beim Drücken nicht.
   - AT-65.9: Wird die App an einem späteren Tag geöffnet (oder nach Mitternacht aus dem Hintergrund zurückgeholt), sind alle Begleiter wach und alle Dauern frei. Maßgeblich ist das lokale Datum des Einschlafens.
   - AT-65.8: Schlafseite und Startseite mit schlafendem Begleiter passen ohne Scrollen auf 1024 × 768, 1180 × 820 und 1366 × 1024 (Screenshot).
 - [x] **B-66 Silbenfarben**: Das deutsche Wort auf der Wortkarte wird silbenweise abwechselnd gefärbt (Silbenmethode für Leseanfänger): 1., 3., … Silbe in der Schriftfarbe `--lila-900`, 2., 4., … in der neuen Farbe `--beere-600` (#B03A75, Kontrast auf Weiß 5,7 : 1). Die Silben (Sprechsilben, wie in der Grundschule) stehen von Hand gepflegt in `words.json` (`syllables`).
@@ -282,7 +282,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-68.2: Zahlen haben im Französischen keinen Artikel, im Englischen keinen; alle Emojis bleiben eindeutig und sind ein einzelnes, farbiges Bildzeichen (AT-04.1).
   - AT-68.3: Für jede Zahl gibt es `audio/<en|fr|ja>/<id>.mp3`, jede < 16 KB; alle Audiodateien zusammen < 2 MB (Unit-Test).
   - AT-68.4: Zahlen kommen in der Lernrunde vor wie andere Wörter (Scheduler unverändert); `audio-check.md` und Abhörseite enthalten sie.
+- [x] **B-69 Elternbereich**: Verstecktes Gedrückthalten (600 ms) des App-Icons in der Kopfleiste der Start- und der Schlafseite öffnet den Elternbereich (ersetzt das Aufwecken direkt auf der Schlafseite aus B-65). Dort: alle Begleiter aufwecken und alle Timer freigeben; je Sprache die Wörter nach Stufe (neu, Stufe 0 = noch üben … Stufe 4 = sicher); Lernstand einer Sprache nach Sicherheitsabfrage zurücksetzen. Keine Avatare, sonst Design wie überall.
+  - AT-69.1: Icon 600 ms halten auf der Startseite und auf der Schlafseite → Elternbereich. Kürzer halten oder tippen bewirkt nichts; das Icon ist keine Schaltfläche und verändert sich beim Drücken nicht. Auf der Schlafseite weckt das Halten nicht mehr direkt auf.
+  - AT-69.2: Kopfleiste wie überall; runder Haus-Button führt zurück – zur Schlafseite, wenn beide schlafen (oder alle Dauern verbraucht sind), sonst zur Startseite. Keine Avatare.
+  - AT-69.3: „Alle aufwecken“ weckt beide Begleiter und gibt beide Dauern frei; danach führt der Haus-Button zur Startseite. Ist niemand eingeschlafen, ist der Button ausgegraut.
+  - AT-69.4: Je Sprache (Flaggen-Kacheln, vorausgewählt die zuletzt gewählte Sprache) stehen alle Wörter als Emoji in Zeilen „Neu“, „Stufe 0“ … „Stufe 4“ mit Anzahl; jedes Emoji nennt deutsches Wort und Fremdwort (Screenreader/Titel). Die Verteilung entspricht dem gespeicherten Lernstand.
+  - AT-69.5: „Lernstand zurücksetzen“ fragt erst nach („Wirklich zurücksetzen?“ mit „Ja, zurücksetzen“ und „Abbrechen“). Abbrechen ändert nichts; Ja leert den Lernstand nur dieser Sprache (alle Wörter wieder „Neu“), andere Sprachen bleiben, gespeichert in localStorage.
+  - AT-69.6: Der Elternbereich passt ohne Scrollen auf 1024 × 768, 1180 × 820 und 1366 × 1024 – auch wenn alle 61 Wörter in einer Zeile stehen (Screenshot).
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später
-- Weitere Dauern und Sprachen · Themenwahl · Elternbereich (Reset) · Eigene Illustrationen
+- Weitere Dauern und Sprachen · Themenwahl · Eigene Illustrationen

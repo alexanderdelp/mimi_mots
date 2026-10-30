@@ -594,7 +594,8 @@
   padding: 0;
 }
 
-.view--sleep .app-header__icon {
+/* Verstecktes Halten öffnet den Elternbereich (B-69) – ohne sichtbare Rückmeldung */
+.app-header__icon--hold {
   touch-action: none;
 }
 
@@ -621,4 +622,162 @@
   font-size: clamp(32px, 5dvh, 44px);
   font-weight: 800;
   text-align: center;
+}
+
+/* Elternbereich (B-69): Kopfleiste mit Haus-Button, oben Sprache und Aktionen, darunter die
+   Wörter als Emoji nach Stufe. Keine Avatare. */
+.view--admin {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.view--admin .admin__home {
+  width: 88px;
+  height: 88px;
+}
+
+.view--admin .admin__home svg {
+  width: 44px;
+  height: 44px;
+}
+
+.admin__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2dvh, 20px);
+  padding: clamp(12px, 2dvh, 24px) 24px;
+}
+
+.admin__toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.admin__languages {
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin__languages .choice-group__tiles {
+  gap: 12px;
+}
+
+.admin__languages .choice-tile {
+  width: 120px;
+  height: 88px;
+  padding: 12px;
+}
+
+.admin__flag {
+  width: 72px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.admin__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin__question {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.text-button {
+  min-height: 88px;
+  padding: 0 24px;
+  border-radius: var(--radius-m);
+  font-size: 22px;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+  transition: background-color var(--transition);
+}
+
+.text-button--primary {
+  background: var(--lila-700);
+  color: var(--white);
+}
+
+.text-button--primary:active:not(:disabled) {
+  background: var(--lila-900);
+}
+
+.text-button--secondary {
+  background: var(--white);
+  color: var(--lila-900);
+  box-shadow:
+    inset 0 0 0 2px var(--grau-700),
+    var(--shadow);
+}
+
+.text-button:disabled {
+  background: var(--lila-200);
+  color: var(--white);
+  box-shadow: none;
+  cursor: default;
+}
+
+.admin__levels {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.admin__level {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.admin__level + .admin__level {
+  border-top: 1px solid var(--lila-100);
+  padding-top: 6px;
+}
+
+.admin__label {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin__title {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.admin__hint {
+  font-size: 14px;
+  color: var(--grau-700);
+}
+
+.admin__words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.admin__word {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  line-height: 1;
 }

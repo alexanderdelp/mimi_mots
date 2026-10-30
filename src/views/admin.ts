@@ -1,0 +1,146 @@
+// Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
+// Schlafseite. Begleiter aufwecken, Lernstand je Sprache nach Stufe ansehen und zurücksetzen.
+// Keine Avatare; sonst dieselben Bausteine wie überall (Kopfleiste, Kacheln, runde Buttons).
+import { createAppHeader } from '../components/app-header';
+import { createChoiceGroup } from '../components/choice-tile';
+import { roundButton } from '../components/icons';
+import { LANGUAGE_INFO, flagUrl } from '../data/languages';
+import { WORDS, type Language } from '../data/words';
+import type { Store } from '../state';
+import { LANGUAGES, MAX_BOX, type Progress } from '../storage';
+import type { ViewHandle } from './view';
+
+/** Zeilen der Übersicht: noch nie dran (null), dann Stufe 0 (noch üben) bis 4 (sicher). */
+const LEVELS: readonly (number | null)[] = [
+  null,
+  ...Array.from({ length: MAX_BOX + 1 }, (_, i) => i),
+];
+
+function levelLabel(level: number | null): [string, string] {
+  if (level === null) return ['Neu', 'noch nicht dran'];
+  if (level === 0) return ['Stufe 0', 'noch üben'];
+  if (level === MAX_BOX) return [`Stufe ${level}`, 'sicher'];
+  return [`Stufe ${level}`, ''];
+}
+
+function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string) {
+  const node = document.createElement(tag);
+  node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function textButton(label: string, variant: 'primary' | 'secondary'): HTMLButtonElement {
+  const button = el('button', `text-button text-button--${variant}`, label);
+  button.type = 'button';
+  return button;
+}
+
+/** Wörter einer Sprache nach Stufe; Wörter ohne Lernstand sind „Neu“. */
+export function wordsByLevel(progress: Progress, language: Language) {
+  const entries = progress[language];
+  return new Map(
+    LEVELS.map((level) => [level, WORDS.filter((w) => (entries[w.id]?.box ?? null) === level)]),
+  );
+}
+
+export function renderAdmin(store: Store): ViewHandle {
+  let language: Language = store.getState().data.settings.language ?? 'en';
+  let confirming = false;
+
+  const view = el('main', 'view view--admin');
+  view.dataset.view = 'admin';
+
+  const home = roundButton('Zurück', 'home', 'home-button admin__home');
+  home.addEventListener('click', () => store.dispatch({ type: 'leave' }));
+
+  const languages = createChoiceGroup<Language>(
+    'Lernstand',
+    LANGUAGES.map((l) => ({
+      value: l,
+      label: LANGUAGE_INFO[l].name,
+      content: [
+        Object.assign(el('img', 'admin__flag'), { src: flagUrl(l), alt: '', draggable: false }),
+      ],
+    })),
+    language,
+    (value) => {
+      language = value;
+      confirming = false;
+      render();
+    },
+  );
+  languages.el.classList.add('admin__languages');
+
+  const actions = el('div', 'admin__actions');
+  const levels = el('div', 'admin__levels');
+
+  const render = () => {
+    const { data } = store.getState();
+    const awake = data.rest.sleeping.length === 0 && data.rest.usedDurations.length === 0;
+    const name = LANGUAGE_INFO[language].name;
+
+    if (confirming) {
+      const question = el('p', 'admin__question', `${name}: Wirklich zurücksetzen?`);
+      const yes = textButton('Ja, zurücksetzen', 'primary');
+      const no = textButton('Abbrechen', 'secondary');
+      yes.addEventListener('click', () => {
+        confirming = false;
+        store.dispatch({ type: 'resetProgress', language });
+      });
+      no.addEventListener('click', () => {
+        confirming = false;
+        render();
+      });
+      actions.replaceChildren(question, yes, no);
+    } else {
+      const reset = textButton('Lernstand zurücksetzen', 'secondary');
+      reset.addEventListener('click', () => {
+        confirming = true;
+        render();
+      });
+      const wake = textButton('Alle aufwecken', 'primary');
+      wake.disabled = awake;
+      wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
+      actions.replaceChildren(reset, wake);
+    }
+
+    const groups = wordsByLevel(data.progress, language);
+    levels.replaceChildren(
+      ...LEVELS.map((level) => {
+        const words = groups.get(level)!;
+        const [title, hint] = levelLabel(level);
+        const row = el('section', 'admin__level');
+        row.dataset.level = level === null ? 'neu' : String(level);
+        const label = el('div', 'admin__label');
+        label.append(el('span', 'admin__title', `${title} · ${words.length}`));
+        if (hint) label.append(el('span', 'admin__hint', hint));
+        const chips = el('div', 'admin__words');
+        chips.setAttribute('role', 'list');
+        for (const w of words) {
+          const chip = el('span', 'admin__word', w.emoji);
+          chip.setAttribute('role', 'listitem');
+          chip.dataset.wordId = w.id;
+          chip.title = `${w.de} · ${w[language]}`;
+          chip.setAttribute('aria-label', chip.title);
+          chips.append(chip);
+        }
+        row.append(label, chips);
+        return row;
+      }),
+    );
+  };
+
+  const toolbar = el('div', 'admin__toolbar');
+  toolbar.append(languages.el, actions);
+
+  const body = el('div', 'admin__body');
+  body.append(toolbar, levels);
+  view.append(createAppHeader({ start: home }), body);
+  render();
+
+  const unsubscribe = store.subscribe((state, previous) => {
+    if (state.view === 'admin' && state.data !== previous.data) render();
+  });
+  return { el: view, dispose: unsubscribe };
+}
