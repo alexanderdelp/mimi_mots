@@ -4,7 +4,20 @@ import globals from 'globals';
 import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'playwright-report', 'test-results'] },
+  {
+    // Python-Umgebungen, Modelle und erzeugte Audio-Kandidaten gehören nicht zum Projekt-Code
+    ignores: [
+      'dist',
+      'node_modules',
+      'playwright-report',
+      'test-results',
+      '.venv',
+      '.venv-melo',
+      '.models',
+      'tools/stimmwahl',
+      'tools/vergleich',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
