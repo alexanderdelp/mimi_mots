@@ -20,6 +20,7 @@ const valid = (): AppData => ({
     ja: { katze: { box: 1, seen: 2, lastSeenAt: '2026-10-30T08:00:00.000Z' } },
   },
   rest: { sleeping: [], usedDurations: [7], since: '2026-10-29' },
+  enabledLanguages: ['en', 'ja'],
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -41,6 +42,7 @@ describe('defaults', () => {
       settings: { companion: null, language: null, durationMin: 3 },
       progress: { en: {}, fr: {}, ja: {} },
       rest: { sleeping: [], usedDurations: [], since: null },
+      enabledLanguages: ['en', 'fr'],
     });
   });
 
@@ -201,6 +203,22 @@ describe('Schlaf und verbrauchte Dauern (B-65)', () => {
 describe('localDay (B-65)', () => {
   it('lokales Datum mit führenden Nullen', () => {
     expect(localDay(new Date(2026, 0, 5, 23, 59))).toBe('2026-01-05');
+  });
+});
+
+describe('Aktive Sprachen (B-73)', () => {
+  it('AT-73.1: Standard Englisch und Französisch, auch für alte Daten ohne Feld', () => {
+    const old: Partial<AppData> = valid();
+    delete old.enabledLanguages;
+    expect(sanitize(old).enabledLanguages).toEqual(['en', 'fr']);
+  });
+
+  it('verwirft Unbekanntes und Doppeltes; leer → Standard', () => {
+    expect(
+      sanitize({ ...valid(), enabledLanguages: ['ja', 'de', 'ja', 'fr'] }).enabledLanguages,
+    ).toEqual(['fr', 'ja']);
+    expect(sanitize({ ...valid(), enabledLanguages: [] }).enabledLanguages).toEqual(['en', 'fr']);
+    expect(sanitize({ ...valid(), enabledLanguages: 'ja' }).enabledLanguages).toEqual(['en', 'fr']);
   });
 });
 

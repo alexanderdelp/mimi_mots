@@ -41,6 +41,7 @@ export async function prepare(page: Page, seed?: Seed) {
         version: 1,
         settings: { companion: 'mimi', language: seed.language ?? 'fr', durationMin: 3 },
         progress: { en: {}, fr: {}, ja: {} },
+        enabledLanguages: ['en', 'fr', 'ja'],
         rest: {
           sleeping: seed.sleeping ?? [],
           usedDurations: seed.usedDurations ?? [],

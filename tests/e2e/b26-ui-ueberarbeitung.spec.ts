@@ -72,14 +72,14 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     expect(stored.settings.durationMin).toBe(7);
   });
 
-  test('AT-26.3: Sprachen 2 × 2 (seit B-67 ist Japanisch wählbar)', async ({ page }) => {
+  test('AT-26.3/AT-73.1: Sprachen 2 × 2, Japanisch standardmäßig ausgegraut', async ({ page }) => {
     const group = page.getByRole('group', { name: 'In welcher Sprache?' });
     await expect(group.getByRole('button')).toHaveCount(3);
     const [en, fr, ja] = [btn(page, 'Englisch'), btn(page, 'Französisch'), btn(page, 'Japanisch')];
-    await expect(ja).toBeEnabled();
+    await expect(en).toBeEnabled();
+    await expect(fr).toBeEnabled();
+    await expect(ja).toBeDisabled();
     await expect(ja.locator('img')).toHaveAttribute('src', /flag_jp\.svg$/);
-    await ja.click();
-    await expect(ja).toHaveAttribute('aria-pressed', 'true');
 
     const [bEn, bFr, bJa] = [await box(en), await box(fr), await box(ja)];
     expect(bFr.y).toBeCloseTo(bEn.y, 0); // erste Zeile: EN | FR

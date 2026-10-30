@@ -74,11 +74,21 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const actions = el('div', 'admin__actions');
   const levels = el('div', 'admin__levels');
+  // „Alle aufwecken“ sitzt rechts in der Kopfleiste, damit unten Platz für die Sprachaktionen ist
+  const wake = textButton('Alle aufwecken', 'primary');
+  wake.classList.add('admin__wake');
+  wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
 
   const render = () => {
     const { data } = store.getState();
     const awake = data.rest.sleeping.length === 0 && data.rest.usedDurations.length === 0;
     const name = LANGUAGE_INFO[language].name;
+    const enabled = data.enabledLanguages.includes(language);
+    wake.disabled = awake;
+    // ausgeschaltete Sprachen bleiben wählbar (Lernstand ansehen, wieder einschalten), wirken aber blass
+    languages.tiles.forEach((tile, l) => {
+      tile.el.dataset.off = String(!data.enabledLanguages.includes(l));
+    });
 
     if (confirming) {
       const question = el('p', 'admin__question', `${name}: Wirklich zurücksetzen?`);
@@ -99,10 +109,11 @@ export function renderAdmin(store: Store): ViewHandle {
         confirming = true;
         render();
       });
-      const wake = textButton('Alle aufwecken', 'primary');
-      wake.disabled = awake;
-      wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
-      actions.replaceChildren(reset, wake);
+      // B-73: gewählte Sprache ein-/ausschalten; die letzte aktive bleibt an
+      const toggle = textButton(`${name} ${enabled ? 'ausschalten' : 'einschalten'}`, 'secondary');
+      toggle.disabled = enabled && data.enabledLanguages.length === 1;
+      toggle.addEventListener('click', () => store.dispatch({ type: 'toggleLanguage', language }));
+      actions.replaceChildren(reset, toggle);
     }
 
     const groups = wordsByLevel(data.progress, language);
@@ -136,7 +147,7 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const body = el('div', 'admin__body');
   body.append(toolbar, levels);
-  view.append(createAppHeader({ start: home }), body);
+  view.append(createAppHeader({ start: home, end: wake }), body);
   render();
 
   const unsubscribe = store.subscribe((state, previous) => {

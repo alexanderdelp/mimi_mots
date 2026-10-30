@@ -1,6 +1,23 @@
 // Gemeinsame Hilfen für E2E-Tests.
 import type { Page } from '@playwright/test';
 
+/** Schaltet Japanisch für den Test frei (seit B-73 standardmäßig aus), ohne sonst etwas zu speichern. */
+export async function enableJapanese(page: Page) {
+  await page.addInitScript(() => {
+    const key = 'mimi-mots:v1';
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        version: 1,
+        settings: { companion: null, language: null, durationMin: 3 },
+        progress: { en: {}, fr: {}, ja: {} },
+        enabledLanguages: ['en', 'fr', 'ja'],
+      }),
+    );
+  });
+}
+
 export type MediaCall =
   | { op: 'play'; src: string; time: number }
   | { op: 'pause' }

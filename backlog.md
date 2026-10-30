@@ -311,7 +311,29 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 - [x] **B-72 Hochformat: Begleiter schlägt Rad**: Der Hochformat-Hinweis zeigt den gewählten Begleiter (ohne Wahl Mimi) beim Radschlagen statt sitzend, dazu weiterhin das Dreh-Symbol. Der Text „iPad drehen“ entfällt (bleibt nur als Name für Screenreader). Bilder `cat_cartwheel.png` und `pony_cartwheel.png` sind Platzhalter.
   - AT-72.1: Im Hochformat zeigt der Hinweis das Radschlag-Bild des gewählten Begleiters (ohne Wahl Mimi, nach Wahl von Mots das Pony) und das Dreh-Symbol; es ist kein Text sichtbar. Der Hinweis heißt für Screenreader „iPad drehen“ (ersetzt AT-52.1/52.2).
   - AT-72.2: Die Radschlag-Bilder sind 384 × 440 px groß, werden ausgeliefert und vom Service Worker gespeichert; der Hinweis passt weiter auf 768 × 1024, 820 × 1180 und 1024 × 1366 (AT-60.1).
+- [ ] **B-73 Sprachen ein-/ausschalten**: Im Elternbereich lässt sich jede Sprache aktivieren oder deaktivieren. Deaktivierte Sprachen sind auf der Startseite ausgegraut und nicht wählbar. Standard: Englisch und Französisch aktiv, Japanisch aus. Mindestens eine Sprache bleibt aktiv.
+  - AT-73.1: Erststart (und alte Daten ohne Einstellung): Englisch und Französisch wählbar, Japanisch ausgegraut und nicht wählbar.
+  - AT-73.2: Im Elternbereich hat jede Sprache einen Schalter „aktiv“; Ausschalten graut die Sprache auf der Startseite aus, Einschalten macht sie wieder wählbar. Gespeichert in localStorage.
+  - AT-73.3: Die letzte aktive Sprache lässt sich nicht ausschalten (Schalter ausgegraut).
+  - AT-73.4: Wird die gewählte Sprache ausgeschaltet, ist auf der Startseite keine Sprache gewählt – außer es ist nur noch eine aktiv, dann ist diese vorausgewählt. Play mit deaktivierter Sprache ist nicht möglich.
+- [ ] **B-74 Tutorial**: In der allerersten Lernrunde erklärt Mimi vor dem ersten echten Wort an einem Probewort (Apfel) in der gewählten Sprache die drei Buttons: Sprechblase mit kurzem Satz, der Button ist hervorgehoben, das Kind tippt ihn selbst an. Reihenfolge: Lautsprecher → Daumen hoch → Wiederholen. Die Uhr läuft dabei nicht, das Probewort zählt nicht zum Lernstand. Danach kommt das Tutorial nicht mehr; im Elternbereich lässt es sich zurücksetzen (dann kommt es bei der nächsten Runde wieder).
+  - AT-74.1: Erste Runde: Vor dem ersten Wort erscheint das Tutorial mit Mimi (auch wenn Mots gewählt ist), Probewort Apfel; [×] und Uhr sind da, die Uhr steht.
+  - AT-74.2: Schritt 1 hebt den Lautsprecher hervor („Tippe hier – so klingt das Wort.“); Tipp spielt das Wort und deckt es auf. Schritt 2 hebt „Wusste ich“ hervor („Wusstest du es? Dann hier.“), Schritt 3 „Noch üben“ („Noch nicht? Dann hier – es kommt bald wieder.“). Nur der hervorgehobene Button reagiert.
+  - AT-74.3: Nach Schritt 3 beginnt die normale Runde mit dem ersten echten Wort; erst jetzt läuft die Uhr. Der Lernstand enthält das Probewort nicht.
+  - AT-74.4: Bei weiteren Runden (auch nach Neuladen) kommt kein Tutorial. „Tutorial zurücksetzen“ im Elternbereich lässt es in der nächsten Runde wieder erscheinen.
+  - AT-74.5: Tutorial passt auf alle Viewports, Kontrast und Leitprinzipien wie überall (B-60/B-61), Sprechblase ≤ 8 Wörter.
+- [ ] **B-75 Nur bekannte Wörter**: Auf der Startseite unten eine Kachel „Nur bekannte“. Ist sie gewählt, kommen in der nächsten Runde keine neuen Wörter dazu, nur schon gesehene (Stufe 0–4). Bei jedem Betreten der Startseite ist sie abgewählt. Hat das Kind in der gewählten Sprache weniger als 6 gesehene Wörter (oder ist keine Sprache gewählt), ist sie ausgegraut.
+  - AT-75.1: Kachel „Nur bekannte“ unten neben Play, ≥ 88 px, Optik wie Auswahlkacheln; antippen wählt sie an und wieder ab.
+  - AT-75.2: Ausgegraut, solange in der gewählten Sprache weniger als 6 Wörter gesehen sind; wechselt mit der Sprachwahl.
+  - AT-75.3: Gewählt + Play: In der Runde kommt kein neues Wort (Scheduler ohne neue Wörter); ohne Auswahl wie bisher.
+  - AT-75.4: Zurück auf der Startseite (nach der Runde, nach Neuladen, aus dem Elternbereich) ist sie wieder abgewählt; nicht in localStorage.
+- [ ] **B-76 iPhone**: Zusätzlicher Test-Viewport iPhone 15/16 quer (852 × 393), alle Ansichten passen dort ohne Scrollen und Überlauf; im Hochformat (393 × 852) der Dreh-Hinweis.
+  - AT-76.1: Playwright-Projekt `iphone-852x393` (WebKit, Touch); alle bisherigen Akzeptanztests laufen auch dort (Ausnahmen begründet im Test).
+  - AT-76.2: Jede Ansicht (B-60) passt auf 852 × 393: kein Scrollen, kein Überlauf, Kontrast ok; Schaltflächen ≥ 44 px (Apple-Mindestmaß; die 88 px gelten fürs iPad).
+  - AT-76.3: Hochformat 393 × 852: Dreh-Hinweis passt.
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später
+- **Nur geprüfte Wörter abfragen:** In einer Sprache kommen nur Wörter dran, deren Aussprache in `audio-check.md` für diese Sprache abgehakt ist (`[x]`).
+- **Audioprobleme eingrenzen (Versuch):** Für auffällige Wörter zum Vergleich anhören: das rohe WAV der Sprachsynthese (ungeschnitten und/oder vor der MP3-Kodierung), dasselbe Wort mit „.“ am Ende und dasselbe Wort in einem ganzen Satz.
 - Weitere Dauern und Sprachen · Themenwahl · Eigene Illustrationen

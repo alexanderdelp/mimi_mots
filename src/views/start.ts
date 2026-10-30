@@ -1,5 +1,5 @@
 // Startansicht (anforderungen.md §3.1): Begleiter, Sprache, Dauer wählen, dann Play.
-// Schlafende Begleiter und verbrauchte Dauern sind ausgegraut (B-65).
+// Schlafende Begleiter, verbrauchte Dauern und ausgeschaltete Sprachen sind ausgegraut (B-65/B-73).
 import {
   COMPANIONS,
   COMPANION_NAMES,
@@ -33,7 +33,7 @@ function text(value: string, className?: string): HTMLSpanElement {
 }
 
 export function renderStart(store: Store): ViewHandle {
-  const { settings, rest } = store.getState().data;
+  const { settings, rest, enabledLanguages } = store.getState().data;
 
   const play = document.createElement('button');
   play.type = 'button';
@@ -70,6 +70,7 @@ export function renderStart(store: Store): ViewHandle {
     LANGUAGES.map((language) => ({
       value: language,
       label: LANGUAGE_INFO[language].name,
+      disabled: !enabledLanguages.includes(language), // im Elternbereich ausgeschaltet (B-73)
       content: [img(flagUrl(language), 'start__flag')],
     })),
     settings.language,
