@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BRAKE_AT,
   applyRating,
   createSession,
   pickNext,
@@ -115,27 +116,37 @@ describe('applyRating', () => {
   });
 });
 
-describe('Nur bekannte (B-75)', () => {
+describe('Bremse für neue Wörter (B-82)', () => {
   const ids = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-  const seen = Object.fromEntries(
-    ids.slice(0, 7).map((id) => [id, { box: 0, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' }]),
-  );
+  const at = (box: number) => ({ box, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' });
+  /** sieben gesehene Wörter, davon `practicing` auf Stufe 0, der Rest auf Stufe 2 */
+  const seen = (practicing: number) =>
+    Object.fromEntries(ids.slice(0, 7).map((id, i) => [id, at(i < practicing ? 0 : 2)]));
 
-  it('führt keine neuen Wörter ein, auch nicht im Takt', () => {
+  it('AT-82.3: ab 6 Wörtern auf Stufe 0 kommen keine neuen, auch nicht im Takt', () => {
+    expect(BRAKE_AT).toBe(6);
+    const progress = seen(6);
     let session = createSession();
     const rng = seededRng(5);
     for (let i = 0; i < 40; i++) {
-      const next = pickNext(ids, seen, session, rng, true);
-      expect(seen[next.id], next.id).toBeDefined();
+      const next = pickNext(ids, progress, session, rng, true);
+      expect(progress[next.id], next.id).toBeDefined();
       session = next.session;
     }
     expect(session.introduced).toEqual([]);
   });
 
-  it('ohne die Option kommen neue Wörter wie bisher', () => {
+  it('AT-82.3: unter 6 Wörtern auf Stufe 0 kommen neue wie bisher', () => {
     let session = createSession();
     const rng = seededRng(5);
-    for (let i = 0; i < 12; i++) session = pickNext(ids, seen, session, rng).session;
+    for (let i = 0; i < 12; i++) session = pickNext(ids, seen(5), session, rng, true).session;
+    expect(session.introduced.length).toBeGreaterThan(0);
+  });
+
+  it('AT-82.3: ausgeschaltet kommen neue trotz vieler Wörter auf Stufe 0', () => {
+    let session = createSession();
+    const rng = seededRng(5);
+    for (let i = 0; i < 12; i++) session = pickNext(ids, seen(7), session, rng, false).session;
     expect(session.introduced.length).toBeGreaterThan(0);
   });
 });

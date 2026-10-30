@@ -1,4 +1,4 @@
-"""Tests für generate_audio.py: Unit-Tests der Hilfsfunktionen und Akzeptanztests B-30a/B-64/B-67,
+"""Tests für generate_audio.py: Unit-Tests der Hilfsfunktionen und Akzeptanztests B-30a/B-64/B-67/B-80,
 die das echte Skript (Kokoro, Piper, VOICEVOX und ffmpeg) in einem Temp-Ordner laufen lassen.
 Aufruf: npm run test:audio
 """
@@ -22,9 +22,9 @@ import generate_audio as ga  # noqa: E402
 
 WORDS = [
     {'id': 'apfel', 'emoji': '🍎', 'de': 'Apfel', 'en': 'apple', 'fr': 'la pomme',
-     'ja': 'りんご', 'jaKana': 'りんご'},
+     'it': 'la mela', 'ja': 'りんご', 'jaKana': 'りんご'},
     {'id': 'katze', 'emoji': '🐱', 'de': 'Katze', 'en': 'cat', 'fr': 'le chat',
-     'ja': '猫', 'jaKana': 'ねこ'},
+     'it': 'il gatto', 'ja': '猫', 'jaKana': 'ねこ'},
 ]
 
 
@@ -98,7 +98,7 @@ class HelperTests(unittest.TestCase):
             self.assertTrue(ga.needs_update(ga.Job('a', 'en', 'a', out, ov, ga.VOICES['en'], ''), force=False))
 
     def test_default_all_languages(self):
-        self.assertEqual(ga.DEFAULT_LANGS, ['en', 'fr', 'ja'])
+        self.assertEqual(ga.DEFAULT_LANGS, ['en', 'fr', 'ja', 'it'])
         self.assertIsNone(ga.parse_args([]).langs)
 
     def test_choices_pick_voice_and_variant(self):
@@ -138,6 +138,41 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(len(jobs), len(options) * len(ga.VARIANTS))
         self.assertIn('le chat.', {j.text for j in jobs})
 
+    def test_japanese_option(self):
+        """B-85: Japanisch in der Stimmwahl – eine Stimme, „Wort“ und „Wort。“ (japanischer Punkt)."""
+        self.assertEqual(ga.VOICE_OPTIONS['ja'], {'voicevox-himari': ga.VOICES['ja']})
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_candidates(WORDS, 'ja', Path(tmp), ['katze'])
+        self.assertEqual(sorted(j.text for j in jobs), ['ねこ', 'ねこ。'])
+        choices = {'ja': {'katze': {'voice': 'voicevox-himari', 'variant': 'dot'}}}
+        self.assertEqual(ga.resolve_voice(choices, 'ja', 'katze')[1], '。')
+
+    def test_rejected_words_get_no_file(self):
+        """B-85: „keins“ (null) – kein Auftrag für das Wort in dieser Sprache, andere bleiben."""
+        choices = {'it': {'katze': None}}
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_jobs(WORDS, ['it', 'fr'], Path(tmp), Path(tmp) / 'ov', None, choices)
+        self.assertEqual(
+            sorted((j.lang, j.word_id) for j in jobs),
+            [('fr', 'apfel'), ('fr', 'katze'), ('it', 'apfel')],
+        )
+
+    def test_italian_options(self):
+        """B-80: Italienisch mit Kokoro sara (Standard), Kokoro nicola und Piper riccardo."""
+        options = ga.VOICE_OPTIONS['it']
+        self.assertEqual(options['kokoro-sara'], ga.VOICES['it'])
+        self.assertEqual(ga.VOICES['it'], {'engine': 'kokoro', 'voice': 'if_sara', 'lang': 'it'})
+        self.assertEqual(options['kokoro-nicola'], {'engine': 'kokoro', 'voice': 'im_nicola', 'lang': 'it'})
+        self.assertEqual(options['piper-riccardo'], {'engine': 'piper', 'voice': 'it_IT-riccardo-x_low'})
+        self.assertEqual(
+            ga.piper_files('it_IT-riccardo-x_low')['piper/it_IT-riccardo-x_low.onnx'],
+            f'{ga.PIPER_BASE}/it/it_IT/riccardo/x_low/it_IT-riccardo-x_low.onnx',
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_candidates(WORDS, 'it', Path(tmp), ['katze'])
+        self.assertEqual(len(jobs), len(options) * len(ga.VARIANTS))
+        self.assertEqual({j.text for j in jobs}, {'il gatto', 'il gatto.'})
+
     @unittest.skipUnless(ga.MELO_PYTHON.is_file(), 'MeloTTS (.venv-melo) nicht eingerichtet')
     def test_melo_batch_reproducible(self):
         """B-79: MeloTTS im Unterprozess, gleicher Text ergibt dieselbe Aufnahme."""
@@ -164,7 +199,7 @@ class HelperTests(unittest.TestCase):
 
 
 class AcceptanceTests(unittest.TestCase):
-    """B-30a/B-64/B-67 – echtes Skript mit Kokoro, Piper, VOICEVOX und ffmpeg."""
+    """B-30a/B-64/B-67/B-80 – echtes Skript mit Kokoro, Piper, VOICEVOX und ffmpeg."""
 
     @classmethod
     def setUpClass(cls):
@@ -186,7 +221,8 @@ class AcceptanceTests(unittest.TestCase):
     def test_at_30a_1_files_per_language(self):
         names = [f'{p.parent.name}/{p.name}' for p in self.files]
         self.assertEqual(names, ['en/apfel.mp3', 'en/katze.mp3', 'fr/apfel.mp3', 'fr/katze.mp3',
-                                 'ja/apfel.mp3', 'ja/katze.mp3'])
+                                 'it/apfel.mp3', 'it/katze.mp3', 'ja/apfel.mp3', 'ja/katze.mp3'])
+        self.assertIn('„il gatto“  (if_sara)', self.log)
         self.assertIn('„ねこ“  (冥鳴ひまり)', self.log)
         self.assertIn('„la pomme“  (ff_siwis)', self.log)
         self.assertIn('„apple“  (en_US-ljspeech-high)', self.log)
@@ -245,7 +281,8 @@ class AcceptanceTests(unittest.TestCase):
             with self.subTest(lang), tempfile.TemporaryDirectory() as tmp:
                 with self.assertRaises(SystemExit) as ctx:
                     run_script('--words', str(self.words), '--out', str(Path(tmp) / 'a'),
-                               '--models', str(Path(tmp) / 'leer'), '--lang', lang)
+                               '--models', str(Path(tmp) / 'leer'), '--lang', lang,
+                               '--choices', str(Path(tmp) / 'keine.json'))  # nur Standardstimmen
                 self.assertIn('README', str(ctx.exception))
                 self.assertIn(missing, str(ctx.exception))
 

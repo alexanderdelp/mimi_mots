@@ -97,7 +97,7 @@ test.describe('B-61 Leitprinzipien', () => {
       expect(await redOrGreen(page)).toEqual([]);
       expect(await smallButtons(page)).toEqual([]);
       const words = await uiWords(page);
-      // seit B-75 hat die Startseite 13 Wörter (Kachel „Nur bekannte“)
+      // Grenze seit B-75 bei 14 Wörtern (die Kachel „Nur bekannte“ ist seit B-82 wieder weg)
       expect(words.length, words.join(' ')).toBeLessThanOrEqual(14);
       expect(words.join(' ')).not.toMatch(
         /\d|super|toll|richtig|falsch|prima|gut gemacht|punkt|stern/i,

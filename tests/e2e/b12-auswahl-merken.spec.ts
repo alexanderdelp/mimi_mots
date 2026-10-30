@@ -96,7 +96,7 @@ test.describe('B-12 Auswahl merken', () => {
     await btn(page, 'Mimi').click();
     await btn(page, 'Englisch').click();
     // seit B-67 gibt es zusätzlich einen (leeren) japanischen Lernstand
-    expect((await stored(page)).progress).toEqual({ ...progress, ja: {} });
+    expect((await stored(page)).progress).toEqual({ ...progress, ja: {}, it: {} });
   });
 
   test('AT-12.6: gesperrter Speicher – Auswahl und Play gehen trotzdem', async ({ page }) => {

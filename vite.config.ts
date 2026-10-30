@@ -7,7 +7,7 @@ export const BASE = '/mimi_mots/';
 
 /**
  * Stimmwahl (B-78), nur im Dev-Server: GET liefert die gespeicherte Auswahl, POST übernimmt einen
- * Kandidaten in die App (MP3 kopieren, audio-choices.json, audio-check.md abhaken).
+ * Kandidaten in die App (MP3 kopieren, audio-choices.json, audio-check.md abhaken) oder „keins“.
  */
 function stimmwahl(): Plugin {
   const files = defaultFiles(process.cwd());
@@ -27,7 +27,7 @@ function stimmwahl(): Plugin {
         req.on('end', () => {
           try {
             const { lang, id, voice, variant } = JSON.parse(body);
-            choose(files, lang, id, { voice, variant });
+            choose(files, lang, id, voice === null ? null : { voice, variant }); // null: „keins“
             send(200, readState(files));
           } catch (error) {
             send(400, { error: String(error) });

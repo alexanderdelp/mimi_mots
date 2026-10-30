@@ -257,11 +257,12 @@
   --tile-h: var(--start-tile-small-h);
 }
 
-/* Sprachen im 2 × 2-Raster (vierter Platz frei), Dauer untereinander */
+/* Sprachen im Raster mit höchstens zwei Spalten (nur eingeschaltete, B-81), Dauer untereinander */
 .start__group--language .choice-group__tiles {
   display: grid;
-  grid-template-columns: repeat(2, var(--start-tile-w));
-  grid-auto-rows: var(--start-tile-small-h);
+  grid-template-columns: repeat(var(--language-columns, 2), var(--start-tile-w));
+  /* immer zwei Zeilen hoch, damit die Überschrift auf einer Linie mit den anderen bleibt */
+  grid-template-rows: repeat(2, var(--start-tile-small-h));
   gap: var(--start-tile-gap) 24px;
 }
 
@@ -669,12 +670,13 @@
   gap: 20px;
 }
 
+/* vier Sprachen (B-80): schmalere Kacheln, damit die Leiste auch auf 1024 px passt */
 .admin__languages .choice-group__tiles {
-  gap: 12px;
+  gap: 8px;
 }
 
 .admin__languages .choice-tile {
-  width: 120px;
+  width: 100px;
   height: 88px;
   padding: 12px;
 }
@@ -782,10 +784,6 @@
   opacity: 0.45;
 }
 
-.admin__wake {
-  min-width: 88px;
-}
-
 /* Tutorial (B-74): Mimi erklärt in einer Sprechblase über sich, der gemeinte Button trägt einen
    ruhigen Ring (keine Animation). */
 .tutorial-bubble {
@@ -859,41 +857,86 @@
   visibility: hidden;
 }
 
-.admin__header-start {
+/* Reiter (B-83) rechts in der Kopfleiste: wie Textbuttons, der aktive wie eine gewählte Kachel */
+.admin__tabs {
   display: flex;
-  align-items: center;
   gap: 12px;
 }
 
-.admin__tutorial,
-.admin__wake {
-  font-size: 18px;
-  padding: 0 16px;
+.admin__tab {
+  min-width: 150px;
+  min-height: 88px;
+  padding: 0 20px;
+  border-radius: var(--radius-m);
+  background: var(--white);
+  color: var(--lila-900);
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow:
+    inset 0 0 0 2px var(--grau-700),
+    var(--shadow);
 }
 
-/* B-75: „Nur bekannte“ links neben Play; Play bleibt in der Mitte (gleich breiter Platz rechts) */
-.start__footer {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+.admin__tab[aria-selected='true'] {
+  background: var(--lila-100);
+  box-shadow:
+    inset 0 0 0 5px var(--lila-700),
+    var(--shadow);
+}
+
+.admin__panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2dvh, 20px);
+}
+
+.admin__panel[hidden] {
+  display: none;
+}
+
+.admin__other {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 24px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.admin__setting {
+  display: flex;
   align-items: center;
-  column-gap: 32px;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 12px 0;
 }
 
-.start__footer .play-button {
-  grid-column: 2;
+.admin__setting + .admin__setting {
+  border-top: 1px solid var(--lila-100);
 }
 
-.start__known {
-  grid-column: 1;
-  justify-self: end;
-  width: clamp(150px, 15vw, 220px);
+.admin__setting .text-button,
+.admin__brake {
+  min-width: 280px;
+}
+
+.admin__brake {
   height: 88px;
-  padding: 8px 16px;
 }
 
-.start__known-label {
+.admin__brake-label {
   font-size: 22px;
   font-weight: 800;
+}
+
+.admin__empty {
+  margin: auto;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--grau-700);
 }
 
 /* iPhone quer (B-76): niedrige Bildschirme bekommen ein kompaktes Layout – gleiche Anordnung,
@@ -992,17 +1035,6 @@
 
   .start__footer {
     padding: 0 16px 8px;
-    column-gap: 20px;
-  }
-
-  .start__known {
-    width: 130px;
-    height: 56px;
-    padding: 4px 10px;
-  }
-
-  .start__known-label {
-    font-size: 16px;
   }
 
   /* Lernrunde */
@@ -1158,5 +1190,47 @@
     width: 28px;
     height: 28px;
     font-size: 20px;
+  }
+
+  .admin__tabs {
+    gap: 8px;
+  }
+
+  .admin__tab {
+    min-width: 110px;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .admin__panel {
+    gap: 8px;
+  }
+
+  .admin__other {
+    gap: 0;
+    padding: 4px 16px;
+  }
+
+  .admin__setting {
+    padding: 6px 0;
+  }
+
+  .admin__setting .text-button,
+  .admin__brake {
+    min-width: 200px;
+  }
+
+  .admin__brake {
+    height: 44px;
+    min-height: 44px;
+    padding: 4px;
+  }
+
+  .admin__brake-label {
+    font-size: 16px;
+  }
+
+  .admin__empty {
+    font-size: 16px;
   }
 }

@@ -1,12 +1,14 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
-// Schlafseite. Begleiter aufwecken, Lernstand je Sprache nach Stufe ansehen und zurücksetzen.
-// Keine Avatare; sonst dieselben Bausteine wie überall (Kopfleiste, Kacheln, runde Buttons).
+// Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Sprache nach Stufe ansehen,
+// zurücksetzen, Sprache ein-/ausschalten; „Sonstiges“ – Tiere aufwecken, Tutorial zurücksetzen,
+// Bremse für neue Wörter (B-82). Keine Avatare; sonst dieselben Bausteine wie überall.
 import { createAppHeader } from '../components/app-header';
-import { createChoiceGroup } from '../components/choice-tile';
+import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
 import { roundButton } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
-import { WORDS, type Language } from '../data/words';
-import type { Store } from '../state';
+import { vocabulary } from '../data/vocabulary';
+import type { Language } from '../data/words';
+import { canToggleLanguage, type Store } from '../state';
 import { LANGUAGES, MAX_BOX, type Progress } from '../storage';
 import type { ViewHandle } from './view';
 
@@ -37,22 +39,40 @@ function textButton(label: string): HTMLButtonElement {
   return button;
 }
 
-/** Wörter einer Sprache nach Stufe; Wörter ohne Lernstand sind „Neu“. */
+/** Wörter des Wortschatzes (B-84) nach Stufe; Wörter ohne Lernstand sind „Neu“. */
 export function wordsByLevel(progress: Progress, language: Language) {
   const entries = progress[language];
+  const words = vocabulary(language);
   return new Map(
-    LEVELS.map((level) => [level, WORDS.filter((w) => (entries[w.id]?.box ?? null) === level)]),
+    LEVELS.map((level) => [level, words.filter((w) => (entries[w.id]?.box ?? null) === level)]),
   );
+}
+
+type Tab = 'sprachen' | 'sonstiges';
+const TABS: readonly [Tab, string][] = [
+  ['sprachen', 'Sprachen'],
+  ['sonstiges', 'Sonstiges'],
+];
+
+/** Zeile im Reiter „Sonstiges“: Titel und kurze Erklärung links, Button rechts. */
+function settingRow(title: string, hint: string, button: HTMLButtonElement): HTMLElement {
+  const row = el('section', 'admin__setting');
+  const label = el('div', 'admin__label');
+  label.append(el('span', 'admin__title', title), el('span', 'admin__hint', hint));
+  row.append(label, button);
+  return row;
 }
 
 export function renderAdmin(store: Store): ViewHandle {
   let language: Language = store.getState().data.settings.language ?? 'en';
   let confirming = false;
+  let tab: Tab = 'sprachen';
 
   const view = el('main', 'view view--admin');
   view.dataset.view = 'admin';
 
-  const home = roundButton('Zurück', 'home', 'home-button admin__home');
+  // B-86: Zurück-Pfeil statt Haus – zurück zur Start- bzw. Schlafseite
+  const home = roundButton('Zurück', 'back', 'home-button admin__home');
   home.addEventListener('click', () => store.dispatch({ type: 'leave' }));
 
   const languages = createChoiceGroup<Language>(
@@ -75,24 +95,76 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const actions = el('div', 'admin__actions');
   const levels = el('div', 'admin__levels');
-  // „Tiere aufwecken“ sitzt rechts in der Kopfleiste, damit unten Platz für die Sprachaktionen ist
+
+  // Reiter (B-83) rechts in der Kopfleiste
+  const tabList = el('div', 'admin__tabs');
+  tabList.setAttribute('role', 'tablist');
+  const tabButtons = new Map(
+    TABS.map(([value, label]) => {
+      const button = el('button', 'admin__tab', label);
+      button.type = 'button';
+      button.setAttribute('role', 'tab');
+      button.id = `admin-tab-${value}`;
+      button.addEventListener('click', () => {
+        tab = value;
+        confirming = false;
+        render();
+      });
+      tabList.append(button);
+      return [value, button] as const;
+    }),
+  );
+
+  // Reiter „Sonstiges“
   const wake = textButton('Tiere aufwecken');
   wake.classList.add('admin__wake');
   wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
-  // B-74: Tutorial kommt in der nächsten Runde wieder; links neben dem Haus-Button
+  // B-74: Tutorial kommt in der nächsten Runde wieder
   const tutorial = textButton('Tutorial zurücksetzen');
   tutorial.classList.add('admin__tutorial');
   tutorial.addEventListener('click', () => store.dispatch({ type: 'resetTutorial' }));
-  const left = el('div', 'admin__header-start');
-  left.append(home, tutorial);
+  // B-82/B-86: Schalter als Auswahlkachel wie bei Begleiter und Sprache – an = lila gerahmt
+  const brake = createChoiceTile({
+    content: [el('span', 'admin__brake-label', 'Bremsen')],
+    onSelect: () => store.dispatch({ type: 'toggleBrake' }),
+  });
+  brake.el.classList.add('admin__brake');
+  const other = el('div', 'admin__other');
+  other.append(
+    settingRow('Schlafen', 'Mimi und Mots sind wach, beide Dauern wieder frei.', wake),
+    settingRow('Tutorial', 'Kommt in der nächsten Runde wieder.', tutorial),
+    settingRow(
+      'Neue Wörter bremsen',
+      'Stehen 6 oder mehr Wörter auf „noch üben“, kommen keine neuen dazu.',
+      brake.el,
+    ),
+  );
+
+  const languagesPanel = el('div', 'admin__panel');
+  const otherPanel = el('div', 'admin__panel');
+  for (const [panel, value] of [
+    [languagesPanel, 'sprachen'],
+    [otherPanel, 'sonstiges'],
+  ] as const) {
+    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-labelledby', `admin-tab-${value}`);
+  }
 
   const render = () => {
     const { data } = store.getState();
+    tabButtons.forEach((button, value) => {
+      button.setAttribute('aria-selected', String(value === tab));
+    });
+    languagesPanel.hidden = tab !== 'sprachen';
+    otherPanel.hidden = tab !== 'sonstiges';
+
     const awake = data.rest.sleeping.length === 0 && data.rest.usedDurations.length === 0;
-    const name = LANGUAGE_INFO[language].name;
-    const enabled = data.enabledLanguages.includes(language);
     wake.disabled = awake;
     tutorial.disabled = !data.tutorialDone;
+    brake.setSelected(data.brakeNew);
+
+    const name = LANGUAGE_INFO[language].name;
+    const enabled = data.enabledLanguages.includes(language);
     // ausgeschaltete Sprachen bleiben wählbar (Lernstand ansehen, wieder einschalten), wirken aber blass
     languages.tiles.forEach((tile, l) => {
       tile.el.dataset.off = String(!data.enabledLanguages.includes(l));
@@ -129,12 +201,18 @@ export function renderAdmin(store: Store): ViewHandle {
         span.hidden = label !== (enabled ? 'Sprache ausschalten' : 'Sprache einschalten');
         toggle.append(span);
       }
-      toggle.disabled = enabled && data.enabledLanguages.length === 1;
+      // B-86: ohne Wörter nicht einschaltbar, die letzte spielbare Sprache nicht ausschaltbar
+      toggle.disabled = !canToggleLanguage(data, language);
       toggle.addEventListener('click', () => store.dispatch({ type: 'toggleLanguage', language }));
       actions.replaceChildren(reset, toggle);
     }
 
     const groups = wordsByLevel(data.progress, language);
+    if (vocabulary(language).length === 0) {
+      // B-84: ohne gewählte Aufnahmen erscheint die Sprache nicht auf der Startseite
+      levels.replaceChildren(el('p', 'admin__empty', 'Noch keine Wörter vorhanden'));
+      return;
+    }
     levels.replaceChildren(
       ...LEVELS.map((level) => {
         const words = groups.get(level)!;
@@ -163,9 +241,11 @@ export function renderAdmin(store: Store): ViewHandle {
   const toolbar = el('div', 'admin__toolbar');
   toolbar.append(languages.el, actions);
 
+  languagesPanel.append(toolbar, levels);
+  otherPanel.append(other);
   const body = el('div', 'admin__body');
-  body.append(toolbar, levels);
-  view.append(createAppHeader({ start: left, end: wake }), body);
+  body.append(languagesPanel, otherPanel);
+  view.append(createAppHeader({ start: home, end: tabList }), body);
   render();
 
   const unsubscribe = store.subscribe((state, previous) => {

@@ -14,11 +14,11 @@ function wordsFromRequirements(): Omit<Word, 'syllables'>[] {
     .split('\n')
     .filter((line) => line.startsWith('| ') && !line.startsWith('| id'))
     .map((line) => {
-      const [id, emoji, de, en, fr, ja, jaKana] = line
+      const [id, emoji, de, en, fr, it, ja, jaKana] = line
         .split('|')
         .slice(1, -1)
         .map((s) => s.trim());
-      return { id, emoji, de, en, fr, ja, jaKana };
+      return { id, emoji, de, en, fr, it, ja, jaKana };
     });
 }
 
@@ -36,7 +36,7 @@ describe('Wortliste', () => {
   });
 
   it.each(WORDS.map((w) => [w.id, w] as const))('%s hat keine leeren Felder', (_, word) => {
-    for (const key of ['id', 'emoji', 'de', 'en', 'fr'] as const) {
+    for (const key of ['id', 'emoji', 'de', 'en', 'fr', 'it'] as const) {
       expect(word[key].trim(), key).not.toBe('');
       expect(word[key], key).toBe(word[key].trim());
     }
@@ -50,6 +50,13 @@ describe('Wortliste', () => {
     for (const w of WORDS) {
       if (isColor(w) || isNumber(w)) expect(w.fr, w.id).not.toMatch(/^(le |la |l')/);
       else expect(w.fr, w.id).toMatch(/^(le |la |l')\S/);
+    }
+  });
+
+  it("AT-80.1: italienische Nomen haben einen bestimmten Artikel (il, lo, la, l'), Farben und Zahlen nicht", () => {
+    for (const w of WORDS) {
+      if (isColor(w) || isNumber(w)) expect(w.it, w.id).not.toMatch(/^(il |lo |la |l')/);
+      else expect(w.it, w.id).toMatch(/^(il |lo |la |l')\S/);
     }
   });
 
@@ -69,7 +76,7 @@ describe('Wortliste', () => {
   });
 
   it('getWord findet Wörter per id', () => {
-    expect(getWord('apfel')).toMatchObject({ en: 'apple', fr: 'la pomme' });
+    expect(getWord('apfel')).toMatchObject({ en: 'apple', fr: 'la pomme', it: 'la mela' });
     expect(getWord('gibtsnicht')).toBeUndefined();
   });
 });

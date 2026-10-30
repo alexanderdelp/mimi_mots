@@ -322,7 +322,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-74.3: Nach der Abschluss-Blase beginnt die normale Runde mit dem ersten echten Wort; erst jetzt läuft die Uhr. Der Lernstand enthält das Probewort nicht.
   - AT-74.4: Bei weiteren Runden (auch nach Neuladen) kommt kein Tutorial. „Tutorial zurücksetzen“ im Elternbereich lässt es in der nächsten Runde wieder erscheinen.
   - AT-74.5: Tutorial passt auf alle Viewports, Kontrast und Leitprinzipien wie überall (B-60/B-61), Sprechblase ≤ 8 Wörter.
-- [x] **B-75 Nur bekannte Wörter**: Auf der Startseite unten eine Kachel „Nur bekannte Wörter“. Ist sie gewählt, kommen in der nächsten Runde keine neuen Wörter dazu, nur schon gesehene (Stufe 0–4). Bei jedem Betreten der Startseite ist sie abgewählt. Hat das Kind in der gewählten Sprache weniger als 6 gesehene Wörter (oder ist keine Sprache gewählt), ist sie ausgegraut.
+- [x] **B-75 Nur bekannte Wörter** (seit B-82 ersetzt durch die Bremse im Elternbereich): Auf der Startseite unten eine Kachel „Nur bekannte Wörter“. Ist sie gewählt, kommen in der nächsten Runde keine neuen Wörter dazu, nur schon gesehene (Stufe 0–4). Bei jedem Betreten der Startseite ist sie abgewählt. Hat das Kind in der gewählten Sprache weniger als 6 gesehene Wörter (oder ist keine Sprache gewählt), ist sie ausgegraut.
   - AT-75.1: Kachel „Nur bekannte Wörter“ unten neben Play, ≥ 88 px, Optik wie Auswahlkacheln; antippen wählt sie an und wieder ab.
   - AT-75.2: Ausgegraut, solange in der gewählten Sprache weniger als 6 Wörter gesehen sind; wechselt mit der Sprachwahl.
   - AT-75.3: Gewählt + Play: In der Runde kommt kein neues Wort (Scheduler ohne neue Wörter); ohne Auswahl wie bisher.
@@ -347,6 +347,38 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-79.2: Die Seite wechselt per `?lang=fr` zu Französisch (Titel, Stimmen, Fremdwort, Häkchen der Sprache).
   - AT-79.3: Audiodateien bis 32 KB je Datei und 3 MB gesamt (vorher 16 KB / 2 MB), weil manche wählbaren Stimmen (z. B. Piper cori) langsamer sprechen; AT-30b.2 angepasst.
 
+- [x] **B-80 Italienisch**: Vierte Lernsprache, füllt den freien Platz im 2 × 2-Raster (EN | FR / JA | IT), standardmäßig ausgeschaltet (wie Japanisch, B-73). Wörter in `words.json` (`it`), Nomen mit bestimmtem Artikel (il, lo, la, l'), Farben und Zahlen ohne. Flagge `flag_it.svg`. Aussprache per Stimmwahl (`tools/stimmwahl.html?lang=it`) mit Kokoro `if_sara` (Standard), Kokoro `im_nicola` und Piper `it_IT-riccardo-x_low`; Piper paola entfällt (Lessac-Basis, nur Forschung), MeloTTS kann kein Italienisch.
+  - AT-80.1: Jedes Wort hat `it`; Nomen mit Artikel, Farben und Zahlen ohne (Unit-Test). Die Tabelle in `anforderungen.md` §10 hat eine Spalte IT und stimmt mit `words.json` überein.
+  - AT-80.2: Startseite: vier Sprachkacheln im 2 × 2-Raster, Italienisch rechts unten mit italienischer Flagge, beim Erststart ausgegraut; eingeschaltet ist Italienisch wählbar und wird gemerkt.
+  - AT-80.3: Lernrunde auf Italienisch: Flagge IT, „Auf Italienisch anhören“ spielt `audio/it/<id>.mp3` und deckt `it` mit `lang="it"` auf. Fallback ohne Datei: Web Speech `it-IT`.
+  - AT-80.4: `generate_audio.py` kennt `VOICES['it']` (Kokoro if_sara) und drei Stimmoptionen; `--candidates --lang it` erzeugt 6 Kandidaten je Wort (Unit-Test). Für jedes Wort gibt es `public/audio/it/<id>.mp3`; alle Audiodateien zusammen bleiben < 3 MB.
+  - AT-80.5: Stimmwahl-Seite wechselt per `?lang=it` zu Italienisch; Abhörseite und `audio-check.md` haben eine Spalte Italienisch, Auswählen hakt dort ab.
+- [x] **B-81 Nur eingeschaltete Sprachen**: Auf der Startseite erscheinen nur eingeschaltete Sprachen; ausgeschaltete fehlen ganz (statt ausgegraut). Raster mit höchstens zwei Spalten, immer zwei Kachelzeilen hoch.
+  - AT-81.1: Erststart: nur Englisch und Französisch nebeneinander, Japanisch und Italienisch fehlen.
+  - AT-81.2: Im Elternbereich eingeschaltet erscheint die Sprache auf der Startseite, ausgeschaltet verschwindet sie; ist nur eine übrig, ist sie vorausgewählt (AT-73.4 bleibt).
+  - AT-81.3: Drei Sprachen: EN | FR in der ersten Zeile, die dritte links darunter.
+- [x] **B-82 Bremse für neue Wörter** (ersetzt B-75): Kachel „Nur bekannte Wörter“ entfällt. Im Elternbereich (Reiter „Sonstiges“) ein Schalter „Neue Wörter bremsen“, Standard an: Stehen in der Sprache 6 oder mehr Wörter auf Stufe 0, kommen keine neuen dazu – bei jedem Wort neu geprüft.
+  - AT-82.1: Die Startseite hat keine Kachel „Nur bekannte Wörter“.
+  - AT-82.2: Schalter „Neue Wörter bremsen“, Standard an (auch bei alten Daten), umschaltbar, gleich breit in beiden Zuständen, gespeichert als `brakeNew` (seit B-86 als Auswahlkachel „Bremsen“).
+  - AT-82.3: Bremse an und ≥ 6 Wörter auf Stufe 0: nur bekannte Wörter, auch nicht im Takt neue; unter 6 oder Bremse aus: neue wie bisher (Unit- und E2E-Test).
+- [x] **B-83 Elternbereich mit Reitern**: Reiter „Sprachen“ und „Sonstiges“ rechts in der Kopfleiste (≥ 88 px). „Sprachen“: Lernstand, Lernstand zurücksetzen, Sprache ein-/ausschalten. „Sonstiges“: Tiere aufwecken, Tutorial zurücksetzen, Bremse – je mit kurzer Erklärung.
+  - AT-83.1: Beim Öffnen ist „Sprachen“ gewählt (`aria-selected`); „Sonstiges“ zeigt die drei Einstellungen und blendet den Lernstand aus. Passt auf alle Viewports (B-60/B-69).
+- [x] **B-84 Wortschatz nur mit gewählter Aufnahme**: In einer Sprache kommen nur Wörter vor, für die in der Stimmwahl eine Aufnahme gewählt wurde (`audio-choices.json`). „keins“ und noch nicht entschiedene Wörter fehlen – in der Lernrunde, beim Vorladen und im Lernstand des Elternbereichs. Eine Sprache ohne Wörter erscheint nicht auf der Startseite.
+  - AT-84.1: `vocabulary(lang)` = Wörter mit Eintrag ≠ null in `audio-choices.json`, in Reihenfolge der Wortliste (Unit-Test).
+  - AT-84.2: Lernrunde und Vorladen nur mit Wörtern des Wortschatzes.
+  - AT-84.3: Eingeschaltete Sprache ohne Wörter fehlt auf der Startseite; der Elternbereich zeigt „Noch keine Wörter vorhanden“ (seit B-86 ohne Hinweis auf die Stimmwahl).
+  - AT-84.4: Der Lernstand im Elternbereich zeigt nur Wörter des Wortschatzes.
+- [x] **B-85 Stimmwahl: „keins“, ohne Notizen, Japanisch**: je Wort eine Option „keins“; die Notizspalte entfällt in `audio-check.md`, Abhör- und Stimmwahl-Seite; Japanisch (VOICEVOX, „Wort“ und „Wort。“) in der Stimmwahl.
+  - AT-85.1: „keins“ speichert `null`, löscht `public/audio/<lang>/<id>.mp3` und nimmt den Haken weg; eine spätere Wahl geht wieder (Unit-Test). `npm run audio` erzeugt für „keins“ keine Datei.
+  - AT-85.2: Die Seite zeigt je Wort die Spalte „keins“ und markiert entschiedene Wörter (✓ gewählt, – keins); „nur noch nicht entschiedene“ blendet beide aus.
+  - AT-85.3: `audio-check.md` hat keine Notizspalte; abgehakt sind genau die Wörter mit gewählter Aufnahme (Unit-Test).
+  - AT-85.4: `--candidates --lang ja` erzeugt je Wort „Wort“ und „Wort。“ mit VOICEVOX (Unit-Test).
+- [x] **B-86 Elternbereich: Feinschliff und Sprachen ohne Wörter**: Zurück-Pfeil statt Haus. Bremse als Auswahlkachel „Bremsen“ wie bei den Begleitern (an = lila Rahmen und Hintergrund, aus = dunkler Rahmen, weiß). Ohne Wörter steht nur „Noch keine Wörter vorhanden“. Eine Sprache ohne Wörter lässt sich nicht einschalten; die letzte Sprache mit Wörtern nicht ausschalten – so hat die Startseite immer mindestens eine Sprache.
+  - AT-86.1: Gespeicherte Daten mit nur Sprachen ohne Wörter → beim Laden fallen sie weg, es gilt der Standard (Englisch, Französisch); keine Sprache vorgewählt, Play erst nach Wahl. Auch der Erststart schaltet nur Sprachen mit Wörtern ein.
+  - AT-86.2: Reiter „Sonstiges“: Kachel „Bremsen“ (`aria-pressed`), Optik wie die Auswahlkacheln, gleich breit in beiden Zuständen.
+  - AT-86.3: Für eine Sprache ohne Wörter ist „Sprache einschalten“ ausgegraut; der Lernstand zeigt „Noch keine Wörter vorhanden“.
+  - AT-86.4: „Sprache ausschalten“ ist ausgegraut, wenn keine andere eingeschaltete Sprache Wörter hat.
+  - AT-86.5: Oben links ein runder Zurück-Pfeil (Name „Zurück“) statt des Hauses.
+
 ## Später
-- **Nur geprüfte Wörter abfragen:** In einer Sprache kommen nur Wörter dran, deren Aussprache in `audio-check.md` für diese Sprache abgehakt ist (`[x]`).
 - Themenwahl · Eigene Illustrationen

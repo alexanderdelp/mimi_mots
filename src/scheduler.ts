@@ -16,6 +16,8 @@ export const MAX_GAP = 6;
  *  damit die Gewichtung nach Stufe auch bei kleinem Wortschatz wirkt. */
 export const MIN_GAP = 3;
 export const MIN_CHOICES = 3;
+/** B-82: Bremse – ab so vielen Wörtern auf Stufe 0 („noch üben“) kommen keine neuen dazu. */
+export const BRAKE_AT = 6;
 
 /** Pause (Anzahl anderer Wörter) bei `knownTotal` bekannten Wörtern. */
 export function gapFor(knownTotal: number): number {
@@ -71,16 +73,20 @@ function randomOf<T>(items: readonly T[], rng: Rng): T {
  * - Bekannte Wörter gewichtet nach Leitner-Box.
  * - Die letzten 3–6 Wörter sind ausgeschlossen (siehe `gapFor`); nur wenn sonst nichts übrig
  *   bleibt, kommt das am längsten nicht gezeigte Wort.
+ * - Bremse (B-82): Stehen mindestens 6 Wörter auf Stufe 0, kommen keine neuen dazu; das wird bei
+ *   jedem Wort neu geprüft, so kommen neue wieder, sobald genug gefestigt ist.
  */
 export function pickNext(
   wordIds: readonly string[],
   progress: LanguageProgress,
   session: Session,
   rng: Rng = Math.random,
-  /** B-75: „Nur bekannte“ – keine neuen Wörter in dieser Runde. */
-  knownOnly = false,
+  /** B-82: Bremse für neue Wörter eingeschaltet (Elternbereich). */
+  brake = false,
 ): { id: string; session: Session } {
   const knownTotal = wordIds.filter((id) => progress[id]).length;
+  const practicing = wordIds.filter((id) => progress[id]?.box === 0).length;
+  const knownOnly = brake && practicing >= BRAKE_AT;
   const recent = new Set(session.history.slice(-gapFor(knownTotal)));
   const known = wordIds.filter((id) => progress[id] && !recent.has(id));
   const fresh = wordIds.filter((id) => !progress[id] && !recent.has(id));
@@ -102,7 +108,7 @@ export function pickNext(
       rng,
     );
   } else {
-    // nur wenn sonst nichts übrig bleibt; bei „Nur bekannte“ unter den bekannten
+    // nur wenn sonst nichts übrig bleibt; bei Bremse unter den bekannten
     const pool = knownOnly && knownTotal > 0 ? wordIds.filter((w) => progress[w]) : wordIds;
     id = leastRecent(pool, session.history);
   }

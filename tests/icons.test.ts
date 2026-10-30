@@ -3,7 +3,7 @@ import { clockIcon, icon, roundButton } from '../src/components/icons';
 import { createAppHeader } from '../src/components/app-header';
 
 describe('icon', () => {
-  it.each(['play', 'thumbsUp', 'repeat', 'speaker', 'home', 'rotate'] as const)(
+  it.each(['play', 'thumbsUp', 'repeat', 'speaker', 'home', 'back', 'rotate'] as const)(
     '%s ist ein dekoratives SVG',
     (n) => {
       const svg = icon(n);

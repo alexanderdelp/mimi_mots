@@ -56,15 +56,14 @@
         vertical-align: middle;
         cursor: default;
       }
-      .note {
-        color: #4a4458;
-        font-size: 15px;
-      }
     </style>
   </head>
   <body>
     <h1>Hörprüfung Audio (nur im Dev-Server)</h1>
-    <p>▶ spielt die Datei ab. Ergebnisse bitte in <code>audio-check.md</code> abhaken.</p>
+    <p>
+      ▶ spielt die Datei der App ab. Auswählen (und abhaken) auf der
+      <a href="stimmwahl.html">Stimmwahl-Seite</a>.
+    </p>
     <p class="legend">
       <button type="button" tabindex="-1">▶</button> geprüft ·
       <button type="button" class="pending" tabindex="-1">▶</button> noch nicht abgehakt
@@ -80,7 +79,8 @@
           <th></th>
           <th>Japanisch</th>
           <th></th>
-          <th>Notiz</th>
+          <th>Italienisch</th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="rows"></tbody>
@@ -130,12 +130,8 @@
             cell(playButton('fr', w.id)),
             cell(w.ja),
             cell(playButton('ja', w.id)),
-            cell(
-              Object.assign(document.createElement('span'), {
-                className: 'note',
-                textContent: status.get(w.id)?.note ?? '',
-              }),
-            ),
+            cell(w.it),
+            cell(playButton('it', w.id)),
           );
           return tr;
         }),

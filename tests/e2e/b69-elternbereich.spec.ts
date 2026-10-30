@@ -100,6 +100,7 @@ test.describe('B-69 Elternbereich', () => {
     await expect(view(page, 'sleep')).toBeVisible();
 
     await hold(page, ICON, 700);
+    await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
     await btn(page, 'Tiere aufwecken').click();
     await expect(btn(page, 'Tiere aufwecken')).toBeDisabled();
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
