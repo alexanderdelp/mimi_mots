@@ -240,12 +240,12 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: AT-53.2/53.3 lassen sich erst nach dem Merge auf `main` prüfen (der Workflow läuft nur dort); sie werden dann per Abruf der echten Adresse geprüft. Die E2E-Tests laufen weiter lokal (Screenshot-Referenzen sind Windows-spezifisch), nicht in der Action.
 
 ## M6 – Feinschliff
-- [ ] **B-60 Layout-Prüfung**: Screenshot-Tests aller Views auf 3 Viewports; keine Überläufe; Kontrast geprüft.
+- [x] **B-60 Layout-Prüfung**: Screenshot-Tests aller Views auf 3 Viewports; keine Überläufe; Kontrast geprüft.
   - Hinweis: Start, Abschluss, Schlafseite und Elternbereich haben schon Screenshot-Tests (B-11, B-43, B-65, B-69). Neu ist eine gemeinsame Prüfung aller Ansichten; der Zufall der Wortwahl wird im Test festgelegt, damit Screenshots reproduzierbar sind.
   - AT-60.1: Für jede Ansicht – Start (Erststart, mit schlafendem Begleiter), Lernrunde (verdeckt, aufgedeckt je Sprache), Abschluss, Schlafseite, Elternbereich, Hochformat-Hinweis – passt alles in den Bildschirm: kein Scrollen, kein sichtbares Element ragt über den Rand (1024 × 768, 1180 × 820, 1366 × 1024; Hochformat 768 × 1024 und 820 × 1180).
   - AT-60.2: Kontrast: Jeder sichtbare Text jeder Ansicht hat zu seinem Hintergrund mindestens 4,5 : 1, große Schrift (≥ 24 px oder fett ≥ 18,7 px) mindestens 3 : 1. Ausgegraute (nicht wählbare) Elemente sind ausgenommen (WCAG).
   - AT-60.3: Screenshot-Tests auch für Lernrunde (verdeckt und aufgedeckt) und Hochformat-Hinweis.
-- [ ] **B-61 Leitprinzipien-Review**: Checkliste – keine Bewertung/Belohnung, keine Avatar-Animation, ≥ 88 px Touch-Ziele, wenig Text.
+- [x] **B-61 Leitprinzipien-Review**: Checkliste – keine Bewertung/Belohnung, keine Avatar-Animation, ≥ 88 px Touch-Ziele, wenig Text.
   - AT-61.1 (Leitprinzip 1): In keiner Ansicht für das Kind kommen Rot- oder Grüntöne als Text-, Hintergrund- oder Rahmenfarbe vor (Bilder wie Flaggen und Emoji ausgenommen); keine Zahlen, Punkte, Sterne oder Lob-Wörter außerhalb der Lernwörter.
   - AT-61.2 (Leitprinzip 3): Jede Schaltfläche in jeder Ansicht ist mindestens 88 × 88 px groß.
   - AT-61.3 (Leitprinzip 4): Avatare haben keine Animation und keinen Übergang; alle Übergänge und Animationen dauern ≤ 200 ms (Ausnahme: Fortschrittsring von [×], dokumentiert); mit „Bewegung reduzieren“ dauert nichts länger als 0 ms.
