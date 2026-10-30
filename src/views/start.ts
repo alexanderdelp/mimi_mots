@@ -13,7 +13,7 @@ import { clockIcon, icon } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import type { Language } from '../data/words';
 import { isComplete, type Store } from '../state';
-import { DURATIONS, type DurationMin } from '../storage';
+import { DURATIONS, LANGUAGES, type DurationMin } from '../storage';
 import type { ViewHandle } from './view';
 
 function img(src: string, className: string): HTMLImageElement {
@@ -31,10 +31,6 @@ function text(value: string, className?: string): HTMLSpanElement {
   if (className) el.className = className;
   return el;
 }
-
-const LANGUAGES: Language[] = ['en', 'fr'];
-/** Vorgesehene, noch nicht verfügbare Sprache (ausgegraut). */
-const UPCOMING_LANGUAGE = { value: 'ja', label: 'Japanisch (bald)', flag: 'flag_jp.svg' } as const;
 
 export function renderStart(store: Store): ViewHandle {
   const { settings, rest } = store.getState().data;
@@ -69,24 +65,15 @@ export function renderStart(store: Store): ViewHandle {
     },
   );
 
-  const languages = createChoiceGroup<Language | 'ja'>(
+  const languages = createChoiceGroup<Language>(
     'In welcher Sprache?',
-    [
-      ...LANGUAGES.map((language) => ({
-        value: language,
-        label: LANGUAGE_INFO[language].name,
-        content: [img(flagUrl(language), 'start__flag')],
-      })),
-      {
-        value: UPCOMING_LANGUAGE.value,
-        label: UPCOMING_LANGUAGE.label,
-        disabled: true,
-        content: [img(`${import.meta.env.BASE_URL}flags/${UPCOMING_LANGUAGE.flag}`, 'start__flag')],
-      },
-    ],
+    LANGUAGES.map((language) => ({
+      value: language,
+      label: LANGUAGE_INFO[language].name,
+      content: [img(flagUrl(language), 'start__flag')],
+    })),
     settings.language,
     (language) => {
-      if (language === 'ja') return;
       store.dispatch({ type: 'select', settings: { language } });
       updatePlay();
     },

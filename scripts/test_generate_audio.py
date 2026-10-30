@@ -1,5 +1,5 @@
-"""Tests für generate_audio.py: Unit-Tests der Hilfsfunktionen und Akzeptanztests B-30a/B-64,
-die das echte Skript (Kokoro, Piper und ffmpeg) in einem Temp-Ordner laufen lassen.
+"""Tests für generate_audio.py: Unit-Tests der Hilfsfunktionen und Akzeptanztests B-30a/B-64/B-67,
+die das echte Skript (Kokoro, Piper, VOICEVOX und ffmpeg) in einem Temp-Ordner laufen lassen.
 Aufruf: npm run test:audio
 """
 
@@ -21,8 +21,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import generate_audio as ga  # noqa: E402
 
 WORDS = [
-    {'id': 'apfel', 'emoji': '🍎', 'de': 'Apfel', 'en': 'apple', 'fr': 'la pomme'},
-    {'id': 'katze', 'emoji': '🐱', 'de': 'Katze', 'en': 'cat', 'fr': 'le chat'},
+    {'id': 'apfel', 'emoji': '🍎', 'de': 'Apfel', 'en': 'apple', 'fr': 'la pomme',
+     'ja': 'りんご', 'jaKana': 'りんご'},
+    {'id': 'katze', 'emoji': '🐱', 'de': 'Katze', 'en': 'cat', 'fr': 'le chat',
+     'ja': '猫', 'jaKana': 'ねこ'},
 ]
 
 
@@ -70,6 +72,8 @@ class HelperTests(unittest.TestCase):
             self.assertEqual([(j.lang, j.text) for j in jobs], [('en', 'cat'), ('fr', 'le chat')])
             self.assertEqual(jobs[1].output, out / 'fr' / 'katze.mp3')
             self.assertIsNone(jobs[0].override)
+            ja = ga.plan_jobs(WORDS, ['ja'], out, Path(tmp) / 'ov', ['katze'])
+            self.assertEqual(ja[0].text, 'ねこ')  # Kana-Lesung statt Kanji (B-67)
 
     def test_find_override_prefers_known_extensions(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -93,18 +97,19 @@ class HelperTests(unittest.TestCase):
             os.utime(ov, (time.time() + 10, time.time() + 10))
             self.assertTrue(ga.needs_update(ga.Job('a', 'en', 'a', out, ov), force=False))
 
-    def test_default_both_languages(self):
-        self.assertEqual(ga.DEFAULT_LANGS, ['en', 'fr'])
+    def test_default_all_languages(self):
+        self.assertEqual(ga.DEFAULT_LANGS, ['en', 'fr', 'ja'])
         self.assertIsNone(ga.parse_args([]).langs)
 
     def test_voices(self):
         self.assertEqual(ga.VOICES['en'], {'engine': 'piper', 'voice': 'en_US-ljspeech-high'})
         self.assertEqual(ga.VOICES['fr']['engine'], 'kokoro')
         self.assertEqual(ga.VOICES['fr']['voice'], 'ff_siwis')
+        self.assertEqual(ga.VOICES['ja'], {'engine': 'voicevox', 'voice': '冥鳴ひまり', 'style': 14})
 
 
 class AcceptanceTests(unittest.TestCase):
-    """B-30a/B-64 – echtes Skript mit Kokoro, Piper und ffmpeg."""
+    """B-30a/B-64/B-67 – echtes Skript mit Kokoro, Piper, VOICEVOX und ffmpeg."""
 
     @classmethod
     def setUpClass(cls):
@@ -125,7 +130,9 @@ class AcceptanceTests(unittest.TestCase):
 
     def test_at_30a_1_files_per_language(self):
         names = [f'{p.parent.name}/{p.name}' for p in self.files]
-        self.assertEqual(names, ['en/apfel.mp3', 'en/katze.mp3', 'fr/apfel.mp3', 'fr/katze.mp3'])
+        self.assertEqual(names, ['en/apfel.mp3', 'en/katze.mp3', 'fr/apfel.mp3', 'fr/katze.mp3',
+                                 'ja/apfel.mp3', 'ja/katze.mp3'])
+        self.assertIn('„ねこ“  (冥鳴ひまり)', self.log)
         self.assertIn('„la pomme“  (ff_siwis)', self.log)
         self.assertIn('„apple“  (en_US-ljspeech-high)', self.log)
 
@@ -178,7 +185,8 @@ class AcceptanceTests(unittest.TestCase):
         self.assertAlmostEqual(ga.measure_loudness(target), ga.TARGET_LUFS, delta=1.5)
 
     def test_at_30a_6_missing_model_message(self):
-        for lang, missing in [('fr', 'kokoro-v1.0.onnx'), ('en', 'en_US-ljspeech-high.onnx')]:
+        for lang, missing in [('fr', 'kokoro-v1.0.onnx'), ('en', 'en_US-ljspeech-high.onnx'),
+                              ('ja', 'dict/open_jtalk_dic_utf_8-1.11')]:
             with self.subTest(lang), tempfile.TemporaryDirectory() as tmp:
                 with self.assertRaises(SystemExit) as ctx:
                     run_script('--words', str(self.words), '--out', str(Path(tmp) / 'a'),

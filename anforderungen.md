@@ -98,11 +98,11 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 ## 6. Audio
 - **Anforderung:** hochwertige, natürliche Aussprache, kostenlos, offline, klein.
 - **Lösung:** Audio wird einmalig vor dem Build lokal erzeugt und als statische Dateien ausgeliefert/gecacht.
-  - TTS: EN **Piper** `en_US-ljspeech-high` (LJ Speech, public domain), FR **Kokoro** `ff_siwis` (Apache-2.0). Lizenz der jeweiligen Stimme vor Nutzung prüfen.
+  - TTS: EN **Piper** `en_US-ljspeech-high` (LJ Speech, public domain), FR **Kokoro** `ff_siwis` (Apache-2.0), JA **VOICEVOX** 冥鳴ひまり (Namensnennung „VOICEVOX:冥鳴ひまり“). Lizenz der jeweiligen Stimme vor Nutzung prüfen.
   - Nachbearbeitung (ffmpeg): Stille trimmen, 150 ms Vorlauf, Lautheit normalisieren (−16 LUFS), MP3 mono 64 kbit/s.
   - Größe: ~8 KB/Wort → ~1 MB für 50 Wörter × 2 Sprachen.
   - Jede Datei wird einmal angehört; schlechte Dateien neu erzeugen (anderer Satzkontext/Stimme) oder durch eigene Aufnahme ersetzen. Override-Ordner `audio-overrides/` hat Vorrang.
-- **Laufzeit:** `HTMLAudioElement`, Dateien der Session vorladen. Fehlt eine Datei → Fallback Web Speech API (`lang` en-GB/fr-FR, beste verfügbare Stimme).
+- **Laufzeit:** `HTMLAudioElement`, Dateien der Session vorladen. Fehlt eine Datei → Fallback Web Speech API (`lang` en-GB/fr-FR/ja-JP, beste verfügbare Stimme).
 - Skript `scripts/generate_audio.py` erzeugt nur fehlende Dateien anhand `src/data/words.ts` (bzw. daraus exportiertem JSON).
 
 ## 7. Persistenz
@@ -131,60 +131,60 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - Performance: Startbildschirm < 1 s nach Cache, keine Layout-Sprünge.
 
 ## 10. Anhang: Wortliste v1
-FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
+FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel. JA in üblicher Schreibweise (Kanji, Hiragana oder Katakana), dazu die Kana-Lesung für die Aussprache.
 
-| id | Emoji | DE | EN | FR |
-|---|---|---|---|---|
-| apfel | 🍎 | Apfel | apple | la pomme |
-| banane | 🍌 | Banane | banana | la banane |
-| erdbeere | 🍓 | Erdbeere | strawberry | la fraise |
-| birne | 🍐 | Birne | pear | la poire |
-| kirsche | 🍒 | Kirsche | cherry | la cerise |
-| zitrone | 🍋 | Zitrone | lemon | le citron |
-| karotte | 🥕 | Karotte | carrot | la carotte |
-| brot | 🍞 | Brot | bread | le pain |
-| kaese | 🧀 | Käse | cheese | le fromage |
-| ei | 🥚 | Ei | egg | l'œuf |
-| milch | 🥛 | Milch | milk | le lait |
-| kuchen | 🍰 | Kuchen | cake | le gâteau |
-| eis | 🍦 | Eis | ice cream | la glace |
-| katze | 🐱 | Katze | cat | le chat |
-| hund | 🐶 | Hund | dog | le chien |
-| pferd | 🐴 | Pferd | horse | le cheval |
-| maus | 🐭 | Maus | mouse | la souris |
-| hase | 🐰 | Hase | rabbit | le lapin |
-| vogel | 🐦 | Vogel | bird | l'oiseau |
-| fisch | 🐟 | Fisch | fish | le poisson |
-| kuh | 🐮 | Kuh | cow | la vache |
-| schwein | 🐷 | Schwein | pig | le cochon |
-| ente | 🦆 | Ente | duck | le canard |
-| baer | 🐻 | Bär | bear | l'ours |
-| loewe | 🦁 | Löwe | lion | le lion |
-| elefant | 🐘 | Elefant | elephant | l'éléphant |
-| schmetterling | 🦋 | Schmetterling | butterfly | le papillon |
-| frosch | 🐸 | Frosch | frog | la grenouille |
-| ball | ⚽ | Ball | ball | le ballon |
-| haus | 🏠 | Haus | house | la maison |
-| auto | 🚗 | Auto | car | la voiture |
-| buch | 📖 | Buch | book | le livre |
-| baum | 🌳 | Baum | tree | l'arbre |
-| blume | 🌸 | Blume | flower | la fleur |
-| sonne | ☀️ | Sonne | sun | le soleil |
-| mond | 🌙 | Mond | moon | la lune |
-| stern | ⭐ | Stern | star | l'étoile |
-| schuh | 👟 | Schuh | shoe | la chaussure |
-| hut | 👒 | Hut | hat | le chapeau |
-| fahrrad | 🚲 | Fahrrad | bike | le vélo |
-| boot | ⛵ | Boot | boat | le bateau |
-| zug | 🚂 | Zug | train | le train |
-| regenschirm | ☂️ | Regenschirm | umbrella | le parapluie |
-| herz | ❤️ | Herz | heart | le cœur |
-| rot | 🔴 | rot | red | rouge |
-| blau | 🔵 | blau | blue | bleu |
-| gelb | 🟡 | gelb | yellow | jaune |
-| gruen | 🟢 | grün | green | vert |
-| lila | 🟣 | lila | purple | violet |
-| orange | 🟠 | orange | orange | orange |
+| id | Emoji | DE | EN | FR | JA | JA (Lesung) |
+|---|---|---|---|---|---|---|
+| apfel | 🍎 | Apfel | apple | la pomme | りんご | りんご |
+| banane | 🍌 | Banane | banana | la banane | バナナ | バナナ |
+| erdbeere | 🍓 | Erdbeere | strawberry | la fraise | いちご | いちご |
+| birne | 🍐 | Birne | pear | la poire | 梨 | なし |
+| kirsche | 🍒 | Kirsche | cherry | la cerise | さくらんぼ | さくらんぼ |
+| zitrone | 🍋 | Zitrone | lemon | le citron | レモン | レモン |
+| karotte | 🥕 | Karotte | carrot | la carotte | にんじん | にんじん |
+| brot | 🍞 | Brot | bread | le pain | パン | パン |
+| kaese | 🧀 | Käse | cheese | le fromage | チーズ | チーズ |
+| ei | 🥚 | Ei | egg | l'œuf | 卵 | たまご |
+| milch | 🥛 | Milch | milk | le lait | 牛乳 | ぎゅうにゅう |
+| kuchen | 🍰 | Kuchen | cake | le gâteau | ケーキ | ケーキ |
+| eis | 🍦 | Eis | ice cream | la glace | アイス | アイス |
+| katze | 🐱 | Katze | cat | le chat | 猫 | ねこ |
+| hund | 🐶 | Hund | dog | le chien | 犬 | いぬ |
+| pferd | 🐴 | Pferd | horse | le cheval | 馬 | うま |
+| maus | 🐭 | Maus | mouse | la souris | ねずみ | ねずみ |
+| hase | 🐰 | Hase | rabbit | le lapin | うさぎ | うさぎ |
+| vogel | 🐦 | Vogel | bird | l'oiseau | 鳥 | とり |
+| fisch | 🐟 | Fisch | fish | le poisson | 魚 | さかな |
+| kuh | 🐮 | Kuh | cow | la vache | 牛 | うし |
+| schwein | 🐷 | Schwein | pig | le cochon | 豚 | ぶた |
+| ente | 🦆 | Ente | duck | le canard | カモ | カモ |
+| baer | 🐻 | Bär | bear | l'ours | 熊 | くま |
+| loewe | 🦁 | Löwe | lion | le lion | ライオン | ライオン |
+| elefant | 🐘 | Elefant | elephant | l'éléphant | 象 | ぞう |
+| schmetterling | 🦋 | Schmetterling | butterfly | le papillon | ちょうちょ | ちょうちょ |
+| frosch | 🐸 | Frosch | frog | la grenouille | かえる | かえる |
+| ball | ⚽ | Ball | ball | le ballon | ボール | ボール |
+| haus | 🏠 | Haus | house | la maison | 家 | いえ |
+| auto | 🚗 | Auto | car | la voiture | 車 | くるま |
+| buch | 📖 | Buch | book | le livre | 本 | ほん |
+| baum | 🌳 | Baum | tree | l'arbre | 木 | き |
+| blume | 🌸 | Blume | flower | la fleur | 花 | はな |
+| sonne | ☀️ | Sonne | sun | le soleil | 太陽 | たいよう |
+| mond | 🌙 | Mond | moon | la lune | 月 | つき |
+| stern | ⭐ | Stern | star | l'étoile | 星 | ほし |
+| schuh | 👟 | Schuh | shoe | la chaussure | 靴 | くつ |
+| hut | 👒 | Hut | hat | le chapeau | 帽子 | ぼうし |
+| fahrrad | 🚲 | Fahrrad | bike | le vélo | 自転車 | じてんしゃ |
+| boot | ⛵ | Boot | boat | le bateau | 船 | ふね |
+| zug | 🚂 | Zug | train | le train | 電車 | でんしゃ |
+| regenschirm | ☂️ | Regenschirm | umbrella | le parapluie | 傘 | かさ |
+| herz | ❤️ | Herz | heart | le cœur | ハート | ハート |
+| rot | 🔴 | rot | red | rouge | 赤 | あか |
+| blau | 🔵 | blau | blue | bleu | 青 | あお |
+| gelb | 🟡 | gelb | yellow | jaune | 黄色 | きいろ |
+| gruen | 🟢 | grün | green | vert | 緑 | みどり |
+| lila | 🟣 | lila | purple | violet | 紫 | むらさき |
+| orange | 🟠 | orange | orange | orange | オレンジ | オレンジ |
 
 ## 11. Entscheidungen
 - 2026-10-29: Wortliste v1 bestätigt.
@@ -205,6 +205,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben ohne Artikel.
 - 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
 - 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
+- 2026-10-30: Japanisch (B-67): dritte Lernsprache. Angezeigt wird die übliche Schreibweise (Kanji, Hiragana oder Katakana, z. B. 猫, いちご, バナナ), ohne Lesehilfe. Für die Aussprache gibt es je Wort die Kana-Lesung (`jaKana`), damit die Synthese Kanji nicht falsch liest (月 → つき). Stimme: VOICEVOX 冥鳴ひまり – kostenlos, auch kommerziell, Namensnennung „VOICEVOX:冥鳴ひまり“ (README); die japanischen Kokoro-Stimmen sind nur mit C bis C+ bewertet, No.7 wäre nur nicht-kommerziell. VOICEVOX wird nicht automatisch geladen, weil man beim Download den Nutzungsbedingungen zustimmen muss. Wortwahl nach Bild: 🦆 カモ, ⛵ 船, 🚂 電車, 🍦 アイス.
 - 2026-10-30: Silbenfarben (B-66): Das deutsche Wort wird silbenweise abwechselnd in `--lila-900` und `--beere-600` (#B03A75, Himbeere; Kontrast auf Weiß 5,7 : 1) gefärbt – Silbenmethode für Leseanfänger. Die Sprechsilben stehen von Hand gepflegt in `words.json` (`syllables`), weil automatische Trennung bei Grundschul-Silben (z. B. „E-le-fant“, „o-ran-ge“) unzuverlässig ist. Nebenbei behoben: „Schmetterling“ war auf 1024 × 768 breiter als die Wortkarte; die Schrift des deutschen Worts ist jetzt höchstens 48 px und schrumpft mit der Kartenbreite (`min(48px, 14cqi)`).
 - 2026-10-30: Schlafende Begleiter (B-65): Mit dem Erreichen der Abschlussseite (Zeitablauf oder [×]) schläft der Begleiter ein und die gespielte Dauer ist verbraucht; beides ist auf der Startseite ausgegraut, der Begleiter mit Schlafbild. Ist nur noch ein Begleiter bzw. eine Dauer frei, ist sie vorausgewählt. Schlafen beide (oder sind alle Dauern verbraucht), kommt statt der Startseite die Schlafseite mit „Gute Nacht und bis morgen!“. Aufwecken nur durch 600 ms Halten des Icons in der Kopfleiste der Schlafseite, absichtlich ohne Hinweis. An einem späteren Tag (lokales Datum) wachen alle von selbst auf – beim App-Start und beim Zurückholen aus dem Hintergrund. Gespeichert in `rest` (mit `since` = Tag des Einschlafens) im selben localStorage-Schlüssel (ältere Daten ohne `rest` = alle wach). `both_sleeping.png` ist die gelieferte Grafik `cat_and_pony_sleeping.png`: Sie hatte ein ins Bild gemaltes Schachbrett statt echter Transparenz; das wurde per Flutfüllung vom Rand entfernt, zugeschnitten und auf 1213 × 663 px verkleinert (1,5 MB → 250 KB). Einzelne Schlafbilder sind noch Platzhalter (entsättigte Sitz-Pose mit „Zzz“).
 - 2026-10-29: Englisch aus vorproduzierten MP3s mit Piper `en_US-ljspeech-high` (B-64), ersetzt die Gerätestimme (klang unter Linux schlecht und hängt auf dem iPad von den installierten Stimmen ab). Im Klangvergleich fielen alle englischen Kokoro-Stimmen (`bf_*`, `bm_*`, `am_*`) durch. Unter den Piper-Stimmen fielen die auf Lessac aufbauenden (u. a. Amy) aus Lizenzgründen weg (Blizzard-2013-Daten nur für Forschung); ljspeech ist public domain. Die Stimme ist amerikanisch, die Flagge bleibt vorerst britisch. Der Web-Speech-Fallback bleibt en-GB.

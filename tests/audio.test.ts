@@ -92,6 +92,8 @@ describe('createAudioPlayer (B-31)', () => {
     emoji: '🍎',
     de: 'Apfel',
     syllables: ['Ap', 'fel'],
+    ja: 'りんご',
+    jaKana: 'りんご',
     en: 'apple',
     fr: 'la pomme',
   };

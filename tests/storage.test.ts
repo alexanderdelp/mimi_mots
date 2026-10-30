@@ -17,6 +17,7 @@ const valid = (): AppData => ({
   progress: {
     fr: { apfel: { box: 2, seen: 5, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
     en: { hund: { box: 0, seen: 1, lastSeenAt: '2026-10-28T09:30:00.000Z' } },
+    ja: { katze: { box: 1, seen: 2, lastSeenAt: '2026-10-30T08:00:00.000Z' } },
   },
   rest: { sleeping: [], usedDurations: [7], since: '2026-10-29' },
 });
@@ -38,7 +39,7 @@ describe('defaults', () => {
     expect(defaults()).toEqual({
       version: 1,
       settings: { companion: null, language: null, durationMin: 3 },
-      progress: { en: {}, fr: {} },
+      progress: { en: {}, fr: {}, ja: {} },
       rest: { sleeping: [], usedDurations: [], since: null },
     });
   });
@@ -157,7 +158,7 @@ describe('sanitize', () => {
   });
 
   it('nutzt leeren Lernstand, wenn progress kein Objekt ist', () => {
-    expect(sanitize({ ...valid(), progress: [] }).progress).toEqual({ en: {}, fr: {} });
+    expect(sanitize({ ...valid(), progress: [] }).progress).toEqual({ en: {}, fr: {}, ja: {} });
   });
 });
 
