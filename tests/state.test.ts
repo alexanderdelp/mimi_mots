@@ -18,6 +18,7 @@ import {
 const complete = () => {
   const data = defaults();
   data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
+  data.tutorialDone = true; // sonst endet „finish“ als Tutorial-Abbruch (B-87)
   return data;
 };
 
@@ -674,6 +675,29 @@ describe('Aktive Sprachen (B-73)', () => {
     expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBeNull();
     state = reduce(state, { type: 'toggleLanguage', language: 'it' });
     expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBe('fr');
+  });
+});
+
+describe('Tutorial abbrechen (B-87)', () => {
+  it('AT-87.1: Abbruch im Tutorial → Startseite, niemand schläft, Tutorial bleibt offen', () => {
+    const data = complete();
+    data.tutorialDone = false;
+    const store = createStore(data);
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'finish' });
+    const state = store.getState();
+    expect(state.view).toBe('start');
+    expect(state.round).toBeNull();
+    expect(state.data.rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+    expect(state.data.tutorialDone).toBe(false);
+  });
+
+  it('nach dem Tutorial endet die Runde wie gewohnt mit Abschluss und Schlaf', () => {
+    const store = createStore(complete());
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'finish' });
+    expect(store.getState().view).toBe('end');
+    expect(store.getState().data.rest.sleeping).toEqual(['mimi']);
   });
 });
 
