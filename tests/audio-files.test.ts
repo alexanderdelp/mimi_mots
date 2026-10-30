@@ -27,7 +27,7 @@ describe('Audiodateien (B-30b)', () => {
         const size = statSync(path).size;
         total += size;
         expect(size, path).toBeGreaterThan(1000);
-        // seit B-79 bis 32 KB: manche wählbaren Stimmen sprechen langsamer
+        // seit B-79 bis 32 KB: manche wählbaren Stimmen (z. B. Piper cori) sprechen langsamer
         expect(size, path).toBeLessThan(32 * 1024);
         expect(isMp3(path), path).toBe(true);
       }

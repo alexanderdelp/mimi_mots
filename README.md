@@ -88,5 +88,5 @@ npm run test:audio                  # Tests des Skripts (inkl. echter Erzeugung 
 - Piper (`piper-tts`): GPL-3.0 – nur lokal als Werkzeug benutzt, nicht Teil der App.
 - Englische Stimme `en_US-ljspeech-high`: trainiert auf dem *LJ Speech Dataset* (public domain). Bewusst keine der vielen Piper-Stimmen, die auf der Lessac-Stimme aufbauen (z. B. Amy): deren Trainingsdaten (Blizzard 2013) sind nur für Forschung lizenziert.
 - VOICEVOX CORE: MIT; VOICEVOX ONNX Runtime und Stimmmodelle: eigene Nutzungsbedingungen (kostenlos, auch kommerziell, Namensnennung nötig).
-- Französisch wählbar (B-79): Piper `fr_FR-mls-medium` (Multilingual LibriSpeech, CC BY 4.0) und `fr_FR-tom-medium` (Modell unter AGPLv3, https://git.bksp.space/Tjiho/French-tts-model-piper).
+- Französisch wählbar (B-79): Piper `fr_FR-tom-medium` (Modell unter AGPLv3, https://git.bksp.space/Tjiho/French-tts-model-piper).
 - **Japanische Aussprache: VOICEVOX:冥鳴ひまり** ([Nutzungsbedingungen](https://www.meimeihimari.com/terms-of-use)).

@@ -342,10 +342,10 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-78.3: Auswählen kopiert genau die gehörte Datei nach `public/audio/<lang>/<id>.mp3`, speichert die Wahl in `audio-choices.json` und hakt das Wort für die Sprache in `audio-check.md` ab; Unbekanntes wird abgelehnt, ohne etwas zu ändern (Unit-Test).
   - AT-78.4: Die Seite zeigt je Wort „App“ (aktuelle Datei) und alle Optionen, markiert die gespeicherte Wahl und abgehakte Wörter, kann auf noch offene Wörter filtern und lädt beim Auswählen nicht neu. Nicht im Produktionsbuild.
 
-- [ ] **B-79 Stimmwahl Französisch**: Stimmwahl-Seite für Französisch (`tools/stimmwahl.html?lang=fr`, Sprachwechsel oben). Optionen: Kokoro ff_siwis (bisher), Piper mls Sprecher 1840 und 3698 (LibriVox, CC BY 4.0), Piper tom (AGPL-Modell – ob die Lizenz für erzeugte Aufnahmen gilt, ist unklar). Piper siwis-medium/upmc entfallen (Lessac-Basis, nur Forschung), siwis-low/gilles/mls_1840-low (Ryan-Basis, nicht-kommerziell, niedrige Qualität).
-  - AT-79.1: `VOICE_OPTIONS['fr']` mit vier Optionen; Piper-Sprecher werden übergeben; `--candidates --lang fr` erzeugt 8 Kandidaten je Wort (Unit-Test).
+- [ ] **B-79 Stimmwahl Französisch**: Stimmwahl-Seite für Französisch (`tools/stimmwahl.html?lang=fr`, Sprachwechsel oben). Optionen: Kokoro ff_siwis (bisher) und Piper tom (AGPL-Modell – ob die Lizenz für erzeugte Aufnahmen gilt, ist unklar). Piper mls (Sprecher 1840, 3698) war im Hörtest unverständlich und ist wieder entfernt. Piper siwis-medium/upmc entfallen (Lessac-Basis, nur Forschung), siwis-low/gilles/mls_1840-low (Ryan-Basis, nicht-kommerziell, niedrige Qualität).
+  - AT-79.1: `VOICE_OPTIONS['fr']` mit zwei Optionen; Piper-Sprecher (für Mehrsprecher-Modelle) werden übergeben; `--candidates --lang fr` erzeugt 4 Kandidaten je Wort (Unit-Test).
   - AT-79.2: Die Seite wechselt per `?lang=fr` zu Französisch (Titel, Stimmen, Fremdwort, Häkchen der Sprache).
-  - AT-79.3: Audiodateien bis 32 KB je Datei und 3 MB gesamt (vorher 16 KB / 2 MB), weil manche wählbaren Stimmen langsamer sprechen; AT-30b.2 angepasst.
+  - AT-79.3: Audiodateien bis 32 KB je Datei und 3 MB gesamt (vorher 16 KB / 2 MB), weil manche wählbaren Stimmen (z. B. Piper cori) langsamer sprechen; AT-30b.2 angepasst.
 
 ## Später
 - **Nur geprüfte Wörter abfragen:** In einer Sprache kommen nur Wörter dran, deren Aussprache in `audio-check.md` für diese Sprache abgehakt ist (`[x]`).

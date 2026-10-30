@@ -44,12 +44,10 @@ VOICE_OPTIONS = {
         'piper-cori': {'engine': 'piper', 'voice': 'en_GB-cori-high'},
         'kokoro-af_heart': {'engine': 'kokoro', 'voice': 'af_heart', 'lang': 'en-us'},
     },
-    # B-79: Piper mls (LibriVox, CC BY 4.0, von Grund auf trainiert; mehrere Sprecher) und tom
-    # (AGPL-Modell). siwis-medium/upmc fallen weg (Lessac-Basis, nur Forschung).
+    # B-79: Piper tom (AGPL-Modell). siwis-medium/upmc fallen weg (Lessac-Basis, nur Forschung),
+    # mls war im Hörtest unverständlich.
     'fr': {
         'kokoro-siwis': VOICES['fr'],
-        'piper-mls-1840': {'engine': 'piper', 'voice': 'fr_FR-mls-medium', 'speaker': 0},
-        'piper-mls-3698': {'engine': 'piper', 'voice': 'fr_FR-mls-medium', 'speaker': 1},
         'piper-tom': {'engine': 'piper', 'voice': 'fr_FR-tom-medium'},
     },
 }
