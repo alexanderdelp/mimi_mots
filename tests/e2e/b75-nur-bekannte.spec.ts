@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, minSize } from './fixtures';
 import { btn, prepare } from './views';
 
 const KEY = 'mimi-mots:v1';
@@ -49,7 +49,7 @@ test.describe('B-75 Nur bekannte Wörter', () => {
     const tile = known(page);
     await expect(tile).toBeDisabled(); // Englisch: 2 gesehen
     const [k, p] = [await tile.boundingBox(), await btn(page, 'Los geht’s').boundingBox()];
-    expect(k!.height).toBeGreaterThanOrEqual(88);
+    expect(k!.height).toBeGreaterThanOrEqual(minSize(88));
     expect(k!.x + k!.width).toBeLessThan(p!.x);
     await btn(page, 'Französisch').click();
     await expect(tile).toBeEnabled();

@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from './fixtures';
+import { expect, test, type Locator, type Page, isPhone } from './fixtures';
 import { mediaCalls } from './helpers';
 
 const KEY = 'mimi-mots:v1';
@@ -228,6 +228,7 @@ test('AT-26.9: lange Fremdwörter passen vollständig', async ({ page }) => {
   });
   for (const r of results) {
     expect(r.fits, r.text).toBe(true);
-    expect(r.size, r.text).toBeGreaterThanOrEqual(36);
+    // auf dem iPhone ist die Karte kleiner – dort reicht die Mindestgröße von fitText (28 px)
+    expect(r.size, r.text).toBeGreaterThanOrEqual(isPhone() ? 28 : 36);
   }
 });

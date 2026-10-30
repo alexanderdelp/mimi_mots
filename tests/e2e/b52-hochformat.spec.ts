@@ -1,10 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, skipRotationOnPhone } from './fixtures';
 import { fakeMedia } from './helpers';
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const overlay = (page: Page) => page.getByRole('alert');
 
 async function toPortrait(page: Page) {
+  skipRotationOnPhone();
   const vp = page.viewportSize()!;
   await page.setViewportSize({ width: vp.height, height: vp.width });
   await expect(overlay(page)).toBeVisible();

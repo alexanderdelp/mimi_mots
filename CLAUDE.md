@@ -113,7 +113,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Texte in der UI: Deutsch, kurz, du-Form.
 
 ## Definition of Done
-- Ansicht passt ohne Scrollen auf 1024 × 768, 1180 × 820, 1366 × 1024 (Playwright-Screenshot-Test).
+- Ansicht passt ohne Scrollen auf 1024 × 768, 1180 × 820, 1366 × 1024 und iPhone 852 × 393 (Playwright-Screenshot-Test; auf dem iPhone kompaktes Layout, Schaltflächen ≥ 44 px).
 - Funktioniert offline nach erstem Laden (im Flugmodus geprüft).
 - Keine Konsolenfehler, Lint grün, alle Unit- und Akzeptanztests grün (auch die früherer Aufgaben).
 - Akzeptanztests der Aufgabe stehen in `backlog.md` und sind als Playwright-Tests umgesetzt.

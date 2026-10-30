@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, minSize, skipRotationOnPhone } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -55,12 +55,13 @@ test.describe('B-21 Wortkarte', () => {
       const speaker = btn(page, `Auf ${language} anhören`);
       await expect(speaker).toBeVisible();
       const box = (await speaker.boundingBox())!;
-      expect(box.width).toBeGreaterThanOrEqual(96);
-      expect(box.height).toBeGreaterThanOrEqual(96);
+      expect(box.width).toBeGreaterThanOrEqual(minSize(96));
+      expect(box.height).toBeGreaterThanOrEqual(minSize(96));
     });
   }
 
   test('AT-21.6: Wort bleibt gleich, auch nach Hochformat', async ({ page }) => {
+    skipRotationOnPhone();
     const word = await startRound(page);
     const vp = page.viewportSize()!;
     await page.setViewportSize({ width: vp.height, height: vp.width });

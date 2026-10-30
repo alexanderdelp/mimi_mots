@@ -35,3 +35,17 @@ export const test = base.extend<{ tutorial: boolean }>({
     await use(page);
   },
 });
+
+/** iPhone-Projekt (B-76)? Dort gelten kleinere Mindestmaße. */
+export const isPhone = () => test.info().project.name.startsWith('iphone');
+
+/** Mindestgröße für Bedienelemente: die iPad-Vorgabe, auf dem iPhone das Apple-Mindestmaß 44 px. */
+export const minSize = (ipad: number) => (isPhone() ? 44 : ipad);
+
+/** Wechsel ins Hochformat per Größenänderung löst in der iPhone-Emulation kein
+ *  Orientierungs-Ereignis aus (auf dem echten Gerät schon) – solche Tests laufen nur aufs iPad. */
+export const skipRotationOnPhone = () =>
+  test.skip(
+    isPhone(),
+    'Hochformat-Wechsel per setViewportSize wirkt in der iPhone-Emulation nicht',
+  );

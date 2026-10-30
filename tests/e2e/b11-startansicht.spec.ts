@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, minSize } from './fixtures';
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
@@ -105,7 +105,7 @@ test.describe('B-11 Startansicht', () => {
     expect(mots.h).toBeCloseTo(mimi.h, 1);
     for (const t of small) expect(t.h).toBeCloseTo(small[0].h, 1);
     const play = boxes.find((b) => b.name.includes('play-button'))!;
-    expect(play.w).toBeGreaterThanOrEqual(96);
+    expect(play.w).toBeGreaterThanOrEqual(minSize(96));
     expect(play.h).toBe(play.w);
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(vp.height);
   });

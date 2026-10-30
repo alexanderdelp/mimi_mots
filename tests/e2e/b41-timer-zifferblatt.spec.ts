@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, minSize, skipRotationOnPhone } from './fixtures';
 import { fakeMedia } from './helpers';
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -30,7 +30,7 @@ test.describe('B-41 Timer-Zifferblatt', () => {
     const header = (await page.locator('header.app-header').boundingBox())!;
     const box = (await dial(page).boundingBox())!;
     // seit B-27: 88 px in der Kopfleiste
-    expect(box.width).toBeGreaterThanOrEqual(80);
+    expect(box.width).toBeGreaterThanOrEqual(minSize(80));
     expect(box.width).toBeLessThanOrEqual(140);
     expect(box.height).toBeCloseTo(box.width, 0);
     expect(box.x + box.width).toBeGreaterThan(vp.width * 0.85);
@@ -74,6 +74,7 @@ test.describe('B-41 Timer-Zifferblatt', () => {
   });
 
   test('AT-41.5: in der Pause bleibt der Sektor stehen', async ({ page }) => {
+    skipRotationOnPhone();
     await advance(page, 0.5 * MIN);
     const landscape = page.viewportSize()!;
     await page.setViewportSize({ width: landscape.height, height: landscape.width });
