@@ -73,7 +73,7 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - Timer-Ende ist still (kein Ton, kein Blinken). Optional: Scheibe zeigt leer.
 
 ### 3.5 Hochformat
-- Overlay mit Avatar und Dreh-Symbol („iPad drehen“), App-State bleibt erhalten, Timer pausiert.
+- Overlay mit dem gewählten Begleiter beim Radschlagen und Dreh-Symbol, ohne Text (seit B-72); App-State bleibt erhalten, Timer pausiert.
 
 ## 4. Avatare
 | Pose | Mimi | Mots | Einsatz |
@@ -216,6 +216,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üb
 - 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
 - 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
+- 2026-10-30: Hochformat-Hinweis (B-72): Begleiter schlägt Rad statt zu sitzen, der Text „iPad drehen“ entfällt (nur noch Name für Screenreader). Radschlag-Bilder sind Platzhalter (Sitz-Pose kopfüber gedreht).
 - 2026-10-30: Scheduler (B-70): Pause zwischen Wiederholungen 6 statt 3 Wörter – nach 6 anderen Wörtern muss das Kind das Wort wirklich abrufen, statt es aus dem Kurzzeitgedächtnis zu nehmen. Bei kleinem Wortschatz schrumpft die Pause auf min. 3 (`gapFor`), sonst bliebe keine Auswahl und die Gewichtung nach Stufe wäre wirkungslos. Höchstens 8 neue Wörter pro Runde (statt 6); greift praktisch nur in der 7-Minuten-Runde, weil nur jedes 3. Wort neu ist. Die Startphase bleibt bei 6, damit die erste Runde nicht mit 10 neuen Wörtern am Stück beginnt.
 - 2026-10-30: Elternbereich (B-69): erreichbar durch verstecktes Halten (600 ms) des App-Icons auf Start- und Schlafseite – ohne Hinweis, keine Schaltfläche. Ersetzt das direkte Aufwecken auf der Schlafseite. Inhalt: „Alle aufwecken“ (beide Begleiter, beide Dauern), je Sprache die Wörter als Emoji nach Stufe („Neu“, Stufe 0 = noch üben … Stufe 4 = sicher), „Lernstand zurücksetzen“ mit Sicherheitsabfrage (nur die gewählte Sprache). Haus-Button zurück zur Start- bzw. Schlafseite. Keine Avatare.
 - 2026-10-30: Japanisch (B-67): dritte Lernsprache. Angezeigt wird die übliche Schreibweise (Kanji, Hiragana oder Katakana, z. B. 猫, いちご, バナナ), ohne Lesehilfe. Für die Aussprache gibt es je Wort die Kana-Lesung (`jaKana`), damit die Synthese Kanji nicht falsch liest (月 → つき). Stimme: VOICEVOX 冥鳴ひまり – kostenlos, auch kommerziell, Namensnennung „VOICEVOX:冥鳴ひまり“ (README); die japanischen Kokoro-Stimmen sind nur mit C bis C+ bewertet, No.7 wäre nur nicht-kommerziell. VOICEVOX wird nicht automatisch geladen, weil man beim Download den Nutzungsbedingungen zustimmen muss. Wortwahl nach Bild: 🦆 カモ, ⛵ 船, 🚂 電車, 🍦 アイス.
@@ -234,7 +235,7 @@ Automatisch geprüft (`tests/e2e/b60-layout.spec.ts`, `b61-leitprinzipien.spec.t
 - [x] **Kontrast:** jeder sichtbare Text ≥ 4,5 : 1 (große Schrift ≥ 3 : 1); ausgegraute Kacheln sind nach WCAG ausgenommen.
 
 Von Hand durchgesehen – sichtbare Texte (alle Deutsch, kurz, du-Form bzw. neutral):
-Kind-Ansichten: „Mimi & Mots“, „Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“, „Mimi“, „Mots“, „Bis zum nächsten Mal!“, „Gute Nacht und bis morgen!“, „iPad drehen“; Schaltflächen nur mit Symbol (Namen nur für Screenreader: „Los geht’s“, „Beenden“, „Wusste ich“, „Noch üben“, „Zurück“, „Auf … anhören“). Elternbereich: „Lernstand“, „Neu“, „Stufe 0–4“, „noch nicht dran“, „noch üben“, „sicher“, „Lernstand zurücksetzen“, „Wirklich zurücksetzen?“, „Ja, zurücksetzen“, „Abbrechen“, „Alle aufwecken“.
+Kind-Ansichten: „Mimi & Mots“, „Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“, „Mimi“, „Mots“, „Bis zum nächsten Mal!“, „Gute Nacht und bis morgen!“ (Hochformat-Hinweis seit B-72 ohne Text, „iPad drehen“ nur für Screenreader); Schaltflächen nur mit Symbol (Namen nur für Screenreader: „Los geht’s“, „Beenden“, „Wusste ich“, „Noch üben“, „Zurück“, „Auf … anhören“). Elternbereich: „Lernstand“, „Neu“, „Stufe 0–4“, „noch nicht dran“, „noch üben“, „sicher“, „Lernstand zurücksetzen“, „Wirklich zurücksetzen?“, „Ja, zurücksetzen“, „Abbrechen“, „Alle aufwecken“.
 Ergebnis: keine Abweichung gefunden, nichts zu ändern.
 
 ## 12. Später (nicht in v1)

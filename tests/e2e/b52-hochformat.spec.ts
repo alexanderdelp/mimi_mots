@@ -16,16 +16,22 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('B-52 Hochformat-Overlay', () => {
-  test('AT-52.1: Begleiter, Dreh-Symbol und Text decken alles ab', async ({ page }) => {
+  test('AT-52.1/AT-72.1: Rad schlagender Begleiter und Dreh-Symbol, kein Text, decken alles ab', async ({
+    page,
+  }) => {
     await page.goto('./');
     await btn(page, 'Mots').click();
     await toPortrait(page);
-    await expect(overlay(page).locator('.avatar')).toHaveAttribute('data-pose', 'ruhig');
+    await expect(overlay(page).locator('.avatar img')).toHaveAttribute(
+      'src',
+      /pony_cartwheel\.png$/,
+    );
     await expect(overlay(page).locator('svg.portrait-overlay__icon')).toHaveAttribute(
       'data-icon',
       'rotate',
     );
-    await expect(overlay(page)).toHaveText('iPad drehen');
+    await expect(overlay(page)).toHaveText('');
+    await expect(overlay(page)).toHaveAccessibleName('iPad drehen');
     const vp = page.viewportSize()!;
     expect(await overlay(page).boundingBox()).toEqual({
       x: 0,
@@ -36,15 +42,36 @@ test.describe('B-52 Hochformat-Overlay', () => {
     await expect(overlay(page)).toHaveCSS('background-color', 'rgb(248, 244, 251)');
   });
 
-  test('AT-52.2: ohne Wahl Mimi, nach Wahl Mots', async ({ page }) => {
+  test('AT-52.2/AT-72.1: ohne Wahl Mimi, nach Wahl Mots – jeweils beim Radschlagen', async ({
+    page,
+  }) => {
     await page.goto('./');
     const landscape = await toPortrait(page);
-    await expect(overlay(page).locator('.avatar img')).toHaveAttribute('src', /cat_sitting\.png$/);
+    await expect(overlay(page).locator('.avatar img')).toHaveAttribute(
+      'src',
+      /cat_cartwheel\.png$/,
+    );
     await page.setViewportSize(landscape);
     await expect(overlay(page)).toBeHidden();
     await btn(page, 'Mots').click();
     await toPortrait(page);
-    await expect(overlay(page).locator('.avatar img')).toHaveAttribute('src', /pony_sitting\.png$/);
+    await expect(overlay(page).locator('.avatar img')).toHaveAttribute(
+      'src',
+      /pony_cartwheel\.png$/,
+    );
+  });
+
+  test('AT-72.2: Radschlag-Bilder 384 × 440 px', async ({ page }) => {
+    await page.goto('./');
+    for (const file of ['cat_cartwheel.png', 'pony_cartwheel.png']) {
+      const size = await page.evaluate(async (src) => {
+        const img = new Image();
+        img.src = `avatars/${src}`;
+        await img.decode();
+        return [img.naturalWidth, img.naturalHeight];
+      }, file);
+      expect(size, file).toEqual([384, 440]);
+    }
   });
 
   test('AT-52.3: Ansicht bleibt erhalten, gleiches Wort', async ({ page }) => {

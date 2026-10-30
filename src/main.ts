@@ -1,7 +1,7 @@
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/views.css';
-import { createAvatar } from './components/avatar';
+import { COMPANION_NAMES, cartwheelAvatarUrl } from './components/avatar';
 import { icon } from './components/icons';
 import { load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
@@ -23,13 +23,15 @@ const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
 const PORTRAIT_QUERY = '(orientation: portrait)';
 
 /**
- * Hochformat-Hinweis (B-52): gewählter Begleiter (ruhig), Dreh-Symbol und „iPad drehen“.
- * iOS ignoriert die Ausrichtung im Manifest, deshalb dieser Hinweis statt einer Sperre.
+ * Hochformat-Hinweis (B-52/B-72): gewählter Begleiter beim Radschlagen und Dreh-Symbol, ohne
+ * Text („iPad drehen“ nur für Screenreader). iOS ignoriert die Ausrichtung im Manifest, deshalb
+ * dieser Hinweis statt einer Sperre.
  */
 function createPortraitOverlay(store: Store): HTMLElement {
   const overlay = document.createElement('div');
   overlay.className = 'portrait-overlay';
   overlay.setAttribute('role', 'alert');
+  overlay.setAttribute('aria-label', 'iPad drehen');
   overlay.hidden = true;
 
   const avatarSlot = document.createElement('div');
@@ -40,18 +42,21 @@ function createPortraitOverlay(store: Store): HTMLElement {
     const companion = store.getState().data.settings.companion ?? 'mimi';
     if (companion === shownCompanion) return;
     shownCompanion = companion;
-    avatarSlot.replaceChildren(createAvatar(companion, 'ruhig').el);
+    const box = document.createElement('div');
+    box.className = 'avatar';
+    const img = document.createElement('img');
+    img.src = cartwheelAvatarUrl(companion);
+    img.alt = COMPANION_NAMES[companion];
+    img.draggable = false;
+    box.append(img);
+    avatarSlot.replaceChildren(box);
   };
   store.subscribe((state) => {
     if (state.portrait) showCompanion();
   });
   if (store.getState().portrait) showCompanion();
 
-  const text = document.createElement('p');
-  text.className = 'portrait-overlay__text';
-  text.textContent = 'iPad drehen';
-
-  overlay.append(avatarSlot, icon('rotate', 'portrait-overlay__icon'), text);
+  overlay.append(avatarSlot, icon('rotate', 'portrait-overlay__icon'));
   return overlay;
 }
 

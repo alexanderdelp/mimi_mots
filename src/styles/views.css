@@ -79,7 +79,8 @@
     var(--shadow);
 }
 
-/* Hochformat-Hinweis (B-52): Begleiter, Dreh-Symbol, „iPad drehen“ – statisch, deckt alles ab */
+/* Hochformat-Hinweis (B-52/B-72): Begleiter beim Radschlagen und Dreh-Symbol – statisch, ohne
+   Text, deckt alles ab */
 .portrait-overlay {
   position: fixed;
   inset: 0;
@@ -106,11 +107,6 @@
   width: clamp(96px, 12dvh, 140px);
   height: auto;
   color: var(--lila-700);
-}
-
-.portrait-overlay__text {
-  font-size: clamp(32px, 4dvh, 44px);
-  font-weight: 800;
 }
 
 /* Auswahlkachel (B-10): Rahmen als inset-Schatten, damit der Wechsel 2 px ↔ 5 px
