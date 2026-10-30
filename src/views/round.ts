@@ -234,6 +234,9 @@ export function renderRound(store: Store): ViewHandle {
   const showTutorialStep = () => {
     const step = TUTORIAL_STEPS[tutorialStep];
     view.dataset.tutorial = String(tutorialStep + 1);
+    // zur Begrüßung winkt Mimi (wie beim Abschied), danach zeigt sie wieder auf die Karten
+    if (tutorialStep === 0) avatar.setPose('winkt');
+    else if (tutorialStep === 1) avatar.setPose('zeigt');
     bubble.textContent = step.text;
     bubble.hidden = false;
     for (const [name, node] of Object.entries(targets)) {

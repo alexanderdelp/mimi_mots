@@ -44,7 +44,7 @@ test.describe('B-74 Tutorial', () => {
     await page.goto('./');
     await startRound(page);
     // AT-74.1: Mimi (obwohl Mots gewählt), Probewort Apfel, Uhr steht
-    await expect(page.locator('.round__avatar img')).toHaveAttribute('src', /cat_pointing/);
+    await expect(page.locator('.round__avatar img')).toHaveAttribute('src', /cat_waving/);
     await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', 'apfel');
     await expect(btn(page, 'Beenden')).toBeVisible();
     const dial = page.locator('.round__timer svg');
@@ -54,10 +54,12 @@ test.describe('B-74 Tutorial', () => {
 
     // AT-74.2: Begrüßung – ein Tipp irgendwohin geht weiter, ohne dass ein Button wirkt
     await expect(bubble(page)).toHaveText('Schön, dass du da bist!');
+    await expect(page.locator('.round__avatar img')).toHaveAttribute('src', /cat_waving/);
     await expect(target(page)).toHaveCount(0);
     await btn(page, 'Auf Französisch anhören').click();
     await expect(page.locator('.round__foreign')).toHaveText('');
     await expect(bubble(page)).toHaveText('Ich erkläre dir, was du hier machst.');
+    await expect(page.locator('.round__avatar img')).toHaveAttribute('src', /cat_pointing/);
     await tapAnywhere(page);
     // Schritt 1 – Lautsprecher, mit dem Stift eingekreist
     await expect(bubble(page)).toHaveText('Tippe hier – so klingt das Wort.');
@@ -65,6 +67,8 @@ test.describe('B-74 Tutorial', () => {
       'stroke',
       'rgb(176, 58, 117)',
     );
+    const ring = (await target(page).locator('.tutorial-mark').boundingBox())!;
+    expect(ring.width).toBeGreaterThan(ring.height * 1.3); // oval, nicht kreisrund
     await expect(target(page)).toHaveAttribute('aria-label', 'Auf Französisch anhören');
     await btn(page, 'Auf Französisch anhören').click();
     await expect(page.locator('.round__foreign')).toHaveText('la pomme');

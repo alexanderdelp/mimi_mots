@@ -36,8 +36,11 @@ test.describe('B-73 Sprachen ein-/ausschalten', () => {
     await page.goto('./');
     await openAdmin(page);
     await btn(page, 'Japanisch').click();
+    const width = async () => (await page.locator('.admin__toggle').boundingBox())!.width;
+    const offWidth = await width();
     await btn(page, 'Sprache einschalten').click();
     await expect(btn(page, 'Sprache ausschalten')).toBeEnabled();
+    expect(await width()).toBe(offWidth); // gleiche Breite, nichts springt
     await btn(page, 'Englisch').click();
     await btn(page, 'Sprache ausschalten').click();
     await btn(page, 'Französisch').click();

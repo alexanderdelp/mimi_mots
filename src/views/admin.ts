@@ -120,7 +120,15 @@ export function renderAdmin(store: Store): ViewHandle {
       });
       // B-73: gewählte Sprache ein-/ausschalten; die letzte aktive bleibt an. Gleicher Text für
       // alle Sprachen, damit der Button beim Flaggenwechsel nicht springt.
-      const toggle = textButton(enabled ? 'Sprache ausschalten' : 'Sprache einschalten');
+      // Beide Beschriftungen liegen übereinander, die unpassende unsichtbar – so bleibt die
+      // Breite immer die der längeren.
+      const toggle = textButton('');
+      toggle.classList.add('admin__toggle');
+      for (const label of ['Sprache ausschalten', 'Sprache einschalten']) {
+        const span = el('span', '', label);
+        span.hidden = label !== (enabled ? 'Sprache ausschalten' : 'Sprache einschalten');
+        toggle.append(span);
+      }
       toggle.disabled = enabled && data.enabledLanguages.length === 1;
       toggle.addEventListener('click', () => store.dispatch({ type: 'toggleLanguage', language }));
       actions.replaceChildren(reset, toggle);
