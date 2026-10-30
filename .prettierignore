@@ -4,3 +4,8 @@ playwright-report
 test-results
 package-lock.json
 *.md
+.venv
+.venv-melo
+.models
+tools/stimmwahl
+tools/vergleich

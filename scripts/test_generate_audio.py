@@ -127,6 +127,29 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(names, expected)
         self.assertIn('cat.', {j.text for j in jobs})
 
+    def test_french_options(self):
+        """B-79: Französisch mit Kokoro siwis, Piper tom und MeloTTS."""
+        options = ga.VOICE_OPTIONS['fr']
+        self.assertEqual(options['kokoro-siwis'], ga.VOICES['fr'])
+        self.assertEqual(options['piper-tom'], {'engine': 'piper', 'voice': 'fr_FR-tom-medium'})
+        self.assertEqual(options['melo-fr']['engine'], 'melo')
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_candidates(WORDS, 'fr', Path(tmp), ['katze'])
+        self.assertEqual(len(jobs), len(options) * len(ga.VARIANTS))
+        self.assertIn('le chat.', {j.text for j in jobs})
+
+    @unittest.skipUnless(ga.MELO_PYTHON.is_file(), 'MeloTTS (.venv-melo) nicht eingerichtet')
+    def test_melo_batch_reproducible(self):
+        """B-79: MeloTTS im Unterprozess, gleicher Text ergibt dieselbe Aufnahme."""
+        voice = ga.VOICE_OPTIONS['fr']['melo-fr']
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            jobs = [ga.Job('apfel', 'fr', 'la pomme', tmp / f'{i}.mp3', None, voice, '') for i in range(2)]
+            wavs = ga.melo_batch(jobs, tmp)
+            data = [wavs[j.output].read_bytes() for j in jobs]
+        self.assertGreater(len(data[0]), 10_000)
+        self.assertEqual(data[0], data[1])
+
     def test_piper_files(self):
         self.assertEqual(
             ga.piper_files('en_GB-cori-high')['piper/en_GB-cori-high.onnx'],
