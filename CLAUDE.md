@@ -42,8 +42,8 @@ npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.h
 public/
   avatars/   cat_sitting.png, cat_pointing.png, cat_idle.png, cat_waving.png
              pony_sitting.png, pony_pointing.png, pony_idle.png, pony_waving.png
-             cat_sleeping.png, pony_sleeping.png (Platzhalter), both_sleeping.png (B-65)
-             cat_cartwheel.png, pony_cartwheel.png (Platzhalter, B-72)
+             cat_sleeping.png, pony_sleeping.png, both_sleeping.png (B-65/B-77)
+             cat_cartwheel.png, pony_cartwheel.png (B-72/B-77)
              (Originaldateien, transparente PNGs, 384 × 440 – unverändert übernehmen)
   flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg, flag_it.svg (scharfe Vektorflaggen)
   audio/     en/<wortId>.mp3, fr/<wortId>.mp3, ja/<wortId>.mp3, it/<wortId>.mp3
