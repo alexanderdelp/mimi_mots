@@ -336,7 +336,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-77.2: Startseite mit schlafendem Begleiter: Schlafbild so breit wie die Kachel (abzüglich Rand), unten ausgerichtet; passt auf allen Viewports (Screenshot, AT-65.8).
   - AT-77.3: Precache bleibt unter 5 MB (AT-51.5).
 
-- [ ] **B-78 Stimmwahl je Wort**: Seite `tools/stimmwahl.html` (nur Dev-Server): je englisches Wort vier Stimmen (Piper ljspeech, kristin, cori; Kokoro af_heart) jeweils als „Wort“ und „Wort.“ anhören und eine Option auswählen. Die Auswahl wird sofort in die App übernommen. Kandidaten erzeugt `npm run audio -- --candidates --lang en` nach `tools/stimmwahl/` (nicht eingecheckt).
+- [x] **B-78 Stimmwahl je Wort**: Seite `tools/stimmwahl.html` (nur Dev-Server): je englisches Wort vier Stimmen (Piper ljspeech, kristin, cori; Kokoro af_heart) jeweils als „Wort“ und „Wort.“ anhören und eine Option auswählen. Die Auswahl wird sofort in die App übernommen. Kandidaten erzeugt `npm run audio -- --candidates --lang en` nach `tools/stimmwahl/` (nicht eingecheckt).
   - AT-78.1: `generate_audio.py` kennt Stimmoptionen je Sprache und liest `audio-choices.json` (Stimme + Variante je Wort); ohne Eintrag gilt die Standardstimme. „dot“ hängt einen Punkt an den Text (Unit-Test).
   - AT-78.2: `--candidates` erzeugt je Wort alle Optionen × Varianten unter `tools/stimmwahl/<lang>/<stimme>-<variante>/<id>.mp3` (Unit-Test).
   - AT-78.3: Auswählen kopiert genau die gehörte Datei nach `public/audio/<lang>/<id>.mp3`, speichert die Wahl in `audio-choices.json` und hakt das Wort für die Sprache in `audio-check.md` ab; Unbekanntes wird abgelehnt, ohne etwas zu ändern (Unit-Test).
