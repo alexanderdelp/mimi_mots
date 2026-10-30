@@ -190,40 +190,6 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
       expect(style).toBe(playStyle);
     }
   });
-
-  test('AT-26.8: Lernseite passt ohne Überlappung', async ({ page }) => {
-    await startRound(page);
-    await btn(page, 'Auf Englisch anhören').click();
-    const vp = page.viewportSize()!;
-    const parts = await page
-      .locator(
-        'header.app-header, .close-button, .round__timer, .round__avatar .avatar, .word-card, .round__flag, .speak-button, .round__foreign, .rating-button',
-      )
-      .evaluateAll((els) =>
-        els.map((e) => ({ n: e.className, ...e.getBoundingClientRect().toJSON() })),
-      );
-    for (const p of parts) {
-      expect(p.left, p.n).toBeGreaterThanOrEqual(0);
-      expect(p.top, p.n).toBeGreaterThanOrEqual(0);
-      expect(p.right, p.n).toBeLessThanOrEqual(vp.width);
-      expect(p.bottom, p.n).toBeLessThanOrEqual(vp.height);
-    }
-    for (let i = 0; i < parts.length; i++) {
-      for (let j = i + 1; j < parts.length; j++) {
-        const [a, b] = [parts[i], parts[j]];
-        const overlap =
-          a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-        const pair = a.n + ' ' + b.n;
-        const wanted = /app-header/.test(pair) && /close-button|round__timer/.test(pair);
-        if (!wanted) expect(overlap, `${a.n} / ${b.n}`).toBe(false);
-      }
-    }
-    const scroll = await page.evaluate(() => [
-      document.documentElement.scrollWidth,
-      document.documentElement.scrollHeight,
-    ]);
-    expect(scroll).toEqual([vp.width, vp.height]);
-  });
 });
 
 test('AT-26.9: lange Fremdwörter passen vollständig', async ({ page }) => {

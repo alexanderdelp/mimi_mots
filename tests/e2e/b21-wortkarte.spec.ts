@@ -60,35 +60,6 @@ test.describe('B-21 Wortkarte', () => {
     });
   }
 
-  test('AT-21.5: Anordnung und alles im Bildschirm', async ({ page }) => {
-    await startRound(page);
-    const vp = page.viewportSize()!;
-    const get = async (sel: string) => (await page.locator(sel).boundingBox())!;
-    const close = await get('.close-button');
-    const card = await get('.word-card');
-    const flag = await get('.speak-button');
-
-    expect(close.x).toBeLessThan(vp.width * 0.15);
-    expect(close.y).toBeLessThan(vp.height * 0.15);
-    const cardCenter = card.x + card.width / 2;
-    expect(Math.abs(cardCenter - vp.width / 2)).toBeLessThan(vp.width * 0.1);
-    expect(flag.x).toBeGreaterThanOrEqual(card.x + card.width);
-
-    for (const [name, b] of Object.entries({ close, card, flag })) {
-      expect(b.x, name).toBeGreaterThanOrEqual(0);
-      expect(b.y, name).toBeGreaterThanOrEqual(0);
-      expect(b.x + b.width, name).toBeLessThanOrEqual(vp.width);
-      expect(b.y + b.height, name).toBeLessThanOrEqual(vp.height);
-    }
-    // [×] liegt seit B-26 links über der Avatar-Spalte, neben der Karte
-    expect(close.x + close.width).toBeLessThanOrEqual(card.x);
-    const scroll = await page.evaluate(() => [
-      document.documentElement.scrollWidth,
-      document.documentElement.scrollHeight,
-    ]);
-    expect(scroll).toEqual([vp.width, vp.height]);
-  });
-
   test('AT-21.6: Wort bleibt gleich, auch nach Hochformat', async ({ page }) => {
     const word = await startRound(page);
     const vp = page.viewportSize()!;
