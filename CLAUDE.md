@@ -34,6 +34,7 @@ npm run test         # Vitest
 npm run test:e2e     # Playwright (WebKit, iPad quer)
 npm run lint         # ESLint + Prettier-Check
 npm run audio        # scripts/generate_audio.py – erzeugt fehlende MP3s (lokal, Python)
+npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.html (B-78)
 ```
 
 ## Projektstruktur (Ziel)

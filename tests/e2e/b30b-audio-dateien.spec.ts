@@ -14,8 +14,11 @@ test.describe('B-30b Audio erzeugen', () => {
     }
   });
 
-  test('Abhörseite ist nicht Teil des Produktionsbuilds', async ({ request }) => {
-    const res = await request.get('tools/hoerpruefung.html');
-    expect(await res.text()).not.toContain('Hörprüfung Audio');
+  test('Abhör- und Stimmwahl-Seite sind nicht Teil des Produktionsbuilds', async ({ request }) => {
+    expect(await (await request.get('tools/hoerpruefung.html')).text()).not.toContain(
+      'Hörprüfung Audio',
+    );
+    expect(await (await request.get('tools/stimmwahl.html')).text()).not.toContain('Stimmwahl');
+    expect((await request.get('/__stimmwahl')).status()).not.toBe(200);
   });
 });

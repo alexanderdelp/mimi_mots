@@ -88,18 +88,50 @@ class HelperTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / 'a.mp3'
             ov = Path(tmp) / 'a.wav'
-            job = ga.Job('a', 'en', 'a', out, None)
+            job = ga.Job('a', 'en', 'a', out, None, ga.VOICES['en'], '')
             self.assertTrue(ga.needs_update(job, force=False))  # fehlt
             out.write_bytes(b'x')
             self.assertFalse(ga.needs_update(job, force=False))
             self.assertTrue(ga.needs_update(job, force=True))
             ov.write_bytes(b'x')
             os.utime(ov, (time.time() + 10, time.time() + 10))
-            self.assertTrue(ga.needs_update(ga.Job('a', 'en', 'a', out, ov), force=False))
+            self.assertTrue(ga.needs_update(ga.Job('a', 'en', 'a', out, ov, ga.VOICES['en'], ''), force=False))
 
     def test_default_all_languages(self):
         self.assertEqual(ga.DEFAULT_LANGS, ['en', 'fr', 'ja'])
         self.assertIsNone(ga.parse_args([]).langs)
+
+    def test_choices_pick_voice_and_variant(self):
+        """B-78: gewählte Stimme/Variante je Wort, Unbekanntes fällt auf den Standard zurück."""
+        choices = {
+            'en': {
+                'katze': {'voice': 'kokoro-af_heart', 'variant': 'dot'},
+                'apfel': {'voice': 'gibt-es-nicht', 'variant': 'word'},
+            }
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_jobs(WORDS, ['en'], Path(tmp), Path(tmp) / 'ov', None, choices)
+        by_id = {j.word_id: j for j in jobs}
+        self.assertEqual(by_id['katze'].text, 'cat.')
+        self.assertEqual(by_id['katze'].voice, ga.VOICE_OPTIONS['en']['kokoro-af_heart'])
+        self.assertEqual(by_id['apfel'].text, 'apple')
+        self.assertEqual(by_id['apfel'].voice, ga.VOICES['en'])
+
+    def test_candidates_cover_all_options(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_candidates(WORDS, 'en', Path(tmp), ['katze'])
+        names = sorted(f'{j.output.parent.name}/{j.output.name}' for j in jobs)
+        expected = sorted(
+            f'{k}-{v}/katze.mp3' for k in ga.VOICE_OPTIONS['en'] for v in ga.VARIANTS
+        )
+        self.assertEqual(names, expected)
+        self.assertIn('cat.', {j.text for j in jobs})
+
+    def test_piper_files(self):
+        self.assertEqual(
+            ga.piper_files('en_GB-cori-high')['piper/en_GB-cori-high.onnx'],
+            f'{ga.PIPER_BASE}/en/en_GB/cori/high/en_GB-cori-high.onnx',
+        )
 
     def test_voices(self):
         self.assertEqual(ga.VOICES['en'], {'engine': 'piper', 'voice': 'en_US-ljspeech-high'})
@@ -120,7 +152,7 @@ class AcceptanceTests(unittest.TestCase):
         cls.out = root / 'audio'
         cls.overrides = root / 'overrides'
         cls.args = ['--words', str(cls.words), '--out', str(cls.out),
-                    '--overrides', str(cls.overrides)]
+                    '--overrides', str(cls.overrides), '--choices', str(root / 'keine.json')]
         cls.log = run_script(*cls.args)
         cls.files = sorted(cls.out.rglob('*.mp3'))
 

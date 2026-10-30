@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stimmwahl – Mimi &amp; Mots</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px 16px;
+        font-family: ui-rounded, system-ui, sans-serif;
+        background: #f8f4fb;
+        color: #3b2a63;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 6px;
+      }
+      p {
+        margin: 0 0 10px;
+        color: #4a4458;
+        max-width: 920px;
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 6px 8px;
+        border-bottom: 1px solid #dccdee;
+        text-align: left;
+        font-size: 16px;
+        white-space: nowrap;
+      }
+      thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f4fb;
+        z-index: 1;
+      }
+      th.voice {
+        text-align: center;
+        border-left: 2px solid #dccdee;
+      }
+      td.first {
+        border-left: 2px solid #dccdee;
+      }
+      .option {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 4px;
+        border-radius: 12px;
+      }
+      .option.chosen {
+        background: #ede4f4;
+        box-shadow: inset 0 0 0 2px #6a4c9c;
+      }
+      .option input {
+        width: 20px;
+        height: 20px;
+        accent-color: #6a4c9c;
+        cursor: pointer;
+      }
+      button {
+        min-width: 44px;
+        min-height: 36px;
+        border: 2px solid #6a4c9c;
+        border-radius: 18px;
+        background: #fff;
+        color: #6a4c9c;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      button.playing {
+        background: #ede4f4;
+      }
+      tr.done td:first-child::after {
+        content: ' ✓';
+      }
+      .note {
+        color: #4a4458;
+        font-size: 14px;
+      }
+      #status {
+        min-height: 1.4em;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stimmwahl Englisch (nur im Dev-Server)</h1>
+    <p>
+      Je Wort alle Stimmen als „Wort“ und „Wort.“ (mit Punkt) anhören. Ein Klick auf den runden
+      Knopf übernimmt die Aufnahme sofort in die App, merkt die Wahl in
+      <code>audio-choices.json</code> und hakt das Wort in <code>audio-check.md</code> ab (✓). „App“
+      spielt, was die App gerade abspielt.
+    </p>
+    <p>
+      <label><input type="checkbox" id="open-only" /> nur noch nicht abgehakte Wörter</label>
+    </p>
+    <p id="status" role="status"></p>
+    <div class="scroll">
+      <table>
+        <thead id="head"></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <script type="module">
+      import words from '../src/data/words.json';
+
+      const LANG = 'en';
+      const VOICES = {
+        'piper-ljspeech': 'Piper ljspeech',
+        'piper-kristin': 'Piper kristin',
+        'piper-cori': 'Piper cori (GB)',
+        'kokoro-af_heart': 'Kokoro af_heart',
+      };
+      const VARIANTS = { word: 'Wort', dot: 'Wort.' };
+      const base = import.meta.env.BASE_URL;
+      const audio = new Audio();
+      let current;
+      let state;
+      const status = document.getElementById('status');
+      const openOnly = document.getElementById('open-only');
+
+      const mark = (b) => {
+        current?.classList.remove('playing');
+        current = b;
+        b?.classList.add('playing');
+      };
+      audio.addEventListener('ended', () => mark(null));
+      const playButton = (label, src) => {
+        const b = document.createElement('button');
+        b.textContent = `▶ ${label}`;
+        b.addEventListener('click', () => {
+          mark(b);
+          audio.src = `${src}?t=${Date.now()}`;
+          audio.play();
+        });
+        return b;
+      };
+
+      document.getElementById('head').innerHTML =
+        '<tr><th>Wort</th><th>App</th>' +
+        Object.values(VOICES)
+          .map((v) => `<th class="voice" colspan="2">${v}</th>`)
+          .join('') +
+        '<th>Notiz</th></tr>';
+
+      async function choose(id, voice, variant) {
+        status.textContent = 'Speichere …';
+        const res = await fetch('/__stimmwahl', {
+          method: 'POST',
+          body: JSON.stringify({ lang: LANG, id, voice, variant }),
+        });
+        const body = await res.json();
+        if (!res.ok) {
+          status.textContent = `Fehler: ${body.error}`;
+          return;
+        }
+        state = body;
+        status.textContent = `„${words.find((w) => w.id === id)[LANG]}“: ${VOICES[voice]}, ${VARIANTS[variant]} übernommen.`;
+        render();
+      }
+
+      function render() {
+        const rows = document.getElementById('rows');
+        rows.replaceChildren();
+        for (const w of words) {
+          const done = state.checked[w.id]?.[LANG] ?? false;
+          if (openOnly.checked && done) continue;
+          const chosen = state.choices[LANG]?.[w.id];
+          const tr = document.createElement('tr');
+          tr.classList.toggle('done', done);
+          const name = document.createElement('td');
+          name.textContent = `${w.emoji} ${w[LANG]}`;
+          const app = document.createElement('td');
+          app.append(playButton('App', `${base}audio/${LANG}/${w.id}.mp3`));
+          tr.append(name, app);
+          for (const voice of Object.keys(VOICES)) {
+            Object.entries(VARIANTS).forEach(([variant, label], i) => {
+              const td = document.createElement('td');
+              if (i === 0) td.className = 'first';
+              const option = document.createElement('span');
+              option.className = 'option';
+              const isChosen = chosen?.voice === voice && chosen?.variant === variant;
+              option.classList.toggle('chosen', isChosen);
+              const radio = document.createElement('input');
+              radio.type = 'radio';
+              radio.name = w.id;
+              radio.checked = isChosen;
+              radio.title = `${VOICES[voice]}, ${label} übernehmen`;
+              radio.addEventListener('change', () => choose(w.id, voice, variant));
+              option.append(
+                playButton(label, `${base}tools/stimmwahl/${LANG}/${voice}-${variant}/${w.id}.mp3`),
+                radio,
+              );
+              td.append(option);
+              tr.append(td);
+            });
+          }
+          const note = document.createElement('td');
+          note.className = 'note';
+          note.textContent = state.notes[w.id] ?? '';
+          tr.append(note);
+          rows.append(tr);
+        }
+      }
+
+      openOnly.addEventListener('change', render);
+      state = await (await fetch('/__stimmwahl')).json();
+      render();
+    </script>
+  </body>
+</html>
