@@ -21,6 +21,7 @@ const valid = (): AppData => ({
   },
   rest: { sleeping: [], usedDurations: [7], since: '2026-10-29' },
   enabledLanguages: ['en', 'ja'],
+  tutorialDone: true,
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -43,6 +44,7 @@ describe('defaults', () => {
       progress: { en: {}, fr: {}, ja: {} },
       rest: { sleeping: [], usedDurations: [], since: null },
       enabledLanguages: ['en', 'fr'],
+      tutorialDone: false,
     });
   });
 
@@ -219,6 +221,16 @@ describe('Aktive Sprachen (B-73)', () => {
     ).toEqual(['fr', 'ja']);
     expect(sanitize({ ...valid(), enabledLanguages: [] }).enabledLanguages).toEqual(['en', 'fr']);
     expect(sanitize({ ...valid(), enabledLanguages: 'ja' }).enabledLanguages).toEqual(['en', 'fr']);
+  });
+});
+
+describe('Tutorial (B-74)', () => {
+  it('nur ein echtes true zählt als gesehen; alte Daten ohne Feld → Tutorial kommt', () => {
+    const old: Partial<AppData> = valid();
+    delete old.tutorialDone;
+    expect(sanitize(old).tutorialDone).toBe(false);
+    expect(sanitize({ ...valid(), tutorialDone: 'ja' }).tutorialDone).toBe(false);
+    expect(sanitize(valid()).tutorialDone).toBe(true);
   });
 });
 

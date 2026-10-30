@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { VIEWS, adminView, btn, endView, prepare, settle, sleepView } from './views';
 
 /** Ansichten für das Kind (der Elternbereich ist für Erwachsene). */

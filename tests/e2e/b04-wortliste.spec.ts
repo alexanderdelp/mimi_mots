@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 
 test.describe('B-04 Wortliste', () => {

@@ -64,7 +64,8 @@ src/
   components/        timer-dial.ts, choice-tile.ts, avatar.ts
   styles/            tokens.css, base.css, views.css
 scripts/generate_audio.py
-tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright)
+tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –
+                     dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true }))
 ```
 
 ## Design-Tokens (in `src/styles/tokens.css`, nur diese verwenden)

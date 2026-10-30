@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from './fixtures';
 import { fakeMedia } from './helpers';
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });

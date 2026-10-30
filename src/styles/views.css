@@ -421,7 +421,9 @@
   grid-row: 1 / span 2;
   align-self: end;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
 }
 
 /* Begleiter groß links unten (max. 440 px), Höhe folgt aus dem Seitenverhältnis */
@@ -786,4 +788,51 @@
 
 .admin__wake {
   min-width: 88px;
+}
+
+/* Tutorial (B-74): Mimi erklärt in einer Sprechblase über sich, der gemeinte Button trägt einen
+   ruhigen Ring (keine Animation). */
+.tutorial-bubble {
+  align-self: stretch;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: var(--radius-m);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: clamp(18px, 2.6dvh, 24px);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.tutorial-bubble[hidden] {
+  display: none;
+}
+
+.tutorial-bubble::after {
+  content: '';
+  position: absolute;
+  left: 40%;
+  bottom: -14px;
+  border: 14px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--white);
+}
+
+.tutorial-target {
+  outline: 6px solid var(--lila-500);
+  outline-offset: 6px;
+}
+
+.admin__header-start {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin__tutorial,
+.admin__wake {
+  font-size: 18px;
+  padding: 0 16px;
 }

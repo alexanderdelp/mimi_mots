@@ -46,6 +46,8 @@ export interface AppData {
   rest: Rest;
   /** B-73: im Elternbereich aktivierte Sprachen (mindestens eine). */
   enabledLanguages: Language[];
+  /** B-74: Tutorial der Lernrunde schon gesehen (im Elternbereich zurücksetzbar). */
+  tutorialDone: boolean;
 }
 
 /** Standard: Englisch und Französisch aktiv, Japanisch aus (B-73). */
@@ -59,6 +61,7 @@ export function defaults(): AppData {
     progress: { en: {}, fr: {}, ja: {} },
     rest: { sleeping: [], usedDurations: [], since: null },
     enabledLanguages: [...DEFAULT_ENABLED_LANGUAGES],
+    tutorialDone: false,
   };
 }
 
@@ -142,6 +145,7 @@ export function sanitize(raw: unknown): AppData {
     progress: sanitizeProgress(raw.progress),
     rest: sanitizeRest(raw.rest),
     enabledLanguages: sanitizeEnabled(raw.enabledLanguages),
+    tutorialDone: raw.tutorialDone === true,
   };
 }
 

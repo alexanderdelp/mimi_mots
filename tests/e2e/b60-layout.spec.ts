@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { VIEWS, lowContrast, overflow, prepare, settle } from './views';
 
 test.describe('B-60 Layout-Prüfung', () => {

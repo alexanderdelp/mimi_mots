@@ -12,6 +12,8 @@ interface Seed {
   language?: 'en' | 'fr' | 'ja';
   sleeping?: string[];
   usedDurations?: number[];
+  /** Tutorial noch nicht gesehen (B-74); sonst gilt es als gesehen. */
+  tutorial?: boolean;
 }
 
 /** Uhr, Zufall, Audio-Attrappe und gespeicherter Stand – vor dem ersten Laden. */
@@ -42,6 +44,7 @@ export async function prepare(page: Page, seed?: Seed) {
         settings: { companion: 'mimi', language: seed.language ?? 'fr', durationMin: 3 },
         progress: { en: {}, fr: {}, ja: {} },
         enabledLanguages: ['en', 'fr', 'ja'],
+        ...(seed.tutorial ? { tutorialDone: false } : {}),
         rest: {
           sleeping: seed.sleeping ?? [],
           usedDurations: seed.usedDurations ?? [],
@@ -111,6 +114,7 @@ export async function adminView(page: Page) {
 export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<void> }[] = [
   { name: 'start-erststart', open: startView },
   { name: 'start-schlafend', seed: { sleeping: ['mimi'], usedDurations: [3] }, open: startView },
+  { name: 'tutorial', seed: { tutorial: true }, open: (p) => roundView(p) },
   { name: 'runde-verdeckt', seed: {}, open: (p) => roundView(p) },
   { name: 'runde-en', seed: {}, open: (p) => revealedView(p, 'en') },
   { name: 'runde-fr', seed: {}, open: (p) => revealedView(p, 'fr') },

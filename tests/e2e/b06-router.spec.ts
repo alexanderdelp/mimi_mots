@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 
 /** Hält einen Button gedrückt (Long-Press, z. B. [×] seit B-25). */
 async function hold(page: Page, name: string, ms = 700) {

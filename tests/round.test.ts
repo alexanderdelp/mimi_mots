@@ -17,6 +17,7 @@ beforeEach(() => {
 function roundStore(language: 'en' | 'fr' = 'en') {
   const data = defaults();
   data.settings = { companion: 'mimi', language, durationMin: 3 };
+  data.tutorialDone = true; // Tutorial (B-74) eigens getestet
   const store = createStore(data);
   store.dispatch({ type: 'play' });
   return store;
@@ -257,6 +258,7 @@ describe('Avatar in der Lernrunde (B-24)', () => {
     vi.stubGlobal('SpeechSynthesisUtterance', class {});
     const data = defaults();
     data.settings = { companion: 'mots', language: 'en', durationMin: 3 };
+    data.tutorialDone = true;
     const store = createStore(data);
     store.dispatch({ type: 'play' });
     const { el } = renderRound(store);
@@ -272,5 +274,70 @@ describe('Avatar in der Lernrunde (B-24)', () => {
     el.querySelector<HTMLButtonElement>('[data-rating="known"]')!.click();
     expect(avatar.dataset.pose).toBe('zeigt');
     expect(el.querySelector('.round__avatar .avatar img')).toBe(img); // nur Bildtausch
+  });
+});
+
+describe('Tutorial (B-74)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  function tutorialStore() {
+    vi.stubGlobal('speechSynthesis', { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] });
+    vi.stubGlobal('SpeechSynthesisUtterance', class {});
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
+    vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+    const data = defaults();
+    data.settings = { companion: 'mots', language: 'fr', durationMin: 3 };
+    const store = createStore(data);
+    store.dispatch({ type: 'play' });
+    return store;
+  }
+
+  const click = (el: HTMLElement, label: string) =>
+    el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!.click();
+
+  it('drei Schritte mit Probewort, nur der hervorgehobene Button wirkt, zählt nicht', () => {
+    const store = tutorialStore();
+    const { el } = renderRound(store);
+    const bubble = el.querySelector('.tutorial-bubble')!;
+    expect(el.querySelector('.word-card')!.getAttribute('data-word-id')).toBe('apfel');
+    expect(el.querySelector('.round__avatar img')!.getAttribute('src')).toMatch(/cat_/);
+    expect(bubble.textContent).toBe('Tippe hier – so klingt das Wort.');
+    expect(el.querySelector('.tutorial-target')!.getAttribute('aria-label')).toBe(
+      'Auf Französisch anhören',
+    );
+
+    click(el, 'Wusste ich'); // noch nicht dran
+    expect(el.dataset.tutorial).toBe('1');
+    click(el, 'Auf Französisch anhören');
+    expect(el.querySelector('.round__foreign')!.textContent).toBe('la pomme');
+    expect(bubble.textContent).toBe('Wusstest du es? Dann hier.');
+    click(el, 'Noch üben'); // noch nicht dran
+    expect(el.dataset.tutorial).toBe('2');
+    click(el, 'Wusste ich');
+    expect(bubble.textContent).toBe('Noch nicht? Dann hier – es kommt wieder.');
+    expect(store.getState().round!.wordId).toBeNull();
+
+    click(el, 'Noch üben');
+    expect(el.dataset.tutorial).toBeUndefined();
+    expect(bubble.hasAttribute('hidden')).toBe(true);
+    expect(store.getState().data.tutorialDone).toBe(true);
+    expect(store.getState().round!.wordId).not.toBeNull();
+    expect(store.getState().data.progress.fr).toEqual({}); // Probewort zählt nicht
+    expect(el.querySelector('.round__avatar img')!.getAttribute('src')).toMatch(/pony_/);
+    expect(el.querySelectorAll('.tutorial-target')).toHaveLength(0);
+  });
+
+  it('kein Tutorial, wenn es schon gesehen wurde', () => {
+    const store = tutorialStore();
+    store.dispatch({ type: 'finish' });
+    const data = { ...store.getState().data, tutorialDone: true };
+    const again = createStore(data);
+    again.dispatch({ type: 'play' });
+    const { el } = renderRound(again);
+    expect(el.querySelector('.tutorial-bubble')!.hasAttribute('hidden')).toBe(true);
+    expect(again.getState().round!.wordId).not.toBeNull();
   });
 });

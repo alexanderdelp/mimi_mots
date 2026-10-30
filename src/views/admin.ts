@@ -78,6 +78,12 @@ export function renderAdmin(store: Store): ViewHandle {
   const wake = textButton('Alle aufwecken', 'primary');
   wake.classList.add('admin__wake');
   wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
+  // B-74: Tutorial kommt in der nächsten Runde wieder; links neben dem Haus-Button
+  const tutorial = textButton('Tutorial zurücksetzen', 'secondary');
+  tutorial.classList.add('admin__tutorial');
+  tutorial.addEventListener('click', () => store.dispatch({ type: 'resetTutorial' }));
+  const left = el('div', 'admin__header-start');
+  left.append(home, tutorial);
 
   const render = () => {
     const { data } = store.getState();
@@ -85,6 +91,7 @@ export function renderAdmin(store: Store): ViewHandle {
     const name = LANGUAGE_INFO[language].name;
     const enabled = data.enabledLanguages.includes(language);
     wake.disabled = awake;
+    tutorial.disabled = !data.tutorialDone;
     // ausgeschaltete Sprachen bleiben wählbar (Lernstand ansehen, wieder einschalten), wirken aber blass
     languages.tiles.forEach((tile, l) => {
       tile.el.dataset.off = String(!data.enabledLanguages.includes(l));
@@ -147,7 +154,7 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const body = el('div', 'admin__body');
   body.append(toolbar, levels);
-  view.append(createAppHeader({ start: home, end: wake }), body);
+  view.append(createAppHeader({ start: left, end: wake }), body);
   render();
 
   const unsubscribe = store.subscribe((state, previous) => {

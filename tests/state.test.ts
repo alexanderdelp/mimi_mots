@@ -646,3 +646,20 @@ describe('Aktive Sprachen (B-73)', () => {
     expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBe('fr');
   });
 });
+
+describe('Tutorial (B-74)', () => {
+  const at = (view: ViewName, tutorialDone: boolean): AppState => {
+    const data = complete();
+    data.tutorialDone = tutorialDone;
+    return { view, portrait: false, data, round: null };
+  };
+
+  it('tutorialDone nur in der Runde, resetTutorial nur im Elternbereich', () => {
+    expect(reduce(at('round', false), { type: 'tutorialDone' }).data.tutorialDone).toBe(true);
+    const start = at('start', false);
+    expect(reduce(start, { type: 'tutorialDone' })).toBe(start);
+    expect(reduce(at('admin', true), { type: 'resetTutorial' }).data.tutorialDone).toBe(false);
+    const round = at('round', true);
+    expect(reduce(round, { type: 'resetTutorial' })).toBe(round);
+  });
+});

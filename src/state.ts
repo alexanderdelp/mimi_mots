@@ -16,6 +16,8 @@ export type AppEvent =
   | { type: 'wake' } // Elternbereich: alle wach und alle Dauern frei (B-65/B-69)
   | { type: 'resetProgress'; language: Language } // Elternbereich: Lernstand einer Sprache leeren
   | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
+  | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
+  | { type: 'resetTutorial' } // Elternbereich: Tutorial kommt in der nächsten Runde wieder
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
   | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
@@ -212,6 +214,12 @@ function step(state: AppState, event: AppEvent): AppState {
   if (event.type === 'leave' && state.view === 'admin') {
     const data = withRestSettings(state.data);
     return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
+  }
+  if (event.type === 'tutorialDone' && state.view === 'round' && !state.data.tutorialDone) {
+    return { ...state, data: { ...state.data, tutorialDone: true } };
+  }
+  if (event.type === 'resetTutorial' && state.view === 'admin' && state.data.tutorialDone) {
+    return { ...state, data: { ...state.data, tutorialDone: false } };
   }
   if (event.type === 'toggleLanguage' && state.view === 'admin') {
     const on = state.data.enabledLanguages;
