@@ -12,11 +12,11 @@ function wordsFromRequirements(): Omit<Word, 'syllables'>[] {
     .split('\n')
     .filter((line) => line.startsWith('| ') && !line.startsWith('| id'))
     .map((line) => {
-      const [id, emoji, de, en, fr] = line
+      const [id, emoji, de, en, fr, ja, jaKana] = line
         .split('|')
         .slice(1, -1)
         .map((s) => s.trim());
-      return { id, emoji, de, en, fr };
+      return { id, emoji, de, en, fr, ja, jaKana };
     });
 }
 
@@ -57,7 +57,7 @@ describe('Wortliste', () => {
 
   it('stimmt Eintrag für Eintrag mit anforderungen.md §10 überein (AT-04.2)', () => {
     // Silben (B-66) stehen nur in words.json, nicht in der Tabelle
-    const withoutSyllables = WORDS.map(({ id, emoji, de, en, fr }) => ({ id, emoji, de, en, fr }));
+    const withoutSyllables = WORDS.map(({ syllables, ...rest }) => (void syllables, rest));
     expect(withoutSyllables).toEqual(wordsFromRequirements());
   });
 
@@ -88,5 +88,23 @@ describe('Silben (B-66)', () => {
     ['Hund', ['Hund']],
   ])('Sprechsilben: %s', (de, syllables) => {
     expect(WORDS.find((w) => w.de === de)!.syllables).toEqual(syllables);
+  });
+});
+
+describe('Japanisch (B-67)', () => {
+  it.each(WORDS.map((w) => [w.id, w.ja, w.jaKana] as const))(
+    'AT-67.1: %s – Schreibweise und Kana-Lesung',
+    (_, ja, jaKana) => {
+      expect(ja.trim()).not.toBe('');
+      expect(jaKana).toMatch(/^[ぁ-ゖァ-ヺー]+$/);
+    },
+  );
+
+  it('Kanji-Wörter haben eine abweichende Lesung, reine Kana-Wörter dieselbe', () => {
+    for (const w of WORDS) {
+      const kanaOnly = /^[ぁ-ゖァ-ヺー]+$/.test(w.ja);
+      if (kanaOnly) expect(w.jaKana, w.id).toBe(w.ja);
+      else expect(w.jaKana, w.id).not.toBe(w.ja);
+    }
   });
 });

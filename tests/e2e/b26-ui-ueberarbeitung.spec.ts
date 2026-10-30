@@ -72,19 +72,14 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     expect(stored.settings.durationMin).toBe(7);
   });
 
-  test('AT-26.3: Sprachen 2 × 2 mit Japanisch ausgegraut', async ({ page }) => {
+  test('AT-26.3: Sprachen 2 × 2 (seit B-67 ist Japanisch wählbar)', async ({ page }) => {
     const group = page.getByRole('group', { name: 'In welcher Sprache?' });
     await expect(group.getByRole('button')).toHaveCount(3);
-    const [en, fr, ja] = [
-      btn(page, 'Englisch'),
-      btn(page, 'Französisch'),
-      btn(page, 'Japanisch (bald)'),
-    ];
-    await expect(ja).toBeDisabled();
+    const [en, fr, ja] = [btn(page, 'Englisch'), btn(page, 'Französisch'), btn(page, 'Japanisch')];
+    await expect(ja).toBeEnabled();
     await expect(ja.locator('img')).toHaveAttribute('src', /flag_jp\.svg$/);
-    expect(Number(await ja.evaluate((e) => getComputedStyle(e).opacity))).toBeLessThan(1);
-    await ja.click({ force: true });
-    await expect(ja).toHaveAttribute('aria-pressed', 'false');
+    await ja.click();
+    await expect(ja).toHaveAttribute('aria-pressed', 'true');
 
     const [bEn, bFr, bJa] = [await box(en), await box(fr), await box(ja)];
     expect(bFr.y).toBeCloseTo(bEn.y, 0); // erste Zeile: EN | FR
@@ -97,7 +92,7 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     const vp = page.viewportSize()!;
     const big = await box(btn(page, 'Mimi'));
     const small = await Promise.all(
-      ['Englisch', 'Französisch', 'Japanisch (bald)', '3 Minuten', '7 Minuten'].map((n) =>
+      ['Englisch', 'Französisch', 'Japanisch', '3 Minuten', '7 Minuten'].map((n) =>
         box(btn(page, n)),
       ),
     );

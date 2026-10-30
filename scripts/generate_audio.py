@@ -2,7 +2,7 @@
 
 Ablauf je Wort und Sprache:
   1. Quelle: eigene Aufnahme aus audio-overrides/<lang>/<id>.(mp3|wav|m4a), sonst TTS
-     (EN: Piper en_US-ljspeech-high; FR: Kokoro ff_siwis).
+     (EN: Piper en_US-ljspeech-high; FR: Kokoro ff_siwis; JA: VOICEVOX 冥鳴ひまり aus `jaKana`).
   2. Nachbearbeitung mit ffmpeg: Stille vorn/hinten weg, 150 ms Vorlauf, Lautheit −16 LUFS,
      MP3 mono 64 kbit/s.
 Vorhandene Dateien werden nur neu erzeugt, wenn eine neuere Override-Datei vorliegt oder
@@ -27,11 +27,16 @@ ROOT = Path(__file__).resolve().parent.parent
 # Englisch mit Piper: Kokoro (bf_emma u. a.) sprach bei Einzelwörtern einen falschen
 # Anfangslaut mit. ljspeech ist public domain; Piper-Stimmen auf Lessac-Basis sind nur für
 # Forschung lizenziert (anforderungen.md §11).
+# Japanisch mit VOICEVOX (Stil-ID 14 = 冥鳴ひまり ノーマル); die erzeugten Dateien brauchen die
+# Namensnennung „VOICEVOX:冥鳴ひまり“ (README).
 VOICES = {
     'en': {'engine': 'piper', 'voice': 'en_US-ljspeech-high'},
     'fr': {'engine': 'kokoro', 'voice': 'ff_siwis', 'lang': 'fr-fr'},
+    'ja': {'engine': 'voicevox', 'voice': '冥鳴ひまり', 'style': 14},
 }
-DEFAULT_LANGS = ['en', 'fr']
+DEFAULT_LANGS = ['en', 'fr', 'ja']
+# Vorgelesen wird die Kana-Lesung, damit Kanji wie 月 nicht falsch gelesen werden (げつ statt つき).
+TEXT_FIELDS = {'ja': 'jaKana'}
 PIPER_URL = 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/high'
 MODEL_FILES = {
     'kokoro': {
@@ -88,7 +93,7 @@ def plan_jobs(
                 Job(
                     word_id=word['id'],
                     lang=lang,
-                    text=word[lang],
+                    text=word[TEXT_FIELDS.get(lang, lang)],
                     output=out / lang / f"{word['id']}.mp3",
                     override=find_override(overrides, lang, word['id']),
                 )
@@ -142,6 +147,10 @@ def postprocess(source: Path, output: Path) -> None:
         ])
 
 
+VOICEVOX_DIR = 'voicevox'
+VOICEVOX_FILES = ['dict/open_jtalk_dic_utf_8-1.11', 'onnxruntime/lib', 'models/vvms']
+
+
 class Engines:
     """Lädt Kokoro bzw. Piper erst, wenn eine Sprache sie braucht."""
 
@@ -157,6 +166,8 @@ class Engines:
                 self.loaded[engine] = Kokoro(
                     str(self.models / 'kokoro-v1.0.onnx'), str(self.models / 'voices-v1.0.bin')
                 )
+            elif engine == 'voicevox':
+                self.loaded[engine] = self._voicevox()
             else:
                 from piper import PiperVoice
 
@@ -165,9 +176,32 @@ class Engines:
                 )
         return self.loaded[engine]
 
+    def _voicevox(self):
+        from voicevox_core.blocking import Onnxruntime, OpenJtalk, Synthesizer, VoiceModelFile
+
+        root = self.models / VOICEVOX_DIR
+        runtime = next((root / 'onnxruntime/lib').glob('libvoicevox_onnxruntime*'))
+        synth = Synthesizer(
+            Onnxruntime.load_once(filename=str(runtime)),
+            OpenJtalk(str(root / 'dict/open_jtalk_dic_utf_8-1.11')),
+        )
+        style = VOICES['ja']['style']
+        for vvm in sorted((root / 'models/vvms').glob('*.vvm')):
+            with VoiceModelFile.open(vvm) as model:
+                if any(s.id == style for c in model.metas for s in c.styles):
+                    synth.load_voice_model(model)
+                    return synth
+        sys.exit(f'VOICEVOX-Stil {style} nicht gefunden in {root}/models/vvms.')
+
 
 def synthesize(engines: Engines, text: str, lang: str, target: Path) -> None:
     voice = VOICES[lang]
+    if voice['engine'] == 'voicevox':
+        synth = engines.get('voicevox')
+        query = synth.create_audio_query(text, voice['style'])
+        query.speed_scale = SPEED
+        target.write_bytes(synth.synthesis(query, voice['style']))
+        return
     if voice['engine'] == 'piper':
         import wave
 
@@ -188,7 +222,19 @@ def synthesize(engines: Engines, text: str, lang: str, target: Path) -> None:
 
 
 def ensure_models(models: Path, engines: set[str], download: bool) -> None:
-    files = {name: url for e in sorted(engines) for name, url in MODEL_FILES[e].items()}
+    if 'voicevox' in engines:
+        root = models / VOICEVOX_DIR
+        missing = [f for f in VOICEVOX_FILES if not (root / f).exists()]
+        if missing:
+            # Kein automatischer Download: dabei muss man den Nutzungsbedingungen zustimmen.
+            sys.exit(
+                f"VOICEVOX fehlt in {root}: {', '.join(missing)}.\n"
+                'Einrichtung (mit Zustimmung zu den Nutzungsbedingungen) siehe README.md '
+                '(Abschnitt „Audio erzeugen“).'
+            )
+    files = {
+        name: url for e in sorted(engines - {'voicevox'}) for name, url in MODEL_FILES[e].items()
+    }
     missing = [name for name in files if not (models / name).is_file()]
     if not missing:
         return

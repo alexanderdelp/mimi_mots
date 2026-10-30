@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { WORDS } from '../src/data/words';
 
-// B-64: auch Englisch aus MP3s (Piper)
-const LANGS = ['en', 'fr'] as const;
+// B-64: auch Englisch aus MP3s (Piper), B-67: Japanisch (VOICEVOX)
+const LANGS = ['en', 'fr', 'ja'] as const;
 const dir = (lang: string) => `public/audio/${lang}`;
 
 /** MP3 erkennbar an ID3-Tag oder MPEG-Frame-Sync (0xFFE…). */
@@ -38,13 +38,14 @@ describe('Audiodateien (B-30b)', () => {
 describe('Hörprüfliste (B-30b)', () => {
   const lines = readFileSync('audio-check.md', 'utf8').split('\n');
 
-  it('AT-30b.4/AT-64.6: jedes Wort genau einmal mit Kästchen für Englisch und Französisch', () => {
+  it('AT-30b.4/AT-64.6/AT-67.6: jedes Wort genau einmal mit Kästchen je Sprache', () => {
     for (const word of WORDS) {
       const rows = lines.filter((l) => l.startsWith(`| ${word.id} |`));
       expect(rows, word.id).toHaveLength(1);
       expect(rows[0]).toContain(word.en);
       expect(rows[0]).toContain(word.fr);
-      expect(rows[0].match(/\[[ x]\]/g), word.id).toHaveLength(2);
+      expect(rows[0]).toContain(word.ja);
+      expect(rows[0].match(/\[[ x]\]/g), word.id).toHaveLength(3);
     }
   });
 

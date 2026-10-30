@@ -5,7 +5,9 @@
     "de": "Apfel",
     "syllables": ["Ap", "fel"],
     "en": "apple",
-    "fr": "la pomme"
+    "fr": "la pomme",
+    "ja": "りんご",
+    "jaKana": "りんご"
   },
   {
     "id": "banane",
@@ -13,7 +15,9 @@
     "de": "Banane",
     "syllables": ["Ba", "na", "ne"],
     "en": "banana",
-    "fr": "la banane"
+    "fr": "la banane",
+    "ja": "バナナ",
+    "jaKana": "バナナ"
   },
   {
     "id": "erdbeere",
@@ -21,7 +25,9 @@
     "de": "Erdbeere",
     "syllables": ["Erd", "bee", "re"],
     "en": "strawberry",
-    "fr": "la fraise"
+    "fr": "la fraise",
+    "ja": "いちご",
+    "jaKana": "いちご"
   },
   {
     "id": "birne",
@@ -29,7 +35,9 @@
     "de": "Birne",
     "syllables": ["Bir", "ne"],
     "en": "pear",
-    "fr": "la poire"
+    "fr": "la poire",
+    "ja": "梨",
+    "jaKana": "なし"
   },
   {
     "id": "kirsche",
@@ -37,7 +45,9 @@
     "de": "Kirsche",
     "syllables": ["Kir", "sche"],
     "en": "cherry",
-    "fr": "la cerise"
+    "fr": "la cerise",
+    "ja": "さくらんぼ",
+    "jaKana": "さくらんぼ"
   },
   {
     "id": "zitrone",
@@ -45,7 +55,9 @@
     "de": "Zitrone",
     "syllables": ["Zi", "tro", "ne"],
     "en": "lemon",
-    "fr": "le citron"
+    "fr": "le citron",
+    "ja": "レモン",
+    "jaKana": "レモン"
   },
   {
     "id": "karotte",
@@ -53,7 +65,9 @@
     "de": "Karotte",
     "syllables": ["Ka", "rot", "te"],
     "en": "carrot",
-    "fr": "la carotte"
+    "fr": "la carotte",
+    "ja": "にんじん",
+    "jaKana": "にんじん"
   },
   {
     "id": "brot",
@@ -61,7 +75,9 @@
     "de": "Brot",
     "syllables": ["Brot"],
     "en": "bread",
-    "fr": "le pain"
+    "fr": "le pain",
+    "ja": "パン",
+    "jaKana": "パン"
   },
   {
     "id": "kaese",
@@ -69,7 +85,9 @@
     "de": "Käse",
     "syllables": ["Kä", "se"],
     "en": "cheese",
-    "fr": "le fromage"
+    "fr": "le fromage",
+    "ja": "チーズ",
+    "jaKana": "チーズ"
   },
   {
     "id": "ei",
@@ -77,7 +95,9 @@
     "de": "Ei",
     "syllables": ["Ei"],
     "en": "egg",
-    "fr": "l'œuf"
+    "fr": "l'œuf",
+    "ja": "卵",
+    "jaKana": "たまご"
   },
   {
     "id": "milch",
@@ -85,7 +105,9 @@
     "de": "Milch",
     "syllables": ["Milch"],
     "en": "milk",
-    "fr": "le lait"
+    "fr": "le lait",
+    "ja": "牛乳",
+    "jaKana": "ぎゅうにゅう"
   },
   {
     "id": "kuchen",
@@ -93,7 +115,9 @@
     "de": "Kuchen",
     "syllables": ["Ku", "chen"],
     "en": "cake",
-    "fr": "le gâteau"
+    "fr": "le gâteau",
+    "ja": "ケーキ",
+    "jaKana": "ケーキ"
   },
   {
     "id": "eis",
@@ -101,7 +125,9 @@
     "de": "Eis",
     "syllables": ["Eis"],
     "en": "ice cream",
-    "fr": "la glace"
+    "fr": "la glace",
+    "ja": "アイス",
+    "jaKana": "アイス"
   },
   {
     "id": "katze",
@@ -109,7 +135,9 @@
     "de": "Katze",
     "syllables": ["Kat", "ze"],
     "en": "cat",
-    "fr": "le chat"
+    "fr": "le chat",
+    "ja": "猫",
+    "jaKana": "ねこ"
   },
   {
     "id": "hund",
@@ -117,7 +145,9 @@
     "de": "Hund",
     "syllables": ["Hund"],
     "en": "dog",
-    "fr": "le chien"
+    "fr": "le chien",
+    "ja": "犬",
+    "jaKana": "いぬ"
   },
   {
     "id": "pferd",
@@ -125,7 +155,9 @@
     "de": "Pferd",
     "syllables": ["Pferd"],
     "en": "horse",
-    "fr": "le cheval"
+    "fr": "le cheval",
+    "ja": "馬",
+    "jaKana": "うま"
   },
   {
     "id": "maus",
@@ -133,7 +165,9 @@
     "de": "Maus",
     "syllables": ["Maus"],
     "en": "mouse",
-    "fr": "la souris"
+    "fr": "la souris",
+    "ja": "ねずみ",
+    "jaKana": "ねずみ"
   },
   {
     "id": "hase",
@@ -141,7 +175,9 @@
     "de": "Hase",
     "syllables": ["Ha", "se"],
     "en": "rabbit",
-    "fr": "le lapin"
+    "fr": "le lapin",
+    "ja": "うさぎ",
+    "jaKana": "うさぎ"
   },
   {
     "id": "vogel",
@@ -149,7 +185,9 @@
     "de": "Vogel",
     "syllables": ["Vo", "gel"],
     "en": "bird",
-    "fr": "l'oiseau"
+    "fr": "l'oiseau",
+    "ja": "鳥",
+    "jaKana": "とり"
   },
   {
     "id": "fisch",
@@ -157,7 +195,9 @@
     "de": "Fisch",
     "syllables": ["Fisch"],
     "en": "fish",
-    "fr": "le poisson"
+    "fr": "le poisson",
+    "ja": "魚",
+    "jaKana": "さかな"
   },
   {
     "id": "kuh",
@@ -165,7 +205,9 @@
     "de": "Kuh",
     "syllables": ["Kuh"],
     "en": "cow",
-    "fr": "la vache"
+    "fr": "la vache",
+    "ja": "牛",
+    "jaKana": "うし"
   },
   {
     "id": "schwein",
@@ -173,7 +215,9 @@
     "de": "Schwein",
     "syllables": ["Schwein"],
     "en": "pig",
-    "fr": "le cochon"
+    "fr": "le cochon",
+    "ja": "豚",
+    "jaKana": "ぶた"
   },
   {
     "id": "ente",
@@ -181,7 +225,9 @@
     "de": "Ente",
     "syllables": ["En", "te"],
     "en": "duck",
-    "fr": "le canard"
+    "fr": "le canard",
+    "ja": "カモ",
+    "jaKana": "カモ"
   },
   {
     "id": "baer",
@@ -189,7 +235,9 @@
     "de": "Bär",
     "syllables": ["Bär"],
     "en": "bear",
-    "fr": "l'ours"
+    "fr": "l'ours",
+    "ja": "熊",
+    "jaKana": "くま"
   },
   {
     "id": "loewe",
@@ -197,7 +245,9 @@
     "de": "Löwe",
     "syllables": ["Lö", "we"],
     "en": "lion",
-    "fr": "le lion"
+    "fr": "le lion",
+    "ja": "ライオン",
+    "jaKana": "ライオン"
   },
   {
     "id": "elefant",
@@ -205,7 +255,9 @@
     "de": "Elefant",
     "syllables": ["E", "le", "fant"],
     "en": "elephant",
-    "fr": "l'éléphant"
+    "fr": "l'éléphant",
+    "ja": "象",
+    "jaKana": "ぞう"
   },
   {
     "id": "schmetterling",
@@ -213,7 +265,9 @@
     "de": "Schmetterling",
     "syllables": ["Schmet", "ter", "ling"],
     "en": "butterfly",
-    "fr": "le papillon"
+    "fr": "le papillon",
+    "ja": "ちょうちょ",
+    "jaKana": "ちょうちょ"
   },
   {
     "id": "frosch",
@@ -221,7 +275,9 @@
     "de": "Frosch",
     "syllables": ["Frosch"],
     "en": "frog",
-    "fr": "la grenouille"
+    "fr": "la grenouille",
+    "ja": "かえる",
+    "jaKana": "かえる"
   },
   {
     "id": "ball",
@@ -229,7 +285,9 @@
     "de": "Ball",
     "syllables": ["Ball"],
     "en": "ball",
-    "fr": "le ballon"
+    "fr": "le ballon",
+    "ja": "ボール",
+    "jaKana": "ボール"
   },
   {
     "id": "haus",
@@ -237,7 +295,9 @@
     "de": "Haus",
     "syllables": ["Haus"],
     "en": "house",
-    "fr": "la maison"
+    "fr": "la maison",
+    "ja": "家",
+    "jaKana": "いえ"
   },
   {
     "id": "auto",
@@ -245,7 +305,9 @@
     "de": "Auto",
     "syllables": ["Au", "to"],
     "en": "car",
-    "fr": "la voiture"
+    "fr": "la voiture",
+    "ja": "車",
+    "jaKana": "くるま"
   },
   {
     "id": "buch",
@@ -253,7 +315,9 @@
     "de": "Buch",
     "syllables": ["Buch"],
     "en": "book",
-    "fr": "le livre"
+    "fr": "le livre",
+    "ja": "本",
+    "jaKana": "ほん"
   },
   {
     "id": "baum",
@@ -261,7 +325,9 @@
     "de": "Baum",
     "syllables": ["Baum"],
     "en": "tree",
-    "fr": "l'arbre"
+    "fr": "l'arbre",
+    "ja": "木",
+    "jaKana": "き"
   },
   {
     "id": "blume",
@@ -269,7 +335,9 @@
     "de": "Blume",
     "syllables": ["Blu", "me"],
     "en": "flower",
-    "fr": "la fleur"
+    "fr": "la fleur",
+    "ja": "花",
+    "jaKana": "はな"
   },
   {
     "id": "sonne",
@@ -277,7 +345,9 @@
     "de": "Sonne",
     "syllables": ["Son", "ne"],
     "en": "sun",
-    "fr": "le soleil"
+    "fr": "le soleil",
+    "ja": "太陽",
+    "jaKana": "たいよう"
   },
   {
     "id": "mond",
@@ -285,7 +355,9 @@
     "de": "Mond",
     "syllables": ["Mond"],
     "en": "moon",
-    "fr": "la lune"
+    "fr": "la lune",
+    "ja": "月",
+    "jaKana": "つき"
   },
   {
     "id": "stern",
@@ -293,7 +365,9 @@
     "de": "Stern",
     "syllables": ["Stern"],
     "en": "star",
-    "fr": "l'étoile"
+    "fr": "l'étoile",
+    "ja": "星",
+    "jaKana": "ほし"
   },
   {
     "id": "schuh",
@@ -301,7 +375,9 @@
     "de": "Schuh",
     "syllables": ["Schuh"],
     "en": "shoe",
-    "fr": "la chaussure"
+    "fr": "la chaussure",
+    "ja": "靴",
+    "jaKana": "くつ"
   },
   {
     "id": "hut",
@@ -309,7 +385,9 @@
     "de": "Hut",
     "syllables": ["Hut"],
     "en": "hat",
-    "fr": "le chapeau"
+    "fr": "le chapeau",
+    "ja": "帽子",
+    "jaKana": "ぼうし"
   },
   {
     "id": "fahrrad",
@@ -317,7 +395,9 @@
     "de": "Fahrrad",
     "syllables": ["Fahr", "rad"],
     "en": "bike",
-    "fr": "le vélo"
+    "fr": "le vélo",
+    "ja": "自転車",
+    "jaKana": "じてんしゃ"
   },
   {
     "id": "boot",
@@ -325,7 +405,9 @@
     "de": "Boot",
     "syllables": ["Boot"],
     "en": "boat",
-    "fr": "le bateau"
+    "fr": "le bateau",
+    "ja": "船",
+    "jaKana": "ふね"
   },
   {
     "id": "zug",
@@ -333,7 +415,9 @@
     "de": "Zug",
     "syllables": ["Zug"],
     "en": "train",
-    "fr": "le train"
+    "fr": "le train",
+    "ja": "電車",
+    "jaKana": "でんしゃ"
   },
   {
     "id": "regenschirm",
@@ -341,7 +425,9 @@
     "de": "Regenschirm",
     "syllables": ["Re", "gen", "schirm"],
     "en": "umbrella",
-    "fr": "le parapluie"
+    "fr": "le parapluie",
+    "ja": "傘",
+    "jaKana": "かさ"
   },
   {
     "id": "herz",
@@ -349,7 +435,9 @@
     "de": "Herz",
     "syllables": ["Herz"],
     "en": "heart",
-    "fr": "le cœur"
+    "fr": "le cœur",
+    "ja": "ハート",
+    "jaKana": "ハート"
   },
   {
     "id": "rot",
@@ -357,7 +445,9 @@
     "de": "rot",
     "syllables": ["rot"],
     "en": "red",
-    "fr": "rouge"
+    "fr": "rouge",
+    "ja": "赤",
+    "jaKana": "あか"
   },
   {
     "id": "blau",
@@ -365,7 +455,9 @@
     "de": "blau",
     "syllables": ["blau"],
     "en": "blue",
-    "fr": "bleu"
+    "fr": "bleu",
+    "ja": "青",
+    "jaKana": "あお"
   },
   {
     "id": "gelb",
@@ -373,7 +465,9 @@
     "de": "gelb",
     "syllables": ["gelb"],
     "en": "yellow",
-    "fr": "jaune"
+    "fr": "jaune",
+    "ja": "黄色",
+    "jaKana": "きいろ"
   },
   {
     "id": "gruen",
@@ -381,7 +475,9 @@
     "de": "grün",
     "syllables": ["grün"],
     "en": "green",
-    "fr": "vert"
+    "fr": "vert",
+    "ja": "緑",
+    "jaKana": "みどり"
   },
   {
     "id": "lila",
@@ -389,7 +485,9 @@
     "de": "lila",
     "syllables": ["li", "la"],
     "en": "purple",
-    "fr": "violet"
+    "fr": "violet",
+    "ja": "紫",
+    "jaKana": "むらさき"
   },
   {
     "id": "orange",
@@ -397,6 +495,8 @@
     "de": "orange",
     "syllables": ["o", "ran", "ge"],
     "en": "orange",
-    "fr": "orange"
+    "fr": "orange",
+    "ja": "オレンジ",
+    "jaKana": "オレンジ"
   }
 ]

@@ -7,7 +7,7 @@ import type { Store } from './state';
 export const STORAGE_KEY = 'mimi-mots:v1';
 export const VERSION = 1;
 
-export const LANGUAGES: readonly Language[] = ['en', 'fr'];
+export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja'];
 export const DURATIONS = [3, 7] as const;
 export type DurationMin = (typeof DURATIONS)[number];
 /** Frühere Dauern (bis B-27) → heutige Entsprechung, damit die Auswahl erhalten bleibt. */
@@ -51,7 +51,7 @@ export function defaults(): AppData {
   return {
     version: VERSION,
     settings: { companion: null, language: null, durationMin: 3 },
-    progress: { en: {}, fr: {} },
+    progress: { en: {}, fr: {}, ja: {} },
     rest: { sleeping: [], usedDurations: [], since: null },
   };
 }

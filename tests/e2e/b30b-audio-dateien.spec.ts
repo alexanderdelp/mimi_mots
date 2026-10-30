@@ -5,7 +5,7 @@ test.describe('B-30b Audio erzeugen', () => {
   test('AT-30b.3: Audiodateien werden unter /mimi_mots/audio/ ausgeliefert', async ({
     request,
   }) => {
-    for (const lang of ['en', 'fr']) {
+    for (const lang of ['en', 'fr', 'ja']) {
       for (const word of words) {
         const res = await request.get(`audio/${lang}/${word.id}.mp3`);
         expect(res.status(), `${lang}/${word.id}`).toBe(200);

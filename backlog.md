@@ -269,6 +269,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-66.3: Einsilbige Wörter (z. B. „Hund“) sind einfarbig in `--lila-900`.
   - AT-66.4: `--beere-600` hat auf Weiß einen Kontrast ≥ 4,5 : 1 und unterscheidet sich deutlich von `--lila-900` (Unit-Test).
   - AT-66.5: Das Wort bleibt ein Wort: keine Abstände oder Trennzeichen, Text der Karte = deutsches Wort; lange Wörter („Schmetterling“, „Regenschirm“) passen weiterhin auf allen drei Viewports.
+- [x] **B-67 Japanisch**: Dritte Lernsprache. Wörter in üblicher Schreibweise (Kanji, Hiragana oder Katakana) in `words.json` (`ja`), dazu die Kana-Lesung (`jaKana`) als Vorlage für die Aussprache – so liest die Stimme z. B. 月 als „つき“ und nicht „げつ“. Keine Lesehilfe in der App. Aussprache mit VOICEVOX, Stimme 冥鳴ひまり (kostenlos, auch kommerziell, mit Namensnennung „VOICEVOX:冥鳴ひまり“). Japanisch-Kachel auf der Startseite ist wählbar.
+  - AT-67.1: Jedes Wort hat `ja` und `jaKana`; `jaKana` besteht nur aus Hiragana, Katakana und ー (Unit-Test). Die Tabelle in `anforderungen.md` §10 stimmt mit `words.json` überein.
+  - AT-67.2: `generate_audio.py` erzeugt `public/audio/ja/<id>.mp3` mit VOICEVOX aus `jaKana` (gleiche Nachbearbeitung); Englisch, Französisch und Japanisch sind Standard. Fehlt VOICEVOX, bricht das Skript mit Hinweis auf die README ab (kein automatischer Download, weil man den Nutzungsbedingungen zustimmen muss).
+  - AT-67.3: Für jedes Wort gibt es `public/audio/ja/<id>.mp3`, jede < 16 KB (Unit-Test); alle Audiodateien zusammen < 2 MB.
+  - AT-67.4: Startseite: „Japanisch“ ist wählbar und wird gemerkt; das 2 × 2-Raster bleibt (EN | FR / JA | frei).
+  - AT-67.5: Lernrunde auf Japanisch: Flagge JP, „Auf Japanisch anhören“ spielt `audio/ja/<id>.mp3` und deckt `ja` mit `lang="ja"` auf; lange Wörter (z. B. ちょうちょ, じてんしゃ) passen. Japanische Dateien werden vorgeladen, andere nicht. Fallback ohne Datei: Web Speech `ja-JP`.
+  - AT-67.6: Abhörseite und `audio-check.md` haben eine Spalte für Japanisch; README nennt Einrichtung, Lizenzen und die Namensnennung „VOICEVOX:冥鳴ひまり“.
+  - Menschliche Abnahme: Stimme 冥鳴ひまり bestätigt; Hörprüfung der 50 Wörter folgt später.
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später
