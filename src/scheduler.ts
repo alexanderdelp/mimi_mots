@@ -4,11 +4,23 @@ import { MAX_BOX } from './storage';
 
 /** Gewicht je Leitner-Box 0..4: Ungewusstes kommt öfter. */
 export const BOX_WEIGHTS = [8, 5, 3, 2, 1] as const;
-export const MAX_NEW_PER_SESSION = 6;
+/** Höchstens so viele neue Wörter pro Session (B-70: 8 statt 6). */
+export const MAX_NEW_PER_SESSION = 8;
+/** Solange weniger Wörter bekannt sind, kommen nur neue (Startphase). */
+export const START_NEW = 6;
 /** Takt für neue Wörter: jedes 3. Wort ist neu (2 bekannte, 1 neues), bis das Limit erreicht ist. */
 export const NEW_INTERVAL = 3;
-/** Ein Wort kommt frühestens nach so vielen anderen Wörtern wieder. */
+/** Ein Wort kommt frühestens nach so vielen anderen Wörtern wieder (B-70: 6 statt 3) … */
+export const MAX_GAP = 6;
+/** … aber nie weniger als 3, und es bleiben immer mindestens 3 bekannte Wörter zur Auswahl,
+ *  damit die Gewichtung nach Stufe auch bei kleinem Wortschatz wirkt. */
 export const MIN_GAP = 3;
+export const MIN_CHOICES = 3;
+
+/** Pause (Anzahl anderer Wörter) bei `knownTotal` bekannten Wörtern. */
+export function gapFor(knownTotal: number): number {
+  return Math.min(MAX_GAP, Math.max(MIN_GAP, knownTotal - MIN_CHOICES));
+}
 
 export type Rng = () => number;
 export type Rating = 'known' | 'practice';
@@ -54,11 +66,11 @@ function randomOf<T>(items: readonly T[], rng: Rng): T {
 
 /**
  * Bestimmt das nächste Wort und den neuen Session-Stand.
- * - Neue Wörter (max. 6 pro Session): solange es weniger als 6 bekannte gibt, wird mit
+ * - Neue Wörter (max. 8 pro Session): solange es weniger als 6 bekannte gibt, wird mit
  *   neuen aufgefüllt; sonst ist jedes 3. Wort neu (gemischt mit bekannten).
  * - Bekannte Wörter gewichtet nach Leitner-Box.
- * - Die letzten 3 Wörter sind ausgeschlossen; nur wenn sonst nichts übrig bleibt,
- *   kommt das am längsten nicht gezeigte Wort.
+ * - Die letzten 3–6 Wörter sind ausgeschlossen (siehe `gapFor`); nur wenn sonst nichts übrig
+ *   bleibt, kommt das am längsten nicht gezeigte Wort.
  */
 export function pickNext(
   wordIds: readonly string[],
@@ -66,18 +78,17 @@ export function pickNext(
   session: Session,
   rng: Rng = Math.random,
 ): { id: string; session: Session } {
-  const recent = new Set(session.history.slice(-MIN_GAP));
+  const knownTotal = wordIds.filter((id) => progress[id]).length;
+  const recent = new Set(session.history.slice(-gapFor(knownTotal)));
   const known = wordIds.filter((id) => progress[id] && !recent.has(id));
   const fresh = wordIds.filter((id) => !progress[id] && !recent.has(id));
-  const knownTotal = wordIds.filter((id) => progress[id]).length;
   const newAllowed = session.introduced.length < MAX_NEW_PER_SESSION && fresh.length > 0;
   const lastNew = session.introduced.at(-1);
   const sinceLastNew =
     lastNew === undefined
       ? session.history.length
       : session.history.length - session.history.lastIndexOf(lastNew) - 1;
-  const newDue =
-    knownTotal < MAX_NEW_PER_SESSION || known.length === 0 || sinceLastNew >= NEW_INTERVAL - 1;
+  const newDue = knownTotal < START_NEW || known.length === 0 || sinceLastNew >= NEW_INTERVAL - 1;
 
   let id: string;
   if (newAllowed && newDue) {

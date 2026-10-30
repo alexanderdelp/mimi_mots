@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { WORDS } from '../src/data/words';
 import {
   BOX_WEIGHTS,
+  MAX_GAP,
   MAX_NEW_PER_SESSION,
   NEW_INTERVAL,
+  START_NEW,
+  gapFor,
   applyRating,
   createSession,
   pickNext,
@@ -55,7 +58,7 @@ describe('B-20 Scheduler – Akzeptanz', () => {
     }
   });
 
-  it('AT-20.2: höchstens 6 neue Wörter pro Session', () => {
+  it('AT-20.2/AT-70.3: höchstens 8 neue Wörter pro Session', () => {
     for (let seed = 1; seed <= 500; seed++) {
       const rng = seededRng(seed);
       // unterschiedlich viel Vorwissen: 0 bis 49 bekannte Wörter
@@ -73,13 +76,29 @@ describe('B-20 Scheduler – Akzeptanz', () => {
     }
   });
 
-  it('AT-20.3: erste Session beginnt mit 6 verschiedenen neuen Wörtern', () => {
+  it('AT-20.3/AT-70.3: erste Session beginnt mit 6 neuen Wörtern am Stück, dann bis 8 im Takt', () => {
     for (let seed = 1; seed <= 200; seed++) {
       const { session } = simulate({}, 40, seededRng(seed));
-      const first6 = session.history.slice(0, 6);
-      expect(new Set(first6).size).toBe(6);
-      expect(session.introduced).toEqual(first6);
-      expect(new Set(session.history).size).toBe(6); // danach keine weiteren neuen
+      const first = session.history.slice(0, START_NEW);
+      expect(new Set(first).size).toBe(START_NEW);
+      expect(session.introduced.slice(0, START_NEW)).toEqual(first);
+      expect(session.introduced).toHaveLength(MAX_NEW_PER_SESSION);
+      expect(new Set(session.history).size).toBe(MAX_NEW_PER_SESSION); // danach keine weiteren
+    }
+  });
+
+  it('AT-70.1: Pause wächst mit dem Wortschatz', () => {
+    expect([0, 3, 6, 7, 8, 9, 20, 61].map(gapFor)).toEqual([3, 3, 3, 4, 5, 6, 6, 6]);
+  });
+
+  it('AT-70.2: mit vielen bekannten Wörtern mindestens 6 andere vor einer Wiederholung', () => {
+    for (let seed = 1; seed <= 300; seed++) {
+      const { session } = simulate(evenProgress(), 60, seededRng(seed));
+      const h = session.history;
+      for (let i = 0; i < h.length; i++) {
+        const window = h.slice(Math.max(0, i - MAX_GAP), i);
+        expect(window, `Seed ${seed}, Position ${i}`).not.toContain(h[i]);
+      }
     }
   });
 
@@ -164,12 +183,14 @@ describe('B-20 Scheduler – Akzeptanz', () => {
         sessions++;
       }
       expect(Object.keys(progress)).toHaveLength(IDS.length);
-      // höchstens 6 neue Wörter pro Runde (bei 50 Wörtern 9 Runden, seit B-68 mit 61 Wörtern 11)
-      expect(sessions, `Seed ${seed}`).toBeLessThanOrEqual(Math.ceil(IDS.length / 6));
+      // höchstens 8 neue Wörter pro Runde (B-70): bei 61 Wörtern spätestens nach 8 Runden
+      expect(sessions, `Seed ${seed}`).toBeLessThanOrEqual(
+        Math.ceil(IDS.length / MAX_NEW_PER_SESSION),
+      );
     }
   });
 
-  it('AT-20.8: ab 6 bekannten Wörtern ist jedes 3. Wort neu, bis 6 eingeführt sind', () => {
+  it('AT-20.8/AT-70.4: ab 6 bekannten Wörtern ist jedes 3. Wort neu, bis 8 eingeführt sind', () => {
     for (let seed = 1; seed <= 200; seed++) {
       const start = Object.fromEntries(
         IDS.slice(0, 6 + (seed % 30)).map((id) => [
