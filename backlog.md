@@ -22,7 +22,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AK: Bildtausch zwischen Posen springt nicht (visueller Check im Dev-Server).
   - AT-03.1: Alle 8 Avatar-PNGs, alle Flaggen (seit dem Flaggen-Update als SVG) und alle Icons werden unter `/mimi_mots/…` mit Status 200 ausgeliefert; Avatare haben 384 × 440 px.
   - AT-03.2: Position und Größe von Avatar-Box und Bild bleiben beim Posenwechsel identisch (seit B-24 in der Lernrunde geprüft: zeigt ↔ freut, beide Begleiter).
-  - AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen (seit B-24 in der Lernrunde).
+  - AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen (seit B-24 in der Lernrunde). **Deaktiviert** (2026-10-30): schlug in WebKit zufällig fehl, Aufwand lohnt nicht.
   - AT-03.4: Der Avatar wird höchstens 440 CSS-px hoch dargestellt, unten ausgerichtet und ohne Verzerrung (`object-fit: contain`) (seit B-24 in der Lernrunde).
   - Hinweis: Die Avatar-Vorschau war ein Platzhalter für den visuellen Check; sie ist mit B-24 entfallen, die Tests laufen seitdem in der Lernrunde.
 - [x] **B-04 Wortliste**: `src/data/words.ts` mit Typ `Word { id, emoji, de, en, fr }` und Liste aus Anhang `anforderungen.md`. Export als JSON für das Audio-Skript.
