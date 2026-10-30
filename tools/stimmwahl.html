@@ -92,10 +92,11 @@
     </style>
   </head>
   <body>
-    <h1>Stimmwahl Englisch (nur im Dev-Server)</h1>
+    <h1 id="title">Stimmwahl (nur im Dev-Server)</h1>
+    <p id="languages"></p>
     <p>
-      Je Wort alle Stimmen als „Wort“ und „Wort.“ (mit Punkt) anhören. Ein Klick auf den runden
-      Knopf übernimmt die Aufnahme sofort in die App, merkt die Wahl in
+      Je Wort alle Stimmen der Sprache als „Wort“ und „Wort.“ (mit Punkt) anhören. Ein Klick auf den
+      runden Knopf übernimmt die Aufnahme sofort in die App, merkt die Wahl in
       <code>audio-choices.json</code> und hakt das Wort in <code>audio-check.md</code> ab (✓). „App“
       spielt, was die App gerade abspielt.
     </p>
@@ -112,13 +113,38 @@
     <script type="module">
       import words from '../src/data/words.json';
 
-      const LANG = 'en';
-      const VOICES = {
-        'piper-ljspeech': 'Piper ljspeech',
-        'piper-kristin': 'Piper kristin',
-        'piper-cori': 'Piper cori (GB)',
-        'kokoro-af_heart': 'Kokoro af_heart',
+      // Stimmoptionen wie VOICE_OPTIONS in scripts/generate_audio.py (B-78/B-79)
+      const LANGUAGES = {
+        en: {
+          name: 'Englisch',
+          voices: {
+            'piper-ljspeech': 'Piper ljspeech',
+            'piper-kristin': 'Piper kristin',
+            'piper-cori': 'Piper cori (GB)',
+            'kokoro-af_heart': 'Kokoro af_heart',
+          },
+        },
+        fr: {
+          name: 'Französisch',
+          voices: {
+            'kokoro-siwis': 'Kokoro siwis',
+            'piper-mls-1840': 'Piper mls 1840',
+            'piper-mls-3698': 'Piper mls 3698',
+            'piper-tom': 'Piper tom (AGPL)',
+          },
+        },
       };
+      const requested = new URLSearchParams(location.search).get('lang');
+      const LANG = requested in LANGUAGES ? requested : 'en';
+      const VOICES = LANGUAGES[LANG].voices;
+      document.title = `Stimmwahl ${LANGUAGES[LANG].name} – Mimi & Mots`;
+      document.getElementById('title').textContent =
+        `Stimmwahl ${LANGUAGES[LANG].name} (nur im Dev-Server)`;
+      document.getElementById('languages').innerHTML = Object.entries(LANGUAGES)
+        .map(([code, l]) =>
+          code === LANG ? `<b>${l.name}</b>` : `<a href="?lang=${code}">${l.name}</a>`,
+        )
+        .join(' · ');
       const VARIANTS = { word: 'Wort', dot: 'Wort.' };
       const base = import.meta.env.BASE_URL;
       const audio = new Audio();

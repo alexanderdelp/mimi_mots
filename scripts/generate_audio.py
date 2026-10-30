@@ -44,6 +44,14 @@ VOICE_OPTIONS = {
         'piper-cori': {'engine': 'piper', 'voice': 'en_GB-cori-high'},
         'kokoro-af_heart': {'engine': 'kokoro', 'voice': 'af_heart', 'lang': 'en-us'},
     },
+    # B-79: Piper mls (LibriVox, CC BY 4.0, von Grund auf trainiert; mehrere Sprecher) und tom
+    # (AGPL-Modell). siwis-medium/upmc fallen weg (Lessac-Basis, nur Forschung).
+    'fr': {
+        'kokoro-siwis': VOICES['fr'],
+        'piper-mls-1840': {'engine': 'piper', 'voice': 'fr_FR-mls-medium', 'speaker': 0},
+        'piper-mls-3698': {'engine': 'piper', 'voice': 'fr_FR-mls-medium', 'speaker': 1},
+        'piper-tom': {'engine': 'piper', 'voice': 'fr_FR-tom-medium'},
+    },
 }
 # „word“: das Wort allein; „dot“: mit Punkt („egg.“) – endet dann oft sauberer
 VARIANTS = {'word': '', 'dot': '.'}
@@ -275,9 +283,8 @@ def synthesize(engines: Engines, text: str, voice: dict, target: Path) -> None:
         from piper import SynthesisConfig
 
         with wave.open(str(target), 'wb') as wav:
-            engines.get(voice).synthesize_wav(
-                text, wav, syn_config=SynthesisConfig(length_scale=1 / SPEED)
-            )
+            config = SynthesisConfig(length_scale=1 / SPEED, speaker_id=voice.get('speaker'))
+            engines.get(voice).synthesize_wav(text, wav, syn_config=config)
         return
 
     import soundfile as sf

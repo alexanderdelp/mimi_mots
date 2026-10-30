@@ -127,6 +127,16 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(names, expected)
         self.assertIn('cat.', {j.text for j in jobs})
 
+    def test_french_options(self):
+        """B-79: Französisch mit Kokoro siwis, zwei mls-Sprechern und tom."""
+        options = ga.VOICE_OPTIONS['fr']
+        self.assertEqual(options['kokoro-siwis'], ga.VOICES['fr'])
+        self.assertEqual({options['piper-mls-1840']['speaker'], options['piper-mls-3698']['speaker']}, {0, 1})
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_candidates(WORDS, 'fr', Path(tmp), ['katze'])
+        self.assertEqual(len(jobs), len(options) * len(ga.VARIANTS))
+        self.assertIn('le chat.', {j.text for j in jobs})
+
     def test_piper_files(self):
         self.assertEqual(
             ga.piper_files('en_GB-cori-high')['piper/en_GB-cori-high.onnx'],
