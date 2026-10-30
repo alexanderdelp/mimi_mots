@@ -77,12 +77,15 @@ export function pickNext(
   progress: LanguageProgress,
   session: Session,
   rng: Rng = Math.random,
+  /** B-75: „Nur bekannte“ – keine neuen Wörter in dieser Runde. */
+  knownOnly = false,
 ): { id: string; session: Session } {
   const knownTotal = wordIds.filter((id) => progress[id]).length;
   const recent = new Set(session.history.slice(-gapFor(knownTotal)));
   const known = wordIds.filter((id) => progress[id] && !recent.has(id));
   const fresh = wordIds.filter((id) => !progress[id] && !recent.has(id));
-  const newAllowed = session.introduced.length < MAX_NEW_PER_SESSION && fresh.length > 0;
+  const newAllowed =
+    !knownOnly && session.introduced.length < MAX_NEW_PER_SESSION && fresh.length > 0;
   const lastNew = session.introduced.at(-1);
   const sinceLastNew =
     lastNew === undefined
@@ -99,7 +102,9 @@ export function pickNext(
       rng,
     );
   } else {
-    id = leastRecent(wordIds, session.history);
+    // nur wenn sonst nichts übrig bleibt; bei „Nur bekannte“ unter den bekannten
+    const pool = knownOnly && knownTotal > 0 ? wordIds.filter((w) => progress[w]) : wordIds;
+    id = leastRecent(pool, session.history);
   }
 
   const isNew = !progress[id] && !session.introduced.includes(id);

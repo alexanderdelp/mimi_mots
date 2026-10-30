@@ -46,7 +46,7 @@ export function showNextWord(store: Store, rng?: () => number): void {
   const { round, data } = store.getState();
   const language = data.settings.language;
   if (!round || !language) return;
-  const next = pickNext(WORD_IDS, data.progress[language], round.session, rng);
+  const next = pickNext(WORD_IDS, data.progress[language], round.session, rng, round.knownOnly);
   store.dispatch({ type: 'word', id: next.id, session: next.session });
 }
 

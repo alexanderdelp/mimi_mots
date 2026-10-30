@@ -4,6 +4,7 @@ import {
   createStore,
   createStore as createStoreAt,
   isComplete,
+  seenCount,
   nextView,
   reduce,
   type AppEvent,
@@ -175,6 +176,7 @@ describe('Lernrunde (B-21)', () => {
       wordId: null,
       revealed: false,
       expired: false,
+      knownOnly: false,
     });
   });
 
@@ -187,6 +189,7 @@ describe('Lernrunde (B-21)', () => {
       wordId: 'apfel',
       revealed: false,
       expired: false,
+      knownOnly: false,
     });
   });
 
@@ -661,5 +664,28 @@ describe('Tutorial (B-74)', () => {
     expect(reduce(at('admin', true), { type: 'resetTutorial' }).data.tutorialDone).toBe(false);
     const round = at('round', true);
     expect(reduce(round, { type: 'resetTutorial' })).toBe(round);
+  });
+});
+
+describe('Nur bekannte (B-75)', () => {
+  const entry = { box: 1, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' };
+  const withSeen = (n: number) => {
+    const data = complete();
+    data.progress.en = Object.fromEntries(
+      ['apfel', 'hund', 'katze', 'maus', 'ei', 'brot', 'kuh'].slice(0, n).map((id) => [id, entry]),
+    );
+    return data;
+  };
+  const play = (n: number, knownOnly: boolean) =>
+    reduce(
+      { view: 'start', portrait: false, data: withSeen(n), round: null },
+      { type: 'play', knownOnly },
+    ).round!.knownOnly;
+
+  it('gilt ab 6 gesehenen Wörtern der gewählten Sprache, sonst nicht', () => {
+    expect(seenCount(withSeen(5))).toBe(5);
+    expect(play(6, true)).toBe(true);
+    expect(play(5, true)).toBe(false);
+    expect(play(7, false)).toBe(false);
   });
 });

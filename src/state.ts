@@ -8,7 +8,7 @@ import { DURATIONS, LANGUAGES, localDay, type AppData, type Settings } from './s
 export type ViewName = 'start' | 'round' | 'end' | 'sleep' | 'admin';
 
 export type AppEvent =
-  | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
+  | { type: 'play'; knownOnly?: boolean } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
   | { type: 'admin' } // Start/Schlafseite → Elternbereich (verstecktes Halten des Icons, B-69)
@@ -102,12 +102,23 @@ function isAvailable(data: AppData): boolean {
 }
 
 /** Lernrunde: Scheduler-Session, aktuelles Wort (null, bis das erste gewählt ist), ob das
- *  Fremdwort schon aufgedeckt wurde und ob die Zeit abgelaufen ist. */
+ *  Fremdwort schon aufgedeckt wurde, ob die Zeit abgelaufen ist und ob nur bekannte Wörter
+ *  kommen (B-75). */
 export interface RoundState {
   session: Session;
   wordId: string | null;
   revealed: boolean;
   expired: boolean;
+  knownOnly: boolean;
+}
+
+/** „Nur bekannte“ ist möglich ab so vielen schon gesehenen Wörtern der Sprache (B-75). */
+export const MIN_KNOWN_FOR_KNOWN_ONLY = 6;
+
+/** Anzahl schon gesehener Wörter (Stufe 0–4) der gewählten Sprache. */
+export function seenCount(data: AppData): number {
+  const language = data.settings.language;
+  return language ? Object.keys(data.progress[language]).length : 0;
 }
 
 export interface AppState {
@@ -238,7 +249,16 @@ function step(state: AppState, event: AppEvent): AppState {
   // Jede Lernrunde beginnt mit einer neuen Scheduler-Session.
   const round =
     view === 'round'
-      ? { session: createSession(), wordId: null, revealed: false, expired: false }
+      ? {
+          session: createSession(),
+          wordId: null,
+          revealed: false,
+          expired: false,
+          knownOnly:
+            event.type === 'play' &&
+            !!event.knownOnly &&
+            seenCount(state.data) >= MIN_KNOWN_FOR_KNOWN_ONLY,
+        }
       : state.round;
   return { ...state, view, round };
 }

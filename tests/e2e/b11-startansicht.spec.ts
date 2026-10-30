@@ -90,7 +90,10 @@ test.describe('B-11 Startansicht', () => {
         expect(overlap, `${a.name} / ${b.name}`).toBe(false);
       }
     }
-    const tiles = boxes.filter((b) => b.name.includes('choice-tile'));
+    // Auswahlkacheln der drei Gruppen; „Nur bekannte“ (B-75) ist eine eigene Kachel neben Play
+    const tiles = boxes.filter(
+      (b) => b.name.includes('choice-tile') && !b.name.includes('start__known'),
+    );
     expect(tiles).toHaveLength(7);
     for (const t of tiles) {
       expect(t.w).toBeGreaterThanOrEqual(88);

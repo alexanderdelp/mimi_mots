@@ -251,7 +251,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-61.3 (Leitprinzip 4): Avatare haben keine Animation und keinen Übergang; alle Übergänge und Animationen dauern ≤ 200 ms (Ausnahme: Fortschrittsring von [×], dokumentiert); mit „Bewegung reduzieren“ dauert nichts länger als 0 ms.
   - AT-61.4 (Leitprinzip 6): Ein kompletter Ablauf (Start → Runde → Abschluss → Schlafseite → Elternbereich) stellt keine Anfrage an einen fremden Server.
   - AT-61.5 (Leitprinzip 5): Der Produktionsbuild ist kleiner als 5 MB und der Service Worker speichert alle Bilder und Audiodateien vor.
-  - AT-61.6 (Leitprinzip 3, Texte): Checkliste der sichtbaren Texte (Deutsch, kurz, du-Form) in `anforderungen.md` §11; in den Kind-Ansichten höchstens 12 Wörter Text außer den Lernwörtern.
+  - AT-61.6 (Leitprinzip 3, Texte): Checkliste der sichtbaren Texte (Deutsch, kurz, du-Form) in `anforderungen.md` §11; in den Kind-Ansichten höchstens 12 Wörter Text außer den Lernwörtern (seit B-75: 14, die Startseite hat mit „Nur bekannte“ 13).
 - [ ] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten.
 
 ## Nach Abschluss
