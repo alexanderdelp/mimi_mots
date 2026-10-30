@@ -1,0 +1,248 @@
+{
+  "en": {
+    "acht": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "apfel": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "auto": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "baer": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "ball": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "banane": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "baum": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "birne": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "blau": {
+      "voice": "piper-kristin",
+      "variant": "dot"
+    },
+    "blume": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "boot": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "brot": {
+      "voice": "piper-kristin",
+      "variant": "dot"
+    },
+    "buch": {
+      "voice": "piper-kristin",
+      "variant": "dot"
+    },
+    "drei": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "ei": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "eins": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "eis": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "elefant": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "ente": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "erdbeere": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "fahrrad": {
+      "voice": "piper-kristin",
+      "variant": "dot"
+    },
+    "fisch": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "frosch": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "fuenf": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "gelb": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "gruen": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "hase": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "haus": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "herz": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "hund": {
+      "voice": "piper-kristin",
+      "variant": "dot"
+    },
+    "hut": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "kaese": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "karotte": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "katze": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "kirsche": {
+      "voice": "piper-kristin",
+      "variant": "dot"
+    },
+    "kuchen": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "kuh": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "lila": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "loewe": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "maus": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "milch": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "mond": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "neun": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "null": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "orange": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "pferd": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "regenschirm": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "rot": {
+      "voice": "piper-kristin",
+      "variant": "dot"
+    },
+    "schmetterling": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "schuh": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "schwein": {
+      "voice": "kokoro-af_heart",
+      "variant": "word"
+    },
+    "sechs": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "sieben": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "sonne": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "stern": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "vier": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "vogel": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "zehn": {
+      "voice": "piper-cori",
+      "variant": "word"
+    },
+    "zitrone": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "zug": {
+      "voice": "piper-cori",
+      "variant": "dot"
+    },
+    "zwei": {
+      "voice": "piper-cori",
+      "variant": "word"
+    }
+  }
+}
