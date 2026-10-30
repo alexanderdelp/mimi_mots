@@ -331,7 +331,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-76.1: Playwright-Projekt `iphone-852x393` (WebKit, Touch); alle bisherigen Akzeptanztests laufen auch dort (Ausnahmen begründet im Test).
   - AT-76.2: Jede Ansicht (B-60) passt auf 852 × 393: kein Scrollen, kein Überlauf, Kontrast ok; Schaltflächen ≥ 44 px (Apple-Mindestmaß; die 88 px gelten fürs iPad).
   - AT-76.3: Hochformat 393 × 852: Dreh-Hinweis passt.
-- [ ] **B-77 Echte Grafiken für Schlafen und Radschlag**: Die gelieferten Bilder ersetzen die Platzhalter. Sie werden auf die doppelte Anzeigegröße verkleinert und zugeschnitten (Schlafbilder 640 px breit, Radschlag 880 px hoch), damit der Offline-Speicher unter 5 MB bleibt. Das quer liegende Schlafbild nutzt auf der Startseite die volle Kachelbreite und steht unten auf der Grundlinie der Sitzbilder.
+- [x] **B-77 Echte Grafiken für Schlafen und Radschlag**: Die gelieferten Bilder ersetzen die Platzhalter. Sie werden auf die doppelte Anzeigegröße verkleinert und zugeschnitten (Schlafbilder 640 px breit, Radschlag 880 px hoch), damit der Offline-Speicher unter 5 MB bleibt. Das quer liegende Schlafbild nutzt auf der Startseite die volle Kachelbreite und steht unten auf der Grundlinie der Sitzbilder.
   - AT-77.1: Radschlag-Bilder sind 880–1320 px hoch, Schlafbilder 440–660 px breit (scharf auf Retina, nicht übergroß); AT-72.2 entsprechend angepasst.
   - AT-77.2: Startseite mit schlafendem Begleiter: Schlafbild so breit wie die Kachel (abzüglich Rand), unten ausgerichtet; passt auf allen Viewports (Screenshot, AT-65.8).
   - AT-77.3: Precache bleibt unter 5 MB (AT-51.5).
