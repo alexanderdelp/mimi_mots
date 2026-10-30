@@ -80,7 +80,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-20.4: Gewichtung: Bei Wörtern gleichmäßig in Box 0–4 entspricht die Häufigkeit der Gewichtswahl 8 : 5 : 3 : 2 : 1 (±10 %); in ganzen Sessions kommen Wörter niedrigerer Boxen häufiger dran als die höherer Boxen.
   - AT-20.5: Bewertung: „Wusste ich“ → Box + 1 (max. 4), „Noch üben“ → Box 0; `seen` + 1, `lastSeenAt` = jetzt; andere Wörter und die Eingabe bleiben unverändert.
   - AT-20.6: Gleicher Seed → gleiche Wortfolge (reproduzierbar).
-  - AT-20.7: Über mehrere Sessions werden nach und nach alle 50 Wörter eingeführt (spätestens nach 9 Sessions à 40 Wörtern, wenn alles gewusst wird).
+  - AT-20.7: Über mehrere Sessions werden nach und nach alle Wörter eingeführt (spätestens nach ⌈Wortanzahl ÷ 6⌉ Sessions à 40 Wörtern, wenn alles gewusst wird; bei 50 Wörtern 9, seit B-68 mit 61 Wörtern 11).
   - AT-20.8: Ab 6 bekannten Wörtern ist in einer Session jedes 3. Wort neu (Positionen 3, 6, 9 …), bis 6 neue eingeführt sind.
 - [x] **B-21 Wortkarte**: Emoji groß, deutsches Wort; Flaggen-Button; Fremdwort verborgen.
   - AT-21.1: Nach Play zeigt die Lernrunde ein Wort aus der Wortliste: Emoji und deutsches Wort gehören zusammen.
@@ -277,6 +277,11 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-67.5: Lernrunde auf Japanisch: Flagge JP, „Auf Japanisch anhören“ spielt `audio/ja/<id>.mp3` und deckt `ja` mit `lang="ja"` auf; lange Wörter (z. B. ちょうちょ, じてんしゃ) passen. Japanische Dateien werden vorgeladen, andere nicht. Fallback ohne Datei: Web Speech `ja-JP`.
   - AT-67.6: Abhörseite und `audio-check.md` haben eine Spalte für Japanisch; README nennt Einrichtung, Lizenzen und die Namensnennung „VOICEVOX:冥鳴ひまり“.
   - Menschliche Abnahme: Stimme 冥鳴ひまり bestätigt; Hörprüfung der 50 Wörter folgt später.
+- [x] **B-68 Zahlen 0–10**: Elf neue Wörter (null bis zehn) in allen Sprachen, Bild als Tasten-Emoji (0️⃣ … 🔟). Deutsch klein wie die Farben, Französisch ohne Artikel, Japanisch als Kanji bzw. ゼロ (Lesung よん für 4, なな für 7). Audio für alle drei Sprachen.
+  - AT-68.1: Die Wortliste hat 61 Wörter; die Zahlen 0–10 stehen mit id, Emoji, Deutsch (mit Silben), Englisch, Französisch, Japanisch und Kana-Lesung in `words.json` und in `anforderungen.md` §10 (Unit-Test).
+  - AT-68.2: Zahlen haben im Französischen keinen Artikel, im Englischen keinen; alle Emojis bleiben eindeutig und sind ein einzelnes, farbiges Bildzeichen (AT-04.1).
+  - AT-68.3: Für jede Zahl gibt es `audio/<en|fr|ja>/<id>.mp3`, jede < 16 KB; alle Audiodateien zusammen < 2 MB (Unit-Test).
+  - AT-68.4: Zahlen kommen in der Lernrunde vor wie andere Wörter (Scheduler unverändert); `audio-check.md` und Abhörseite enthalten sie.
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später

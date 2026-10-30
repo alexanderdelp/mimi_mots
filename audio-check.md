@@ -59,3 +59,14 @@ Abhaken (`[x]`), wenn die Aussprache passt. Klingt etwas falsch, in der Spalte �
 | gruen | 🟢 grün | green | [ ] | vert | [ ] | 緑（みどり） | [ ] |  |
 | lila | 🟣 lila | purple | [ ] | violet | [ ] | 紫（むらさき） | [ ] |  |
 | orange | 🟠 orange | orange | [ ] | orange | [ ] | オレンジ | [ ] |  |
+| null | 0️⃣ null | zero | [ ] | zéro | [ ] | ゼロ | [ ] |  |
+| eins | 1️⃣ eins | one | [ ] | un | [ ] | 一（いち） | [ ] |  |
+| zwei | 2️⃣ zwei | two | [ ] | deux | [ ] | 二（に） | [ ] |  |
+| drei | 3️⃣ drei | three | [ ] | trois | [ ] | 三（さん） | [ ] |  |
+| vier | 4️⃣ vier | four | [ ] | quatre | [ ] | 四（よん） | [ ] |  |
+| fuenf | 5️⃣ fünf | five | [ ] | cinq | [ ] | 五（ご） | [ ] |  |
+| sechs | 6️⃣ sechs | six | [ ] | six | [ ] | 六（ろく） | [ ] |  |
+| sieben | 7️⃣ sieben | seven | [ ] | sept | [ ] | 七（なな） | [ ] |  |
+| acht | 8️⃣ acht | eight | [ ] | huit | [ ] | 八（はち） | [ ] |  |
+| neun | 9️⃣ neun | nine | [ ] | neuf | [ ] | 九（きゅう） | [ ] |  |
+| zehn | 🔟 zehn | ten | [ ] | dix | [ ] | 十（じゅう） | [ ] |  |

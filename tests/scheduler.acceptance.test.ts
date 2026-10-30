@@ -164,7 +164,8 @@ describe('B-20 Scheduler – Akzeptanz', () => {
         sessions++;
       }
       expect(Object.keys(progress)).toHaveLength(IDS.length);
-      expect(sessions, `Seed ${seed}`).toBeLessThanOrEqual(9);
+      // höchstens 6 neue Wörter pro Runde (bei 50 Wörtern 9 Runden, seit B-68 mit 61 Wörtern 11)
+      expect(sessions, `Seed ${seed}`).toBeLessThanOrEqual(Math.ceil(IDS.length / 6));
     }
   });
 
