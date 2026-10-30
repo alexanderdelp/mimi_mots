@@ -3,7 +3,7 @@ import { WORDS, getWord } from '../src/data/words';
 import { seededRng } from '../src/scheduler';
 import { defaults } from '../src/storage';
 import { createStore } from '../src/state';
-import { renderRound, showNextWord } from '../src/views/round';
+import { TUTORIAL_STEPS, penLoop, renderRound, showNextWord } from '../src/views/round';
 
 // Vorladen der Audiodateien: in jsdom gibt es keinen Server – alle Dateien gelten als vorhanden.
 // (Der Player ist modulweit geteilt; ohne das würden frühe Tests Dateien als fehlend markieren.)
@@ -298,48 +298,94 @@ describe('Tutorial (B-74)', () => {
   const click = (el: HTMLElement, label: string) =>
     el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!.click();
 
-  it('drei Schritte mit Probewort, nur der hervorgehobene Button wirkt, zählt nicht', () => {
+  it('B-87: zehn Schritte, jeder Tipp geht weiter, Buttons wirken nicht, zählt nicht', () => {
     const store = tutorialStore();
     const { el } = renderRound(store);
     const bubble = el.querySelector('.tutorial-bubble')!;
+    const avatar = () => el.querySelector('.round__avatar img')!.getAttribute('src');
+    const marked = () => el.querySelector('.tutorial-target');
+    const tap = () => el.querySelector<HTMLElement>('.word-card')!.click();
     expect(el.querySelector('.word-card')!.getAttribute('data-word-id')).toBe('apfel');
-    expect(el.querySelector('.round__avatar img')!.getAttribute('src')).toMatch(/cat_/);
-    // Einleitung: ein Tipp irgendwohin geht weiter, Buttons wirken dabei nicht
-    expect(bubble.textContent).toBe('Schön, dass du da bist!');
-    expect(el.querySelector('.tutorial-target')).toBeNull();
-    click(el, 'Auf Französisch anhören');
-    expect(el.querySelector('.round__foreign')!.textContent).toBe('');
-    expect(bubble.textContent).toBe('Ich erkläre dir, was du hier machst.');
-    el.querySelector<HTMLElement>('.word-card')!.click();
-    expect(bubble.textContent).toBe('Tippe hier – so klingt das Wort.');
-    expect(el.querySelector('.tutorial-target .tutorial-mark')).not.toBeNull();
-    expect(el.querySelector('.tutorial-target')!.getAttribute('aria-label')).toBe(
-      'Auf Französisch anhören',
-    );
+    expect(TUTORIAL_STEPS).toHaveLength(10);
+    for (const step of TUTORIAL_STEPS) expect(step.text.split(' ').length).toBeLessThanOrEqual(12);
 
-    click(el, 'Wusste ich'); // noch nicht dran
-    expect(el.dataset.tutorial).toBe('3');
+    // Begrüßung: der gewählte Begleiter (Mots) winkt, alles andere unscharf
+    expect(bubble.textContent).toBe('Hallo! Schön, dass du da bist!');
+    expect(avatar()).toMatch(/pony_waving/);
+    expect(el.dataset.tutorialBlur).toBe('all');
+    expect(el.dataset.tutorialTimer).toBe('false'); // Uhr erst mit ihrem Schritt
+    expect(marked()).toBeNull();
+    click(el, 'Wusste ich'); // jeder Tipp geht weiter, bewertet aber nicht
+    expect(bubble.textContent).toBe('Lass uns mal sehen, was du hier machen kannst.');
+    expect(avatar()).toMatch(/pony_idle/);
+    tap();
+
+    // Wortkarte, Übersetzungskarte noch unscharf; Kreis in eigener Ebene, wird gezogen
+    expect(el.dataset.tutorialBlur).toBe('answer');
+    expect(marked()!.classList.contains('word-card')).toBe(true);
+    const mark = el.querySelector('.tutorial-mark')!;
+    expect(mark.parentElement).toBe(el);
+    expect(mark.classList.contains('tutorial-mark--draw')).toBe(true);
+    tap();
+    expect(el.dataset.tutorialBlur).toBe('none');
+    expect(marked()!.classList.contains('round__flag')).toBe(true);
+    expect(bubble.textContent).toBe('Sprich das übersetzte Wort laut aus.');
+    click(el, 'Noch üben');
+    expect(marked()!.getAttribute('aria-label')).toBe('Auf Französisch anhören');
+    expect(el.querySelector('.round__foreign')!.textContent).toBe('');
     click(el, 'Auf Französisch anhören');
     expect(el.querySelector('.round__foreign')!.textContent).toBe('la pomme');
-    expect(bubble.textContent).toBe('Wusstest du es? Dann tippe hier.');
-    click(el, 'Noch üben'); // noch nicht dran
-    expect(el.dataset.tutorial).toBe('4');
+    expect(marked()!.getAttribute('aria-label')).toBe('Wusste ich');
     click(el, 'Wusste ich');
-    expect(bubble.textContent).toBe('Noch nicht? Dann tippe hier.');
-    expect(store.getState().round!.wordId).toBeNull();
+    expect(marked()!.getAttribute('aria-label')).toBe('Noch üben');
+    const path = el.querySelector('.tutorial-mark path')!.getAttribute('d');
     click(el, 'Noch üben');
-    expect(bubble.textContent).toBe('Und jetzt viel Erfolg – los geht’s!');
+    expect(bubble.textContent).toBe('Das Wort kommt dann später wieder.');
+    expect(el.querySelector('.tutorial-mark path')!.getAttribute('d')).toBe(path); // bleibt stehen
+    click(el, 'Noch üben');
+    expect(marked()!.classList.contains('round__timer')).toBe(true);
+    expect(el.dataset.tutorialBlur).toBe('all');
+    expect(el.dataset.tutorialTimer).toBe('true');
+    expect(store.getState().round!.wordId).toBeNull();
+    tap();
+    expect(bubble.textContent).toBe('Los geht’s!');
+    expect(avatar()).toMatch(/pony_waving/);
+    expect(el.dataset.tutorialBlur).toBe('all');
     expect(el.querySelector('.tutorial-mark')).toBeNull();
     expect(store.getState().data.tutorialDone).toBe(false);
 
-    el.querySelector<HTMLElement>('.word-card')!.click();
+    tap();
     expect(el.dataset.tutorial).toBeUndefined();
+    expect(el.dataset.tutorialBlur).toBeUndefined();
+    expect(el.dataset.tutorialTimer).toBeUndefined();
     expect(bubble.hasAttribute('hidden')).toBe(true);
     expect(store.getState().data.tutorialDone).toBe(true);
     expect(store.getState().round!.wordId).not.toBeNull();
     expect(store.getState().data.progress.fr).toEqual({}); // Probewort zählt nicht
-    expect(el.querySelector('.round__avatar img')!.getAttribute('src')).toMatch(/pony_/);
+    expect(avatar()).toMatch(/pony_/);
     expect(el.querySelectorAll('.tutorial-target')).toHaveLength(0);
+  });
+
+  it('B-87: penLoop ist eine geschlossene Schleife mit mehr als einer Umdrehung', () => {
+    const d = penLoop(200, 100);
+    const pts = d
+      .slice(1)
+      .split(' L')
+      .map((p) => p.split(' ').map(Number));
+    for (const [x, y] of pts) {
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThanOrEqual(200);
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(y).toBeLessThanOrEqual(100);
+    }
+    // Winkel um die Mitte aufsummieren: mehr als 360°
+    let total = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const a = Math.atan2(pts[i - 1][1] - 50, pts[i - 1][0] - 100);
+      const b = Math.atan2(pts[i][1] - 50, pts[i][0] - 100);
+      total += Math.atan2(Math.sin(b - a), Math.cos(b - a));
+    }
+    expect(Math.abs(total)).toBeGreaterThan(2 * Math.PI);
   });
 
   it('kein Tutorial, wenn es schon gesehen wurde', () => {

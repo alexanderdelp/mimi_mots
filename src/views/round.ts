@@ -1,7 +1,7 @@
 // Lernrunde (anforderungen.md §3.2): Kopfleiste, Avatar zeigt auf die Wortkarte,
 // Lautsprecher zum Aufdecken und Vorlesen (Flagge daneben nur zur Anzeige), danach
 // Selbsteinschätzung; oben rechts das Timer-Zifferblatt. In der allerersten Runde erklärt
-// Mimi vorher an einem Probewort die drei Buttons (Tutorial, B-74).
+// der Begleiter vorher an einem Probewort, was es hier gibt (Tutorial, B-74/B-87).
 import { createAudioPlayer } from '../audio';
 import { createAppHeader } from '../components/app-header';
 import { createAvatar, type Pose } from '../components/avatar';
@@ -24,8 +24,7 @@ const FOREIGN_MIN_PX = 28;
 /** Unter dieser Größe wird ein zu langes Wort lieber getrennt als weiter verkleinert. */
 const FOREIGN_BREAK_BELOW_PX = 36;
 
-/** Tutorial (B-74): Probewort und die Schritte. Ohne Ziel geht es mit einem Tipp irgendwohin
- *  weiter; mit Ziel nur über den eingekreisten Button. */
+/** Tutorial (B-74/B-87): Probewort und die Schritte. Ein Tipp irgendwohin geht weiter. */
 export const TUTORIAL_WORD = 'apfel';
 
 /** Probewort der Sprache: Apfel, oder das erste Wort des Wortschatzes, wenn Apfel fehlt (B-84). */
@@ -33,18 +32,74 @@ export function tutorialWord(language: Language): Word {
   const words = vocabulary(language);
   return words.find((w) => w.id === TUTORIAL_WORD) ?? words[0];
 }
-export const TUTORIAL_STEPS: readonly { target: string | null; text: string }[] = [
-  { target: null, text: 'Schön, dass du da bist!' },
-  { target: null, text: 'Ich erkläre dir, was du hier machst.' },
-  { target: 'speaker', text: 'Tippe hier – so klingt das Wort.' },
-  { target: 'known', text: 'Wusstest du es? Dann tippe hier.' },
-  { target: 'practice', text: 'Noch nicht? Dann tippe hier.' },
-  { target: null, text: 'Und jetzt viel Erfolg – los geht’s!' },
+
+export type TutorialTarget = 'card' | 'flag' | 'speaker' | 'known' | 'practice' | 'timer';
+
+/** Unscharf (B-87): alles außer Kopfleiste und Begleiter, oder nur die Übersetzungskarte (samt
+ *  Bewertung). Die Kopfleiste bleibt immer scharf. */
+export type TutorialBlur = 'all' | 'answer';
+
+export interface TutorialStep {
+  text: string;
+  pose: Pose;
+  /** Eingekreistes Element; null = keins. */
+  target: TutorialTarget | null;
+  blur?: TutorialBlur;
+}
+
+export const TUTORIAL_STEPS: readonly TutorialStep[] = [
+  { text: 'Hallo! Schön, dass du da bist!', pose: 'winkt', target: null, blur: 'all' },
+  {
+    text: 'Lass uns mal sehen, was du hier machen kannst.',
+    pose: 'freut',
+    target: null,
+    blur: 'all',
+  },
+  { text: 'Hier ist das Wort zum Übersetzen.', pose: 'zeigt', target: 'card', blur: 'answer' },
+  { text: 'Sprich das übersetzte Wort laut aus.', pose: 'zeigt', target: 'flag' },
+  { text: 'Tippe hier, um es anzuhören.', pose: 'zeigt', target: 'speaker' },
+  { text: 'Hast du es gewusst? Dann tippe hier.', pose: 'ruhig', target: 'known' },
+  { text: 'Wusstest du es noch nicht? Dann tippe hier.', pose: 'ruhig', target: 'practice' },
+  { text: 'Das Wort kommt dann später wieder.', pose: 'ruhig', target: 'practice' },
+  {
+    text: 'Nach einiger Zeit werde ich müde und möchte mich hinlegen.',
+    pose: 'zeigt',
+    target: 'timer',
+    blur: 'all',
+  },
+  { text: 'Los geht’s!', pose: 'winkt', target: null, blur: 'all' },
 ];
 
-/** Von Hand eingekreist: leicht unregelmäßige Schleife, die über den Anfang hinausläuft. */
-const PEN_CIRCLE =
-  'M34 12 C60 0 92 10 96 42 C100 74 74 98 44 94 C16 90 0 66 6 40 C11 20 30 6 58 6 C72 6 84 12 90 22';
+/** Die Uhr erscheint erst, wenn sie erklärt wird (B-87). */
+const TIMER_STEP = TUTORIAL_STEPS.findIndex((step) => step.target === 'timer');
+
+/**
+ * Von Hand eingekreist (B-87): eine leicht unregelmäßige Schleife mit gut einer Umdrehung, die
+ * oben links beginnt und über den Anfang hinausläuft – in Pixeln für eine Box w × h berechnet,
+ * damit der Strich überall gleich dick ist und die Zeichen-Animation den ganzen Weg geht.
+ */
+export function penLoop(w: number, h: number): string {
+  const steps = 72;
+  const turns = 1.25;
+  const start = -2.5; // oben links
+  const rx = (w / 2 - 3) / 1.05;
+  const ry = (h / 2 - 3) / 1.05;
+  const points = Array.from({ length: steps + 1 }, (_, i) => {
+    const t = start + (i / steps) * turns * 2 * Math.PI;
+    // leichtes Wackeln und ein wenig nach innen, damit sich der Strich am Ende nicht deckt
+    const wobble = 1 + 0.035 * Math.sin(2.3 * t + 0.5) - 0.05 * (i / steps);
+    const x = w / 2 + rx * wobble * Math.cos(t);
+    const y = h / 2 + ry * wobble * Math.sin(t);
+    return `${x.toFixed(1)} ${y.toFixed(1)}`;
+  });
+  return `M${points.join(' L')}`;
+}
+
+/** Abstand des Kreises um das Ziel – um die Uhr am Rand der Kopfleiste enger. */
+function markPadding(target: TutorialTarget, height: number): [number, number] {
+  if (target === 'timer') return [height * 0.16, height * 0.08];
+  return [Math.min(44, height * 0.45), Math.min(16, height * 0.18)];
+}
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -90,10 +145,10 @@ export function renderRound(store: Store): ViewHandle {
   timerSlot.append(dial.el);
 
   // Avatar links unten, damit die Zeigegeste nach rechts zu den Karten geht; nur Bildtausch.
-  // Im Tutorial erklärt immer Mimi, danach übernimmt der gewählte Begleiter.
+  // Das Tutorial erklärt der gewählte Begleiter selbst (B-87) – er legt sich später auch hin.
   let tutorialStep = store.getState().data.tutorialDone ? -1 : 0;
   const avatarSlot = el('div', 'round__avatar');
-  let avatar = createAvatar(tutorialStep >= 0 ? 'mimi' : (settings.companion ?? 'mimi'), 'zeigt');
+  const avatar = createAvatar(settings.companion ?? 'mimi', 'zeigt');
   const bubble = el('p', 'tutorial-bubble');
   bubble.setAttribute('role', 'status');
   bubble.hidden = true;
@@ -122,7 +177,7 @@ export function renderRound(store: Store): ViewHandle {
 
   // Tipp auf den Lautsprecher: aufdecken und (erneut, von vorn) vorlesen
   speaker.addEventListener('click', () => {
-    if (tutorialStep >= 0) return tutorialTap('speaker');
+    if (tutorialStep >= 0) return; // im Tutorial fängt onTutorialTap jeden Tipp ab
     const id = store.getState().round?.wordId;
     const word = id ? getWord(id) : undefined;
     if (!word) return;
@@ -140,7 +195,7 @@ export function renderRound(store: Store): ViewHandle {
     const button = roundButton(label, name, 'rating-button');
     button.dataset.rating = value;
     button.addEventListener('click', () => {
-      if (tutorialStep >= 0) return tutorialTap(value);
+      if (tutorialStep >= 0) return;
       if (!store.getState().round?.revealed) return;
       player.stop();
       store.dispatch({ type: 'rate', rating: value, at: new Date().toISOString() });
@@ -227,65 +282,102 @@ export function renderRound(store: Store): ViewHandle {
   onVisibility();
   if (store.getState().portrait) timer.pause('portrait');
 
-  // Tutorial (B-74): nur der eingekreiste Button reagiert; das Probewort zählt nicht
-  const targets = { speaker, known: rating.children[0], practice: rating.children[1] } as Record<
-    string,
-    Element
-  >;
+  // Tutorial (B-74/B-87): ein Tipp irgendwohin geht weiter; das Probewort zählt nicht
+  const targets: Record<TutorialTarget, Element> = {
+    card,
+    flag,
+    speaker,
+    known: rating.children[0],
+    practice: rating.children[1],
+    timer: timerSlot,
+  };
+  // Der Kreis liegt in einer eigenen Ebene über der Ansicht (auch um Bilder wie die Flagge)
+  // und bleibt immer ganz im Bild.
   const mark = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   mark.setAttribute('class', 'tutorial-mark');
-  mark.setAttribute('viewBox', '0 0 100 100');
-  mark.setAttribute('preserveAspectRatio', 'none');
   mark.setAttribute('aria-hidden', 'true');
-  mark.innerHTML = `<path d="${PEN_CIRCLE}" />`;
+  const markPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  markPath.setAttribute('pathLength', '100');
+  mark.append(markPath);
+  let marked: TutorialTarget | null = null;
+  const placeMark = () => {
+    if (!marked) return;
+    const box = targets[marked].getBoundingClientRect();
+    const frame = view.getBoundingClientRect();
+    const [padX, padY] = markPadding(marked, box.height);
+    const left = Math.max(2, box.left - frame.left - padX);
+    const top = Math.max(2, box.top - frame.top - padY);
+    const right = Math.min(frame.width - 2, box.right - frame.left + padX);
+    const bottom = Math.min(frame.height - 2, box.bottom - frame.top + padY);
+    const [w, h] = [Math.max(right - left, 1), Math.max(bottom - top, 1)];
+    Object.assign(mark.style, { left: `${left}px`, top: `${top}px` });
+    mark.setAttribute('width', String(w));
+    mark.setAttribute('height', String(h));
+    mark.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    markPath.setAttribute('d', penLoop(w, h));
+  };
+  window.addEventListener('resize', placeMark);
   const showTutorialStep = () => {
     const step = TUTORIAL_STEPS[tutorialStep];
+    const previous = TUTORIAL_STEPS[tutorialStep - 1];
     view.dataset.tutorial = String(tutorialStep + 1);
-    // zur Begrüßung winkt Mimi (wie beim Abschied), danach zeigt sie wieder auf die Karten
-    if (tutorialStep === 0) avatar.setPose('winkt');
-    else if (tutorialStep === 1) avatar.setPose('zeigt');
+    view.dataset.tutorialBlur = step.blur ?? 'none';
+    view.dataset.tutorialTimer = String(tutorialStep >= TIMER_STEP);
     bubble.textContent = step.text;
     bubble.hidden = false;
+    // nach dem Lautsprecher ist das Probewort aufgedeckt, damit die Bewertung Sinn ergibt
+    if (previous?.target === 'speaker') renderForeign(tutorialWord(language), true);
+    if (avatar.pose !== step.pose) avatar.setPose(step.pose);
     for (const [name, node] of Object.entries(targets)) {
       node.classList.toggle('tutorial-target', name === step.target);
     }
-    if (step.target) targets[step.target].append(mark);
-    else mark.remove();
+    if (!step.target) {
+      marked = null;
+      return mark.remove();
+    }
+    // gleiches Ziel wie zuvor: Kreis bleibt stehen; neues Ziel: wird neu gezogen
+    if (marked !== step.target) {
+      marked = step.target;
+      view.append(mark);
+      placeMark();
+      mark.classList.remove('tutorial-mark--draw');
+      void mark.getBoundingClientRect();
+      mark.classList.add('tutorial-mark--draw');
+    }
   };
   const nextTutorialStep = () => {
     tutorialStep++;
     if (tutorialStep < TUTORIAL_STEPS.length) return showTutorialStep();
     finishTutorial();
   };
-  const tutorialTap = (name: string) => {
-    if (TUTORIAL_STEPS[tutorialStep].target !== name) return;
-    const probe = tutorialWord(language);
-    if (name === 'speaker') {
-      renderForeign(probe, true);
-      player.play(probe, language);
+  // Jeder Tipp geht weiter – vor den Buttons abgefangen, damit sie im Tutorial nichts tun.
+  // Ein Tipp auf den Lautsprecher spielt das Probewort trotzdem ab.
+  const onTutorialTap = (event: Event) => {
+    if (tutorialStep < 0) return;
+    event.stopPropagation();
+    event.preventDefault();
+    const step = TUTORIAL_STEPS[tutorialStep];
+    if (step.target === 'speaker' && speaker.contains(event.target as Node)) {
+      player.play(tutorialWord(language), language);
     } else {
       player.stop();
     }
     nextTutorialStep();
   };
-  // Sprechblasen ohne Ziel: ein Tipp irgendwohin geht weiter (vor den Buttons abgefangen)
-  const onTutorialTap = (event: Event) => {
-    if (tutorialStep < 0 || TUTORIAL_STEPS[tutorialStep].target) return;
-    event.stopPropagation();
-    event.preventDefault();
-    nextTutorialStep();
-  };
   view.addEventListener('click', onTutorialTap, true);
   const finishTutorial = () => {
-    // geschafft: Begleiter übernimmt, erstes echtes Wort, jetzt läuft die Uhr
+    // geschafft: erstes echtes Wort, jetzt läuft die Uhr
     tutorialStep = -1;
     view.removeEventListener('click', onTutorialTap, true);
     delete view.dataset.tutorial;
+    delete view.dataset.tutorialBlur;
+    delete view.dataset.tutorialTimer;
     bubble.hidden = true;
+    marked = null;
     mark.remove();
+    window.removeEventListener('resize', placeMark);
     Object.values(targets).forEach((node) => node.classList.remove('tutorial-target'));
-    avatar = createAvatar(settings.companion ?? 'mimi', 'zeigt');
-    avatarSlot.replaceChildren(bubble, avatar.el);
+    avatar.setPose('zeigt');
     store.dispatch({ type: 'tutorialDone' });
     showNextWord(store);
     timer.start();
@@ -305,6 +397,7 @@ export function renderRound(store: Store): ViewHandle {
     el: view,
     dispose() {
       unsubscribe();
+      window.removeEventListener('resize', placeMark);
       timer.dispose();
       document.removeEventListener('visibilitychange', onVisibility);
       stopLongPress();

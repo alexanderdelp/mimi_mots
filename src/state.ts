@@ -220,6 +220,10 @@ function step(state: AppState, event: AppEvent): AppState {
     };
   }
   if (event.type === 'play' && !isAvailable(state.data)) return state;
+  // B-87: Abbruch im Tutorial – zurück zur Auswahl, niemand schläft ein, Tutorial bleibt offen
+  if (event.type === 'finish' && state.view === 'round' && !state.data.tutorialDone) {
+    return { ...state, view: 'start', round: null };
+  }
   if (event.type === 'home' && state.view === 'end') {
     const data = withRestSettings(state.data);
     return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };

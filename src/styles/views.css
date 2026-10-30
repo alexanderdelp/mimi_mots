@@ -394,6 +394,7 @@
   width: 88px;
   height: 88px;
   pointer-events: none;
+  transition: opacity var(--transition);
 }
 
 /* Timer-Zifferblatt (B-41): weiße Scheibe, lila Restzeit-Sektor, Strichmarken, keine Ziffern */
@@ -784,8 +785,28 @@
   opacity: 0.45;
 }
 
-/* Tutorial (B-74): Mimi erklärt in einer Sprechblase über sich, der gemeinte Button trägt einen
-   ruhigen Ring (keine Animation). */
+/* Tutorial (B-74/B-87): der Begleiter erklärt in einer Sprechblase über sich; das Gemeinte wird
+   eingekreist. Zu Beginn ist alles außer Kopfleiste und Begleiter unscharf. */
+.round__cards > *,
+.round__rating {
+  transition: filter var(--transition);
+}
+
+/* B-87: „all“ – Karten und Bewertung; „answer“ – nur Übersetzungskarte (und Bewertung).
+   Kopfleiste und Begleiter bleiben immer scharf. */
+.view--round[data-tutorial-blur='all'] .round__cards > *,
+.view--round[data-tutorial-blur='all'] .round__rating,
+.view--round[data-tutorial-blur='answer'] .round__answer,
+.view--round[data-tutorial-blur='answer'] .round__rating {
+  filter: blur(8px);
+}
+
+/* Die Uhr erscheint erst, wenn sie erklärt wird; ihr Platz bleibt, damit nichts springt */
+.view--round[data-tutorial-timer='false'] .round__timer {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .tutorial-bubble {
   align-self: stretch;
   position: relative;
@@ -815,18 +836,15 @@
 }
 
 /* wie mit dem Stift eingekreist: Beere (zweite Silbenfarbe), Strich so kräftig wie die Schrift
-   des deutschen Worts, liegt über dem Button und fängt keine Tipps ab */
-.tutorial-target {
+   des deutschen Worts. Eigene Ebene über der Ansicht, Lage und Größe setzt round.ts (oval:
+   breiter als das Ziel, damit es nach Einkreisen aussieht); fängt keine Tipps ab. */
+.view--round {
   position: relative;
-  overflow: visible;
 }
 
-/* oval: deutlich breiter als hoch, damit es nach Einkreisen aussieht und nicht nach Rahmen */
-.tutorial-target > .tutorial-mark {
+.tutorial-mark {
   position: absolute;
-  inset: -16px -44px;
-  width: calc(100% + 88px);
-  height: calc(100% + 32px);
+  z-index: 2;
   max-width: none;
   max-height: none;
   overflow: visible;
@@ -839,7 +857,27 @@
   stroke-width: 4px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
+}
+
+/* B-87: wird wie mit dem Stift gezogen (Ausnahme von der 200-ms-Regel wie der Haltering, §11) */
+.tutorial-mark--draw path {
+  stroke-dasharray: 100;
+  animation: tutorial-draw 700ms ease-out both;
+}
+
+@keyframes tutorial-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-mark--draw path {
+    animation: none;
+  }
 }
 
 /* beide Beschriftungen im selben Rasterfeld: Breite = die längere, nichts springt */
@@ -1088,12 +1126,6 @@
   .tutorial-bubble {
     padding: 8px 10px;
     font-size: 14px;
-  }
-
-  .tutorial-target > .tutorial-mark {
-    inset: -10px -26px;
-    width: calc(100% + 52px);
-    height: calc(100% + 20px);
   }
 
   .tutorial-mark path {
