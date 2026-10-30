@@ -1,9 +1,7 @@
 // Schlafseite (B-65): Beide Begleiter schlafen. Kopfleiste wie überall, Bild und ein Satz.
-// Aufwecken nur durch Gedrückthalten des Icons in der Kopfleiste – bewusst ohne jeden Hinweis
-// (keine Schaltfläche, keine Rückmeldung beim Drücken), damit es Sache der Eltern bleibt.
+// Aufwecken nur im Elternbereich; der öffnet sich durch verstecktes Halten des Icons (B-69).
 import { bothSleepingUrl } from '../components/avatar';
-import { createAppHeader } from '../components/app-header';
-import { onLongPress } from '../components/long-press';
+import { createAppHeader, onIconHold } from '../components/app-header';
 import type { Store } from '../state';
 import type { ViewHandle } from './view';
 
@@ -15,8 +13,7 @@ export function renderSleep(store: Store): ViewHandle {
   view.dataset.view = 'sleep';
 
   const header = createAppHeader();
-  const logo = header.querySelector<HTMLElement>('.app-header__icon')!;
-  const release = onLongPress(logo, () => store.dispatch({ type: 'wake' }));
+  const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
 
   const picture = document.createElement('img');
   picture.className = 'sleep__picture';

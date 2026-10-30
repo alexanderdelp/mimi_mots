@@ -500,22 +500,28 @@ describe('Schlafende Begleiter (B-65)', () => {
     expect(state.data.settings).toMatchObject({ companion: 'mots', durationMin: 7 });
   });
 
-  it('wake weckt alle, gibt alle Dauern frei und behält die Auswahl', () => {
+  it('wake (Elternbereich, B-69) weckt alle, gibt alle Dauern frei und behält die Auswahl', () => {
     const data = rest(['mimi', 'mots'], [3, 7]);
     data.settings = { companion: 'mots', language: 'fr', durationMin: 7 };
     const store = createStore(data);
+    store.dispatch({ type: 'admin' });
+    expect(store.getState().view).toBe('admin');
     store.dispatch({ type: 'wake' });
+    expect(store.getState().view).toBe('admin');
+    store.dispatch({ type: 'leave' });
     const state = store.getState();
     expect(state.view).toBe('start');
     expect(state.data.rest).toEqual({ sleeping: [], usedDurations: [], since: null });
     expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', durationMin: 7 });
   });
 
-  it('wake wirkt nur auf der Schlafseite', () => {
-    const store = createStore(rest(['mimi'], [3]));
-    const before = store.getState();
-    store.dispatch({ type: 'wake' });
-    expect(store.getState()).toBe(before);
+  it('wake wirkt nur im Elternbereich (nicht mehr auf der Schlafseite)', () => {
+    for (const data of [rest(['mimi'], [3]), rest(['mimi', 'mots'], [3, 7])]) {
+      const store = createStore(data);
+      const before = store.getState();
+      store.dispatch({ type: 'wake' });
+      expect(store.getState()).toBe(before);
+    }
   });
 
   it('App-Start an einem späteren Tag: alle wach, Dauern frei, Startseite', () => {
@@ -554,5 +560,42 @@ describe('Schlafende Begleiter (B-65)', () => {
 
   it('Schlaf ohne Datum gilt als alt', () => {
     expect(createStore(rest(['mimi', 'mots'], [3, 7], null)).getState().view).toBe('start');
+  });
+});
+
+describe('Elternbereich (B-69)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+
+  it('erreichbar von Start- und Schlafseite, nicht aus Runde oder Abschluss', () => {
+    expect(reduce(at('start'), { type: 'admin' }).view).toBe('admin');
+    expect(reduce(at('sleep'), { type: 'admin' }).view).toBe('admin');
+    expect(reduce(at('round'), { type: 'admin' }).view).toBe('round');
+    expect(reduce(at('end'), { type: 'admin' }).view).toBe('end');
+  });
+
+  it('leave führt zur Schlafseite, wenn beide schlafen, sonst zum Start', () => {
+    const asleep = complete();
+    asleep.rest = { sleeping: ['mimi', 'mots'], usedDurations: [3, 7], since: '2026-10-30' };
+    expect(reduce(at('admin', asleep), { type: 'leave' }, '2026-10-30').view).toBe('sleep');
+    expect(reduce(at('admin'), { type: 'leave' }, '2026-10-30').view).toBe('start');
+  });
+
+  it('resetProgress leert nur die gewählte Sprache', () => {
+    const data = complete();
+    const entry = { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' };
+    data.progress = { en: { apfel: entry }, fr: { hund: entry }, ja: { katze: entry } };
+    const next = reduce(at('admin', data), { type: 'resetProgress', language: 'fr' });
+    expect(next.data.progress).toEqual({ en: { apfel: entry }, fr: {}, ja: { katze: entry } });
+    expect(next.view).toBe('admin');
+  });
+
+  it('resetProgress wirkt nur im Elternbereich', () => {
+    const state = at('start');
+    expect(reduce(state, { type: 'resetProgress', language: 'en' })).toBe(state);
   });
 });

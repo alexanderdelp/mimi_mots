@@ -59,6 +59,7 @@ src/
   views/round.ts     Lernrunde
   views/end.ts       Abschluss
   views/sleep.ts     Schlafseite (beide Begleiter schlafen, B-65)
+  views/admin.ts     Elternbereich (verstecktes Halten des Icons, B-69)
   components/        timer-dial.ts, choice-tile.ts, avatar.ts
   styles/            tokens.css, base.css, views.css
 scripts/generate_audio.py

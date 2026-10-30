@@ -133,31 +133,13 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await expect(view(page, 'start')).toHaveCount(0);
   });
 
-  test('AT-65.7: Icon lange halten weckt, kurz halten nicht, kein Hinweis', async ({ page }) => {
+  test('AT-65.7 (seit B-69): Aufwecken über den Elternbereich', async ({ page }) => {
     await seed(page, ['mimi', 'mots'], [3, 7]);
     await page.goto('./');
-    const icon = '[data-view="sleep"] .app-header__icon';
-    const look = () =>
-      page.locator(icon).evaluate((e) => {
-        const s = getComputedStyle(e);
-        return [s.opacity, s.transform, s.filter, s.boxShadow, s.outlineStyle].join('|');
-      });
-    const before = await look();
-    expect(await page.locator(icon).getAttribute('role')).toBeNull();
-    expect(await page.locator(icon).getAttribute('aria-label')).toBeNull();
-    await page.locator(icon).click();
-    await hold(page, icon, 400);
-    await expect(view(page, 'sleep')).toBeVisible();
-
-    // während des Haltens sieht das Icon unverändert aus
-    const box = (await page.locator(icon).boundingBox())!;
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.down();
-    await page.clock.runFor(300);
-    expect(await look()).toBe(before);
-    await page.clock.runFor(400);
-    await page.mouse.up();
-
+    await hold(page, '[data-view="sleep"] .app-header__icon', 700);
+    await expect(view(page, 'admin')).toBeVisible();
+    await btn(page, 'Alle aufwecken').click();
+    await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
     for (const name of ['Mimi', 'Mots', '3 Minuten', '7 Minuten']) {
       await expect(btn(page, name)).toBeEnabled();

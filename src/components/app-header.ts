@@ -1,5 +1,6 @@
 // Kopfleiste mit App-Icon und Titel – auf allen Seiten gleich. Links und rechts gibt es feste
 // Plätze, z. B. für [×] und den Timer in der Lernrunde; Icon und Titel bleiben immer mittig.
+import { onLongPress } from './long-press';
 
 export interface AppHeaderSlots {
   start?: Node;
@@ -30,4 +31,14 @@ export function createAppHeader(slots: AppHeaderSlots = {}): HTMLElement {
 
   el.append(slot('start', slots.start), brand, slot('end', slots.end));
   return el;
+}
+
+/**
+ * Verstecktes Gedrückthalten des App-Icons (B-69): öffnet den Elternbereich. Bewusst ohne
+ * Hinweis – keine Schaltfläche, keine sichtbare Rückmeldung. Gibt eine Aufräumfunktion zurück.
+ */
+export function onIconHold(header: HTMLElement, action: () => void): () => void {
+  const logo = header.querySelector<HTMLElement>('.app-header__icon')!;
+  logo.classList.add('app-header__icon--hold');
+  return onLongPress(logo, action);
 }

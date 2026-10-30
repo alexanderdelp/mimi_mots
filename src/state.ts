@@ -2,15 +2,19 @@
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
 import { COMPANIONS } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
+import type { Language } from './data/words';
 import { DURATIONS, localDay, type AppData, type Settings } from './storage';
 
-export type ViewName = 'start' | 'round' | 'end' | 'sleep';
+export type ViewName = 'start' | 'round' | 'end' | 'sleep' | 'admin';
 
 export type AppEvent =
   | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
-  | { type: 'wake' } // Schlafseite → Start, alle wach und alle Dauern frei (B-65)
+  | { type: 'admin' } // Start/Schlafseite → Elternbereich (verstecktes Halten des Icons, B-69)
+  | { type: 'leave' } // Elternbereich → Start bzw. Schlafseite
+  | { type: 'wake' } // Elternbereich: alle wach und alle Dauern frei (B-65/B-69)
+  | { type: 'resetProgress'; language: Language } // Elternbereich: Lernstand einer Sprache leeren
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
   | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
@@ -103,10 +107,11 @@ export interface AppState {
 
 /** Erlaubte Ansichtswechsel; alles andere wird ignoriert. */
 const TRANSITIONS: Record<ViewName, Partial<Record<AppEvent['type'], ViewName>>> = {
-  start: { play: 'round' },
+  start: { play: 'round', admin: 'admin' },
   round: { finish: 'end' },
   end: { home: 'start' },
-  sleep: { wake: 'start' },
+  sleep: { admin: 'admin' },
+  admin: {},
 };
 
 export function nextView(view: ViewName, event: AppEvent): ViewName {
@@ -189,8 +194,16 @@ function step(state: AppState, event: AppEvent): AppState {
     const data = withRestSettings(state.data);
     return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
   }
-  if (event.type === 'wake' && state.view === 'sleep') {
-    return { ...state, view: 'start', data: { ...state.data, rest: AWAKE } };
+  if (event.type === 'wake' && state.view === 'admin') {
+    return { ...state, data: withRestSettings({ ...state.data, rest: AWAKE }) };
+  }
+  if (event.type === 'leave' && state.view === 'admin') {
+    const data = withRestSettings(state.data);
+    return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
+  }
+  if (event.type === 'resetProgress' && state.view === 'admin') {
+    const progress = { ...state.data.progress, [event.language]: {} };
+    return { ...state, data: { ...state.data, progress } };
   }
   const view = nextView(state.view, event);
   if (view === state.view) return state;

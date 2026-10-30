@@ -10,12 +10,14 @@ import { renderStart } from './views/start';
 import { renderRound } from './views/round';
 import { renderEnd } from './views/end';
 import { renderSleep } from './views/sleep';
+import { renderAdmin } from './views/admin';
 
 const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
   start: renderStart,
   round: renderRound,
   end: renderEnd,
   sleep: renderSleep,
+  admin: renderAdmin,
 };
 
 const PORTRAIT_QUERY = '(orientation: portrait)';
