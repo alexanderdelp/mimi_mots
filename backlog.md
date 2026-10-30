@@ -308,6 +308,9 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-71.1: Der Prüfstand wird je Wort und Sprache aus `audio-check.md` gelesen (`[x]` = geprüft, sonst offen); fehlt ein Wort in der Datei, gilt es als offen (Unit-Test).
   - AT-71.2: Geprüft: lila ausgefüllt; offen: gestrichelter lila Rahmen, kein Hintergrund. Eine Legende erklärt beides.
   - AT-71.3: Nach einer Änderung an `audio-check.md` zeigt die Seite den neuen Stand (Dev-Server lädt neu).
+- [x] **B-72 Hochformat: Begleiter schlägt Rad**: Der Hochformat-Hinweis zeigt den gewählten Begleiter (ohne Wahl Mimi) beim Radschlagen statt sitzend, dazu weiterhin das Dreh-Symbol. Der Text „iPad drehen“ entfällt (bleibt nur als Name für Screenreader). Bilder `cat_cartwheel.png` und `pony_cartwheel.png` sind Platzhalter.
+  - AT-72.1: Im Hochformat zeigt der Hinweis das Radschlag-Bild des gewählten Begleiters (ohne Wahl Mimi, nach Wahl von Mots das Pony) und das Dreh-Symbol; es ist kein Text sichtbar. Der Hinweis heißt für Screenreader „iPad drehen“ (ersetzt AT-52.1/52.2).
+  - AT-72.2: Die Radschlag-Bilder sind 384 × 440 px groß, werden ausgeliefert und vom Service Worker gespeichert; der Hinweis passt weiter auf 768 × 1024, 820 × 1180 und 1024 × 1366 (AT-60.1).
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später

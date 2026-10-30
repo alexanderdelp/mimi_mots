@@ -41,7 +41,8 @@ npm run audio        # scripts/generate_audio.py – erzeugt fehlende MP3s (loka
 public/
   avatars/   cat_sitting.png, cat_pointing.png, cat_idle.png, cat_waving.png
              pony_sitting.png, pony_pointing.png, pony_idle.png, pony_waving.png
-             cat_sleeping.png, pony_sleeping.png, both_sleeping.png (Platzhalter, B-65)
+             cat_sleeping.png, pony_sleeping.png (Platzhalter), both_sleeping.png (B-65)
+             cat_cartwheel.png, pony_cartwheel.png (Platzhalter, B-72)
              (Originaldateien, transparente PNGs, 384 × 440 – unverändert übernehmen)
   flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg (scharfe Vektorflaggen)
   audio/     en/<wortId>.mp3, fr/<wortId>.mp3, ja/<wortId>.mp3
@@ -86,7 +87,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 
 ## iPad/PWA-Besonderheiten
 - `display: standalone`, `apple-mobile-web-app-capable`, `apple-touch-icon`, Statusleiste `default`.
-- iOS ignoriert `orientation` im Manifest → im Hochformat Overlay „iPad drehen“ zeigen.
+- iOS ignoriert `orientation` im Manifest → im Hochformat Overlay mit Rad schlagendem Begleiter und Dreh-Symbol zeigen (ohne Text).
 - `touch-action: manipulation`, `user-select: none`, `overscroll-behavior: none`, `-webkit-touch-callout: none`, kein Doppeltipp-Zoom.
 - Safe Areas mit `env(safe-area-inset-*)` beachten.
 - Audio nur nach Nutzer-Geste starten (Tipp auf Flagge ist eine Geste). Dateien der aktuellen Runde vorladen.

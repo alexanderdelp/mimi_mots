@@ -27,7 +27,12 @@ export function sleepingAvatarUrl(companion: Companion): string {
   return `${import.meta.env.BASE_URL}avatars/${FILE_PREFIX[companion]}_sleeping.png`;
 }
 
-/** Beide Begleiter schlafend, für die Schlafseite (B-65, Platzhalter). */
+/** Begleiter beim Radschlagen, für den Hochformat-Hinweis (B-72, Platzhalter). */
+export function cartwheelAvatarUrl(companion: Companion): string {
+  return `${import.meta.env.BASE_URL}avatars/${FILE_PREFIX[companion]}_cartwheel.png`;
+}
+
+/** Beide Begleiter schlafend, für die Schlafseite (B-65). */
 export function bothSleepingUrl(): string {
   return `${import.meta.env.BASE_URL}avatars/both_sleeping.png`;
 }
