@@ -206,6 +206,13 @@ test.describe('B-65 Schlafende Begleiter', () => {
         document.documentElement.scrollWidth <= innerWidth,
     );
     expect(fits).toBe(true);
+    // AT-77.2: Schlafbild so breit wie die Kachel und unten ausgerichtet
+    const [tile, img] = await btn(page, 'Mimi').evaluate((t) => {
+      const i = t.querySelector('img')!;
+      return [t.getBoundingClientRect().width, i.getBoundingClientRect().width];
+    });
+    expect(img).toBeGreaterThan(tile * 0.8);
+    await expect(btn(page, 'Mimi').locator('img')).toHaveCSS('object-position', '50% 100%');
     await expect(page).toHaveScreenshot('start-schlafend.png');
   });
 });

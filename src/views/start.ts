@@ -64,7 +64,9 @@ export function renderStart(store: Store): ViewHandle {
         value: c,
         disabled: asleep,
         content: [
-          img(asleep ? sleepingAvatarUrl(c) : avatarUrl(c, 'ruhig'), 'start__avatar'),
+          asleep
+            ? img(sleepingAvatarUrl(c), 'start__avatar start__avatar--sleeping')
+            : img(avatarUrl(c, 'ruhig'), 'start__avatar'),
           text(COMPANION_NAMES[c], 'start__name'),
         ],
       };

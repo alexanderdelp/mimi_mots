@@ -62,16 +62,23 @@ test.describe('B-52 Hochformat-Overlay', () => {
     );
   });
 
-  test('AT-72.2: Radschlag-Bilder 384 × 440 px', async ({ page }) => {
+  test('AT-72.2/AT-77.1: Bilder scharf genug und nicht übergroß', async ({ page }) => {
     await page.goto('./');
-    for (const file of ['cat_cartwheel.png', 'pony_cartwheel.png']) {
+    // Radschlag (≤ 440 px hoch angezeigt) und Schlafbild (≤ 220 px breit) in doppelter Auflösung
+    for (const [file, side, min] of [
+      ['cat_cartwheel.png', 1, 880],
+      ['pony_cartwheel.png', 1, 880],
+      ['cat_sleeping.png', 0, 440],
+      ['pony_sleeping.png', 0, 440],
+    ] as const) {
       const size = await page.evaluate(async (src) => {
         const img = new Image();
         img.src = `avatars/${src}`;
         await img.decode();
         return [img.naturalWidth, img.naturalHeight];
       }, file);
-      expect(size, file).toEqual([384, 440]);
+      expect(size[side], file).toBeGreaterThanOrEqual(min);
+      expect(size[side], file).toBeLessThanOrEqual(min * 1.5);
     }
   });
 

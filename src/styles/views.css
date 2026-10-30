@@ -277,6 +277,12 @@
   object-fit: contain;
 }
 
+/* Schlafbild liegt quer (B-77): volle Kachelbreite, unten auf der Grundlinie der Sitzbilder */
+.start__avatar--sleeping {
+  width: 100%;
+  object-position: center bottom;
+}
+
 .start__name {
   font-size: clamp(22px, 3dvh, 28px);
 }
