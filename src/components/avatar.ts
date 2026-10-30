@@ -22,12 +22,12 @@ export function avatarUrl(companion: Companion, pose: Pose): string {
   return `${import.meta.env.BASE_URL}avatars/${FILE_PREFIX[companion]}_${POSE_FILE[pose]}.png`;
 }
 
-/** Schlafbild eines Begleiters (B-65, Platzhalter bis zur fertigen Grafik). */
+/** Schlafbild eines Begleiters (B-65, Grafik seit B-77). */
 export function sleepingAvatarUrl(companion: Companion): string {
   return `${import.meta.env.BASE_URL}avatars/${FILE_PREFIX[companion]}_sleeping.png`;
 }
 
-/** Begleiter beim Radschlagen, für den Hochformat-Hinweis (B-72, Platzhalter). */
+/** Begleiter beim Radschlagen, für den Hochformat-Hinweis (B-72, Grafik seit B-77). */
 export function cartwheelAvatarUrl(companion: Companion): string {
   return `${import.meta.env.BASE_URL}avatars/${FILE_PREFIX[companion]}_cartwheel.png`;
 }
