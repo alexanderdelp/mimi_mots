@@ -6,3 +6,4 @@ test-results/
 *.log
 .models/
 tools/vergleich/
+tools/stimmwahl/

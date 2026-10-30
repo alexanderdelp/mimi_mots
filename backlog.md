@@ -335,9 +335,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-77.1: Radschlag-Bilder sind 880–1320 px hoch, Schlafbilder 440–660 px breit (scharf auf Retina, nicht übergroß); AT-72.2 entsprechend angepasst.
   - AT-77.2: Startseite mit schlafendem Begleiter: Schlafbild so breit wie die Kachel (abzüglich Rand), unten ausgerichtet; passt auf allen Viewports (Screenshot, AT-65.8).
   - AT-77.3: Precache bleibt unter 5 MB (AT-51.5).
-- [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
+
+- [x] **B-78 Stimmwahl je Wort**: Seite `tools/stimmwahl.html` (nur Dev-Server): je englisches Wort vier Stimmen (Piper ljspeech, kristin, cori; Kokoro af_heart) jeweils als „Wort“ und „Wort.“ anhören und eine Option auswählen. Die Auswahl wird sofort in die App übernommen. Kandidaten erzeugt `npm run audio -- --candidates --lang en` nach `tools/stimmwahl/` (nicht eingecheckt).
+  - AT-78.1: `generate_audio.py` kennt Stimmoptionen je Sprache und liest `audio-choices.json` (Stimme + Variante je Wort); ohne Eintrag gilt die Standardstimme. „dot“ hängt einen Punkt an den Text (Unit-Test).
+  - AT-78.2: `--candidates` erzeugt je Wort alle Optionen × Varianten unter `tools/stimmwahl/<lang>/<stimme>-<variante>/<id>.mp3` (Unit-Test).
+  - AT-78.3: Auswählen kopiert genau die gehörte Datei nach `public/audio/<lang>/<id>.mp3`, speichert die Wahl in `audio-choices.json` und hakt das Wort für die Sprache in `audio-check.md` ab; Unbekanntes wird abgelehnt, ohne etwas zu ändern (Unit-Test).
+  - AT-78.4: Die Seite zeigt je Wort „App“ (aktuelle Datei) und alle Optionen, markiert die gespeicherte Wahl und abgehakte Wörter, kann auf noch offene Wörter filtern und lädt beim Auswählen nicht neu. Nicht im Produktionsbuild.
 
 ## Später
 - **Nur geprüfte Wörter abfragen:** In einer Sprache kommen nur Wörter dran, deren Aussprache in `audio-check.md` für diese Sprache abgehakt ist (`[x]`).
-- **Audioprobleme eingrenzen (Versuch):** Für auffällige Wörter zum Vergleich anhören: das rohe WAV der Sprachsynthese (ungeschnitten und/oder vor der MP3-Kodierung), dasselbe Wort mit „.“ am Ende und dasselbe Wort in einem ganzen Satz.
-- Weitere Dauern und Sprachen · Themenwahl · Eigene Illustrationen
+- Themenwahl · Eigene Illustrationen

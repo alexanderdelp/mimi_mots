@@ -35,19 +35,38 @@ VOICES = {
     'ja': {'engine': 'voicevox', 'voice': '冥鳴ひまり', 'style': 14},
 }
 DEFAULT_LANGS = ['en', 'fr', 'ja']
-# Vorgelesen wird die Kana-Lesung, damit Kanji wie 月 nicht falsch gelesen werden (げつ statt つき).
-TEXT_FIELDS = {'ja': 'jaKana'}
-PIPER_URL = 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/high'
-MODEL_FILES = {
-    'kokoro': {
-        'kokoro-v1.0.onnx': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
-        'voices-v1.0.bin': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin',
-    },
-    'piper': {
-        'piper/en_US-ljspeech-high.onnx': f'{PIPER_URL}/en_US-ljspeech-high.onnx',
-        'piper/en_US-ljspeech-high.onnx.json': f'{PIPER_URL}/en_US-ljspeech-high.onnx.json',
+# B-78: Stimmoptionen je Sprache für die Stimmwahl-Seite (tools/stimmwahl.html). Je Wort steht die
+# Wahl (Stimme + Variante) in audio-choices.json; ohne Eintrag gilt VOICES mit Variante „word“.
+VOICE_OPTIONS = {
+    'en': {
+        'piper-ljspeech': VOICES['en'],
+        'piper-kristin': {'engine': 'piper', 'voice': 'en_US-kristin-medium'},
+        'piper-cori': {'engine': 'piper', 'voice': 'en_GB-cori-high'},
+        'kokoro-af_heart': {'engine': 'kokoro', 'voice': 'af_heart', 'lang': 'en-us'},
     },
 }
+# „word“: das Wort allein; „dot“: mit Punkt („egg.“) – endet dann oft sauberer
+VARIANTS = {'word': '', 'dot': '.'}
+CHOICES_FILE = ROOT / 'audio-choices.json'
+CANDIDATES_DIR = ROOT / 'tools' / 'stimmwahl'
+# Vorgelesen wird die Kana-Lesung, damit Kanji wie 月 nicht falsch gelesen werden (げつ statt つき).
+TEXT_FIELDS = {'ja': 'jaKana'}
+PIPER_BASE = 'https://huggingface.co/rhasspy/piper-voices/resolve/main'
+KOKORO_FILES = {
+    'kokoro-v1.0.onnx': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
+    'voices-v1.0.bin': 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin',
+}
+
+
+def piper_files(voice: str) -> dict[str, str]:
+    """Modelldateien einer Piper-Stimme, z. B. en_US-ljspeech-high → en/en_US/ljspeech/high/…."""
+    region, name, quality = voice.split('-')
+    base = f"{PIPER_BASE}/{region.split('_')[0]}/{region}/{name}/{quality}/{voice}"
+    return {f'piper/{voice}{ext}': f'{base}{ext}' for ext in ('.onnx', '.onnx.json')}
+
+
+def model_files(voice: dict) -> dict[str, str]:
+    return piper_files(voice['voice']) if voice['engine'] == 'piper' else KOKORO_FILES
 OVERRIDE_EXTENSIONS = ('.mp3', '.wav', '.m4a')
 
 TARGET_LUFS = -16.0
@@ -64,6 +83,22 @@ class Job:
     text: str
     output: Path
     override: Path | None
+    voice: dict
+    label: str  # für die Ausgabe: Stimme und ggf. Variante
+
+
+def load_choices(path: Path = CHOICES_FILE) -> dict:
+    """Gewählte Stimme je Sprache und Wort (B-78); fehlt die Datei, gilt überall der Standard."""
+    return json.loads(path.read_text(encoding='utf-8')) if path.is_file() else {}
+
+
+def resolve_voice(choices: dict, lang: str, word_id: str) -> tuple[dict, str, str]:
+    """(Stimme, Textzusatz, Beschriftung) für ein Wort – gewählte Option oder Standard."""
+    choice = choices.get(lang, {}).get(word_id)
+    if choice and choice.get('voice') in VOICE_OPTIONS.get(lang, {}) and choice.get('variant') in VARIANTS:
+        voice = VOICE_OPTIONS[lang][choice['voice']]
+        return voice, VARIANTS[choice['variant']], f"{choice['voice']}, {choice['variant']}"
+    return VOICES[lang], '', VOICES[lang]['voice']
 
 
 def find_override(overrides: Path, lang: str, word_id: str) -> Path | None:
@@ -82,22 +117,52 @@ def needs_update(job: Job, force: bool) -> bool:
 
 
 def plan_jobs(
-    words: list[dict], langs: list[str], out: Path, overrides: Path, ids: list[str] | None
+    words: list[dict],
+    langs: list[str],
+    out: Path,
+    overrides: Path,
+    ids: list[str] | None,
+    choices: dict | None = None,
 ) -> list[Job]:
     jobs = []
     for word in words:
         if ids and word['id'] not in ids:
             continue
         for lang in langs:
+            voice, suffix, label = resolve_voice(choices or {}, lang, word['id'])
             jobs.append(
                 Job(
                     word_id=word['id'],
                     lang=lang,
-                    text=word[TEXT_FIELDS.get(lang, lang)],
+                    text=word[TEXT_FIELDS.get(lang, lang)] + suffix,
                     output=out / lang / f"{word['id']}.mp3",
                     override=find_override(overrides, lang, word['id']),
+                    voice=voice,
+                    label=label,
                 )
             )
+    return jobs
+
+
+def plan_candidates(words: list[dict], lang: str, out: Path, ids: list[str] | None) -> list[Job]:
+    """Alle Stimmoptionen × Varianten einer Sprache für die Stimmwahl-Seite (B-78)."""
+    jobs = []
+    for word in words:
+        if ids and word['id'] not in ids:
+            continue
+        for key, voice in VOICE_OPTIONS[lang].items():
+            for variant, suffix in VARIANTS.items():
+                jobs.append(
+                    Job(
+                        word_id=word['id'],
+                        lang=lang,
+                        text=word[TEXT_FIELDS.get(lang, lang)] + suffix,
+                        output=out / lang / f'{key}-{variant}' / f"{word['id']}.mp3",
+                        override=None,
+                        voice=voice,
+                        label=f'{key}, {variant}',
+                    )
+                )
     return jobs
 
 
@@ -158,23 +223,26 @@ class Engines:
         self.models = models
         self.loaded: dict[str, object] = {}
 
-    def get(self, engine: str):
-        if engine not in self.loaded:
+    def get(self, voice: dict):
+        engine = voice['engine']
+        # Piper: ein Modell je Stimme; Kokoro und VOICEVOX laden alle Stimmen auf einmal
+        key = f"piper:{voice['voice']}" if engine == 'piper' else engine
+        if key not in self.loaded:
             if engine == 'kokoro':
                 from kokoro_onnx import Kokoro
 
-                self.loaded[engine] = Kokoro(
+                self.loaded[key] = Kokoro(
                     str(self.models / 'kokoro-v1.0.onnx'), str(self.models / 'voices-v1.0.bin')
                 )
             elif engine == 'voicevox':
-                self.loaded[engine] = self._voicevox()
+                self.loaded[key] = self._voicevox()
             else:
                 from piper import PiperVoice
 
-                self.loaded[engine] = PiperVoice.load(
-                    str(self.models / 'piper' / f"{VOICES['en']['voice']}.onnx")
+                self.loaded[key] = PiperVoice.load(
+                    str(self.models / 'piper' / f"{voice['voice']}.onnx")
                 )
-        return self.loaded[engine]
+        return self.loaded[key]
 
     def _voicevox(self):
         from voicevox_core.blocking import Onnxruntime, OpenJtalk, Synthesizer, VoiceModelFile
@@ -194,10 +262,9 @@ class Engines:
         sys.exit(f'VOICEVOX-Stil {style} nicht gefunden in {root}/models/vvms.')
 
 
-def synthesize(engines: Engines, text: str, lang: str, target: Path) -> None:
-    voice = VOICES[lang]
+def synthesize(engines: Engines, text: str, voice: dict, target: Path) -> None:
     if voice['engine'] == 'voicevox':
-        synth = engines.get('voicevox')
+        synth = engines.get(voice)
         query = synth.create_audio_query(text, voice['style'])
         query.speed_scale = SPEED
         target.write_bytes(synth.synthesis(query, voice['style']))
@@ -208,21 +275,21 @@ def synthesize(engines: Engines, text: str, lang: str, target: Path) -> None:
         from piper import SynthesisConfig
 
         with wave.open(str(target), 'wb') as wav:
-            engines.get('piper').synthesize_wav(
+            engines.get(voice).synthesize_wav(
                 text, wav, syn_config=SynthesisConfig(length_scale=1 / SPEED)
             )
         return
 
     import soundfile as sf
 
-    samples, rate = engines.get('kokoro').create(
+    samples, rate = engines.get(voice).create(
         text, voice=voice['voice'], speed=SPEED, lang=voice['lang']
     )
     sf.write(target, samples, rate)
 
 
-def ensure_models(models: Path, engines: set[str], download: bool) -> None:
-    if 'voicevox' in engines:
+def ensure_models(models: Path, voices: list[dict], download: bool) -> None:
+    if any(v['engine'] == 'voicevox' for v in voices):
         root = models / VOICEVOX_DIR
         missing = [f for f in VOICEVOX_FILES if not (root / f).exists()]
         if missing:
@@ -233,7 +300,10 @@ def ensure_models(models: Path, engines: set[str], download: bool) -> None:
                 '(Abschnitt „Audio erzeugen“).'
             )
     files = {
-        name: url for e in sorted(engines - {'voicevox'}) for name, url in MODEL_FILES[e].items()
+        name: url
+        for voice in voices
+        if voice['engine'] != 'voicevox'
+        for name, url in model_files(voice).items()
     }
     missing = [name for name in files if not (models / name).is_file()]
     if not missing:
@@ -262,6 +332,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help=f"nur diese Sprache(n), Standard: {', '.join(DEFAULT_LANGS)}")
     parser.add_argument('--id', dest='ids', action='append', help='nur diese Wort-id(s)')
     parser.add_argument('--force', action='store_true', help='auch vorhandene Dateien neu erzeugen')
+    parser.add_argument('--candidates', action='store_true',
+                        help='alle Stimmoptionen der Sprache für die Stimmwahl-Seite erzeugen (B-78)')
+    parser.add_argument('--choices', type=Path, default=CHOICES_FILE)
+    parser.add_argument('--candidates-out', type=Path, default=CANDIDATES_DIR)
     parser.add_argument('--download-models', action='store_true',
                         help='fehlende Sprachmodelle (Kokoro, Piper) automatisch herunterladen')
     return parser.parse_args(argv)
@@ -273,18 +347,18 @@ def main(argv: list[str] | None = None) -> int:
         sys.exit('ffmpeg nicht gefunden – bitte installieren (siehe README.md).')
 
     words = json.loads(args.words.read_text(encoding='utf-8'))
-    jobs = [
-        job
-        for job in plan_jobs(
-            words, list(dict.fromkeys(args.langs or DEFAULT_LANGS)), args.out, args.overrides, args.ids
-        )
-        if needs_update(job, args.force)
-    ]
+    langs = list(dict.fromkeys(args.langs or DEFAULT_LANGS))
+    if args.candidates:
+        langs = [lang for lang in langs if lang in VOICE_OPTIONS]
+        planned = [j for lang in langs for j in plan_candidates(words, lang, args.candidates_out, args.ids)]
+    else:
+        planned = plan_jobs(words, langs, args.out, args.overrides, args.ids, load_choices(args.choices))
+    jobs = [job for job in planned if needs_update(job, args.force)]
     if not jobs:
         print('Alles aktuell – nichts zu tun.')
         return 0
 
-    needed = {VOICES[job.lang]['engine'] for job in jobs if job.override is None}
+    needed = list({json.dumps(j.voice, sort_keys=True): j.voice for j in jobs if j.override is None}.values())
     ensure_models(args.models, needed, args.download_models)
     engines = Engines(args.models)
 
@@ -293,10 +367,10 @@ def main(argv: list[str] | None = None) -> int:
             source = job.override
             if source is None:
                 source = Path(tmp) / f'{job.lang}-{job.word_id}.wav'
-                synthesize(engines, job.text, job.lang, source)
+                synthesize(engines, job.text, job.voice, source)
             postprocess(source, job.output)
-            origin = 'Override' if job.override else VOICES[job.lang]['voice']
-            print(f'{job.lang}/{job.word_id}.mp3  „{job.text}“  ({origin})')
+            origin = 'Override' if job.override else job.label
+            print(f'{job.output.relative_to(job.output.parents[1])}  „{job.text}“  ({origin})')
 
     print(f'{len(jobs)} Datei(en) erzeugt.')
     return 0
