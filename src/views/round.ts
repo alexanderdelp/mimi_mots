@@ -24,13 +24,21 @@ const FOREIGN_MIN_PX = 28;
 /** Unter dieser Größe wird ein zu langes Wort lieber getrennt als weiter verkleinert. */
 const FOREIGN_BREAK_BELOW_PX = 36;
 
-/** Tutorial (B-74): Probewort und die drei Schritte – je ein Button und ein kurzer Satz. */
+/** Tutorial (B-74): Probewort und die Schritte. Ohne Ziel geht es mit einem Tipp irgendwohin
+ *  weiter; mit Ziel nur über den eingekreisten Button. */
 export const TUTORIAL_WORD = 'apfel';
-export const TUTORIAL_STEPS = [
+export const TUTORIAL_STEPS: readonly { target: string | null; text: string }[] = [
+  { target: null, text: 'Schön, dass du da bist!' },
+  { target: null, text: 'Ich erkläre dir, was du hier machst.' },
   { target: 'speaker', text: 'Tippe hier – so klingt das Wort.' },
-  { target: 'known', text: 'Wusstest du es? Dann hier.' },
-  { target: 'practice', text: 'Noch nicht? Dann hier – es kommt wieder.' },
-] as const;
+  { target: 'known', text: 'Wusstest du es? Dann tippe hier.' },
+  { target: 'practice', text: 'Noch nicht? Dann tippe hier.' },
+  { target: null, text: 'Und jetzt viel Erfolg – los geht’s!' },
+];
+
+/** Von Hand eingekreist: leicht unregelmäßige Schleife, die über den Anfang hinausläuft. */
+const PEN_CIRCLE =
+  'M34 12 C60 0 92 10 96 42 C100 74 74 98 44 94 C16 90 0 66 6 40 C11 20 30 6 58 6 C72 6 84 12 90 22';
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -212,11 +220,17 @@ export function renderRound(store: Store): ViewHandle {
   onVisibility();
   if (store.getState().portrait) timer.pause('portrait');
 
-  // Tutorial (B-74): nur der hervorgehobene Button reagiert; das Probewort zählt nicht
+  // Tutorial (B-74): nur der eingekreiste Button reagiert; das Probewort zählt nicht
   const targets = { speaker, known: rating.children[0], practice: rating.children[1] } as Record<
     string,
     Element
   >;
+  const mark = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  mark.setAttribute('class', 'tutorial-mark');
+  mark.setAttribute('viewBox', '0 0 100 100');
+  mark.setAttribute('preserveAspectRatio', 'none');
+  mark.setAttribute('aria-hidden', 'true');
+  mark.innerHTML = `<path d="${PEN_CIRCLE}" />`;
   const showTutorialStep = () => {
     const step = TUTORIAL_STEPS[tutorialStep];
     view.dataset.tutorial = String(tutorialStep + 1);
@@ -225,6 +239,13 @@ export function renderRound(store: Store): ViewHandle {
     for (const [name, node] of Object.entries(targets)) {
       node.classList.toggle('tutorial-target', name === step.target);
     }
+    if (step.target) targets[step.target].append(mark);
+    else mark.remove();
+  };
+  const nextTutorialStep = () => {
+    tutorialStep++;
+    if (tutorialStep < TUTORIAL_STEPS.length) return showTutorialStep();
+    finishTutorial();
   };
   const tutorialTap = (name: string) => {
     if (TUTORIAL_STEPS[tutorialStep].target !== name) return;
@@ -235,12 +256,23 @@ export function renderRound(store: Store): ViewHandle {
     } else {
       player.stop();
     }
-    tutorialStep++;
-    if (tutorialStep < TUTORIAL_STEPS.length) return showTutorialStep();
+    nextTutorialStep();
+  };
+  // Sprechblasen ohne Ziel: ein Tipp irgendwohin geht weiter (vor den Buttons abgefangen)
+  const onTutorialTap = (event: Event) => {
+    if (tutorialStep < 0 || TUTORIAL_STEPS[tutorialStep].target) return;
+    event.stopPropagation();
+    event.preventDefault();
+    nextTutorialStep();
+  };
+  view.addEventListener('click', onTutorialTap, true);
+  const finishTutorial = () => {
     // geschafft: Begleiter übernimmt, erstes echtes Wort, jetzt läuft die Uhr
     tutorialStep = -1;
+    view.removeEventListener('click', onTutorialTap, true);
     delete view.dataset.tutorial;
     bubble.hidden = true;
+    mark.remove();
     Object.values(targets).forEach((node) => node.classList.remove('tutorial-target'));
     avatar = createAvatar(settings.companion ?? 'mimi', 'zeigt');
     avatarSlot.replaceChildren(bubble, avatar.el);

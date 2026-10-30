@@ -42,7 +42,7 @@ export function renderStart(store: Store): ViewHandle {
   play.append(icon('play'));
   // B-75: „Nur bekannte“ – nur für die nächste Runde, bei jedem Betreten wieder abgewählt
   const knownOnly = createChoiceTile({
-    content: [text('Nur bekannte', 'start__known-label')],
+    content: [text('Nur bekannte Wörter', 'start__known-label')],
     onSelect: () => knownOnly.setSelected(!knownOnly.selected),
   });
   knownOnly.el.classList.add('start__known');

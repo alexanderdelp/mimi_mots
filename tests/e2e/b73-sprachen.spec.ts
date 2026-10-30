@@ -36,14 +36,14 @@ test.describe('B-73 Sprachen ein-/ausschalten', () => {
     await page.goto('./');
     await openAdmin(page);
     await btn(page, 'Japanisch').click();
-    await btn(page, 'Japanisch einschalten').click();
-    await expect(btn(page, 'Japanisch ausschalten')).toBeEnabled();
+    await btn(page, 'Sprache einschalten').click();
+    await expect(btn(page, 'Sprache ausschalten')).toBeEnabled();
     await btn(page, 'Englisch').click();
-    await btn(page, 'Englisch ausschalten').click();
+    await btn(page, 'Sprache ausschalten').click();
     await btn(page, 'Französisch').click();
-    await btn(page, 'Französisch ausschalten').click();
+    await btn(page, 'Sprache ausschalten').click();
     await btn(page, 'Japanisch').click();
-    await expect(btn(page, 'Japanisch ausschalten')).toBeDisabled(); // die letzte aktive
+    await expect(btn(page, 'Sprache ausschalten')).toBeDisabled(); // die letzte aktive
     expect((await stored(page)).enabledLanguages).toEqual(['ja']);
 
     await btn(page, 'Zurück').click();
@@ -66,9 +66,9 @@ test.describe('B-73 Sprachen ein-/ausschalten', () => {
     await expect(btn(page, 'Los geht’s')).toBeEnabled();
     await openAdmin(page);
     await btn(page, 'Japanisch').click();
-    await btn(page, 'Japanisch einschalten').click();
+    await btn(page, 'Sprache einschalten').click();
     await btn(page, 'Französisch').click();
-    await btn(page, 'Französisch ausschalten').click();
+    await btn(page, 'Sprache ausschalten').click();
     await btn(page, 'Zurück').click();
     for (const name of ['Englisch', 'Japanisch']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');

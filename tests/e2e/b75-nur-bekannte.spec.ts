@@ -3,7 +3,7 @@ import { btn, prepare } from './views';
 
 const KEY = 'mimi-mots:v1';
 const SEEN = ['apfel', 'banane', 'erdbeere', 'birne', 'kirsche', 'zitrone', 'karotte'];
-const known = (page: Page) => btn(page, 'Nur bekannte');
+const known = (page: Page) => btn(page, 'Nur bekannte Wörter');
 
 /** Französisch mit 7 gesehenen Wörtern, Englisch mit 2. */
 async function seed(page: Page) {

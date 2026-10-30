@@ -304,23 +304,35 @@ describe('Tutorial (B-74)', () => {
     const bubble = el.querySelector('.tutorial-bubble')!;
     expect(el.querySelector('.word-card')!.getAttribute('data-word-id')).toBe('apfel');
     expect(el.querySelector('.round__avatar img')!.getAttribute('src')).toMatch(/cat_/);
+    // Einleitung: ein Tipp irgendwohin geht weiter, Buttons wirken dabei nicht
+    expect(bubble.textContent).toBe('Schön, dass du da bist!');
+    expect(el.querySelector('.tutorial-target')).toBeNull();
+    click(el, 'Auf Französisch anhören');
+    expect(el.querySelector('.round__foreign')!.textContent).toBe('');
+    expect(bubble.textContent).toBe('Ich erkläre dir, was du hier machst.');
+    el.querySelector<HTMLElement>('.word-card')!.click();
     expect(bubble.textContent).toBe('Tippe hier – so klingt das Wort.');
+    expect(el.querySelector('.tutorial-target .tutorial-mark')).not.toBeNull();
     expect(el.querySelector('.tutorial-target')!.getAttribute('aria-label')).toBe(
       'Auf Französisch anhören',
     );
 
     click(el, 'Wusste ich'); // noch nicht dran
-    expect(el.dataset.tutorial).toBe('1');
+    expect(el.dataset.tutorial).toBe('3');
     click(el, 'Auf Französisch anhören');
     expect(el.querySelector('.round__foreign')!.textContent).toBe('la pomme');
-    expect(bubble.textContent).toBe('Wusstest du es? Dann hier.');
+    expect(bubble.textContent).toBe('Wusstest du es? Dann tippe hier.');
     click(el, 'Noch üben'); // noch nicht dran
-    expect(el.dataset.tutorial).toBe('2');
+    expect(el.dataset.tutorial).toBe('4');
     click(el, 'Wusste ich');
-    expect(bubble.textContent).toBe('Noch nicht? Dann hier – es kommt wieder.');
+    expect(bubble.textContent).toBe('Noch nicht? Dann tippe hier.');
     expect(store.getState().round!.wordId).toBeNull();
-
     click(el, 'Noch üben');
+    expect(bubble.textContent).toBe('Und jetzt viel Erfolg – los geht’s!');
+    expect(el.querySelector('.tutorial-mark')).toBeNull();
+    expect(store.getState().data.tutorialDone).toBe(false);
+
+    el.querySelector<HTMLElement>('.word-card')!.click();
     expect(el.dataset.tutorial).toBeUndefined();
     expect(bubble.hasAttribute('hidden')).toBe(true);
     expect(store.getState().data.tutorialDone).toBe(true);

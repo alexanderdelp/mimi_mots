@@ -701,15 +701,6 @@
   transition: background-color var(--transition);
 }
 
-.text-button--primary {
-  background: var(--lila-700);
-  color: var(--white);
-}
-
-.text-button--primary:active:not(:disabled) {
-  background: var(--lila-900);
-}
-
 .text-button--secondary {
   background: var(--white);
   color: var(--lila-900);
@@ -718,10 +709,9 @@
     var(--shadow);
 }
 
+/* ausgegraut wie eine nicht wählbare Kachel – weiß bleibt weiß */
 .text-button:disabled {
-  background: var(--lila-200);
-  color: var(--white);
-  box-shadow: none;
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -820,9 +810,31 @@
   border-top-color: var(--white);
 }
 
+/* wie mit dem Stift eingekreist: Beere (zweite Silbenfarbe), Strich so kräftig wie die Schrift
+   des deutschen Worts, liegt über dem Button und fängt keine Tipps ab */
 .tutorial-target {
-  outline: 6px solid var(--lila-500);
-  outline-offset: 6px;
+  position: relative;
+  overflow: visible;
+}
+
+.tutorial-target > .tutorial-mark {
+  position: absolute;
+  inset: -18px;
+  width: calc(100% + 36px);
+  height: calc(100% + 36px);
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.tutorial-mark path {
+  fill: none;
+  stroke: var(--beere-600);
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .admin__header-start {
@@ -1001,10 +1013,6 @@
     font-size: min(30px, 14cqi);
   }
 
-  .round__flag {
-    height: 40px;
-  }
-
   .round__foreign {
     height: 84px;
   }
@@ -1026,6 +1034,20 @@
   .tutorial-bubble {
     padding: 8px 10px;
     font-size: 14px;
+  }
+
+  .tutorial-target > .tutorial-mark {
+    inset: -10px;
+    width: calc(100% + 20px);
+    height: calc(100% + 20px);
+  }
+
+  .tutorial-mark path {
+    stroke-width: 3px;
+  }
+
+  .round__flag {
+    height: 56px;
   }
 
   /* Abschluss, Schlafseite, Hochformat-Hinweis */

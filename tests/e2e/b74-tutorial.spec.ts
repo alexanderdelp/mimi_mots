@@ -23,10 +23,16 @@ async function startRound(page: Page) {
   await expect(view(page, 'round')).toBeVisible();
 }
 
+/** Ein Tipp irgendwohin (auf die Wortkarte) – für Sprechblasen ohne Ziel. */
+const tapAnywhere = (page: Page) => page.locator('.word-card').click();
+
 async function runTutorial(page: Page) {
+  await tapAnywhere(page);
+  await tapAnywhere(page);
   await btn(page, 'Auf Französisch anhören').click();
   await btn(page, 'Wusste ich').click();
   await btn(page, 'Noch üben').click();
+  await tapAnywhere(page);
   await expect(bubble(page)).toBeHidden();
 }
 
@@ -46,21 +52,36 @@ test.describe('B-74 Tutorial', () => {
     await page.clock.runFor(5000);
     expect(await dial.innerHTML()).toBe(before);
 
-    // AT-74.2: Schritt 1 – Lautsprecher
+    // AT-74.2: Begrüßung – ein Tipp irgendwohin geht weiter, ohne dass ein Button wirkt
+    await expect(bubble(page)).toHaveText('Schön, dass du da bist!');
+    await expect(target(page)).toHaveCount(0);
+    await btn(page, 'Auf Französisch anhören').click();
+    await expect(page.locator('.round__foreign')).toHaveText('');
+    await expect(bubble(page)).toHaveText('Ich erkläre dir, was du hier machst.');
+    await tapAnywhere(page);
+    // Schritt 1 – Lautsprecher, mit dem Stift eingekreist
     await expect(bubble(page)).toHaveText('Tippe hier – so klingt das Wort.');
+    await expect(target(page).locator('.tutorial-mark path')).toHaveCSS(
+      'stroke',
+      'rgb(176, 58, 117)',
+    );
     await expect(target(page)).toHaveAttribute('aria-label', 'Auf Französisch anhören');
     await btn(page, 'Auf Französisch anhören').click();
     await expect(page.locator('.round__foreign')).toHaveText('la pomme');
     // Schritt 2 – Daumen; der andere Button wirkt nicht
-    await expect(bubble(page)).toHaveText('Wusstest du es? Dann hier.');
+    await expect(bubble(page)).toHaveText('Wusstest du es? Dann tippe hier.');
     await expect(target(page)).toHaveAttribute('aria-label', 'Wusste ich');
     await btn(page, 'Noch üben').click();
-    await expect(bubble(page)).toHaveText('Wusstest du es? Dann hier.');
+    await expect(bubble(page)).toHaveText('Wusstest du es? Dann tippe hier.');
     await btn(page, 'Wusste ich').click();
     // Schritt 3 – Wiederholen
-    await expect(bubble(page)).toHaveText('Noch nicht? Dann hier – es kommt wieder.');
+    await expect(bubble(page)).toHaveText('Noch nicht? Dann tippe hier.');
     await expect(target(page)).toHaveAttribute('aria-label', 'Noch üben');
     await btn(page, 'Noch üben').click();
+    // Abschluss-Blase, dann ein Tipp irgendwohin
+    await expect(bubble(page)).toHaveText('Und jetzt viel Erfolg – los geht’s!');
+    await expect(target(page)).toHaveCount(0);
+    await tapAnywhere(page);
 
     // AT-74.3: normale Runde mit Mots, Uhr läuft, Lernstand ohne Probewort
     await expect(bubble(page)).toBeHidden();
@@ -91,9 +112,9 @@ test.describe('B-74 Tutorial', () => {
     await hold(page, '.app-header__icon');
     await btn(page, 'Tutorial zurücksetzen').click();
     await expect(btn(page, 'Tutorial zurücksetzen')).toBeDisabled();
-    await btn(page, 'Alle aufwecken').click();
+    await btn(page, 'Tiere aufwecken').click();
     await btn(page, 'Zurück').click();
     await btn(page, 'Los geht’s').click();
-    await expect(bubble(page)).toHaveText('Tippe hier – so klingt das Wort.');
+    await expect(bubble(page)).toHaveText('Schön, dass du da bist!');
   });
 });

@@ -30,8 +30,9 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
   return node;
 }
 
-function textButton(label: string, variant: 'primary' | 'secondary'): HTMLButtonElement {
-  const button = el('button', `text-button text-button--${variant}`, label);
+/** Textbutton im Elternbereich: weiß mit Rahmen, wie die Kacheln (einheitlich, ohne Füllung). */
+function textButton(label: string): HTMLButtonElement {
+  const button = el('button', 'text-button text-button--secondary', label);
   button.type = 'button';
   return button;
 }
@@ -74,12 +75,12 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const actions = el('div', 'admin__actions');
   const levels = el('div', 'admin__levels');
-  // „Alle aufwecken“ sitzt rechts in der Kopfleiste, damit unten Platz für die Sprachaktionen ist
-  const wake = textButton('Alle aufwecken', 'primary');
+  // „Tiere aufwecken“ sitzt rechts in der Kopfleiste, damit unten Platz für die Sprachaktionen ist
+  const wake = textButton('Tiere aufwecken');
   wake.classList.add('admin__wake');
   wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
   // B-74: Tutorial kommt in der nächsten Runde wieder; links neben dem Haus-Button
-  const tutorial = textButton('Tutorial zurücksetzen', 'secondary');
+  const tutorial = textButton('Tutorial zurücksetzen');
   tutorial.classList.add('admin__tutorial');
   tutorial.addEventListener('click', () => store.dispatch({ type: 'resetTutorial' }));
   const left = el('div', 'admin__header-start');
@@ -99,8 +100,8 @@ export function renderAdmin(store: Store): ViewHandle {
 
     if (confirming) {
       const question = el('p', 'admin__question', `${name}: Wirklich zurücksetzen?`);
-      const yes = textButton('Ja, zurücksetzen', 'primary');
-      const no = textButton('Abbrechen', 'secondary');
+      const yes = textButton('Ja, zurücksetzen');
+      const no = textButton('Abbrechen');
       yes.addEventListener('click', () => {
         confirming = false;
         store.dispatch({ type: 'resetProgress', language });
@@ -111,13 +112,15 @@ export function renderAdmin(store: Store): ViewHandle {
       });
       actions.replaceChildren(question, yes, no);
     } else {
-      const reset = textButton('Lernstand zurücksetzen', 'secondary');
+      const reset = textButton('Lernstand zurücksetzen');
+      reset.disabled = Object.keys(data.progress[language]).length === 0; // nichts zurückzusetzen
       reset.addEventListener('click', () => {
         confirming = true;
         render();
       });
-      // B-73: gewählte Sprache ein-/ausschalten; die letzte aktive bleibt an
-      const toggle = textButton(`${name} ${enabled ? 'ausschalten' : 'einschalten'}`, 'secondary');
+      // B-73: gewählte Sprache ein-/ausschalten; die letzte aktive bleibt an. Gleicher Text für
+      // alle Sprachen, damit der Button beim Flaggenwechsel nicht springt.
+      const toggle = textButton(enabled ? 'Sprache ausschalten' : 'Sprache einschalten');
       toggle.disabled = enabled && data.enabledLanguages.length === 1;
       toggle.addEventListener('click', () => store.dispatch({ type: 'toggleLanguage', language }));
       actions.replaceChildren(reset, toggle);
