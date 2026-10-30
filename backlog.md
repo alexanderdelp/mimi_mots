@@ -289,6 +289,11 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-69.4: Je Sprache (Flaggen-Kacheln, vorausgewählt die zuletzt gewählte Sprache) stehen alle Wörter als Emoji in Zeilen „Neu“, „Stufe 0“ … „Stufe 4“ mit Anzahl; jedes Emoji nennt deutsches Wort und Fremdwort (Screenreader/Titel). Die Verteilung entspricht dem gespeicherten Lernstand.
   - AT-69.5: „Lernstand zurücksetzen“ fragt erst nach („Wirklich zurücksetzen?“ mit „Ja, zurücksetzen“ und „Abbrechen“). Abbrechen ändert nichts; Ja leert den Lernstand nur dieser Sprache (alle Wörter wieder „Neu“), andere Sprachen bleiben, gespeichert in localStorage.
   - AT-69.6: Der Elternbereich passt ohne Scrollen auf 1024 × 768, 1180 × 820 und 1366 × 1024 – auch wenn alle 61 Wörter in einer Zeile stehen (Screenshot).
+- [x] **B-70 Längere Pause, mehr neue Wörter**: Ein Wort kommt frühestens nach 6 anderen wieder (statt 3) – bei wenigen bekannten Wörtern kürzer (mindestens 3), damit immer mindestens 3 bekannte zur Auswahl bleiben und die Stufen-Gewichtung wirkt. Pro Runde höchstens 8 neue Wörter (statt 6); die Startphase füllt weiterhin nur bis 6 bekannte Wörter auf. Vom Menschen ungesehen abgenommen (2026-10-30).
+  - AT-70.1: Pause = min(6, max(3, bekannte Wörter − 3)): 0–6 bekannte → 3, 8 → 5, ab 9 → 6 (Unit-Test).
+  - AT-70.2: Mit allen Wörtern bekannt kommt kein Wort innerhalb von 6 anderen wieder; AT-20.1 (mindestens 3) gilt weiter für jeden Stand.
+  - AT-70.3: Höchstens 8 neue Wörter pro Runde (ersetzt die 6 in AT-20.2); die erste Runde beginnt mit 6 verschiedenen neuen Wörtern am Stück und führt danach im Takt jedes 3. Wortes bis zu 8 ein (ersetzt AT-20.3).
+  - AT-70.4: Ab 6 bekannten Wörtern ist jedes 3. Wort neu, bis 8 eingeführt sind (ersetzt die 6 in AT-20.8); alle Wörter sind spätestens nach ⌈Wortanzahl ÷ 8⌉ Runden à 40 Wörtern eingeführt (AT-20.7).
 - [ ] **B-63 Französische Aussprache nachbessern**: Einige französische Kokoro-Wörter klingen noch nicht gut. Mit der Abhörseite (`npm run dev` → `/mimi_mots/tools/hoerpruefung.html`) alle 50 Wörter anhören, Ergebnis in `audio-check.md` abhaken; schlechte Wörter durch eigene Aufnahmen in `audio-overrides/fr/<id>.mp3` ersetzen (oder eine andere Stimme/Engine prüfen, z. B. Piper) und `npm run audio` ausführen.
 
 ## Später

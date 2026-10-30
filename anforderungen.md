@@ -12,7 +12,7 @@
 | Abrufübung (Retrieval Practice) | Kind versucht das Wort erst selbst zu sagen, dann Auflösung per Flaggen-Tipp. |
 | Duale Kodierung | Bild (Emoji) + gesprochenes Wort + geschriebenes Wort. |
 | Verteiltes Wiederholen | Leitner-Boxen: Gewusstes kommt seltener, Ungewusstes öfter. |
-| Dosierung neuer Inhalte | Max. 6 neue Wörter pro Session, gemischt mit bekannten. |
+| Dosierung neuer Inhalte | Max. 8 neue Wörter pro Session, gemischt mit bekannten. |
 | Kurze Sessions | Timer (3 oder 7 min), danach freundlicher Abschluss. |
 | Keine extrinsische Belohnung | Kein Lob/Tadel, neutrale Selbsteinschätzung. Motivation durch Begleiter und Erfolgserleben. |
 | Joint Attention | Avatar zeigt per Geste auf die Aufgabe. |
@@ -91,8 +91,8 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - Lernstand **pro Sprache und Wort**: `{ box: 0..4, seen: number, lastSeenAt: ISO }`. Wörter ohne Eintrag gelten als „neu“.
 - „Wusste ich“ → `box = min(box + 1, 4)`. „Noch üben“ → `box = 0`.
 - Auswahl gewichtet zufällig: Gewicht Box 0 = 8, 1 = 5, 2 = 3, 3 = 2, 4 = 1.
-- Pro Session max. 6 neue Wörter. Sind weniger als 6 bekannte Wörter vorhanden, wird mit neuen aufgefüllt.
-- Dasselbe Wort frühestens nach 3 anderen Wörtern erneut.
+- Pro Session max. 8 neue Wörter. Sind weniger als 6 bekannte Wörter vorhanden, wird mit neuen aufgefüllt.
+- Dasselbe Wort frühestens nach 6 anderen Wörtern erneut; bei wenigen bekannten Wörtern kürzer (mindestens 3), damit immer mindestens 3 bekannte zur Auswahl bleiben.
 - Scheduler ist eine reine Funktion (Seed injizierbar) und vollständig unit-getestet.
 
 ## 6. Audio
@@ -216,6 +216,7 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üb
 - 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
 - 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
 - 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
+- 2026-10-30: Scheduler (B-70): Pause zwischen Wiederholungen 6 statt 3 Wörter – nach 6 anderen Wörtern muss das Kind das Wort wirklich abrufen, statt es aus dem Kurzzeitgedächtnis zu nehmen. Bei kleinem Wortschatz schrumpft die Pause auf min. 3 (`gapFor`), sonst bliebe keine Auswahl und die Gewichtung nach Stufe wäre wirkungslos. Höchstens 8 neue Wörter pro Runde (statt 6); greift praktisch nur in der 7-Minuten-Runde, weil nur jedes 3. Wort neu ist. Die Startphase bleibt bei 6, damit die erste Runde nicht mit 10 neuen Wörtern am Stück beginnt.
 - 2026-10-30: Elternbereich (B-69): erreichbar durch verstecktes Halten (600 ms) des App-Icons auf Start- und Schlafseite – ohne Hinweis, keine Schaltfläche. Ersetzt das direkte Aufwecken auf der Schlafseite. Inhalt: „Alle aufwecken“ (beide Begleiter, beide Dauern), je Sprache die Wörter als Emoji nach Stufe („Neu“, Stufe 0 = noch üben … Stufe 4 = sicher), „Lernstand zurücksetzen“ mit Sicherheitsabfrage (nur die gewählte Sprache). Haus-Button zurück zur Start- bzw. Schlafseite. Keine Avatare.
 - 2026-10-30: Japanisch (B-67): dritte Lernsprache. Angezeigt wird die übliche Schreibweise (Kanji, Hiragana oder Katakana, z. B. 猫, いちご, バナナ), ohne Lesehilfe. Für die Aussprache gibt es je Wort die Kana-Lesung (`jaKana`), damit die Synthese Kanji nicht falsch liest (月 → つき). Stimme: VOICEVOX 冥鳴ひまり – kostenlos, auch kommerziell, Namensnennung „VOICEVOX:冥鳴ひまり“ (README); die japanischen Kokoro-Stimmen sind nur mit C bis C+ bewertet, No.7 wäre nur nicht-kommerziell. VOICEVOX wird nicht automatisch geladen, weil man beim Download den Nutzungsbedingungen zustimmen muss. Wortwahl nach Bild: 🦆 カモ, ⛵ 船, 🚂 電車, 🍦 アイス.
 - 2026-10-30: Silbenfarben (B-66): Das deutsche Wort wird silbenweise abwechselnd in `--lila-900` und `--beere-600` (#B03A75, Himbeere; Kontrast auf Weiß 5,7 : 1) gefärbt – Silbenmethode für Leseanfänger. Die Sprechsilben stehen von Hand gepflegt in `words.json` (`syllables`), weil automatische Trennung bei Grundschul-Silben (z. B. „E-le-fant“, „o-ran-ge“) unzuverlässig ist. Nebenbei behoben: „Schmetterling“ war auf 1024 × 768 breiter als die Wortkarte; die Schrift des deutschen Worts ist jetzt höchstens 48 px und schrumpft mit der Kartenbreite (`min(48px, 14cqi)`).
