@@ -5,6 +5,8 @@ const PORT = 4173;
 export const APP_URL = `http://localhost:${PORT}/mimi_mots/`;
 
 const ipad = devices['iPad Pro 11 landscape'];
+/** Projektname des iPhones – Tests mit iPad-Maßen fragen danach (B-76). */
+export const IPHONE = 'iphone-852x393';
 const viewports = [
   { name: 'ipad-1024x768', width: 1024, height: 768 },
   { name: 'ipad-1180x820', width: 1180, height: 820 },
@@ -18,10 +20,21 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: { baseURL: APP_URL, trace: 'on-first-retry' },
-  projects: viewports.map(({ name, width, height }) => ({
-    name,
-    use: { ...ipad, browserName: 'webkit', viewport: { width, height } },
-  })),
+  projects: [
+    ...viewports.map(({ name, width, height }) => ({
+      name,
+      use: { ...ipad, browserName: 'webkit' as const, viewport: { width, height } },
+    })),
+    // B-76: iPhone 15/16 quer als Home-Bildschirm-App (volle Fläche ohne Safari-Leisten)
+    {
+      name: IPHONE,
+      use: {
+        ...devices['iPhone 15'],
+        browserName: 'webkit' as const,
+        viewport: { width: 852, height: 393 },
+      },
+    },
+  ],
   webServer: {
     command: 'npm run build && npx vite preview',
     url: APP_URL,

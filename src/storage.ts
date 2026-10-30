@@ -44,7 +44,14 @@ export interface AppData {
   settings: Settings;
   progress: Progress;
   rest: Rest;
+  /** B-73: im Elternbereich aktivierte Sprachen (mindestens eine). */
+  enabledLanguages: Language[];
+  /** B-74: Tutorial der Lernrunde schon gesehen (im Elternbereich zurücksetzbar). */
+  tutorialDone: boolean;
 }
+
+/** Standard: Englisch und Französisch aktiv, Japanisch aus (B-73). */
+export const DEFAULT_ENABLED_LANGUAGES: readonly Language[] = ['en', 'fr'];
 
 /** Erststart: nur die Dauer ist vorbelegt (anforderungen.md §3.1). */
 export function defaults(): AppData {
@@ -53,6 +60,8 @@ export function defaults(): AppData {
     settings: { companion: null, language: null, durationMin: 3 },
     progress: { en: {}, fr: {}, ja: {} },
     rest: { sleeping: [], usedDurations: [], since: null },
+    enabledLanguages: [...DEFAULT_ENABLED_LANGUAGES],
+    tutorialDone: false,
   };
 }
 
@@ -99,6 +108,11 @@ function sanitizeRest(raw: unknown): Rest {
   };
 }
 
+function sanitizeEnabled(raw: unknown): Language[] {
+  const enabled = subsetOf(LANGUAGES, raw);
+  return enabled.length > 0 ? enabled : [...DEFAULT_ENABLED_LANGUAGES];
+}
+
 function sanitizeWordProgress(raw: unknown): WordProgress | null {
   if (!isObject(raw)) return null;
   const { box, seen, lastSeenAt } = raw;
@@ -130,6 +144,8 @@ export function sanitize(raw: unknown): AppData {
     settings: sanitizeSettings(raw.settings),
     progress: sanitizeProgress(raw.progress),
     rest: sanitizeRest(raw.rest),
+    enabledLanguages: sanitizeEnabled(raw.enabledLanguages),
+    tutorialDone: raw.tutorialDone === true,
   };
 }
 

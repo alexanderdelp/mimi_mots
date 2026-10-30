@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 
 const AVATARS = ['cat', 'pony'].flatMap((a) =>
   ['sitting', 'pointing', 'idle', 'waving'].map((p) => `avatars/${a}_${p}.png`),

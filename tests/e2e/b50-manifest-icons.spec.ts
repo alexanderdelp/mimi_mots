@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('B-50 Manifest & Icons', () => {
   test('AT-50.1: Meta-Tags und Links für iPad/PWA', async ({ page }) => {

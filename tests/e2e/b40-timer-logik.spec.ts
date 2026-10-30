@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, skipRotationOnPhone } from './fixtures';
 import { fakeMedia } from './helpers';
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -78,6 +78,7 @@ test.describe('B-40 Timer-Logik', () => {
   });
 
   test('AT-40.5: Pause im Hochformat', async ({ page }) => {
+    skipRotationOnPhone();
     await startRound(page);
     const landscape = page.viewportSize()!;
     await advance(page, 1 * MIN);

@@ -3,18 +3,21 @@
 import { COMPANIONS } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
 import type { Language } from './data/words';
-import { DURATIONS, localDay, type AppData, type Settings } from './storage';
+import { DURATIONS, LANGUAGES, localDay, type AppData, type Settings } from './storage';
 
 export type ViewName = 'start' | 'round' | 'end' | 'sleep' | 'admin';
 
 export type AppEvent =
-  | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
+  | { type: 'play'; knownOnly?: boolean } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
   | { type: 'admin' } // Start/Schlafseite → Elternbereich (verstecktes Halten des Icons, B-69)
   | { type: 'leave' } // Elternbereich → Start bzw. Schlafseite
   | { type: 'wake' } // Elternbereich: alle wach und alle Dauern frei (B-65/B-69)
   | { type: 'resetProgress'; language: Language } // Elternbereich: Lernstand einer Sprache leeren
+  | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
+  | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
+  | { type: 'resetTutorial' } // Elternbereich: Tutorial kommt in der nächsten Runde wieder
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
   | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
@@ -36,8 +39,8 @@ export function allAsleep(data: AppData): boolean {
   );
 }
 
-/** Auswahl passend zu Schlaf und Verbrauch: Nicht mehr Wählbares fällt weg, ist nur noch eine
- *  Möglichkeit frei, wird sie vorausgewählt. */
+/** Auswahl passend zu Schlaf, Verbrauch und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
+ *  fällt weg, ist nur noch eine Möglichkeit frei, wird sie vorausgewählt. */
 export function withRestSettings(data: AppData): AppData {
   const pick = <T>(all: readonly T[], gone: readonly T[], current: T | null): T | null => {
     const free = all.filter((v) => !gone.includes(v));
@@ -48,8 +51,16 @@ export function withRestSettings(data: AppData): AppData {
   const { settings, rest } = data;
   const companion = pick(COMPANIONS, rest.sleeping, settings.companion);
   const durationMin = pick(DURATIONS, rest.usedDurations, settings.durationMin);
-  if (companion === settings.companion && durationMin === settings.durationMin) return data;
-  return { ...data, settings: { ...settings, companion, durationMin } };
+  const off = LANGUAGES.filter((l) => !data.enabledLanguages.includes(l));
+  const language = pick(LANGUAGES, off, settings.language);
+  if (
+    companion === settings.companion &&
+    durationMin === settings.durationMin &&
+    language === settings.language
+  ) {
+    return data;
+  }
+  return { ...data, settings: { ...settings, companion, durationMin, language } };
 }
 
 const AWAKE = { sleeping: [], usedDurations: [], since: null };
@@ -84,18 +95,30 @@ function isAvailable(data: AppData): boolean {
   const { companion, durationMin } = data.settings;
   return (
     isComplete(data.settings) &&
+    data.enabledLanguages.includes(data.settings.language!) &&
     !data.rest.sleeping.includes(companion!) &&
     !data.rest.usedDurations.includes(durationMin!)
   );
 }
 
 /** Lernrunde: Scheduler-Session, aktuelles Wort (null, bis das erste gewählt ist), ob das
- *  Fremdwort schon aufgedeckt wurde und ob die Zeit abgelaufen ist. */
+ *  Fremdwort schon aufgedeckt wurde, ob die Zeit abgelaufen ist und ob nur bekannte Wörter
+ *  kommen (B-75). */
 export interface RoundState {
   session: Session;
   wordId: string | null;
   revealed: boolean;
   expired: boolean;
+  knownOnly: boolean;
+}
+
+/** „Nur bekannte“ ist möglich ab so vielen schon gesehenen Wörtern der Sprache (B-75). */
+export const MIN_KNOWN_FOR_KNOWN_ONLY = 6;
+
+/** Anzahl schon gesehener Wörter (Stufe 0–4) der gewählten Sprache. */
+export function seenCount(data: AppData): number {
+  const language = data.settings.language;
+  return language ? Object.keys(data.progress[language]).length : 0;
 }
 
 export interface AppState {
@@ -145,6 +168,8 @@ function step(state: AppState, event: AppEvent): AppState {
     const { companion, durationMin } = event.settings;
     if (companion && state.data.rest.sleeping.includes(companion)) return state;
     if (durationMin && state.data.rest.usedDurations.includes(durationMin)) return state;
+    const { language } = event.settings;
+    if (language && !state.data.enabledLanguages.includes(language)) return state;
     const settings = { ...state.data.settings, ...event.settings };
     const changed = (Object.keys(settings) as (keyof Settings)[]).some(
       (k) => settings[k] !== state.data.settings[k],
@@ -201,6 +226,20 @@ function step(state: AppState, event: AppEvent): AppState {
     const data = withRestSettings(state.data);
     return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
   }
+  if (event.type === 'tutorialDone' && state.view === 'round' && !state.data.tutorialDone) {
+    return { ...state, data: { ...state.data, tutorialDone: true } };
+  }
+  if (event.type === 'resetTutorial' && state.view === 'admin' && state.data.tutorialDone) {
+    return { ...state, data: { ...state.data, tutorialDone: false } };
+  }
+  if (event.type === 'toggleLanguage' && state.view === 'admin') {
+    const on = state.data.enabledLanguages;
+    const enabled = on.includes(event.language)
+      ? on.filter((l) => l !== event.language)
+      : LANGUAGES.filter((l) => on.includes(l) || l === event.language);
+    if (enabled.length === 0) return state; // mindestens eine Sprache bleibt aktiv
+    return { ...state, data: { ...state.data, enabledLanguages: enabled } };
+  }
   if (event.type === 'resetProgress' && state.view === 'admin') {
     const progress = { ...state.data.progress, [event.language]: {} };
     return { ...state, data: { ...state.data, progress } };
@@ -210,7 +249,16 @@ function step(state: AppState, event: AppEvent): AppState {
   // Jede Lernrunde beginnt mit einer neuen Scheduler-Session.
   const round =
     view === 'round'
-      ? { session: createSession(), wordId: null, revealed: false, expired: false }
+      ? {
+          session: createSession(),
+          wordId: null,
+          revealed: false,
+          expired: false,
+          knownOnly:
+            event.type === 'play' &&
+            !!event.knownOnly &&
+            seenCount(state.data) >= MIN_KNOWN_FOR_KNOWN_ONLY,
+        }
       : state.round;
   return { ...state, view, round };
 }

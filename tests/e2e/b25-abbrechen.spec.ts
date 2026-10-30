@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, minSize } from './fixtures';
 
 const KEY = 'mimi-mots:v1';
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -34,8 +34,8 @@ test.describe('B-25 Abbrechen', () => {
     // seit B-27 links in der Kopfleiste
     expect(box.y).toBeGreaterThanOrEqual(header.y);
     expect(box.y + box.height).toBeLessThanOrEqual(header.y + header.height);
-    expect(box.width).toBeGreaterThanOrEqual(88);
-    expect(box.height).toBeGreaterThanOrEqual(88);
+    expect(box.width).toBeGreaterThanOrEqual(minSize(88));
+    expect(box.height).toBeGreaterThanOrEqual(minSize(88));
     await expect(close(page)).toHaveCSS('background-color', 'rgb(255, 255, 255)');
     expect(await close(page).evaluate((el) => getComputedStyle(el).boxShadow)).toContain(
       'rgb(74, 68, 88) 0px 0px 0px 2px inset',

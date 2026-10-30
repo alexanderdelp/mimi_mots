@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, minSize } from './fixtures';
 import { fakeMedia } from './helpers';
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -62,7 +62,7 @@ test.describe('B-43 Abschlussansicht', () => {
     await expect(home.locator('svg')).toHaveAttribute('data-icon', 'home');
     await expect(home).toHaveCSS('background-color', 'rgb(106, 76, 156)');
     const box = (await home.boundingBox())!;
-    expect(box.width).toBeGreaterThanOrEqual(96);
+    expect(box.width).toBeGreaterThanOrEqual(minSize(96));
     expect(box.height).toBe(box.width);
     await home.click();
     await expect(view(page, 'start')).toBeVisible();

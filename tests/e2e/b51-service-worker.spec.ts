@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { readdirSync } from 'node:fs';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { fakeMedia, mediaCalls } from './helpers';

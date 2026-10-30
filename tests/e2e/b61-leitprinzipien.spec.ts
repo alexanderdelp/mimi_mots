@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, minSize } from './fixtures';
 import { VIEWS, adminView, btn, endView, prepare, settle, sleepView } from './views';
 
 /** Ansichten für das Kind (der Elternbereich ist für Erwachsene). */
@@ -45,17 +45,19 @@ const redOrGreen = (page: Page) =>
     return out;
   });
 
-/** Sichtbare Schaltflächen unter 88 × 88 px. */
+/** Sichtbare Schaltflächen unter 88 × 88 px (iPhone: 44 × 44 px, B-76). */
 const smallButtons = (page: Page) =>
-  page.evaluate(() =>
-    [...document.querySelectorAll('button')]
-      .filter((b) => b.getClientRects().length)
-      .map((b) => ({
-        name: b.getAttribute('aria-label') ?? b.textContent,
-        r: b.getBoundingClientRect(),
-      }))
-      .filter(({ r }) => r.width < 87.5 || r.height < 87.5)
-      .map(({ name, r }) => `${name} ${Math.round(r.width)}×${Math.round(r.height)}`),
+  page.evaluate(
+    (min) =>
+      [...document.querySelectorAll('button')]
+        .filter((b) => b.getClientRects().length)
+        .map((b) => ({
+          name: b.getAttribute('aria-label') ?? b.textContent,
+          r: b.getBoundingClientRect(),
+        }))
+        .filter(({ r }) => r.width < min - 0.5 || r.height < min - 0.5)
+        .map(({ name, r }) => `${name} ${Math.round(r.width)}×${Math.round(r.height)}`),
+    minSize(88),
   );
 
 /** Längste Übergänge und Animationen (ms) je Element, außer dem dokumentierten Ring von [×]. */
@@ -95,7 +97,8 @@ test.describe('B-61 Leitprinzipien', () => {
       expect(await redOrGreen(page)).toEqual([]);
       expect(await smallButtons(page)).toEqual([]);
       const words = await uiWords(page);
-      expect(words.length, words.join(' ')).toBeLessThanOrEqual(12);
+      // seit B-75 hat die Startseite 13 Wörter (Kachel „Nur bekannte“)
+      expect(words.length, words.join(' ')).toBeLessThanOrEqual(14);
       expect(words.join(' ')).not.toMatch(
         /\d|super|toll|richtig|falsch|prima|gut gemacht|punkt|stern/i,
       );

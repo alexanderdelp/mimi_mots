@@ -1,6 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
-import { fakeMedia, mediaCalls } from './helpers';
+import { enableJapanese, fakeMedia, mediaCalls } from './helpers';
 
 const KEY = 'mimi-mots:v1';
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -18,6 +18,10 @@ const currentWord = async (page: Page) => {
   const id = await page.locator('.word-card').getAttribute('data-word-id');
   return words.find((w) => w.id === id)!;
 };
+
+test.beforeEach(async ({ page }) => {
+  await enableJapanese(page); // seit B-73 standardmäßig aus
+});
 
 test.describe('B-67 Japanisch', () => {
   test('AT-67.4: Japanisch ist wählbar und wird gemerkt', async ({ page }) => {

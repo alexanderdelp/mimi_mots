@@ -114,3 +114,28 @@ describe('applyRating', () => {
     expect(Date.parse(a.lastSeenAt)).toBeGreaterThanOrEqual(before);
   });
 });
+
+describe('Nur bekannte (B-75)', () => {
+  const ids = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+  const seen = Object.fromEntries(
+    ids.slice(0, 7).map((id) => [id, { box: 0, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' }]),
+  );
+
+  it('führt keine neuen Wörter ein, auch nicht im Takt', () => {
+    let session = createSession();
+    const rng = seededRng(5);
+    for (let i = 0; i < 40; i++) {
+      const next = pickNext(ids, seen, session, rng, true);
+      expect(seen[next.id], next.id).toBeDefined();
+      session = next.session;
+    }
+    expect(session.introduced).toEqual([]);
+  });
+
+  it('ohne die Option kommen neue Wörter wie bisher', () => {
+    let session = createSession();
+    const rng = seededRng(5);
+    for (let i = 0; i < 12; i++) session = pickNext(ids, seen, session, rng).session;
+    expect(session.introduced.length).toBeGreaterThan(0);
+  });
+});

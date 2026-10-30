@@ -421,7 +421,9 @@
   grid-row: 1 / span 2;
   align-self: end;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
 }
 
 /* Begleiter groß links unten (max. 440 px), Höhe folgt aus dem Seitenverhältnis */
@@ -699,15 +701,6 @@
   transition: background-color var(--transition);
 }
 
-.text-button--primary {
-  background: var(--lila-700);
-  color: var(--white);
-}
-
-.text-button--primary:active:not(:disabled) {
-  background: var(--lila-900);
-}
-
 .text-button--secondary {
   background: var(--white);
   color: var(--lila-900);
@@ -716,10 +709,9 @@
     var(--shadow);
 }
 
+/* ausgegraut wie eine nicht wählbare Kachel – weiß bleibt weiß */
 .text-button:disabled {
-  background: var(--lila-200);
-  color: var(--white);
-  box-shadow: none;
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -776,4 +768,389 @@
   place-items: center;
   font-size: 28px;
   line-height: 1;
+}
+
+/* B-73: ausgeschaltete Sprache im Elternbereich – wählbar, aber blass */
+.admin__languages .choice-tile[data-off='true'] img {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.admin__wake {
+  min-width: 88px;
+}
+
+/* Tutorial (B-74): Mimi erklärt in einer Sprechblase über sich, der gemeinte Button trägt einen
+   ruhigen Ring (keine Animation). */
+.tutorial-bubble {
+  align-self: stretch;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: var(--radius-m);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: clamp(18px, 2.6dvh, 24px);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.tutorial-bubble[hidden] {
+  display: none;
+}
+
+.tutorial-bubble::after {
+  content: '';
+  position: absolute;
+  left: 40%;
+  bottom: -14px;
+  border: 14px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--white);
+}
+
+/* wie mit dem Stift eingekreist: Beere (zweite Silbenfarbe), Strich so kräftig wie die Schrift
+   des deutschen Worts, liegt über dem Button und fängt keine Tipps ab */
+.tutorial-target {
+  position: relative;
+  overflow: visible;
+}
+
+/* oval: deutlich breiter als hoch, damit es nach Einkreisen aussieht und nicht nach Rahmen */
+.tutorial-target > .tutorial-mark {
+  position: absolute;
+  inset: -16px -44px;
+  width: calc(100% + 88px);
+  height: calc(100% + 32px);
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.tutorial-mark path {
+  fill: none;
+  stroke: var(--beere-600);
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* beide Beschriftungen im selben Rasterfeld: Breite = die längere, nichts springt */
+.admin__toggle {
+  display: inline-grid;
+  place-items: center;
+}
+
+.admin__toggle > span {
+  grid-area: 1 / 1;
+}
+
+.admin__toggle > span[hidden] {
+  display: block;
+  visibility: hidden;
+}
+
+.admin__header-start {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin__tutorial,
+.admin__wake {
+  font-size: 18px;
+  padding: 0 16px;
+}
+
+/* B-75: „Nur bekannte“ links neben Play; Play bleibt in der Mitte (gleich breiter Platz rechts) */
+.start__footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 32px;
+}
+
+.start__footer .play-button {
+  grid-column: 2;
+}
+
+.start__known {
+  grid-column: 1;
+  justify-self: end;
+  width: clamp(150px, 15vw, 220px);
+  height: 88px;
+  padding: 8px 16px;
+}
+
+.start__known-label {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+/* iPhone quer (B-76): niedrige Bildschirme bekommen ein kompaktes Layout – gleiche Anordnung,
+   kleinere Maße. Schaltflächen mindestens 44 px (Apple-Mindestmaß); die 88 px gelten fürs iPad. */
+@media (max-height: 500px) {
+  .app-header {
+    height: 56px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .app-header__brand {
+    gap: 10px;
+  }
+
+  .app-header__icon {
+    width: 36px;
+    border-radius: 9px;
+  }
+
+  .app-header h1 {
+    font-size: 22px;
+  }
+
+  .round-button {
+    width: 64px;
+    height: 64px;
+  }
+
+  .round-button svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .close-button,
+  .round__timer {
+    width: 48px;
+    height: 48px;
+  }
+
+  .close-button {
+    font-size: 26px;
+  }
+
+  .choice-group {
+    gap: 6px;
+  }
+
+  .choice-tile {
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: var(--radius-m);
+  }
+
+  .choice-group__title {
+    font-size: 18px;
+  }
+
+  .text-button {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 16px;
+  }
+
+  /* Startseite */
+  .view--start {
+    --start-tile-w: clamp(96px, 13vw, 130px);
+    --start-tile-h: calc(100dvh - 56px - 72px - 60px);
+    --start-tile-gap: 8px;
+  }
+
+  .start__groups {
+    gap: 24px;
+    padding: 6px 16px;
+  }
+
+  .start__group--language .choice-group__tiles {
+    gap: var(--start-tile-gap) 12px;
+  }
+
+  .choice-group__tiles {
+    gap: 12px;
+  }
+
+  .view--start .choice-tile {
+    padding: 6px;
+  }
+
+  .start__avatar {
+    height: calc(var(--tile-h) - 44px);
+  }
+
+  .start__name {
+    font-size: 16px;
+  }
+
+  .start__footer {
+    padding: 0 16px 8px;
+    column-gap: 20px;
+  }
+
+  .start__known {
+    width: 130px;
+    height: 56px;
+    padding: 4px 10px;
+  }
+
+  .start__known-label {
+    font-size: 16px;
+  }
+
+  /* Lernrunde */
+  .view--round {
+    --card-w: clamp(180px, 26vw, 240px);
+    --card-h: calc(100dvh - 56px - 64px - 36px);
+    --avatar-col: calc((100dvh - 80px) * 0.6 * 384 / 440);
+  }
+
+  .round__body {
+    column-gap: 16px;
+    row-gap: 8px;
+    padding: 8px 16px 8px;
+  }
+
+  .round__cards {
+    gap: 16px;
+  }
+
+  .round-card {
+    padding: 10px;
+  }
+
+  .word-card__emoji {
+    font-size: calc(var(--card-h) * 0.5);
+    height: calc(var(--card-h) * 0.62);
+  }
+
+  .word-card__de {
+    font-size: min(30px, 14cqi);
+  }
+
+  .round__foreign {
+    height: 84px;
+  }
+
+  .round__answer .speak-button {
+    width: 64px;
+    height: 64px;
+  }
+
+  .round__rating {
+    height: 64px;
+    gap: 64px;
+  }
+
+  .round__avatar {
+    gap: 8px;
+  }
+
+  .tutorial-bubble {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .tutorial-target > .tutorial-mark {
+    inset: -10px -26px;
+    width: calc(100% + 52px);
+    height: calc(100% + 20px);
+  }
+
+  .tutorial-mark path {
+    stroke-width: 3px;
+  }
+
+  .round__flag {
+    height: 56px;
+  }
+
+  /* Abschluss, Schlafseite, Hochformat-Hinweis */
+  .end__body,
+  .sleep__body {
+    gap: 8px;
+    padding: 8px 16px;
+  }
+
+  .end__body .avatar {
+    --avatar-h: calc(100dvh - 56px - 64px - 80px);
+  }
+
+  .end__text,
+  .sleep__text {
+    font-size: 22px;
+  }
+
+  .sleep__picture {
+    height: calc(100dvh - 56px - 70px);
+  }
+
+  /* Elternbereich */
+  .view--admin .admin__home {
+    width: 44px;
+    height: 44px;
+  }
+
+  .view--admin .admin__home svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .admin__body {
+    gap: 8px;
+    padding: 8px 16px;
+  }
+
+  .admin__toolbar {
+    gap: 12px;
+  }
+
+  .admin__languages {
+    gap: 10px;
+  }
+
+  .admin__languages .choice-tile {
+    width: 64px;
+    height: 44px;
+    padding: 4px;
+  }
+
+  .admin__flag {
+    width: 40px;
+    height: 28px;
+  }
+
+  .admin__question {
+    font-size: 16px;
+  }
+
+  .admin__levels {
+    gap: 2px;
+    padding: 6px 12px;
+  }
+
+  .admin__level {
+    grid-template-columns: 110px 1fr;
+    min-height: 28px;
+    gap: 8px;
+  }
+
+  .admin__level + .admin__level {
+    padding-top: 2px;
+  }
+
+  .admin__title {
+    font-size: 14px;
+  }
+
+  .admin__hint {
+    font-size: 11px;
+  }
+
+  .admin__word {
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+  }
 }

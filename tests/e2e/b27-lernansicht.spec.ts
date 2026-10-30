@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page, minSize } from './fixtures';
 import { fakeMedia } from './helpers';
 
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -91,8 +91,8 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
     const brand = await box(page.locator('.app-header__brand'));
     const vp = page.viewportSize()!;
     for (const b of [close, timer]) {
-      expect(b.width).toBeGreaterThanOrEqual(88);
-      expect(b.height).toBeGreaterThanOrEqual(88);
+      expect(b.width).toBeGreaterThanOrEqual(minSize(88));
+      expect(b.height).toBeGreaterThanOrEqual(minSize(88));
       expect(b.y).toBeGreaterThanOrEqual(header.y);
       expect(b.y + b.height).toBeLessThanOrEqual(header.y + header.height);
       // vertikal mittig

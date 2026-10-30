@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 
 const KEY = 'mimi-mots:v1';
@@ -100,8 +100,8 @@ test.describe('B-69 Elternbereich', () => {
     await expect(view(page, 'sleep')).toBeVisible();
 
     await hold(page, ICON, 700);
-    await btn(page, 'Alle aufwecken').click();
-    await expect(btn(page, 'Alle aufwecken')).toBeDisabled();
+    await btn(page, 'Tiere aufwecken').click();
+    await expect(btn(page, 'Tiere aufwecken')).toBeDisabled();
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
     expect(stored.rest).toMatchObject({ sleeping: [], usedDurations: [] });
     await btn(page, 'Zurück').click();
@@ -134,6 +134,9 @@ test.describe('B-69 Elternbereich', () => {
     await seed(page, { fr: { apfel: entry(0), hund: entry(4) } });
     await page.goto('./');
     await hold(page, ICON, 700);
+    await btn(page, 'Japanisch').click(); // ohne Lernstand: nichts zurückzusetzen
+    await expect(btn(page, 'Lernstand zurücksetzen')).toBeDisabled();
+    await btn(page, 'Französisch').click();
     await btn(page, 'Lernstand zurücksetzen').click();
     await expect(page.locator('.admin__question')).toHaveText(
       'Französisch: Wirklich zurücksetzen?',
@@ -144,7 +147,7 @@ test.describe('B-69 Elternbereich', () => {
     await btn(page, 'Lernstand zurücksetzen').click();
     await btn(page, 'Ja, zurücksetzen').click();
     await expect(level(page, 'neu')).toHaveCount(words.length);
-    await expect(btn(page, 'Lernstand zurücksetzen')).toBeVisible();
+    await expect(btn(page, 'Lernstand zurücksetzen')).toBeDisabled();
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
     expect(stored.progress.fr).toEqual({});
     expect(stored.progress.en).toEqual({ apfel: entry(2) });

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, minSize } from './fixtures';
 
 const KEY = 'mimi-mots:v1';
 const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -58,7 +58,7 @@ test.describe('B-23 Selbsteinschätzung', () => {
     const a = await style(known(page));
     const b = await style(practice(page));
     expect(a).toEqual(b);
-    expect(a.h).toBeGreaterThanOrEqual(88);
+    expect(a.h).toBeGreaterThanOrEqual(minSize(88));
     const tokens = [
       'rgb(59, 42, 99)',
       'rgb(106, 76, 156)',

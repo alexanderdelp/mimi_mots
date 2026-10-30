@@ -30,8 +30,9 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
   return node;
 }
 
-function textButton(label: string, variant: 'primary' | 'secondary'): HTMLButtonElement {
-  const button = el('button', `text-button text-button--${variant}`, label);
+/** Textbutton im Elternbereich: weiß mit Rahmen, wie die Kacheln (einheitlich, ohne Füllung). */
+function textButton(label: string): HTMLButtonElement {
+  const button = el('button', 'text-button text-button--secondary', label);
   button.type = 'button';
   return button;
 }
@@ -74,16 +75,33 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const actions = el('div', 'admin__actions');
   const levels = el('div', 'admin__levels');
+  // „Tiere aufwecken“ sitzt rechts in der Kopfleiste, damit unten Platz für die Sprachaktionen ist
+  const wake = textButton('Tiere aufwecken');
+  wake.classList.add('admin__wake');
+  wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
+  // B-74: Tutorial kommt in der nächsten Runde wieder; links neben dem Haus-Button
+  const tutorial = textButton('Tutorial zurücksetzen');
+  tutorial.classList.add('admin__tutorial');
+  tutorial.addEventListener('click', () => store.dispatch({ type: 'resetTutorial' }));
+  const left = el('div', 'admin__header-start');
+  left.append(home, tutorial);
 
   const render = () => {
     const { data } = store.getState();
     const awake = data.rest.sleeping.length === 0 && data.rest.usedDurations.length === 0;
     const name = LANGUAGE_INFO[language].name;
+    const enabled = data.enabledLanguages.includes(language);
+    wake.disabled = awake;
+    tutorial.disabled = !data.tutorialDone;
+    // ausgeschaltete Sprachen bleiben wählbar (Lernstand ansehen, wieder einschalten), wirken aber blass
+    languages.tiles.forEach((tile, l) => {
+      tile.el.dataset.off = String(!data.enabledLanguages.includes(l));
+    });
 
     if (confirming) {
       const question = el('p', 'admin__question', `${name}: Wirklich zurücksetzen?`);
-      const yes = textButton('Ja, zurücksetzen', 'primary');
-      const no = textButton('Abbrechen', 'secondary');
+      const yes = textButton('Ja, zurücksetzen');
+      const no = textButton('Abbrechen');
       yes.addEventListener('click', () => {
         confirming = false;
         store.dispatch({ type: 'resetProgress', language });
@@ -94,15 +112,26 @@ export function renderAdmin(store: Store): ViewHandle {
       });
       actions.replaceChildren(question, yes, no);
     } else {
-      const reset = textButton('Lernstand zurücksetzen', 'secondary');
+      const reset = textButton('Lernstand zurücksetzen');
+      reset.disabled = Object.keys(data.progress[language]).length === 0; // nichts zurückzusetzen
       reset.addEventListener('click', () => {
         confirming = true;
         render();
       });
-      const wake = textButton('Alle aufwecken', 'primary');
-      wake.disabled = awake;
-      wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
-      actions.replaceChildren(reset, wake);
+      // B-73: gewählte Sprache ein-/ausschalten; die letzte aktive bleibt an. Gleicher Text für
+      // alle Sprachen, damit der Button beim Flaggenwechsel nicht springt.
+      // Beide Beschriftungen liegen übereinander, die unpassende unsichtbar – so bleibt die
+      // Breite immer die der längeren.
+      const toggle = textButton('');
+      toggle.classList.add('admin__toggle');
+      for (const label of ['Sprache ausschalten', 'Sprache einschalten']) {
+        const span = el('span', '', label);
+        span.hidden = label !== (enabled ? 'Sprache ausschalten' : 'Sprache einschalten');
+        toggle.append(span);
+      }
+      toggle.disabled = enabled && data.enabledLanguages.length === 1;
+      toggle.addEventListener('click', () => store.dispatch({ type: 'toggleLanguage', language }));
+      actions.replaceChildren(reset, toggle);
     }
 
     const groups = wordsByLevel(data.progress, language);
@@ -136,7 +165,7 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const body = el('div', 'admin__body');
   body.append(toolbar, levels);
-  view.append(createAppHeader({ start: home }), body);
+  view.append(createAppHeader({ start: left, end: wake }), body);
   render();
 
   const unsubscribe = store.subscribe((state, previous) => {

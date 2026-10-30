@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('B-01 Grundgerüst', () => {
   test('AT-01.1: lädt ohne Konsolenfehler und ohne fehlgeschlagene Requests', async ({ page }) => {

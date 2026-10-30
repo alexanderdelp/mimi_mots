@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { VIEWS, lowContrast, overflow, prepare, settle } from './views';
 
 test.describe('B-60 Layout-Prüfung', () => {
@@ -29,6 +29,7 @@ test.describe('B-60 Layout-Prüfung', () => {
     [768, 1024],
     [820, 1180],
     [1024, 1366],
+    [393, 852], // iPhone hochkant (B-76)
   ]) {
     test(`AT-60.1/60.3: Hochformat-Hinweis ${width} × ${height}`, async ({ page }) => {
       await prepare(page, {});

@@ -4,6 +4,7 @@ import {
   createStore,
   createStore as createStoreAt,
   isComplete,
+  seenCount,
   nextView,
   reduce,
   type AppEvent,
@@ -175,6 +176,7 @@ describe('Lernrunde (B-21)', () => {
       wordId: null,
       revealed: false,
       expired: false,
+      knownOnly: false,
     });
   });
 
@@ -187,6 +189,7 @@ describe('Lernrunde (B-21)', () => {
       wordId: 'apfel',
       revealed: false,
       expired: false,
+      knownOnly: false,
     });
   });
 
@@ -597,5 +600,92 @@ describe('Elternbereich (B-69)', () => {
   it('resetProgress wirkt nur im Elternbereich', () => {
     const state = at('start');
     expect(reduce(state, { type: 'resetProgress', language: 'en' })).toBe(state);
+  });
+});
+
+describe('Aktive Sprachen (B-73)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+
+  it('Japanisch ist standardmäßig nicht wählbar und nicht spielbar', () => {
+    const start = at('start');
+    expect(reduce(start, { type: 'select', settings: { language: 'ja' } })).toBe(start);
+    const ja = complete();
+    ja.settings.language = 'ja';
+    const state = at('start', ja);
+    expect(reduce(state, { type: 'play' })).toBe(state);
+  });
+
+  it('AT-73.2: Elternbereich schaltet eine Sprache an und aus', () => {
+    let state = at('admin');
+    state = reduce(state, { type: 'toggleLanguage', language: 'ja' });
+    expect(state.data.enabledLanguages).toEqual(['en', 'fr', 'ja']);
+    state = reduce(state, { type: 'toggleLanguage', language: 'en' });
+    expect(state.data.enabledLanguages).toEqual(['fr', 'ja']);
+  });
+
+  it('AT-73.3: die letzte aktive Sprache bleibt an', () => {
+    const data = complete();
+    data.enabledLanguages = ['fr'];
+    const state = at('admin', data);
+    expect(reduce(state, { type: 'toggleLanguage', language: 'fr' })).toBe(state);
+  });
+
+  it('wirkt nur im Elternbereich', () => {
+    const state = at('start');
+    expect(reduce(state, { type: 'toggleLanguage', language: 'ja' })).toBe(state);
+  });
+
+  it('AT-73.4: gewählte Sprache ausgeschaltet → keine Wahl, bei nur einer aktiven → diese', () => {
+    let state = at('admin'); // gewählt: en, aktiv: en, fr
+    state = reduce(state, { type: 'toggleLanguage', language: 'ja' });
+    state = reduce(state, { type: 'toggleLanguage', language: 'en' });
+    expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBeNull();
+    state = reduce(state, { type: 'toggleLanguage', language: 'ja' });
+    expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBe('fr');
+  });
+});
+
+describe('Tutorial (B-74)', () => {
+  const at = (view: ViewName, tutorialDone: boolean): AppState => {
+    const data = complete();
+    data.tutorialDone = tutorialDone;
+    return { view, portrait: false, data, round: null };
+  };
+
+  it('tutorialDone nur in der Runde, resetTutorial nur im Elternbereich', () => {
+    expect(reduce(at('round', false), { type: 'tutorialDone' }).data.tutorialDone).toBe(true);
+    const start = at('start', false);
+    expect(reduce(start, { type: 'tutorialDone' })).toBe(start);
+    expect(reduce(at('admin', true), { type: 'resetTutorial' }).data.tutorialDone).toBe(false);
+    const round = at('round', true);
+    expect(reduce(round, { type: 'resetTutorial' })).toBe(round);
+  });
+});
+
+describe('Nur bekannte (B-75)', () => {
+  const entry = { box: 1, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' };
+  const withSeen = (n: number) => {
+    const data = complete();
+    data.progress.en = Object.fromEntries(
+      ['apfel', 'hund', 'katze', 'maus', 'ei', 'brot', 'kuh'].slice(0, n).map((id) => [id, entry]),
+    );
+    return data;
+  };
+  const play = (n: number, knownOnly: boolean) =>
+    reduce(
+      { view: 'start', portrait: false, data: withSeen(n), round: null },
+      { type: 'play', knownOnly },
+    ).round!.knownOnly;
+
+  it('gilt ab 6 gesehenen Wörtern der gewählten Sprache, sonst nicht', () => {
+    expect(seenCount(withSeen(5))).toBe(5);
+    expect(play(6, true)).toBe(true);
+    expect(play(5, true)).toBe(false);
+    expect(play(7, false)).toBe(false);
   });
 });

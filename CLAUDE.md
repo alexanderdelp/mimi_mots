@@ -64,7 +64,8 @@ src/
   components/        timer-dial.ts, choice-tile.ts, avatar.ts
   styles/            tokens.css, base.css, views.css
 scripts/generate_audio.py
-tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright)
+tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –
+                     dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true }))
 ```
 
 ## Design-Tokens (in `src/styles/tokens.css`, nur diese verwenden)
@@ -112,7 +113,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Texte in der UI: Deutsch, kurz, du-Form.
 
 ## Definition of Done
-- Ansicht passt ohne Scrollen auf 1024 × 768, 1180 × 820, 1366 × 1024 (Playwright-Screenshot-Test).
+- Ansicht passt ohne Scrollen auf 1024 × 768, 1180 × 820, 1366 × 1024 und iPhone 852 × 393 (Playwright-Screenshot-Test; auf dem iPhone kompaktes Layout, Schaltflächen ≥ 44 px).
 - Funktioniert offline nach erstem Laden (im Flugmodus geprüft).
 - Keine Konsolenfehler, Lint grün, alle Unit- und Akzeptanztests grün (auch die früherer Aufgaben).
 - Akzeptanztests der Aufgabe stehen in `backlog.md` und sind als Playwright-Tests umgesetzt.
