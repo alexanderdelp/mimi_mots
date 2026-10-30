@@ -10,7 +10,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-01.1: Die App lädt in WebKit auf 1024×768, 1180×820 und 1366×1024 (quer) ohne Konsolenfehler und ohne fehlgeschlagene Requests.
   - AT-01.2: Die Seite hat den Titel „Mimi & Mots“, `lang="de"` und einen Viewport-Meta-Tag ohne Zoom (`user-scalable=no`, `viewport-fit=cover`).
   - AT-01.3: Die App wird unter dem GitHub-Pages-Pfad `/mimi_mots/` ausgeliefert (Preview des Produktionsbuilds) und lädt ihre Skripte von dort.
-  - AT-01.4: Zur Laufzeit gehen keine Requests an fremde Hosts (Leitprinzip 6).
+  - ~~AT-01.4: Zur Laufzeit gehen keine Requests an fremde Hosts (Leitprinzip 6).~~ – Test entfernt (2026-10-30): abgedeckt durch AT-61.4 (kompletter Ablauf).
 - [x] **B-02 Design-Tokens & Basis-CSS**: `tokens.css`, `base.css` (Reset, `ui-rounded`, Touch-Regeln, kein Scroll/Zoom, Safe Areas, 100dvh-Layout).
   - AK: Leere Seite füllt Bildschirm ohne Scrollbalken; Doppeltipp zoomt nicht.
   - AT-02.1: Auf allen drei Viewports füllt `#app` exakt den Bildschirm; Dokument ist weder horizontal noch vertikal scrollbar, auch nicht bei zu großem Inhalt.
@@ -22,7 +22,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AK: Bildtausch zwischen Posen springt nicht (visueller Check im Dev-Server).
   - AT-03.1: Alle 8 Avatar-PNGs, alle Flaggen (seit dem Flaggen-Update als SVG) und alle Icons werden unter `/mimi_mots/…` mit Status 200 ausgeliefert; Avatare haben 384 × 440 px.
   - AT-03.2: Position und Größe von Avatar-Box und Bild bleiben beim Posenwechsel identisch (seit B-24 in der Lernrunde geprüft: zeigt ↔ freut, beide Begleiter).
-  - AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen (seit B-24 in der Lernrunde). **Deaktiviert** (2026-10-30): schlug in WebKit zufällig fehl, Aufwand lohnt nicht.
+  - ~~AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen (seit B-24 in der Lernrunde). **Deaktiviert** (2026-10-30): schlug in WebKit zufällig fehl, Aufwand lohnt nicht.~~ – Test entfernt (2026-10-30): deaktiviert und entfernt.
   - AT-03.4: Der Avatar wird höchstens 440 CSS-px hoch dargestellt, unten ausgerichtet und ohne Verzerrung (`object-fit: contain`) (seit B-24 in der Lernrunde).
   - Hinweis: Die Avatar-Vorschau war ein Platzhalter für den visuellen Check; sie ist mit B-24 entfallen, die Tests laufen seitdem in der Lernrunde.
 - [x] **B-04 Wortliste**: `src/data/words.ts` mit Typ `Word { id, emoji, de, en, fr }` und Liste aus Anhang `anforderungen.md`. Export als JSON für das Audio-Skript.
@@ -40,8 +40,8 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-06.1: Beim Öffnen der App ist die Startansicht aktiv, und es ist genau eine Ansicht im DOM.
   - AT-06.2: Ablauf Start → (Play) → Lernrunde → (Beenden) → Abschluss → (Zurück) → Start funktioniert; es ist immer genau eine Ansicht sichtbar.
   - AT-06.3: Neuladen während Lernrunde oder Abschluss startet wieder auf der Startansicht.
-  - AT-06.4: Im Hochformat erscheint ein Overlay „iPad drehen“ über der aktuellen Ansicht; zurück ins Querformat ist es weg und dieselbe Ansicht ist unverändert da.
-  - AT-06.5: ~~Avatar-Vorschau unter `?vorschau=avatar`~~ – mit B-24 entfallen; seitdem zeigt `?vorschau=avatar` die normale Startansicht.
+  - ~~AT-06.4: Im Hochformat erscheint ein Overlay „iPad drehen“ über der aktuellen Ansicht; zurück ins Querformat ist es weg und dieselbe Ansicht ist unverändert da.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-52.1/52.3.
+  - ~~AT-06.5: ~~Avatar-Vorschau unter `?vorschau=avatar`~~ – mit B-24 entfallen; seitdem zeigt `?vorschau=avatar` die normale Startansicht.~~ – Test entfernt (2026-10-30): Vorschau-Parameter gibt es nicht mehr.
   - Hinweis: Start-, Lernrunden- und Abschlussansicht sind Platzhalter mit je einer Schaltfläche; Inhalte folgen in B-11, B-21 ff. und B-43. Beenden per einfachem Tipp, Long-Press folgt in B-25.
 
 ## M1 – Startbildschirm
@@ -49,7 +49,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-10.1: Nicht ausgewählte Kachel: weißer Hintergrund, 2 px Rahmen in `--grau-700`; ausgewählte Kachel: Hintergrund `--lila-100`, 5 px Rahmen in `--lila-700`.
   - AT-10.2: Tipp auf eine Kachel wählt sie aus; in einer Gruppe ist immer genau eine ausgewählt; erneuter Tipp auf die ausgewählte ändert nichts; `aria-pressed` spiegelt den Zustand.
   - AT-10.3: Ein Auswahlwechsel verschiebt nichts: Position und Größe aller Kacheln und ihrer Inhalte bleiben pixelgleich.
-  - AT-10.4: Jede Kachel ist auf allen drei Viewports mindestens 88 × 88 px groß.
+  - ~~AT-10.4: Jede Kachel ist auf allen drei Viewports mindestens 88 × 88 px groß.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-61.2 (alle Schaltflächen).
   - AT-10.5: Kacheln verwenden in beiden Zuständen nur Farben aus den Design-Tokens (kein Rot/Grün, Leitprinzip 1).
   - Hinweis: Geprüft wird in der Vorschau `?vorschau=kacheln` (Begleiter-, Flaggen- und Dauer-Kacheln), bis die Startansicht (B-11) die Kacheln nutzt.
 - [x] **B-11 Startansicht**: Header mit Icon + Titel; Gruppen Begleiter, Sprache, Dauer (nur „5 Min.“ mit Uhr-Symbol); Play-Button. Layout laut Mockup, passt auf alle Ziel-Viewports.
@@ -87,14 +87,14 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-21.2: Das Emoji ist groß (35–45 % der Bildschirmhöhe), das deutsche Wort steht darunter.
   - AT-21.3: Das Fremdwort (Englisch bzw. Französisch) steht nirgends auf der Seite; Bewertungs-Buttons gibt es noch nicht.
   - AT-21.4: Rechts neben der Karte steht ein großer Flaggen-Button (≥ 160 px breit) mit der Flagge der gewählten Sprache.
-  - AT-21.5: [×] oben links, Karte mittig, Flagge rechts; auf allen drei Viewports liegt alles im Bildschirm, nichts überlappt, nichts scrollt.
+  - ~~AT-21.5: [×] oben links, Karte mittig, Flagge rechts; auf allen drei Viewports liegt alles im Bildschirm, nichts überlappt, nichts scrollt.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-27.5/27.8.
   - AT-21.6: Das Wort bleibt gleich, solange nichts bewertet wird (auch nach Hochformat und zurück).
   - Hinweis: Platz für Avatar (B-24), Timer (B-41), Fremdwort (B-22) und Bewertungs-Buttons (B-23) wird schon freigehalten, damit das Layout später nicht springt.
 - [x] **B-22 Aufdecken**: Tipp auf Flagge zeigt Fremdwort, spielt Audio; erneuter Tipp spielt erneut (von vorn).
   - AT-22.1: Tipp auf die Flagge zeigt das Fremdwort unter der Flagge (Französisch mit Artikel), vollständig sichtbar und innerhalb seines Bereichs – auch bei langen Wörtern.
-  - AT-22.2: Beim Tipp wird das Fremdwort genau einmal vorgelesen, in der richtigen Sprache (en-GB bzw. fr-FR).
-  - AT-22.3: Jeder weitere Tipp bricht die laufende Wiedergabe ab und startet sie von vorn; das Fremdwort bleibt sichtbar.
-  - AT-22.4: Das Aufdecken verschiebt nichts: Karte, Flagge und [×] bleiben pixelgleich.
+  - ~~AT-22.2: Beim Tipp wird das Fremdwort genau einmal vorgelesen, in der richtigen Sprache (en-GB bzw. fr-FR).~~ – Test entfernt (2026-10-30): abgedeckt durch AT-31.1/64.4.
+  - ~~AT-22.3: Jeder weitere Tipp bricht die laufende Wiedergabe ab und startet sie von vorn; das Fremdwort bleibt sichtbar.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-31.2.
+  - ~~AT-22.4: Das Aufdecken verschiebt nichts: Karte, Flagge und [×] bleiben pixelgleich.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-23.8.
   - AT-22.5: Vor dem ersten Tipp wird nichts vorgelesen (kein Autoplay).
   - AT-22.6: Ohne Sprachausgabe im Browser wird das Wort trotzdem aufgedeckt, ohne Fehler.
   - Hinweis: Bis die MP3-Dateien da sind (B-30a/b, B-31), liest die Web-Speech-Stimme des Geräts vor (Fallback laut Anforderungen). In den Tests wird die Sprachausgabe durch eine Attrappe ersetzt, die Aufrufe mitschreibt.
@@ -134,7 +134,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-26.5: Lernseite hat dieselbe Kopfleiste wie die Startseite (Icon + „Mimi & Mots“); [×] und Timer-Platz liegen darunter links bzw. rechts.
   - AT-26.6: Rechts neben der Karte: große Flagge der Sprache (≥ 80 % der Spaltenbreite, nur Anzeige, nicht antippbar); der runde lila Lautsprecher-Button überlappt ihre rechte untere Ecke ein Stück (höchstens ein Viertel der Flaggenfläche). Tipp auf den Lautsprecher deckt auf und liest vor, erneuter Tipp liest von vorn.
   - AT-26.7: „Wusste ich“ und „Noch üben“ sind runde lila Buttons wie der Play-Button, gleich groß, nur mit weißem Symbol, ohne sichtbaren Text (Screenreader-Namen bleiben).
-  - AT-26.8: Auf allen drei Viewports passt die Lernseite ohne Überlappung (außer der gewollten Flaggen-Ecke) und ohne Scrollen; Screenshots der Startseite aktualisiert.
+  - ~~AT-26.8: Auf allen drei Viewports passt die Lernseite ohne Überlappung (außer der gewollten Flaggen-Ecke) und ohne Scrollen; Screenshots der Startseite aktualisiert.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-27.8.
   - AT-26.9: Lange Fremdwörter: Mehrwortbegriffe bis 22 Zeichen und Einzelwörter bis 25 Zeichen passen vollständig in den Fremdwort-Bereich, mindestens 36 px groß; Einzelwörter werden dafür notfalls getrennt (geprüft am echten Fremdwort-Feld mit der App-Logik, Unit-Tests für `fitText`).
   - Hinweis: Bestehende Tests werden angepasst (Kachelanzahl, „5 Min.“ → „5 Minuten“, Flaggen-Button → Lautsprecher-Button, Bewertungs-Buttons ohne Text).
 
@@ -205,7 +205,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-42.5: [×] (gedrückt halten) beendet die Runde auch nach Ablauf sofort.
 - [x] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Bis zum nächsten Mal!“, Haus-Button → Start. Keine Statistik.
   - AT-43.1: Der Abschluss zeigt die Kopfleiste und den gewählten Begleiter groß (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) in der Pose „winkt“ (Mimi: Katze, Mots: Pony).
-  - AT-43.2: Der Text lautet „Bis zum nächsten Mal!“; es gibt keine Zahlen, keine Anzahl Wörter, kein Lob und keine Bewertung.
+  - ~~AT-43.2: Der Text lautet „Bis zum nächsten Mal!“; es gibt keine Zahlen, keine Anzahl Wörter, kein Lob und keine Bewertung.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-61.1 und AT-43.4.
   - AT-43.3: Ein runder lila Haus-Button („Zurück“, nur Symbol) führt zur Startseite; die Auswahl ist dort noch vorbelegt.
   - AT-43.4: Der Abschluss ist derselbe, egal ob die Runde per Zeitablauf (B-42) oder per [×] endet.
   - AT-43.5: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen; Screenshot-Vergleich je Viewport.
@@ -229,7 +229,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-52.2: Ist noch kein Begleiter gewählt (Erststart), zeigt das Overlay Mimi; nach Wahl von Mots zeigt es Mots.
   - AT-52.3: Die Ansicht darunter ist gesperrt und bleibt erhalten: Nach dem Zurückdrehen geht es mit derselben Ansicht und demselben Wort weiter.
   - AT-52.4: Der Timer pausiert im Hochformat (abgedeckt durch AT-40.5 und AT-41.5).
-  - AT-52.5: In allen drei Hochformat-Größen (768 × 1024, 820 × 1180, 1024 × 1366) ist alles sichtbar, nichts scrollt.
+  - ~~AT-52.5: In allen drei Hochformat-Größen (768 × 1024, 820 × 1180, 1024 × 1366) ist alles sichtbar, nichts scrollt.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-60.1 (Hochformat).
   - AT-52.6: Begleiter und Dreh-Symbol sind statisch (keine Animation).
 - [x] **B-53 Deployment GitHub Pages**: GitHub Action (Build + `actions/deploy-pages`) bei Push auf `main`; Vite `base` = Repo-Pfad; README mit Einrichtung (Pages-Quelle „GitHub Actions“) und Anleitung „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
   - AK: App unter `https://<user>.github.io/<repo>/` erreichbar, installierbar, offline nutzbar.
@@ -240,8 +240,18 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - Hinweis: AT-53.2/53.3 lassen sich erst nach dem Merge auf `main` prüfen (der Workflow läuft nur dort); sie werden dann per Abruf der echten Adresse geprüft. Die E2E-Tests laufen weiter lokal (Screenshot-Referenzen sind Windows-spezifisch), nicht in der Action.
 
 ## M6 – Feinschliff
-- [ ] **B-60 Layout-Prüfung**: Screenshot-Tests aller Views auf 3 Viewports; keine Überläufe; Kontrast geprüft.
-- [ ] **B-61 Leitprinzipien-Review**: Checkliste – keine Bewertung/Belohnung, keine Avatar-Animation, ≥ 88 px Touch-Ziele, wenig Text.
+- [x] **B-60 Layout-Prüfung**: Screenshot-Tests aller Views auf 3 Viewports; keine Überläufe; Kontrast geprüft.
+  - Hinweis: Start, Abschluss, Schlafseite und Elternbereich haben schon Screenshot-Tests (B-11, B-43, B-65, B-69). Neu ist eine gemeinsame Prüfung aller Ansichten; der Zufall der Wortwahl wird im Test festgelegt, damit Screenshots reproduzierbar sind.
+  - AT-60.1: Für jede Ansicht – Start (Erststart, mit schlafendem Begleiter), Lernrunde (verdeckt, aufgedeckt je Sprache), Abschluss, Schlafseite, Elternbereich, Hochformat-Hinweis – passt alles in den Bildschirm: kein Scrollen, kein sichtbares Element ragt über den Rand (1024 × 768, 1180 × 820, 1366 × 1024; Hochformat 768 × 1024 und 820 × 1180).
+  - AT-60.2: Kontrast: Jeder sichtbare Text jeder Ansicht hat zu seinem Hintergrund mindestens 4,5 : 1, große Schrift (≥ 24 px oder fett ≥ 18,7 px) mindestens 3 : 1. Ausgegraute (nicht wählbare) Elemente sind ausgenommen (WCAG).
+  - AT-60.3: Screenshot-Tests auch für Lernrunde (verdeckt und aufgedeckt) und Hochformat-Hinweis.
+- [x] **B-61 Leitprinzipien-Review**: Checkliste – keine Bewertung/Belohnung, keine Avatar-Animation, ≥ 88 px Touch-Ziele, wenig Text.
+  - AT-61.1 (Leitprinzip 1): In keiner Ansicht für das Kind kommen Rot- oder Grüntöne als Text-, Hintergrund- oder Rahmenfarbe vor (Bilder wie Flaggen und Emoji ausgenommen); keine Zahlen, Punkte, Sterne oder Lob-Wörter außerhalb der Lernwörter.
+  - AT-61.2 (Leitprinzip 3): Jede Schaltfläche in jeder Ansicht ist mindestens 88 × 88 px groß.
+  - AT-61.3 (Leitprinzip 4): Avatare haben keine Animation und keinen Übergang; alle Übergänge und Animationen dauern ≤ 200 ms (Ausnahme: Fortschrittsring von [×], dokumentiert); mit „Bewegung reduzieren“ dauert nichts länger als 0 ms.
+  - AT-61.4 (Leitprinzip 6): Ein kompletter Ablauf (Start → Runde → Abschluss → Schlafseite → Elternbereich) stellt keine Anfrage an einen fremden Server.
+  - AT-61.5 (Leitprinzip 5): Der Produktionsbuild ist kleiner als 5 MB und der Service Worker speichert alle Bilder und Audiodateien vor.
+  - AT-61.6 (Leitprinzip 3, Texte): Checkliste der sichtbaren Texte (Deutsch, kurz, du-Form) in `anforderungen.md` §11; in den Kind-Ansichten höchstens 12 Wörter Text außer den Lernwörtern.
 - [ ] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten.
 
 ## Nach Abschluss

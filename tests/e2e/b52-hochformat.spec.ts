@@ -62,33 +62,6 @@ test.describe('B-52 Hochformat-Overlay', () => {
     await expect(page.locator('.view-root')).toHaveJSProperty('inert', false);
   });
 
-  for (const [width, height] of [
-    [768, 1024],
-    [820, 1180],
-    [1024, 1366],
-  ]) {
-    test(`AT-52.5: passt in ${width} × ${height}`, async ({ page }) => {
-      await page.setViewportSize({ width, height });
-      await page.goto('./');
-      await expect(overlay(page)).toBeVisible();
-      await page.waitForFunction(() => {
-        const img = document.querySelector<HTMLImageElement>('.portrait-overlay .avatar img');
-        return !!img && img.complete && img.naturalWidth > 0;
-      });
-      for (const sel of ['.avatar', '.portrait-overlay__icon', '.portrait-overlay__text']) {
-        const b = (await overlay(page).locator(sel).boundingBox())!;
-        expect(b.y, sel).toBeGreaterThanOrEqual(0);
-        expect(b.y + b.height, sel).toBeLessThanOrEqual(height);
-        expect(b.x + b.width, sel).toBeLessThanOrEqual(width);
-      }
-      const scroll = await page.evaluate(() => [
-        document.documentElement.scrollWidth,
-        document.documentElement.scrollHeight,
-      ]);
-      expect(scroll).toEqual([width, height]);
-    });
-  }
-
   test('AT-52.6: statisch, keine Animation', async ({ page }) => {
     await page.goto('./');
     await toPortrait(page);

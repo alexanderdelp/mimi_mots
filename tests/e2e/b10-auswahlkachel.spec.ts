@@ -95,17 +95,6 @@ test.describe('B-10 Auswahlkachel', () => {
     }
   });
 
-  test('AT-10.4: jede Kachel mindestens 88 × 88 px', async ({ page }) => {
-    const sizes = await tiles(page).evaluateAll((els) =>
-      els.map((el) => el.getBoundingClientRect()),
-    );
-    expect(sizes).toHaveLength(7); // seit B-26: + zweite Dauer, + Japanisch
-    for (const s of sizes) {
-      expect(s.width).toBeGreaterThanOrEqual(88);
-      expect(s.height).toBeGreaterThanOrEqual(88);
-    }
-  });
-
   test('AT-10.5: nur Token-Farben in beiden Zuständen', async ({ page }) => {
     const allowed = new Set(Object.values(TOKEN_COLORS));
     const check = async () => {

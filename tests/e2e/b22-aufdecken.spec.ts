@@ -49,47 +49,7 @@ test.describe('B-22 Aufdecken', () => {
         await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', word.id);
       }
     });
-
-    test(`AT-22.2: genau einmal vorgelesen (${language})`, async ({ page }) => {
-      await fakeSpeech(page);
-      const word = await startRound(page, language);
-      await btn(page, flagName[language]).click();
-      const calls = await mediaCalls(page);
-      // seit B-31 (Französisch) bzw. B-64 (Englisch) aus der vorproduzierten MP3
-      expect(calls.filter((c) => c.op === 'play')).toEqual([
-        { op: 'play', src: `/mimi_mots/audio/${key[language]}/${word.id}.mp3`, time: 0 },
-      ]);
-      expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
-    });
   }
-
-  test('AT-22.3: erneuter Tipp startet von vorn', async ({ page }) => {
-    await fakeSpeech(page);
-    const word = await startRound(page, 'Französisch');
-    for (let i = 0; i < 3; i++) await btn(page, 'Auf Französisch anhören').click();
-    const calls = await mediaCalls(page);
-    // jeder Tipp: anhalten, auf Anfang, abspielen
-    const plays = calls.filter((c) => c.op === 'play');
-    expect(plays).toHaveLength(3);
-    for (const p of plays)
-      expect(p).toMatchObject({ src: `/mimi_mots/audio/fr/${word.id}.mp3`, time: 0 });
-    const ops = calls.filter((c) => c.op === 'play' || c.op === 'pause').map((c) => c.op);
-    expect(ops).toEqual(['pause', 'play', 'pause', 'play', 'pause', 'play']);
-    await expect(page.locator('.round__foreign')).toHaveText(word.fr);
-  });
-
-  test('AT-22.4: Aufdecken verschiebt nichts', async ({ page }) => {
-    await fakeSpeech(page);
-    await startRound(page, 'Englisch');
-    const boxes = () =>
-      page
-        .locator('.close-button, .word-card, .speak-button, .round__foreign')
-        .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
-    const before = await boxes();
-    await btn(page, 'Auf Englisch anhören').click();
-    await expect(page.locator('.round__foreign')).not.toHaveText('');
-    expect(await boxes()).toEqual(before);
-  });
 
   test('AT-22.5: kein Vorlesen vor dem ersten Tipp', async ({ page }) => {
     await fakeSpeech(page);

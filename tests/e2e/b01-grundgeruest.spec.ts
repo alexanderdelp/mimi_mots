@@ -35,16 +35,4 @@ test.describe('B-01 Grundgerüst', () => {
     expect(scripts.length).toBeGreaterThan(0);
     for (const src of scripts) expect(src).toMatch(/^\/mimi_mots\//);
   });
-
-  test('AT-01.4: keine Requests an fremde Hosts', async ({ page, baseURL }) => {
-    const ownOrigin = new URL(baseURL!).origin;
-    const foreign: string[] = [];
-    page.on('request', (req) => {
-      const url = new URL(req.url());
-      if (url.protocol.startsWith('http') && url.origin !== ownOrigin) foreign.push(req.url());
-    });
-    await page.goto('./');
-    await page.waitForLoadState('networkidle');
-    expect(foreign).toEqual([]);
-  });
 });

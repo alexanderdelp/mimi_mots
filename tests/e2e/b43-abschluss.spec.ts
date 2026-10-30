@@ -54,19 +54,6 @@ test.describe('B-43 Abschlussansicht', () => {
     });
   }
 
-  test('AT-43.2: freundlicher Satz, keine Zahlen oder Bewertung', async ({ page }) => {
-    await startRound(page);
-    for (let i = 0; i < 3; i++) {
-      await btn(page, 'Auf Französisch anhören').click();
-      await btn(page, 'Wusste ich').click();
-    }
-    await closeRound(page);
-    await expect(view(page, 'end').locator('.end__text')).toHaveText('Bis zum nächsten Mal!');
-    const text = await view(page, 'end').innerText();
-    expect(text).not.toMatch(/\d/);
-    expect(text).not.toMatch(/super|toll|richtig|falsch|prima|gut gemacht|punkt|stern|wörter/i);
-  });
-
   test('AT-43.3: Haus-Button führt zum Start mit gemerkter Auswahl', async ({ page }) => {
     await startRound(page, 'Mots');
     await closeRound(page);

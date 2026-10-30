@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { readdirSync } from 'node:fs';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { fakeMedia, mediaCalls } from './helpers';
 
@@ -57,6 +58,12 @@ test.describe('B-51 Service Worker', () => {
       ...words.map((w) => `/mimi_mots/audio/fr/${w.id}.mp3`),
     ];
     for (const path of expected) expect(paths, path).toContain(path);
+    // AT-61.5: jedes Bild und jede Audiodatei aus public/ (alle Sprachen, Schlafbilder, Flaggen)
+    const media = readdirSync('public', { recursive: true, encoding: 'utf8' })
+      .filter((f) => /\.(png|svg|mp3)$/.test(f))
+      .map((f) => `/mimi_mots/${f.replaceAll('\\', '/')}`);
+    expect(media.length).toBeGreaterThan(3 * words.length);
+    for (const path of media) expect(paths, path).toContain(path);
     expect(paths.some((p) => /\/assets\/index-.*\.js$/.test(p))).toBe(true);
     expect(paths.some((p) => /\/assets\/index-.*\.css$/.test(p))).toBe(true);
     expect(paths.some((p) => /nunito.*\.woff2$/.test(p))).toBe(true);
