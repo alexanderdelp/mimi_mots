@@ -247,7 +247,7 @@
   },
   "fr": {
     "acht": {
-      "voice": "piper-tom",
+      "voice": "melo-fr",
       "variant": "word"
     },
     "apfel": {
@@ -475,8 +475,8 @@
       "variant": "dot"
     },
     "zehn": {
-      "voice": "piper-tom",
-      "variant": "word"
+      "voice": "kokoro-siwis",
+      "variant": "dot"
     },
     "zitrone": {
       "voice": "kokoro-siwis",
