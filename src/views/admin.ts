@@ -1,6 +1,6 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Sprache nach Stufe ansehen,
-// zurücksetzen, Sprache ein-/ausschalten; „Sonstiges“ – Tiere aufwecken, Tutorial zurücksetzen,
+// zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere aufwecken, Tutorial zurücksetzen,
 // Bremse für neue Wörter (B-82). Keine Avatare; sonst dieselben Bausteine wie überall.
 import { createAppHeader } from '../components/app-header';
 import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
@@ -8,7 +8,7 @@ import { roundButton } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { vocabulary } from '../data/vocabulary';
 import type { Language } from '../data/words';
-import { canToggleLanguage, type Store } from '../state';
+import { canToggleLanguage, canToggleWord, type Store } from '../state';
 import { LANGUAGES, MAX_BOX, type Progress } from '../storage';
 import type { ViewHandle } from './view';
 
@@ -225,12 +225,21 @@ export function renderAdmin(store: Store): ViewHandle {
         const chips = el('div', 'admin__words');
         chips.setAttribute('role', 'list');
         for (const w of words) {
-          const chip = el('span', 'admin__word', w.emoji);
-          chip.setAttribute('role', 'listitem');
+          // B-88: Tipp schaltet das Wort aus (blass) bzw. wieder ein; es bleibt an seinem Platz
+          const item = el('span', 'admin__item');
+          item.setAttribute('role', 'listitem');
+          const chip = el('button', 'admin__word', w.emoji);
+          chip.type = 'button';
           chip.dataset.wordId = w.id;
           chip.title = `${w.de} · ${w[language]}`;
           chip.setAttribute('aria-label', chip.title);
-          chips.append(chip);
+          chip.setAttribute('aria-pressed', String(!data.disabledWords[language].includes(w.id)));
+          chip.disabled = !canToggleWord(data, language, w.id); // das letzte Wort bleibt an
+          chip.addEventListener('click', () =>
+            store.dispatch({ type: 'toggleWord', language, id: w.id }),
+          );
+          item.append(chip);
+          chips.append(item);
         }
         row.append(label, chips);
         return row;

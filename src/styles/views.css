@@ -770,13 +770,38 @@
   gap: 2px;
 }
 
+.admin__item {
+  display: flex;
+}
+
+/* B-88: Tipp schaltet das Wort ein/aus; 44 px (Elternbereich, 88 px passen bei 61 Wörtern nicht) */
 .admin__word {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   display: grid;
   place-items: center;
-  font-size: 28px;
+  border-radius: 12px;
+  font-size: 30px;
   line-height: 1;
+  transition:
+    filter var(--transition),
+    opacity var(--transition);
+}
+
+.admin__word[aria-pressed='false'] {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.admin__word:focus-visible {
+  outline: 3px solid var(--lila-700);
+  outline-offset: -3px;
+}
+
+/* das letzte eingeschaltete Wort: nicht ausschaltbar, sieht aber aus wie die anderen */
+.admin__word:disabled {
+  cursor: default;
 }
 
 /* B-73: ausgeschaltete Sprache im Elternbereich – wählbar, aber blass */

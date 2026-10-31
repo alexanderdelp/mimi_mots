@@ -2,8 +2,8 @@
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
 import { COMPANIONS } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
-import { hasVocabulary } from './data/vocabulary';
-import type { Language } from './data/words';
+import { hasVocabulary, vocabulary } from './data/vocabulary';
+import type { Language, Word } from './data/words';
 import { DURATIONS, LANGUAGES, localDay, type AppData, type Settings } from './storage';
 
 export type ViewName = 'start' | 'round' | 'end' | 'sleep' | 'admin';
@@ -17,6 +17,7 @@ export type AppEvent =
   | { type: 'wake' } // Elternbereich: alle wach und alle Dauern frei (B-65/B-69)
   | { type: 'resetProgress'; language: Language } // Elternbereich: Lernstand einer Sprache leeren
   | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
+  | { type: 'toggleWord'; language: Language; id: string } // Elternbereich: Wort an/aus (B-88)
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
   | { type: 'resetTutorial' } // Elternbereich: Tutorial kommt in der nächsten Runde wieder
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
@@ -51,6 +52,19 @@ export function playableLanguages(data: AppData): Language[] {
 export function canToggleLanguage(data: AppData, language: Language): boolean {
   if (!data.enabledLanguages.includes(language)) return hasVocabulary(language);
   return playableLanguages(data).some((l) => l !== language);
+}
+
+/** B-88: Wörter der Lernrunde – der Wortschatz (B-84) ohne die im Elternbereich ausgeschalteten. */
+export function activeWords(data: AppData, language: Language): Word[] {
+  const off = data.disabledWords[language];
+  return vocabulary(language).filter((w) => !off.includes(w.id));
+}
+
+/** B-88: Einschalten geht immer; Ausschalten nur, wenn danach noch ein Wort der Sprache an ist. */
+export function canToggleWord(data: AppData, language: Language, id: string): boolean {
+  if (!vocabulary(language).some((w) => w.id === id)) return false;
+  if (data.disabledWords[language].includes(id)) return true;
+  return activeWords(data, language).some((w) => w.id !== id);
 }
 
 /** Auswahl passend zu Schlaf, Verbrauch und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
@@ -251,6 +265,18 @@ function step(state: AppState, event: AppEvent): AppState {
       ? on.filter((l) => l !== event.language)
       : LANGUAGES.filter((l) => on.includes(l) || l === event.language);
     return { ...state, data: { ...state.data, enabledLanguages: enabled } };
+  }
+  if (event.type === 'toggleWord' && state.view === 'admin') {
+    const { language, id } = event;
+    if (!canToggleWord(state.data, language, id)) return state;
+    const off = state.data.disabledWords[language];
+    const next = off.includes(id)
+      ? off.filter((w) => w !== id)
+      : vocabulary(language)
+          .map((w) => w.id)
+          .filter((w) => off.includes(w) || w === id);
+    const disabledWords = { ...state.data.disabledWords, [language]: next };
+    return { ...state, data: { ...state.data, disabledWords } };
   }
   if (event.type === 'resetProgress' && state.view === 'admin') {
     const progress = { ...state.data.progress, [event.language]: {} };

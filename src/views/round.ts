@@ -10,10 +10,9 @@ import { roundButton } from '../components/icons';
 import { onLongPress } from '../components/long-press';
 import { createTimerDial } from '../components/timer-dial';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
-import { vocabulary, vocabularyIds } from '../data/vocabulary';
 import { getWord, type Language, type Word } from '../data/words';
 import { pickNext, type Rating } from '../scheduler';
-import type { AppState, Store } from '../state';
+import { activeWords, type AppState, type Store } from '../state';
 import { createSessionTimer } from '../timer';
 import type { ViewHandle } from './view';
 
@@ -27,9 +26,8 @@ const FOREIGN_BREAK_BELOW_PX = 36;
 /** Tutorial (B-74/B-87): Probewort und die Schritte. Ein Tipp irgendwohin geht weiter. */
 export const TUTORIAL_WORD = 'apfel';
 
-/** Probewort der Sprache: Apfel, oder das erste Wort des Wortschatzes, wenn Apfel fehlt (B-84). */
-export function tutorialWord(language: Language): Word {
-  const words = vocabulary(language);
+/** Probewort: Apfel, oder das erste Wort, wenn Apfel fehlt (B-84) oder ausgeschaltet ist (B-88). */
+export function tutorialWord(words: readonly Word[]): Word {
   return words.find((w) => w.id === TUTORIAL_WORD) ?? words[0];
 }
 
@@ -115,7 +113,8 @@ export function showNextWord(store: Store, rng?: () => number): void {
   const { round, data } = store.getState();
   const language = data.settings.language;
   if (!round || !language) return;
-  const ids = vocabularyIds(language); // nur Wörter mit gewählter Aufnahme (B-84)
+  // nur Wörter mit gewählter Aufnahme (B-84), ohne ausgeschaltete (B-88)
+  const ids = activeWords(data, language).map((w) => w.id);
   const next = pickNext(ids, data.progress[language], round.session, rng, data.brakeNew);
   store.dispatch({ type: 'word', id: next.id, session: next.session });
 }
@@ -123,6 +122,7 @@ export function showNextWord(store: Store, rng?: () => number): void {
 export function renderRound(store: Store): ViewHandle {
   const { settings } = store.getState().data;
   const language: Language = settings.language ?? 'en';
+  const words = activeWords(store.getState().data, language); // B-88: ohne ausgeschaltete
 
   const view = el('main', 'view view--round');
   view.dataset.view = 'round';
@@ -262,7 +262,10 @@ export function renderRound(store: Store): ViewHandle {
   });
 
   // Aussprache der Sprache vorladen (je ~9 KB); fehlende Dateien merkt sich der Player
-  void player.preload(language, vocabularyIds(language));
+  void player.preload(
+    language,
+    words.map((w) => w.id),
+  );
 
   // Session-Timer: läuft ab dem ersten Wort, pausiert im Hintergrund und im Hochformat.
   // Der Ablauf ändert an der Runde nichts Sichtbares (§3.4); Abschluss erst nach Bewertung (B-42).
@@ -326,7 +329,7 @@ export function renderRound(store: Store): ViewHandle {
     bubble.textContent = step.text;
     bubble.hidden = false;
     // nach dem Lautsprecher ist das Probewort aufgedeckt, damit die Bewertung Sinn ergibt
-    if (previous?.target === 'speaker') renderForeign(tutorialWord(language), true);
+    if (previous?.target === 'speaker') renderForeign(tutorialWord(words), true);
     if (avatar.pose !== step.pose) avatar.setPose(step.pose);
     for (const [name, node] of Object.entries(targets)) {
       node.classList.toggle('tutorial-target', name === step.target);
@@ -358,7 +361,7 @@ export function renderRound(store: Store): ViewHandle {
     event.preventDefault();
     const step = TUTORIAL_STEPS[tutorialStep];
     if (step.target === 'speaker' && speaker.contains(event.target as Node)) {
-      player.play(tutorialWord(language), language);
+      player.play(tutorialWord(words), language);
     } else {
       player.stop();
     }
@@ -384,7 +387,7 @@ export function renderRound(store: Store): ViewHandle {
   };
 
   if (tutorialStep >= 0) {
-    renderWord(tutorialWord(language));
+    renderWord(tutorialWord(words));
     renderForeign(undefined, false);
     showTutorialStep();
   } else {
