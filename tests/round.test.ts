@@ -38,6 +38,43 @@ describe('showNextWord', () => {
     expect(store.getState().round!.session.introduced.length).toBeGreaterThan(0);
   });
 
+  it('AT-88.2: ausgeschaltete Wörter kommen nicht vor', () => {
+    const data = defaults();
+    data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
+    data.tutorialDone = true;
+    const off = WORDS.slice(0, WORDS.length - 4).map((w) => w.id);
+    data.disabledWords.en = off;
+    const store = createStore(data);
+    store.dispatch({ type: 'play' });
+    const rng = seededRng(3);
+    for (let i = 0; i < 40; i++) {
+      showNextWord(store, rng);
+      expect(off).not.toContain(store.getState().round!.wordId);
+    }
+  });
+
+  it('AT-88.4: die Bremse zählt nur eingeschaltete Wörter auf Stufe 0', () => {
+    const at = (box: number) => ({ box, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' });
+    const data = defaults();
+    data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
+    data.tutorialDone = true;
+    const ids = WORDS.map((w) => w.id);
+    // 6 auf Stufe 0 bremsen; eins davon aus → nur noch 5, neue Wörter kommen wieder
+    data.progress.en = Object.fromEntries(ids.slice(0, 7).map((id, i) => [id, at(i < 6 ? 0 : 2)]));
+    const run = (disabled: string[]) => {
+      const store = createStore({
+        ...data,
+        disabledWords: { ...data.disabledWords, en: disabled },
+      });
+      store.dispatch({ type: 'play' });
+      const rng = seededRng(5);
+      for (let i = 0; i < 12; i++) showNextWord(store, rng);
+      return store.getState().round!.session.introduced;
+    };
+    expect(run([])).toEqual([]);
+    expect(run([ids[0]]).length).toBeGreaterThan(0);
+  });
+
   it('macht außerhalb der Lernrunde nichts', () => {
     const store = createStore(defaults());
     const before = store.getState();

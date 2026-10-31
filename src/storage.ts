@@ -1,7 +1,7 @@
 // Persistenz in localStorage (anforderungen.md §7): ein Schlüssel, versioniert.
 // Kaputte oder fehlende Daten führen nie zum Absturz, sondern zu Defaults.
 import { COMPANIONS, type Companion } from './components/avatar';
-import { hasVocabulary } from './data/vocabulary';
+import { hasVocabulary, vocabularyIds } from './data/vocabulary';
 import type { Language } from './data/words';
 import type { Store } from './state';
 
@@ -32,6 +32,9 @@ export interface WordProgress {
 
 export type Progress = Record<Language, Record<string, WordProgress>>;
 
+/** B-88: im Elternbereich ausgeschaltete Wörter je Sprache (Wort-ids). */
+export type DisabledWords = Record<Language, string[]>;
+
 /** B-65: Nach einer Runde schläft der Begleiter und die Dauer ist verbraucht – bis zum
  *  nächsten Tag (`since`: lokales Datum JJJJ-MM-TT des Einschlafens). */
 export interface Rest {
@@ -51,6 +54,8 @@ export interface AppData {
   tutorialDone: boolean;
   /** B-82: keine neuen Wörter, solange viele auf „noch üben“ stehen (Schalter im Elternbereich). */
   brakeNew: boolean;
+  /** B-88: ausgeschaltete Wörter – kommen in der Lernrunde nicht vor, ihr Lernstand bleibt. */
+  disabledWords: DisabledWords;
 }
 
 /** Standard: Englisch und Französisch aktiv, Japanisch und Italienisch aus (B-73/B-80). */
@@ -79,6 +84,7 @@ export function defaults(): AppData {
     enabledLanguages: withWords(DEFAULT_ENABLED_LANGUAGES),
     tutorialDone: false,
     brakeNew: true,
+    disabledWords: { en: [], fr: [], ja: [], it: [] },
   };
 }
 
@@ -129,6 +135,18 @@ function sanitizeEnabled(raw: unknown): Language[] {
   return withWords(subsetOf(LANGUAGES, raw));
 }
 
+/** Nur Wörter des Wortschatzes (B-84); sind alle einer Sprache aus, sind alle wieder an. */
+function sanitizeDisabled(raw: unknown): DisabledWords {
+  const disabled = defaults().disabledWords;
+  if (!isObject(raw)) return disabled;
+  for (const lang of LANGUAGES) {
+    const ids = vocabularyIds(lang);
+    const off = subsetOf(ids, raw[lang]);
+    if (off.length < ids.length) disabled[lang] = off;
+  }
+  return disabled;
+}
+
 function sanitizeWordProgress(raw: unknown): WordProgress | null {
   if (!isObject(raw)) return null;
   const { box, seen, lastSeenAt } = raw;
@@ -163,6 +181,7 @@ export function sanitize(raw: unknown): AppData {
     enabledLanguages: sanitizeEnabled(raw.enabledLanguages),
     tutorialDone: raw.tutorialDone === true,
     brakeNew: raw.brakeNew !== false, // fehlt bei älteren Daten → an
+    disabledWords: sanitizeDisabled(raw.disabledWords), // fehlt bei älteren Daten → alle an
   };
 }
 

@@ -45,19 +45,19 @@ const redOrGreen = (page: Page) =>
     return out;
   });
 
-/** Sichtbare Schaltflächen unter 88 × 88 px (iPhone: 44 × 44 px, B-76). */
-const smallButtons = (page: Page) =>
+/** Sichtbare Schaltflächen unter 88 × 88 px (iPhone: 44 × 44 px, B-76), außer `except`. */
+const smallButtons = (page: Page, except = '') =>
   page.evaluate(
-    (min) =>
+    ([min, except]) =>
       [...document.querySelectorAll('button')]
-        .filter((b) => b.getClientRects().length)
+        .filter((b) => b.getClientRects().length && !(except && b.matches(except)))
         .map((b) => ({
           name: b.getAttribute('aria-label') ?? b.textContent,
           r: b.getBoundingClientRect(),
         }))
         .filter(({ r }) => r.width < min - 0.5 || r.height < min - 0.5)
         .map(({ name, r }) => `${name} ${Math.round(r.width)}×${Math.round(r.height)}`),
-    minSize(88),
+    [minSize(88), except] as const,
   );
 
 /** Längste Übergänge und Animationen (ms) je Element, außer dem dokumentierten Ring von [×]. */
@@ -108,7 +108,8 @@ test.describe('B-61 Leitprinzipien', () => {
   test('AT-61.2: auch im Elternbereich sind alle Schaltflächen ≥ 88 px', async ({ page }) => {
     await prepare(page, {});
     await adminView(page);
-    expect(await smallButtons(page)).toEqual([]);
+    // B-88: die Wort-Buttons sind kleiner (eigene Regel in AT-88.6)
+    expect(await smallButtons(page, '.admin__word')).toEqual([]);
   });
 
   test('AT-61.3: Avatare ohne Bewegung, Übergänge ≤ 200 ms, mit „Bewegung reduzieren“ 0 ms', async ({

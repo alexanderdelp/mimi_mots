@@ -386,6 +386,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-87.4: Der Kreis (Beere) liegt in einer eigenen Ebene, umschließt das Ziel, bleibt ganz im Bild und wird vollständig gezogen (Animation `tutorial-draw` über die ganze Weglänge, bei „Bewegung reduzieren“ keine); die Schleife läuft mehr als einmal herum (Unit-Test).
   - AT-87.5: Jeder Tipp geht weiter, auch auf Buttons; sie bewerten nicht und decken nicht auf. Ein Tipp auf den Lautsprecher in seinem Schritt spielt das Probewort; ab dem Schritt danach ist es aufgedeckt. Uhr steht, Probewort zählt nicht zum Lernstand (AT-74.3 bleibt).
   - AT-87.6: Die Uhr ist im Tutorial unsichtbar (ihr Platz bleibt) und erscheint erst mit „Nach einiger Zeit …“; danach bleibt sie.
+- [x] **B-88 Wörter ein-/ausschalten**: Im Elternbereich (Reiter „Sprachen“) lässt sich jedes Wort der gewählten Sprache per Tipp auf sein Emoji aus- und wieder einschalten. Ausgeschaltete Wörter bleiben in ihrer Stufe stehen, wirken aber blass (`grayscale` + `opacity` wie ausgeschaltete Sprachen, B-73) – kein Springen. Je Sprache getrennt gespeichert (`disabledWords`, fehlt bei alten Daten → keine ausgeschaltet). Ausgeschaltete Wörter kommen in der Lernrunde und beim Vorladen nicht vor und zählen nicht für die Bremse (B-82); ihr Lernstand bleibt erhalten. Das letzte eingeschaltete Wort einer Sprache lässt sich nicht ausschalten (wie B-86). Emoji-Tippflächen auf dem iPad ≥ 44 px (Elternbereich, nicht für das Kind; 88 px passen bei 61 Wörtern nicht), auf dem iPhone so groß wie bisher.
+  - AT-88.1: Im Reiter „Sprachen“ ist jedes Emoji ein Button (Name „Deutsch · Fremdwort“, `aria-pressed` = eingeschaltet). Ein Tipp schaltet aus: blass (`grayscale`, `opacity`), an derselben Stelle in derselben Stufe; ein weiterer Tipp schaltet wieder ein. Gespeichert als `disabledWords.<Sprache>`; andere Sprachen und der Lernstand bleiben unverändert.
+  - AT-88.2: Ausgeschaltete Wörter kommen in der Lernrunde nicht vor (auch nicht als Probewort im Tutorial) und werden nicht vorgeladen.
+  - AT-88.3: Ist in der Sprache nur noch ein Wort an, lässt es sich nicht ausschalten (`disabled`, sieht aus wie eingeschaltet).
+  - AT-88.4: Die Bremse (B-82) zählt nur eingeschaltete Wörter auf Stufe 0 (Unit-Test).
+  - AT-88.5: Alte Daten ohne `disabledWords` → alle Wörter an; unbekannte Wörter fallen weg; sind alle Wörter einer Sprache aus, sind beim Laden alle wieder an.
+  - AT-88.6: Wort-Buttons auf dem iPad ≥ 44 × 44 px; der Elternbereich passt weiter auf alle Viewports, auch mit allen Wörtern in einer Zeile (AT-69.6). AT-61.2 nimmt die Wort-Buttons von der 88-px-Regel aus.
 
 ## Später
 - Themenwahl · Eigene Illustrationen

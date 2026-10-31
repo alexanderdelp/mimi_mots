@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { hasVocabulary } from '../src/data/vocabulary';
+import { hasVocabulary, vocabularyIds } from '../src/data/vocabulary';
 import { createStore } from '../src/state';
 import {
   LANGUAGES,
@@ -27,6 +27,7 @@ const valid = (): AppData => ({
   enabledLanguages: ['en', 'it'],
   tutorialDone: true,
   brakeNew: false,
+  disabledWords: { en: ['hund'], fr: [], ja: [], it: [] },
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -51,6 +52,7 @@ describe('defaults', () => {
       enabledLanguages: ['en', 'fr'],
       tutorialDone: false,
       brakeNew: true,
+      disabledWords: { en: [], fr: [], ja: [], it: [] },
     });
   });
 
@@ -272,6 +274,28 @@ describe('Bremse für neue Wörter (B-82)', () => {
     expect(sanitize(old).brakeNew).toBe(true);
     expect(sanitize({ ...valid(), brakeNew: 'nein' }).brakeNew).toBe(true);
     expect(sanitize(valid()).brakeNew).toBe(false);
+  });
+});
+
+describe('Ausgeschaltete Wörter (B-88)', () => {
+  it('AT-88.5: alte Daten ohne disabledWords → alle Wörter an', () => {
+    const old: Partial<AppData> = valid();
+    delete old.disabledWords;
+    expect(sanitize(old).disabledWords).toEqual({ en: [], fr: [], ja: [], it: [] });
+    expect(sanitize({ ...valid(), disabledWords: 'hund' }).disabledWords.en).toEqual([]);
+  });
+
+  it('AT-88.5: unbekannte Wörter fallen weg, Reihenfolge wie im Wortschatz, ohne Doppelte', () => {
+    const raw = { ...valid(), disabledWords: { en: ['katze', 'gibtsnicht', 'hund', 'katze', 3] } };
+    expect(sanitize(raw).disabledWords).toEqual({ en: ['katze', 'hund'], fr: [], ja: [], it: [] });
+  });
+
+  it('AT-88.5: sind alle Wörter einer Sprache aus, sind alle wieder an', () => {
+    const all = vocabularyIds('fr');
+    const raw = { ...valid(), disabledWords: { en: ['hund'], fr: all } };
+    expect(sanitize(raw).disabledWords).toMatchObject({ en: ['hund'], fr: [] });
+    const fewer = { ...valid(), disabledWords: { fr: all.slice(1) } };
+    expect(sanitize(fewer).disabledWords.fr).toEqual(all.slice(1));
   });
 });
 

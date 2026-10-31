@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { hasVocabulary } from '../src/data/vocabulary';
 import { LANGUAGES, defaults, type AppData } from '../src/storage';
+import { vocabularyIds } from '../src/data/vocabulary';
 import {
+  activeWords,
+  canToggleWord,
   createStore,
   createStore as createStoreAt,
   isComplete,
@@ -477,7 +480,7 @@ describe('Schlafende Begleiter (B-65)', () => {
       data: rest(['mimi'], []),
       round: null,
     };
-    expect(reduce(state, { type: 'play' })).toBe(state);
+    expect(reduce(state, { type: 'play' }, '2026-10-30')).toBe(state);
   });
 
   it('nach dem zweiten Begleiter folgt die Schlafseite', () => {
@@ -734,6 +737,50 @@ describe('Bremse für neue Wörter (B-82)', () => {
     expect(reduce(off, { type: 'toggleBrake' }).data.brakeNew).toBe(true);
     const start = at('start');
     expect(reduce(start, { type: 'toggleBrake' })).toBe(start);
+  });
+});
+
+describe('Wörter ein-/ausschalten (B-88)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+  const toggle = (state: AppState, id: string, language: 'en' | 'fr' = 'en') =>
+    reduce(state, { type: 'toggleWord', language, id });
+
+  it('AT-88.1: toggleWord schaltet im Elternbereich aus und wieder ein, nur in dieser Sprache', () => {
+    const off = toggle(toggle(at('admin'), 'katze'), 'hund');
+    expect(off.data.disabledWords).toEqual({ en: ['katze', 'hund'], fr: [], ja: [], it: [] });
+    expect(activeWords(off.data, 'en').map((w) => w.id)).not.toContain('hund');
+    expect(activeWords(off.data, 'fr').map((w) => w.id)).toContain('hund');
+    expect(toggle(off, 'hund').data.disabledWords.en).toEqual(['katze']);
+  });
+
+  it('AT-88.1: Lernstand bleibt beim Ausschalten erhalten', () => {
+    const data = complete();
+    data.progress.en = { hund: { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' } };
+    const off = toggle(at('admin', data), 'hund');
+    expect(off.data.progress).toEqual(data.progress);
+  });
+
+  it('nur im Elternbereich und nur für Wörter des Wortschatzes', () => {
+    const start = at('start');
+    expect(toggle(start, 'hund')).toBe(start);
+    const admin = at('admin');
+    expect(toggle(admin, 'gibtsnicht')).toBe(admin);
+  });
+
+  it('AT-88.3: das letzte eingeschaltete Wort lässt sich nicht ausschalten', () => {
+    const [last, ...rest] = vocabularyIds('en');
+    const data = complete();
+    data.disabledWords.en = rest;
+    const admin = at('admin', data);
+    expect(canToggleWord(data, 'en', last)).toBe(false);
+    expect(toggle(admin, last)).toBe(admin);
+    expect(canToggleWord(data, 'en', rest[0])).toBe(true);
+    expect(toggle(admin, rest[0]).data.disabledWords.en).toEqual(rest.slice(1));
   });
 });
 
