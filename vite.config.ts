@@ -41,9 +41,10 @@ function stimmwahl(): Plugin {
 export default defineConfig({
   base: BASE,
   // eigene Ports statt der Vite-Standards, damit sich Projekte auf dem Rechner nicht in die Quere
-  // kommen; belegt → Fehler statt stillem Ausweichen
-  server: { port: 5181, strictPort: true },
-  preview: { port: 4181, strictPort: true },
+  // kommen; belegt → Fehler statt stillem Ausweichen. B-92: je Worktree per DEV_PORT bzw.
+  // PREVIEW_PORT änderbar, damit parallel arbeitende Agenten sich nicht stören.
+  server: { port: Number(process.env.DEV_PORT ?? 5181), strictPort: true },
+  preview: { port: Number(process.env.PREVIEW_PORT ?? 4181), strictPort: true },
   plugins: [
     stimmwahl(),
     // Service Worker (B-51): alle Dateien vorab speichern, damit die App offline läuft.

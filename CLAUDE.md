@@ -28,9 +28,9 @@ Fachliche Anforderungen: `anforderungen.md`. Aufgaben und Reihenfolge: `backlog.
 ## Befehle
 ```bash
 npm install
-npm run dev          # Dev-Server auf Port 5181 (--host, damit das iPad im WLAN zugreifen kann)
+npm run dev          # Dev-Server auf Port 5181 (DEV_PORT; --host, damit das iPad im WLAN zugreifen kann)
 npm run build        # Produktionsbuild nach dist/
-npm run preview      # Build lokal testen auf Port 4181 (SW aktiv; auch Port der E2E-Tests)
+npm run preview      # Build lokal testen auf Port 4181 (PREVIEW_PORT; SW aktiv; auch Port der E2E-Tests)
 npm run test         # Vitest
 npm run test:e2e     # Playwright (WebKit, iPad quer)
 npm run lint         # ESLint + Prettier-Check
@@ -102,7 +102,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Layout mit `100dvh`/`100dvw`, Größen per `clamp()`/`min(vw, vh)`, damit nichts überläuft.
 
 ## Arbeitsweise
-- Arbeite `backlog.md` von oben nach unten ab, eine Aufgabe nach der anderen.
+- Arbeite `backlog.md` von oben nach unten ab, eine Aufgabe nach der anderen – oder mit Koordinator mehrere unabhängige parallel (siehe „Parallel mit Koordinator“).
 - **Umgebung zuerst:** Wird für eine Aufgabe neue Software benötigt (z. B. Python, ffmpeg, Playwright-Browser), wird sie gemeinsam installiert, bevor die Umsetzung beginnt.
 - **Ablauf pro Aufgabe:**
   1. Feature-Branch von aktuellem `main` anlegen (`feat/b-12-timer-zifferblatt`, `chore/…`, `fix/…`).
@@ -116,6 +116,15 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Vor größeren Entscheidungen, die von `anforderungen.md` abweichen: fragen.
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.
 - Keine neuen Abhängigkeiten ohne Begründung. Keine CDN-Links.
+
+### Parallel mit Koordinator (B-92)
+Ein Koordinator verteilt Aufgaben an Agenten; jeder Agent arbeitet in einem eigenen Git-Worktree auf eigenem Branch. Der Ablauf pro Aufgabe oben gilt weiter, mit diesen Regeln:
+- **Nur unabhängige Aufgaben parallel.** Aufgaben, die das Speicherformat (`storage.ts`, `AppData`) oder den App-State (`state.ts`) umbauen, laufen allein (z. B. B-90). Der Koordinator prüft vor dem Start, welche Dateien eine Aufgabe voraussichtlich anfasst.
+- **Ports je Worktree:** Der Koordinator vergibt jedem Agenten eigene Ports, z. B. Agent 1 `DEV_PORT=5182 PREVIEW_PORT=4182`, Agent 2 `5183`/`4183`. Die Agenten setzen sie bei allen `npm run dev/preview/test:e2e`-Aufrufen. Playwright startet immer einen eigenen Server; ist der Port belegt, bricht der Lauf ab, statt fremden Code zu testen.
+- **Gemeinsame Dateien gehören dem Koordinator:** `backlog.md` (Akzeptanztests, Häkchen) und `anforderungen.md` („Entscheidungen“). Agenten schreiben ihre Akzeptanztests und Entscheidungen in die PR-Beschreibung; der Koordinator trägt sie vor dem Merge ein.
+- **Referenzbilder** (`tests/e2e/b60-layout.spec.ts-snapshots/`) erzeugt erst der, der als Zweiter mergt, neu – nach dem Aktualisieren auf den neuesten `main`, mit Sichtprüfung der Bilder.
+- **Merge nacheinander:** Vor jedem Merge den Branch auf den aktuellen `main` bringen und die komplette Suite laufen lassen. Lokale Abnahme durch den Menschen weiterhin pro Aufgabe.
+- **Styles je Ansicht:** CSS liegt in einer Datei je Ansicht (`src/styles/`), damit parallele Aufgaben selten dieselbe Datei ändern.
 - Texte in der UI: Deutsch, kurz, du-Form.
 
 ## Definition of Done

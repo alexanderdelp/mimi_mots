@@ -1,9 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Getestet wird der Produktionsbuild unter dem Pages-Pfad, wie auf GitHub Pages.
-// Eigener Vorschau-Port des Projekts (wie `preview.port` in vite.config.ts) – auf 4173 lief
-// schon ein anderes Projekt, und reuseExistingServer hätte es mitgetestet.
-const PORT = 4181;
+// Vorschau-Port wie `preview.port` in vite.config.ts (4181, je Worktree per PREVIEW_PORT änderbar,
+// B-92). Immer ein eigener, frisch gebauter Server: Ein schon laufender gehört womöglich einem
+// anderen Projekt oder Worktree – dann lieber eine Fehlermeldung als fremden Code testen.
+const PORT = Number(process.env.PREVIEW_PORT ?? 4181);
 export const APP_URL = `http://localhost:${PORT}/mimi_mots/`;
 
 const ipad = devices['iPad Pro 11 landscape'];
@@ -47,7 +48,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run build && npx vite preview',
     url: APP_URL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
