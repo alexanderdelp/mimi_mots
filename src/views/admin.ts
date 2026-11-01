@@ -1,7 +1,7 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
 // zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere aufwecken, Tutorial zurücksetzen,
-// Bremse für neue Wörter (B-82). Keine Avatare; sonst dieselben Bausteine wie überall.
+// Bremse für neue Wörter (B-82), Rundendauer (B-93). Keine Avatare; sonst dieselben Bausteine wie überall.
 import { createAppHeader } from '../components/app-header';
 import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
 import { icon, roundButton } from '../components/icons';
@@ -10,7 +10,15 @@ import { MODE_INFO } from '../data/modes';
 import { vocabulary } from '../data/vocabulary';
 import type { Language } from '../data/words';
 import { canToggleLanguage, canToggleWord, progressKey, type Store } from '../state';
-import { LANGUAGES, MAX_BOX, MODES, type Mode, type Progress } from '../storage';
+import {
+  LANGUAGES,
+  MAX_BOX,
+  MODES,
+  ROUND_MIN_HIGHEST,
+  ROUND_MIN_LOWEST,
+  type Mode,
+  type Progress,
+} from '../storage';
 import type { ViewHandle } from './view';
 
 /** Zeilen der Übersicht: noch nie dran (null), dann Stufe 0 (noch üben) bis 4 (sicher). */
@@ -56,7 +64,7 @@ const TABS: readonly [Tab, string][] = [
 ];
 
 /** Zeile im Reiter „Sonstiges“: Titel und kurze Erklärung links, Button rechts. */
-function settingRow(title: string, hint: string, button: HTMLButtonElement): HTMLElement {
+function settingRow(title: string, hint: string, button: HTMLElement): HTMLElement {
   const row = el('section', 'admin__setting');
   const label = el('div', 'admin__label');
   label.append(el('span', 'admin__title', title), el('span', 'admin__hint', hint));
@@ -153,8 +161,23 @@ export function renderAdmin(store: Store): ViewHandle {
     onSelect: () => store.dispatch({ type: 'toggleBrake' }),
   });
   brake.el.classList.add('admin__brake');
+  // B-93: Rundendauer – runde Buttons „−“ und „+“, dazwischen die Dauer in fester Breite
+  const shorter = roundButton('Kürzer', 'minus', 'admin__step');
+  const longer = roundButton('Länger', 'plus', 'admin__step');
+  const minutes = el('span', 'admin__minutes');
+  for (const [button, delta] of [
+    [shorter, -1],
+    [longer, 1],
+  ] as const) {
+    button.addEventListener('click', () =>
+      store.dispatch({ type: 'roundMin', minutes: store.getState().data.roundMin + delta }),
+    );
+  }
+  const duration = el('div', 'admin__duration');
+  duration.append(shorter, minutes, longer);
   const other = el('div', 'admin__other');
   other.append(
+    settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration),
     settingRow('Schlafen', 'Mimi und Mots sind wieder wach.', wake),
     settingRow('Tutorial Sprechen', 'Kommt beim nächsten Sprechen wieder.', tutorials.speak),
     settingRow('Tutorial Hören', 'Kommt beim nächsten Hören wieder.', tutorials.listen),
@@ -187,6 +210,9 @@ export function renderAdmin(store: Store): ViewHandle {
     tutorials.speak.disabled = !data.tutorialDone;
     tutorials.listen.disabled = !data.listenTutorialDone;
     brake.setSelected(data.brakeNew);
+    minutes.textContent = `${data.roundMin} Min.`;
+    shorter.disabled = data.roundMin <= ROUND_MIN_LOWEST;
+    longer.disabled = data.roundMin >= ROUND_MIN_HIGHEST;
 
     const name = LANGUAGE_INFO[language].name;
     const progress = data[progressKey(mode)]; // B-89: Lernstand des gezeigten Modus

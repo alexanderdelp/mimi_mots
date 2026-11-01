@@ -276,6 +276,38 @@
   font-weight: 800;
 }
 
+/* B-93: Rundendauer – „−“, Dauer, „+“; so breit wie die anderen Bedienelemente der Spalte */
+.admin__duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 280px;
+}
+
+.view--admin .admin__step {
+  width: 88px;
+  height: 88px;
+}
+
+.view--admin .admin__step svg {
+  width: 40px;
+  height: 40px;
+}
+
+.admin__step:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.admin__minutes {
+  min-width: 4.5em;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--lila-900);
+}
+
 .admin__empty {
   margin: auto;
   font-size: 20px;
@@ -405,6 +437,24 @@
   }
 
   .admin__brake-label {
+    font-size: 16px;
+  }
+
+  .admin__duration {
+    min-width: 200px;
+  }
+
+  .view--admin .admin__step {
+    width: 44px;
+    height: 44px;
+  }
+
+  .view--admin .admin__step svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .admin__minutes {
     font-size: 16px;
   }
 
