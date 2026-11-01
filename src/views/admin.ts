@@ -1,8 +1,9 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
-// zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere aufwecken, Tutorial zurücksetzen,
+// zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorial zurücksetzen,
 // Bremse für neue Wörter (B-82), Rundendauer (B-93). Keine Avatare; sonst dieselben Bausteine wie überall.
 import { createAppHeader } from '../components/app-header';
+import { COMPANIONS, COMPANION_NAMES } from '../components/avatar';
 import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
 import { icon, roundButton } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
@@ -143,9 +144,19 @@ export function renderAdmin(store: Store): ViewHandle {
   );
 
   // Reiter „Sonstiges“
-  const wake = textButton('Tiere aufwecken');
-  wake.classList.add('admin__wake');
-  wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
+  // B-94: jedes Tier einzeln – Auswahlkachel wie „Bremsen“, gewählt = schläft (ohne Avatare)
+  const sleepers = new Map(
+    COMPANIONS.map((c) => {
+      const tile = createChoiceTile({
+        content: [el('span', 'admin__brake-label', COMPANION_NAMES[c])],
+        onSelect: () => store.dispatch({ type: 'toggleSleep', companion: c }),
+      });
+      tile.el.classList.add('admin__sleeper');
+      return [c, tile] as const;
+    }),
+  );
+  const sleep = el('div', 'admin__sleep');
+  sleep.append(...[...sleepers.values()].map((tile) => tile.el));
   // B-74: Tutorial kommt in der nächsten Runde wieder – je Modus getrennt (B-89)
   const tutorials = Object.fromEntries(
     MODES.map((m) => {
@@ -178,7 +189,7 @@ export function renderAdmin(store: Store): ViewHandle {
   const other = el('div', 'admin__other');
   other.append(
     settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration),
-    settingRow('Schlafen', 'Mimi und Mots sind wieder wach.', wake),
+    settingRow('Schlafen', 'Markiert = schläft bis morgen. Tippen schaltet um.', sleep),
     settingRow('Tutorial Sprechen', 'Kommt beim nächsten Sprechen wieder.', tutorials.speak),
     settingRow('Tutorial Hören', 'Kommt beim nächsten Hören wieder.', tutorials.listen),
     settingRow(
@@ -206,7 +217,7 @@ export function renderAdmin(store: Store): ViewHandle {
     languagesPanel.hidden = tab !== 'sprachen';
     otherPanel.hidden = tab !== 'sonstiges';
 
-    wake.disabled = data.rest.sleeping.length === 0;
+    sleepers.forEach((tile, c) => tile.setSelected(data.rest.sleeping.includes(c)));
     tutorials.speak.disabled = !data.tutorialDone;
     tutorials.listen.disabled = !data.listenTutorialDone;
     brake.setSelected(data.brakeNew);

@@ -276,6 +276,18 @@
   font-weight: 800;
 }
 
+/* B-94: Tiere einzeln – zwei gleich breite Kacheln wie „Bremsen“ */
+.admin__sleep {
+  display: flex;
+  gap: 16px;
+  min-width: 280px;
+}
+
+.admin__sleeper {
+  flex: 1 1 0;
+  height: 88px;
+}
+
 /* B-93: Rundendauer – „−“, Dauer, „+“; so breit wie die anderen Bedienelemente der Spalte */
 .admin__duration {
   display: flex;
@@ -440,8 +452,19 @@
     font-size: 16px;
   }
 
-  .admin__duration {
+  .admin__duration,
+  .admin__sleep {
     min-width: 200px;
+  }
+
+  .admin__sleep {
+    gap: 12px;
+  }
+
+  .admin__sleeper {
+    height: 44px;
+    min-height: 44px;
+    padding: 4px;
   }
 
   .view--admin .admin__step {

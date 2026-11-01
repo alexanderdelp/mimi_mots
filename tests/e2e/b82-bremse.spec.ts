@@ -49,12 +49,13 @@ test.describe('B-82 Bremse für neue Wörter / B-83 Reiter im Elternbereich', ()
       await hold(page, '.app-header__icon');
       await expect(tab(page, 'Sprachen')).toHaveAttribute('aria-selected', 'true');
       await expect(btn(page, 'Lernstand zurücksetzen')).toBeVisible();
-      await expect(btn(page, 'Tiere aufwecken')).toBeHidden();
+      await expect(btn(page, 'Mimi')).toBeHidden(); // B-94: Tiere einzeln
 
       await tab(page, 'Sonstiges').click();
       await expect(tab(page, 'Sonstiges')).toHaveAttribute('aria-selected', 'true');
       await expect(btn(page, 'Lernstand zurücksetzen')).toBeHidden();
-      await expect(btn(page, 'Tiere aufwecken')).toBeVisible();
+      await expect(btn(page, 'Mimi')).toBeVisible();
+      await expect(btn(page, 'Mots')).toBeVisible();
       await expect(btn(page, 'Sprechen zurücksetzen')).toBeVisible();
       await expect(btn(page, 'Hören zurücksetzen')).toBeVisible(); // B-89: je Modus
       // B-86: Auswahlkachel „Bremsen“ wie bei den Begleitern – an = lila gerahmt
