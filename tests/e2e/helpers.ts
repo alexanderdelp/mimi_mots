@@ -1,5 +1,6 @@
 // Gemeinsame Hilfen für E2E-Tests.
 import type { Page } from '@playwright/test';
+import { CHILD_ID } from './fixtures';
 import choices from '../../audio-choices.json' with { type: 'json' };
 import words from '../../src/data/words.json' with { type: 'json' };
 
@@ -16,19 +17,23 @@ export async function enableJapanese(page: Page) {
 
 /** Schaltet die Sprachen für den Test frei (Japanisch und Italienisch sind standardmäßig aus). */
 export async function enableLanguages(page: Page, enabled: string[]) {
-  await page.addInitScript((enabledLanguages) => {
-    const key = 'mimi-mots:v1';
-    if (localStorage.getItem(key)) return;
-    localStorage.setItem(
-      key,
-      JSON.stringify({
-        version: 1,
+  await page.addInitScript(
+    ([enabledLanguages, id]) => {
+      const key = 'mimi-mots:v2';
+      if (localStorage.getItem(key)) return;
+      const child = {
+        id,
         settings: { companion: null, language: null, mode: 'speak' },
         progress: { en: {}, fr: {}, ja: {}, it: {} },
         enabledLanguages,
-      }),
-    );
-  }, enabled);
+      };
+      localStorage.setItem(
+        key,
+        JSON.stringify({ version: 2, activeChildId: id, children: [child] }),
+      );
+    },
+    [enabled, CHILD_ID] as const,
+  );
 }
 
 export type MediaCall =

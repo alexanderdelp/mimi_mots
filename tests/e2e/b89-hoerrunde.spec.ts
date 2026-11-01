@@ -13,7 +13,6 @@ const entry = (box: number) => ({ box, seen: 2, lastSeenAt: '2026-10-29T10:00:00
 /** Stand vor dem ersten Laden: Hörrunde gewählt, Lernstände je Modus. */
 async function seed(page: Page, data: object = {}) {
   await storeOnce(page, {
-    version: 1,
     settings: { companion: 'mimi', language: 'fr', mode: 'listen' },
     ...data,
   });

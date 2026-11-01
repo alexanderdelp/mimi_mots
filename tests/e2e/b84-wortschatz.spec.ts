@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { enableLanguages, vocabularyIds } from './helpers';
-import { btn, hold } from './views';
+import { btn, hold, storeOnce } from './views';
 
 // B-91: Halten über die Testuhr statt echter Wartezeit
 test.beforeEach(async ({ page }) => {
@@ -26,16 +26,9 @@ test.describe('B-84 Nur Wörter mit gewählter Aufnahme', () => {
     page,
   }) => {
     test.skip(vocabularyIds('ja').length > 0, 'Japanisch hat inzwischen Wörter');
-    await page.addInitScript(() => {
-      if (localStorage.getItem('mimi-mots:v1')) return;
-      localStorage.setItem(
-        'mimi-mots:v1',
-        JSON.stringify({
-          version: 1,
-          settings: { companion: 'mimi', language: 'ja', mode: 'speak' },
-          enabledLanguages: ['ja'],
-        }),
-      );
+    await storeOnce(page, {
+      settings: { companion: 'mimi', language: 'ja', mode: 'speak' },
+      enabledLanguages: ['ja'],
     });
     await page.goto('./');
     const group = page.getByRole('group', { name: 'In welcher Sprache?' });

@@ -10,7 +10,6 @@ const FR = vocabularyIds('fr');
 async function seed(page: Page, disabled: string[] = [], tutorialDone = true) {
   await prepare(page);
   await storeOnce(page, {
-    version: 1,
     settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
     progress: { en: {}, fr: { hund: entry } },
     tutorialDone,

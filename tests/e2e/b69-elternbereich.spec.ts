@@ -1,8 +1,7 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
-import { btn, hold, storeOnce } from './views';
+import { btn, hold, storeOnce, stored } from './views';
 
-const KEY = 'mimi-mots:v1';
 const TODAY = new Date(2026, 9, 30, 10, 0);
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 const entry = (box: number) => ({ box, seen: 3, lastSeenAt: '2026-10-29T10:00:00.000Z' });
@@ -13,7 +12,6 @@ test.beforeEach(async ({ page }) => {
 
 async function seed(page: Page, data: { sleeping?: string[]; fr?: object }) {
   await storeOnce(page, {
-    version: 1,
     settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
     progress: { en: { apfel: entry(2) }, fr: data.fr ?? {}, ja: {} },
     rest: {
@@ -62,8 +60,9 @@ test.describe('B-69 Elternbereich', () => {
     await page.goto('./');
     await hold(page, ICON, 700);
     await expect(view(page, 'admin')).toBeVisible();
-    const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.rest.sleeping).toEqual(['mimi', 'mots']);
+    expect((await stored(page)).rest.sleeping).toEqual(['mimi', 'mots']);
+    await btn(page, 'Zurück').click();
+    await expect(view(page, 'sleep')).toBeVisible();
   });
 
   test('AT-69.2/69.3: Kopfleiste, keine Avatare, aufwecken, zurück', async ({ page }) => {
@@ -84,8 +83,8 @@ test.describe('B-69 Elternbereich', () => {
       await btn(page, name).click();
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');
     }
-    const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.rest).toMatchObject({ sleeping: [] });
+    const saved = await stored(page);
+    expect(saved.rest).toMatchObject({ sleeping: [] });
     await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
     await expect(btn(page, 'Mots')).toBeEnabled();
@@ -130,8 +129,8 @@ test.describe('B-69 Elternbereich', () => {
     await btn(page, 'Ja, zurücksetzen').click();
     await expect(level(page, 'neu')).toHaveCount(words.length);
     await expect(btn(page, 'Lernstand zurücksetzen')).toBeDisabled();
-    const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.progress.fr).toEqual({});
-    expect(stored.progress.en).toEqual({ apfel: entry(2) });
+    const saved = await stored(page);
+    expect(saved.progress.fr).toEqual({});
+    expect(saved.progress.en).toEqual({ apfel: entry(2) });
   });
 });

@@ -7,7 +7,6 @@ const SEEN = ['apfel', 'banane', 'erdbeere', 'birne', 'kirsche', 'zitrone', 'kar
 async function seed(page: Page, brakeNew?: boolean) {
   const entry = { box: 0, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' };
   await storeOnce(page, {
-    version: 1,
     settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
     progress: { en: {}, fr: Object.fromEntries(SEEN.map((id) => [id, entry])) },
     tutorialDone: true,

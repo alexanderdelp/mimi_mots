@@ -12,7 +12,7 @@ export function renderSleep(store: Store): ViewHandle {
   view.className = 'view view--sleep';
   view.dataset.view = 'sleep';
 
-  const header = createAppHeader();
+  const header = createAppHeader({ name: store.getState().data.name });
   const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
 
   const picture = document.createElement('img');

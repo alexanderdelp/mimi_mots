@@ -26,6 +26,6 @@ export function renderEnd(store: Store): ViewHandle {
   body.className = 'end__body';
   body.append(avatar.el, text, home);
 
-  view.append(createAppHeader(), body);
+  view.append(createAppHeader({ name: store.getState().data.name }), body);
   return { el: view };
 }

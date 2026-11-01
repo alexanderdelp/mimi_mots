@@ -4,15 +4,25 @@ import { COMPANIONS, type Companion } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
 import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
-import { LANGUAGES, isRoundMin, localDay, type AppData, type Mode, type Settings } from './storage';
+import {
+  LANGUAGES,
+  cleanName,
+  isRoundMin,
+  localDay,
+  type ChildData,
+  type Mode,
+  type Settings,
+} from './storage';
 
-export type ViewName = 'start' | 'round' | 'end' | 'sleep' | 'admin';
+export type ViewName = 'welcome' | 'start' | 'round' | 'end' | 'sleep' | 'admin';
 
 export type AppEvent =
+  | { type: 'name'; name: string } // Begrüßung: Name des Kinds eingeben (B-97)
+  | { type: 'enter' } // Begrüßung → Start (nur mit Namen, B-97)
   | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
-  | { type: 'admin' } // Start/Schlafseite → Elternbereich (verstecktes Halten des Icons, B-69)
+  | { type: 'admin' } // Begrüßung/Start/Schlafseite → Elternbereich (Halten des Icons, B-69/B-97)
   | { type: 'leave' } // Elternbereich → Start bzw. Schlafseite
   | { type: 'toggleSleep'; companion: Companion } // Elternbereich: Tier wecken/hinlegen (B-94)
   | { type: 'resetProgress'; language: Language; mode: Mode } // Elternbereich: Lernstand leeren
@@ -36,7 +46,7 @@ export function isComplete(settings: Settings): boolean {
 }
 
 /** Schlafseite statt Start: kein Begleiter mehr wach (B-65; Modi verbrauchen sich nicht, B-89). */
-export function allAsleep(data: AppData): boolean {
+export function allAsleep(data: ChildData): boolean {
   return data.rest.sleeping.length === COMPANIONS.length;
 }
 
@@ -51,30 +61,30 @@ export function tutorialKey(mode: Mode): 'tutorialDone' | 'listenTutorialDone' {
 }
 
 /** Tutorial des gewählten Modus schon gesehen. */
-export function tutorialSeen(data: AppData): boolean {
+export function tutorialSeen(data: ChildData): boolean {
   return data[tutorialKey(data.settings.mode ?? 'speak')];
 }
 
 /** Auf der Startseite wählbar: eingeschaltet (B-73) und mit Wortschatz (B-84). */
-export function playableLanguages(data: AppData): Language[] {
+export function playableLanguages(data: ChildData): Language[] {
   return LANGUAGES.filter((l) => data.enabledLanguages.includes(l) && hasVocabulary(l));
 }
 
 /** B-73/B-86: Einschalten nur mit Wörtern; Ausschalten nur, wenn danach noch eine spielbare
  *  Sprache an ist. */
-export function canToggleLanguage(data: AppData, language: Language): boolean {
+export function canToggleLanguage(data: ChildData, language: Language): boolean {
   if (!data.enabledLanguages.includes(language)) return hasVocabulary(language);
   return playableLanguages(data).some((l) => l !== language);
 }
 
 /** B-88: Wörter der Lernrunde – der Wortschatz (B-84) ohne die im Elternbereich ausgeschalteten. */
-export function activeWords(data: AppData, language: Language): Word[] {
+export function activeWords(data: ChildData, language: Language): Word[] {
   const off = data.disabledWords[language];
   return vocabulary(language).filter((w) => !off.includes(w.id));
 }
 
 /** B-88: Einschalten geht immer; Ausschalten nur, wenn danach noch ein Wort der Sprache an ist. */
-export function canToggleWord(data: AppData, language: Language, id: string): boolean {
+export function canToggleWord(data: ChildData, language: Language, id: string): boolean {
   if (!vocabulary(language).some((w) => w.id === id)) return false;
   if (data.disabledWords[language].includes(id)) return true;
   return activeWords(data, language).some((w) => w.id !== id);
@@ -82,7 +92,7 @@ export function canToggleWord(data: AppData, language: Language, id: string): bo
 
 /** Auswahl passend zu Schlaf, Verbrauch und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
  *  fällt weg, ist nur noch eine Möglichkeit frei, wird sie vorausgewählt. */
-export function withRestSettings(data: AppData): AppData {
+export function withRestSettings(data: ChildData): ChildData {
   const pick = <T>(all: readonly T[], gone: readonly T[], current: T | null): T | null => {
     const free = all.filter((v) => !gone.includes(v));
     if (free.length === 0) return current; // Schlafseite: Auswahl für nach dem Aufwecken merken
@@ -102,18 +112,18 @@ export function withRestSettings(data: AppData): AppData {
 const AWAKE = { sleeping: [], since: null };
 
 /** Eingeschlafen an einem früheren Tag (oder ohne Datum) – dann wachen alle auf. */
-function isStale(data: AppData, today: string): boolean {
+function isStale(data: ChildData, today: string): boolean {
   const { sleeping, since } = data.rest;
   return sleeping.length > 0 && (since === null || since < today);
 }
 
 /** An einem neuen Tag sind alle wach und alle Dauern frei. */
-function wakeIfNewDay(data: AppData, today: string): AppData {
+function wakeIfNewDay(data: ChildData, today: string): ChildData {
   return isStale(data, today) ? { ...data, rest: AWAKE } : data;
 }
 
 /** Am Ende einer Runde schläft der Begleiter ein (B-65). */
-function consume(data: AppData, today: string): AppData {
+function consume(data: ChildData, today: string): ChildData {
   const { companion } = data.settings;
   const { sleeping } = wakeIfNewDay(data, today).rest;
   return {
@@ -127,7 +137,7 @@ function consume(data: AppData, today: string): AppData {
 
 /** B-94: ein Tier im Elternbereich wecken oder hinlegen. Zuerst gilt ein neuer Tag (alle wach),
  *  dann wird umgeschaltet; wer hingelegt wird, schläft bis morgen wie nach einer Runde. */
-export function toggleSleep(data: AppData, companion: Companion, today: string): AppData {
+export function toggleSleep(data: ChildData, companion: Companion, today: string): ChildData {
   const { sleeping } = wakeIfNewDay(data, today).rest;
   const next = sleeping.includes(companion)
     ? sleeping.filter((c) => c !== companion)
@@ -137,7 +147,7 @@ export function toggleSleep(data: AppData, companion: Companion, today: string):
 }
 
 /** Auswahl vollständig, Sprache spielbar und gewählter Begleiter wach. */
-function isAvailable(data: AppData): boolean {
+function isAvailable(data: ChildData): boolean {
   return (
     isComplete(data.settings) &&
     playableLanguages(data).includes(data.settings.language!) &&
@@ -157,12 +167,13 @@ export interface RoundState {
 export interface AppState {
   view: ViewName;
   portrait: boolean;
-  data: AppData;
+  data: ChildData;
   round: RoundState | null;
 }
 
 /** Erlaubte Ansichtswechsel; alles andere wird ignoriert. */
 const TRANSITIONS: Record<ViewName, Partial<Record<AppEvent['type'], ViewName>>> = {
+  welcome: { enter: 'start', admin: 'admin' },
   start: { play: 'round', admin: 'admin' },
   round: { finish: 'end' },
   end: { home: 'start' },
@@ -180,14 +191,20 @@ export function reduce(
   event: AppEvent,
   today: string = localDay(new Date()),
 ): AppState {
-  const next = step(state, event, today);
+  let next = step(state, event, today);
   // Wer die Abschlussseite erreicht, hat begleitet – egal ob per Zeitablauf oder [×].
   if (state.view === 'round' && next.view === 'end') {
     return { ...next, data: consume(next.data, today) };
   }
-  // Auf Start- und Schlafseite: an einem neuen Tag sind alle wieder wach.
-  if ((next.view === 'start' || next.view === 'sleep') && isStale(next.data, today)) {
-    return { ...next, view: 'start', data: withRestSettings(wakeIfNewDay(next.data, today)) };
+  // Auf Begrüßung, Start- und Schlafseite: an einem neuen Tag sind alle wieder wach. Von der
+  // Schlafseite geht es dann zur Begrüßung wie bei einem neuen Öffnen am Morgen (B-97).
+  if (['welcome', 'start', 'sleep'].includes(next.view) && isStale(next.data, today)) {
+    const view = state.view === 'sleep' || next.view === 'welcome' ? 'welcome' : 'start';
+    next = { ...next, view, data: withRestSettings(wakeIfNewDay(next.data, today)) };
+  }
+  // B-97: Ohne Namen führt kein Weg zum Start – erst fragt die Begrüßung nach dem Namen.
+  if (next.view === 'start' && state.view !== 'start' && next.data.name === null) {
+    next = { ...next, view: 'welcome' };
   }
   return next;
 }
@@ -247,6 +264,12 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
       round: { ...state.round, revealed: false },
     };
   }
+  if (event.type === 'name') {
+    const name = cleanName(event.name);
+    if (state.view !== 'welcome' || name === null || name === state.data.name) return state;
+    return { ...state, data: { ...state.data, name } };
+  }
+  if (event.type === 'enter' && state.data.name === null) return state;
   if (event.type === 'play' && !isAvailable(state.data)) return state;
   // B-87: Abbruch im Tutorial – zurück zur Auswahl, niemand schläft ein, Tutorial bleibt offen
   if (event.type === 'finish' && state.view === 'round' && !tutorialSeen(state.data)) {
@@ -325,12 +348,18 @@ export interface Store {
 
 /** `now` liefert die aktuelle Zeit (in Tests ersetzbar). */
 export function createStore(
-  stored: AppData,
+  stored: ChildData,
   portrait = false,
   now: () => Date = () => new Date(),
 ): Store {
   const data = withRestSettings(wakeIfNewDay(stored, localDay(now())));
-  let state: AppState = { view: allAsleep(data) ? 'sleep' : 'start', portrait, data, round: null };
+  // B-97: beim Öffnen zuerst die Begrüßung – außer beide Tiere schlafen
+  let state: AppState = {
+    view: allAsleep(data) ? 'sleep' : 'welcome',
+    portrait,
+    data,
+    round: null,
+  };
   const listeners = new Set<Listener>();
   return {
     getState: () => state,

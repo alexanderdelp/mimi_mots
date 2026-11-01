@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page, minSize } from './fixtures';
 import { fakeMedia } from './helpers';
-import { btn } from './views';
+import { btn, storeOnce } from './views';
 
 const round = (page: Page) => page.locator('[data-view="round"]');
 const box = async (l: Locator) => (await l.boundingBox())!;
@@ -25,19 +25,10 @@ async function startRound(page: Page, mode: 'Sprechen' | 'Hören' = 'Sprechen') 
 
 test.describe('B-27 Lernansicht überarbeiten', () => {
   test('AT-89.1: alte Daten mit Dauer → Sprechen vorgewählt, Play aktiv', async ({ page }) => {
-    await page.addInitScript(() => {
-      if (!sessionStorage.getItem('seeded')) {
-        localStorage.setItem(
-          'mimi-mots:v1',
-          JSON.stringify({
-            version: 1,
-            settings: { companion: 'mots', language: 'fr', durationMin: 7 },
-            progress: { en: {}, fr: {} },
-            rest: { sleeping: [], usedDurations: [3], since: '2026-10-30' },
-          }),
-        );
-        sessionStorage.setItem('seeded', '1');
-      }
+    await storeOnce(page, {
+      settings: { companion: 'mots', language: 'fr', durationMin: 7 },
+      progress: { en: {}, fr: {} },
+      rest: { sleeping: [], usedDurations: [3], since: '2026-10-30' },
     });
     await page.goto('./');
     await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'true');

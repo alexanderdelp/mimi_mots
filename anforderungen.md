@@ -20,8 +20,16 @@
 
 ## 3. Ablauf
 ```
-Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen → Abschluss → Start
+Begrüßung → Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen → Abschluss → Start
 ```
+- Beim Öffnen der App kommt zuerst die Begrüßung (seit B-97); schlafen beide Begleiter, stattdessen die Schlafseite (B-65). Nach dem Abschluss geht es zurück zum Start (bzw. zur Schlafseite), nicht zur Begrüßung.
+
+### 3.0 Begrüßung (B-97)
+- Header: App-Icon + „Mimi & Mots“ (Halten des Icons öffnet den Elternbereich wie auf Start- und Schlafseite).
+- Beide Begleiter links und rechts: wache winken, schlafende mit Schlafbild (nur Bildtausch).
+- **Ohne Namen** (erster Start): „Wie heißt du?“, Eingabefeld (höchstens 16 Zeichen, tippt ggf. ein Elternteil) und runder lila Button mit Haken („Fertig“, ausgegraut bei leerer Eingabe). Danach die Begrüßung mit Namen.
+- **Mit Namen:** „Hallo Lina!“ und ein runder lila Button mit Pfeil („Weiter“) zum Startbildschirm.
+- Der Name steht danach klein links in der Kopfleiste von Start, Lernrunde (neben [×]), Abschluss und Schlafseite.
 
 ### 3.1 Startbildschirm
 - Header: App-Icon + „Mimi & Mots“.
@@ -106,13 +114,21 @@ Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen �
 - Skript `scripts/generate_audio.py` erzeugt nur fehlende Dateien anhand `src/data/words.ts` (bzw. daraus exportiertem JSON).
 
 ## 7. Persistenz
-- `localStorage`, Schlüssel `mimi-mots:v1`:
+- `localStorage`, Schlüssel `mimi-mots:v2` (seit B-97; alle Daten gehören zu einem Kind, Platz für weitere):
 ```json
-{ "version": 1,
-  "settings": { "companion": "mimi", "language": "fr", "mode": "speak" },
-  "progress": { "fr": { "apfel": { "box": 2, "seen": 5, "lastSeenAt": "…" } }, "en": {} },
-  "rest": { "sleeping": ["mimi"], "since": "2026-10-30" } }
+{ "version": 2,
+  "activeChildId": "3f0c…-uuid",
+  "children": [{
+    "id": "3f0c…-uuid", "name": "Lina",
+    "createdAt": "2026-11-01T09:00:00.000Z", "updatedAt": "2026-11-01T09:05:00.000Z",
+    "settings": { "companion": "mimi", "language": "fr", "mode": "speak" },
+    "progress": { "fr": { "apfel": { "box": 2, "seen": 5, "lastSeenAt": "…" } }, "en": {} },
+    "listenProgress": { "fr": {}, "en": {} },
+    "rest": { "sleeping": ["mimi"], "since": "2026-10-30" },
+    "enabledLanguages": ["en", "fr"], "tutorialDone": true, "listenTutorialDone": false,
+    "brakeNew": true, "disabledWords": { "en": [] }, "roundMin": 5 }] }
 ```
+- Bis B-96 lag ein Kind ohne Namen flach unter `mimi-mots:v1`. Solche Daten werden nicht übernommen (keine Datenübernahme über Updates, siehe §11).
 - Beschädigte/fehlende Daten → Defaults, kein Absturz. Versionsfeld für spätere Migration.
 - Hinweis: Als Home-Bildschirm-App ist der Speicher unter iOS stabil; im Safari-Tab kann er nach längerer Nichtnutzung gelöscht werden.
 
@@ -244,6 +260,9 @@ FR- und IT-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. J
 - 2026-10-30: Schlafende Begleiter (B-65): Mit dem Erreichen der Abschlussseite (Zeitablauf oder [×]) schläft der Begleiter ein und die gespielte Dauer ist verbraucht; beides ist auf der Startseite ausgegraut, der Begleiter mit Schlafbild. Ist nur noch ein Begleiter bzw. eine Dauer frei, ist sie vorausgewählt. Schlafen beide (oder sind alle Dauern verbraucht), kommt statt der Startseite die Schlafseite mit „Gute Nacht und bis morgen!“. Aufwecken nur durch 600 ms Halten des Icons in der Kopfleiste der Schlafseite, absichtlich ohne Hinweis. An einem späteren Tag (lokales Datum) wachen alle von selbst auf – beim App-Start und beim Zurückholen aus dem Hintergrund. Gespeichert in `rest` (mit `since` = Tag des Einschlafens) im selben localStorage-Schlüssel (ältere Daten ohne `rest` = alle wach). `both_sleeping.png` ist die gelieferte Grafik `cat_and_pony_sleeping.png`: Sie hatte ein ins Bild gemaltes Schachbrett statt echter Transparenz; das wurde per Flutfüllung vom Rand entfernt, zugeschnitten und auf 1213 × 663 px verkleinert (1,5 MB → 250 KB). Die einzelnen Schlafbilder waren zuerst Platzhalter, seit B-77 sind es die gelieferten Grafiken.
 - 2026-10-29: Englisch aus vorproduzierten MP3s mit Piper `en_US-ljspeech-high` (B-64), ersetzt die Gerätestimme (klang unter Linux schlecht und hängt auf dem iPad von den installierten Stimmen ab). Im Klangvergleich fielen alle englischen Kokoro-Stimmen (`bf_*`, `bm_*`, `am_*`) durch. Unter den Piper-Stimmen fielen die auf Lessac aufbauenden (u. a. Amy) aus Lizenzgründen weg (Blizzard-2013-Daten nur für Forschung); ljspeech ist public domain. Die Stimme ist amerikanisch, die Flagge bleibt vorerst britisch. Der Web-Speech-Fallback bleibt en-GB.
 - 2026-11-01: „Weiter“-Button im Tutorial (B-95): Statt „jeder Tipp geht weiter“ (B-87) schaltet nur ein runder lila Button mit Pfeil nach rechts (Name „Weiter“ nur für Screenreader) die Schritte weiter. Er sitzt rechts unten in der Sprechblase – beim Begleiter, nie unscharf, verdeckt nichts – und ist 88 px groß (iPhone 44 px), damit die Blase auf dem iPhone nicht zu hoch wird. Alle anderen Buttons und Flächen tun im Tutorial nichts (auch kein gedrücktes Aussehen); der Lautsprecher spielt nur in seinem Schritt das Probewort. Grund: Kinder tippten auf „Wusste ich“/„Noch üben“, es ging weiter, und sie waren verwirrt. Die Sprechblasentexte bleiben: „Tippe hier“ erklärt, was das Kind später in der Runde tut; der eingekreiste Button zeigt, wo.
+- 2026-11-01: Kind-Profil und Begrüßung (B-97): Alle gespeicherten Daten gehören zu einem Kind – `{ version: 2, activeChildId, children: [{ id, name, createdAt, updatedAt, …Daten }] }` unter dem neuen Schlüssel `mimi-mots:v2`. ids sind UUIDs (`crypto.randomUUID`, ohne sicheren Kontext – z. B. Dev-Server im WLAN über http – über `crypto.getRandomValues`), Zeitstempel ISO in UTC, damit die Kinder später 1 : 1 als Zeilen in Supabase passen. Alte Daten (`mimi-mots:v1`) werden nicht übernommen, unbrauchbare Daten führen zum Erststart (neues Kind ohne Namen, Namensfrage beim nächsten Wachsein). Der Name hat höchstens 16 Zeichen (passt in die Kopfleiste auf 1024 px und dem iPhone; sonst Auslassungspunkte). Neuer erster Bildschirm Begrüßung beim Öffnen, wenn ein Tier wach ist: ohne Namen die Namensfrage, sonst „Hallo Lina!“ mit beiden Tieren (wache winken, schlafende mit Schlafbild) und Pfeil-Button zur Auswahl. Der Start ist ohne Namen nie erreichbar: Wer z. B. über den Elternbereich die Tiere weckt, landet ohne Namen auf der Namensfrage. Nach einer Runde, nach Abbruch im Tutorial und nach dem Elternbereich kommt nie die Begrüßung; neu ist sie nur, wenn es auf der Schlafseite ein neuer Tag wird (wie ein neues Öffnen am Morgen). Der Elternbereich öffnet sich auch auf der Begrüßung durch Halten des Icons: Sie ist nach dem Öffnen der erste Bildschirm (wie die Schlafseite, wenn beide schlafen), und Eltern sollen nicht erst zur Auswahl tippen müssen. Der Name steht klein links in der Kopfleiste (in der Runde neben [×]), auf der Begrüßung nicht doppelt und im Elternbereich nicht. Für die Tests gilt die Begrüßung als durchgetippt und ein Name („Lina“) als gesetzt, außer mit `test.use({ greeting: true })` bzw. `test.use({ childName: null })`.
+- 2026-11-01: Keine Datenübernahme über Updates (Entscheidung des Menschen): Mit einer neuen Version wird derzeit einfach alles neu installiert; eine neue Version darf gespeicherte Daten verwerfen. Code, der Daten über Updates hinweg erhält, gibt es nur nach Rückfrage; vor jeder Änderung am Speicherformat wird gefragt, ob Daten erhalten bleiben müssen (ändert sich mit der Datenbank). Deshalb übernimmt B-97 die Daten aus `mimi-mots:v1` nicht.
+- 2026-11-01: Version im Elternbereich (B-98): Im Reiter „Sonstiges“ steht „Version · Commit · Build-Datum“, eingesetzt beim Bauen per Vite `define`; ohne Git „unbekannt“.
 
 ### Leitprinzipien-Review (B-61, 2026-10-30)
 Automatisch geprüft (`tests/e2e/b60-layout.spec.ts`, `b61-leitprinzipien.spec.ts`, alle drei Viewports):
