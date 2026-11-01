@@ -1,12 +1,18 @@
 // Persistenz in localStorage (anforderungen.md §7): ein Schlüssel, versioniert.
 // Kaputte oder fehlende Daten führen nie zum Absturz, sondern zu Defaults.
+// B-97: Alle Daten gehören zu einem Kind (`children`, Platz für weitere – B-90); ids und
+// Zeitstempel so, dass die Kinder später 1 : 1 als Zeilen in Supabase passen. Daten älterer
+// Versionen (`mimi-mots:v1`) werden nicht übernommen – eine neue Version darf sie verwerfen.
 import { COMPANIONS, type Companion } from './components/avatar';
 import { hasVocabulary, vocabularyIds } from './data/vocabulary';
 import type { Language } from './data/words';
 import type { Store } from './state';
+import { isUuid, newId } from './uuid';
 
-export const STORAGE_KEY = 'mimi-mots:v1';
-export const VERSION = 1;
+export const STORAGE_KEY = 'mimi-mots:v2';
+export const VERSION = 2;
+/** B-97: Länge des Namens – passt so in die Kopfleiste (1024 px, iPhone). */
+export const NAME_MAX = 16;
 
 export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja', 'it'];
 /** B-93: Dauer einer Runde in Minuten, im Elternbereich einstellbar (B-89: fest 5). */
@@ -45,8 +51,10 @@ export interface Rest {
   since: string | null;
 }
 
-export interface AppData {
-  version: typeof VERSION;
+/** Daten eines Kinds (B-97) – bis B-96 der ganze gespeicherte Stand. */
+export interface ChildData {
+  /** B-97: Name des Kinds; null, solange er noch nicht gefragt wurde. */
+  name: string | null;
   settings: Settings;
   /** Lernstand der Sprechrunde. */
   progress: Progress;
@@ -67,6 +75,20 @@ export interface AppData {
   roundMin: number;
 }
 
+/** Ein Kind mit id (UUID) und Zeitstempeln (ISO) – später eine Zeile in Supabase. */
+export interface Child extends ChildData {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Der gespeicherte Stand (B-97): alle Kinder, eines davon ist aktiv. */
+export interface AppData {
+  version: typeof VERSION;
+  activeChildId: string;
+  children: Child[];
+}
+
 /** Standard: Englisch und Französisch aktiv, Japanisch und Italienisch aus (B-73/B-80). */
 export const DEFAULT_ENABLED_LANGUAGES: readonly Language[] = ['en', 'fr'];
 
@@ -84,9 +106,9 @@ export function withWords(enabled: readonly Language[]): Language[] {
 }
 
 /** Erststart: nur der Modus ist vorbelegt (anforderungen.md §3.1, seit B-89 statt der Dauer). */
-export function defaults(): AppData {
+export function childDefaults(): ChildData {
   return {
-    version: VERSION,
+    name: null,
     settings: { companion: null, language: null, mode: 'speak' },
     progress: { en: {}, fr: {}, ja: {}, it: {} },
     listenProgress: { en: {}, fr: {}, ja: {}, it: {} },
@@ -100,6 +122,56 @@ export function defaults(): AppData {
   };
 }
 
+/** Neues Kind mit Standarddaten. */
+export function newChild(now: Date = new Date(), data: ChildData = childDefaults()): Child {
+  const at = now.toISOString();
+  return { id: newId(), ...data, createdAt: at, updatedAt: at };
+}
+
+/** Erststart: ein Kind ohne Namen. */
+export function defaults(now: Date = new Date()): AppData {
+  const child = newChild(now);
+  return { version: VERSION, activeChildId: child.id, children: [child] };
+}
+
+/** Das aktive Kind (gibt es immer – sanitize stellt das sicher). */
+export function activeChild(data: AppData): Child {
+  return data.children.find((c) => c.id === data.activeChildId) ?? data.children[0];
+}
+
+/** Nur die Daten eines Kinds, ohne id und Zeitstempel (für den App-State). */
+export function childData(child: Child): ChildData {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, createdAt, updatedAt, ...data } = child;
+  return data;
+}
+
+/** Ersetzt die Daten des aktiven Kinds und setzt `updatedAt`. */
+export function withActiveChildData(data: AppData, child: ChildData, now: Date): AppData {
+  const active = activeChild(data);
+  return {
+    ...data,
+    children: data.children.map((c) =>
+      c === active
+        ? { id: c.id, ...child, createdAt: c.createdAt, updatedAt: now.toISOString() }
+        : c,
+    ),
+  };
+}
+
+/** B-97: Name aufräumen – Leerraum am Rand weg, innen ein Leerzeichen, keine Steuerzeichen,
+ *  höchstens NAME_MAX Zeichen; leer → null. */
+export function cleanName(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  const text = raw
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const name = Array.from(text).slice(0, NAME_MAX).join('').trim();
+  return name === '' ? null : name;
+}
+
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -108,7 +180,7 @@ function oneOf<T>(allowed: readonly T[], value: unknown, fallback: T): T {
 }
 
 function sanitizeSettings(raw: unknown): Settings {
-  const d = defaults().settings;
+  const d = childDefaults().settings;
   if (!isObject(raw)) return d;
   return {
     companion: oneOf<Companion | null>([...COMPANIONS, null], raw.companion, d.companion),
@@ -131,7 +203,7 @@ function subsetOf<T>(allowed: readonly T[], raw: unknown): T[] {
 }
 
 function sanitizeRest(raw: unknown): Rest {
-  if (!isObject(raw)) return defaults().rest;
+  if (!isObject(raw)) return childDefaults().rest;
   return {
     sleeping: subsetOf(COMPANIONS, raw.sleeping), // `usedDurations` (bis B-89) fällt weg
     since: typeof raw.since === 'string' && DAY.test(raw.since) ? raw.since : null,
@@ -153,7 +225,7 @@ function sanitizeEnabled(raw: unknown): Language[] {
 
 /** Nur Wörter des Wortschatzes (B-84); sind alle einer Sprache aus, sind alle wieder an. */
 function sanitizeDisabled(raw: unknown): DisabledWords {
-  const disabled = defaults().disabledWords;
+  const disabled = childDefaults().disabledWords;
   if (!isObject(raw)) return disabled;
   for (const lang of LANGUAGES) {
     const ids = vocabularyIds(lang);
@@ -173,7 +245,7 @@ function sanitizeWordProgress(raw: unknown): WordProgress | null {
 }
 
 function sanitizeProgress(raw: unknown): Progress {
-  const progress = defaults().progress;
+  const progress = childDefaults().progress;
   if (!isObject(raw)) return progress;
   for (const lang of LANGUAGES) {
     const entries = raw[lang];
@@ -186,11 +258,11 @@ function sanitizeProgress(raw: unknown): Progress {
   return progress;
 }
 
-/** Prüft beliebige Daten und liefert immer einen gültigen Stand; Ungültiges wird verworfen. */
-export function sanitize(raw: unknown): AppData {
-  if (!isObject(raw) || raw.version !== VERSION) return defaults();
+/** Prüft die Daten eines Kinds; Ungültiges wird einzeln durch den Standard ersetzt. */
+export function sanitizeChild(raw: unknown): ChildData {
+  if (!isObject(raw)) return childDefaults();
   return {
-    version: VERSION,
+    name: cleanName(raw.name),
     settings: sanitizeSettings(raw.settings),
     progress: sanitizeProgress(raw.progress),
     listenProgress: sanitizeProgress(raw.listenProgress),
@@ -204,6 +276,34 @@ export function sanitize(raw: unknown): AppData {
   };
 }
 
+const isTime = (v: unknown): v is string => typeof v === 'string' && !Number.isNaN(Date.parse(v));
+
+/**
+ * Prüft gespeicherte Daten (Version 2) und liefert einen gültigen Stand – oder null, wenn sie
+ * unbrauchbar sind (dann gilt der Standard). Ungültige ids werden neu vergeben,
+ * ungültige Zeitstempel auf jetzt gesetzt, doppelte ids verworfen.
+ */
+export function sanitize(raw: unknown, now: Date = new Date()): AppData | null {
+  if (!isObject(raw) || raw.version !== VERSION || !Array.isArray(raw.children)) return null;
+  const at = now.toISOString();
+  const children: Child[] = [];
+  for (const item of raw.children) {
+    if (!isObject(item)) continue;
+    const id = isUuid(item.id) ? item.id.toLowerCase() : newId();
+    if (children.some((c) => c.id === id)) continue;
+    children.push({
+      id,
+      ...sanitizeChild(item),
+      createdAt: isTime(item.createdAt) ? item.createdAt : at,
+      updatedAt: isTime(item.updatedAt) ? item.updatedAt : at,
+    });
+  }
+  if (children.length === 0) return null;
+  const wanted = typeof raw.activeChildId === 'string' ? raw.activeChildId.toLowerCase() : '';
+  const active = children.find((c) => c.id === wanted) ?? children[0];
+  return { version: VERSION, activeChildId: active.id, children };
+}
+
 function getStorage(): Storage | null {
   try {
     return window.localStorage;
@@ -212,12 +312,13 @@ function getStorage(): Storage | null {
   }
 }
 
-export function load(storage: Storage | null = getStorage()): AppData {
+/** Liest den Stand; fehlt er oder ist er unbrauchbar, gilt der Erststart. */
+export function load(storage: Storage | null = getStorage(), now: Date = new Date()): AppData {
   try {
     const text = storage?.getItem(STORAGE_KEY);
-    return text ? sanitize(JSON.parse(text)) : defaults();
+    return (text && sanitize(JSON.parse(text), now)) || defaults(now);
   } catch {
-    return defaults();
+    return defaults(now);
   }
 }
 
@@ -232,12 +333,18 @@ export function save(data: AppData, storage: Storage | null = getStorage()): boo
   }
 }
 
-/** Speichert die Daten, sobald sie sich im Store ändern (z. B. neue Auswahl, Lernstand). */
+/** Speichert die Daten, sobald sie sich im Store ändern (z. B. neue Auswahl, Lernstand).
+ *  Der Store kennt nur das aktive Kind; es wird in `stored` (alle Kinder) eingesetzt. */
 export function persistOnChange(
   store: Pick<Store, 'subscribe'>,
+  stored: AppData,
   write: (data: AppData) => boolean = save,
+  now: () => Date = () => new Date(),
 ): () => void {
+  let current = stored;
   return store.subscribe((state, previous) => {
-    if (state.data !== previous.data) write(state.data);
+    if (state.data === previous.data) return;
+    current = withActiveChildData(current, state.data, now());
+    write(current);
   });
 }

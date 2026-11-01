@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
-import { defaults } from '../src/storage';
-import { createStore } from '../src/state';
+import { childDefaults } from '../src/storage';
+import { createStore } from './test-store';
 import { END_TEXT, renderEnd } from '../src/views/end';
 
 function endStore(companion: 'mimi' | 'mots' = 'mots') {
-  const data = defaults();
+  const data = childDefaults();
   data.settings = { companion, language: 'fr', mode: 'speak' };
   const store = createStore(data);
   store.dispatch({ type: 'play' });

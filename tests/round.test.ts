@@ -2,8 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WORDS, getWord } from '../src/data/words';
 import { seededRng } from '../src/scheduler';
-import { defaults } from '../src/storage';
-import { createStore } from '../src/state';
+import { childDefaults } from '../src/storage';
+import { createStore } from './test-store';
 import { TUTORIAL_STEPS, penLoop, renderRound, showNextWord } from '../src/views/round';
 
 // Vorladen der Audiodateien: in jsdom gibt es keinen Server – alle Dateien gelten als vorhanden.
@@ -16,7 +16,7 @@ beforeEach(() => {
 });
 
 function roundStore(language: 'en' | 'fr' = 'en', mode: 'speak' | 'listen' = 'speak') {
-  const data = defaults();
+  const data = childDefaults();
   data.settings = { companion: 'mimi', language, mode };
   data.tutorialDone = true; // Tutorial (B-74) eigens getestet
   data.listenTutorialDone = true;
@@ -41,7 +41,7 @@ describe('showNextWord', () => {
   });
 
   it('AT-88.2: ausgeschaltete Wörter kommen nicht vor', () => {
-    const data = defaults();
+    const data = childDefaults();
     data.settings = { companion: 'mimi', language: 'en', mode: 'speak' };
     data.tutorialDone = true;
     const off = WORDS.slice(0, WORDS.length - 4).map((w) => w.id);
@@ -57,7 +57,7 @@ describe('showNextWord', () => {
 
   it('AT-88.4: die Bremse zählt nur eingeschaltete Wörter auf Stufe 0', () => {
     const at = (box: number) => ({ box, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' });
-    const data = defaults();
+    const data = childDefaults();
     data.settings = { companion: 'mimi', language: 'en', mode: 'speak' };
     data.tutorialDone = true;
     const ids = WORDS.map((w) => w.id);
@@ -78,7 +78,7 @@ describe('showNextWord', () => {
   });
 
   it('macht außerhalb der Lernrunde nichts', () => {
-    const store = createStore(defaults());
+    const store = createStore(childDefaults());
     const before = store.getState();
     showNextWord(store);
     expect(store.getState()).toBe(before);
@@ -366,7 +366,7 @@ describe('Avatar in der Lernrunde (B-24)', () => {
   it('zeigt den gewählten Begleiter: „zeigt“ bei neuem Wort, „freut“ nach Aufdecken', () => {
     vi.stubGlobal('speechSynthesis', { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] });
     vi.stubGlobal('SpeechSynthesisUtterance', class {});
-    const data = defaults();
+    const data = childDefaults();
     data.settings = { companion: 'mots', language: 'en', mode: 'speak' };
     data.tutorialDone = true;
     const store = createStore(data);
@@ -398,7 +398,7 @@ describe('Tutorial (B-74)', () => {
     vi.stubGlobal('SpeechSynthesisUtterance', class {});
     vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
     vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-    const data = defaults();
+    const data = childDefaults();
     data.settings = { companion: 'mots', language: 'fr', mode: 'speak' };
     const store = createStore(data);
     store.dispatch({ type: 'play' });

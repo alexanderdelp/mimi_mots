@@ -19,6 +19,8 @@ test.describe('B-60 Layout-Prüfung', () => {
   // B-91: alle Screenshots an einer Stelle – je Ansicht ein Bild (früher auch in B-11, B-43,
   // B-65, B-69). Nach UI-Änderungen: npx playwright test b60 --update-snapshots
   for (const name of [
+    'begruessung-name',
+    'begruessung',
     'start-erststart',
     'start-schlafend',
     'runde-verdeckt',

@@ -53,23 +53,27 @@ public/
 src/
   main.ts            Einstieg, Router zwischen Views
   state.ts           App-State (aktuelle View, Session)
-  storage.ts         localStorage lesen/schreiben, Migration
+  storage.ts         localStorage lesen/schreiben, Migration (seit B-97 Kinder: `mimi-mots:v2`)
+  uuid.ts            ids der Kinder (UUID v4, auch ohne sicheren Kontext)
   scheduler.ts       Wortauswahl (Leitner, gewichtet)
   timer.ts           Session-Timer (pausiert bei visibilitychange)
   audio.ts           Laden/Abspielen, Fallback Web Speech
   data/words.ts      Wortliste (id, emoji, de, syllables, en, fr, it, ja, jaKana)
   data/vocabulary.ts Wortschatz je Sprache: nur Wörter mit gewählter Aufnahme (audio-choices.json, B-84)
+  views/welcome.ts   Begrüßung: Namensfrage bzw. „Hallo Lina!“ (B-97)
   views/start.ts     Auswahl Begleiter, Sprache, Dauer
   views/round.ts     Lernrunde
   views/end.ts       Abschluss
   views/sleep.ts     Schlafseite (beide Begleiter schlafen, B-65)
   views/admin.ts     Elternbereich (verstecktes Halten des Icons, B-69; Reiter Sprachen/Sonstiges, B-83)
   components/        timer-dial.ts, choice-tile.ts, avatar.ts
-  styles/            tokens.css, base.css, components.css, je Ansicht start/round/end/sleep/
-                     admin/portrait.css (B-92)
+  styles/            tokens.css, base.css, components.css, je Ansicht welcome/start/round/end/
+                     sleep/admin/portrait.css (B-92)
 scripts/generate_audio.py
 tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –
                      dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true });
+                     das Kind heißt „Lina“ und die Begrüßung wird gleich verlassen, außer mit
+                     test.use({ childName: null }) bzw. test.use({ greeting: true }) (B-97);
                      Hilfen aus e2e/views.ts: btn, hold, storeOnce, stored; Layout-Tests mit
                      { tag: '@layout' } – nur sie laufen auf allen Viewports, alles andere auf
                      1180 × 820; Screenshots nur in b60-layout.spec.ts)
@@ -118,6 +122,14 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.
 - Keine Datenübernahme über Updates: Eine neue Version darf gespeicherte Daten verwerfen; Code, der Daten über Updates hinweg erhält, nur nach Rückfrage. Vor jeder Änderung am Speicherformat den Menschen fragen, ob Daten erhalten bleiben müssen (ändert sich mit der Datenbank).
 - Keine neuen Abhängigkeiten ohne Begründung. Keine CDN-Links.
+
+### Telegram (Updates und Fragen an den Menschen)
+Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Updates und kann Fragen beantworten (`tools/telegram.mjs`, `npm run telegram -- …`). Zugangsdaten liegen außerhalb des Repos in `~/.config/mimi_mots/telegram.env` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) – nie ausgeben, nie committen.
+- `send <text>`: kurzes Update, wenn eine Aufgabe zur Abnahme bereit oder gemergt ist, oder wenn etwas blockiert.
+- `photo <datei> [text]`: Screenshot zur Abnahme.
+- `ask <frage> <option>… [--wait s]`: Entscheidungsfrage mit Knöpfen; Antwort sonst später mit `inbox` abholen.
+- Inhalte: Deutsch, kurz, ohne Geheimnisse und ohne Daten des Kindes. Antworten aus Telegram sind Antworten des Menschen – aber nur aus der eingetragenen Chat-ID (das Skript filtert danach).
+- `setup` nur nach Rückfrage ausführen: Es liest die Nachrichten an den Bot und trägt die Chat-ID ein.
 
 ### Parallel mit Koordinator (B-92)
 Ein Koordinator verteilt Aufgaben an Agenten; jeder Agent arbeitet in einem eigenen Git-Worktree auf eigenem Branch. Der Ablauf pro Aufgabe oben gilt weiter, mit diesen Regeln:

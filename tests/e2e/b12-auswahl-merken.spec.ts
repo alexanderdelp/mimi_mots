@@ -1,12 +1,10 @@
 import { expect, test, type Page } from './fixtures';
-import { btn, hold, stored } from './views';
+import { btn, hold, storeOnce, stored } from './views';
 
 // B-91: Halten über die Testuhr statt echter Wartezeit
 test.beforeEach(async ({ page }) => {
   await page.clock.install();
 });
-
-const KEY = 'mimi-mots:v1';
 
 async function expectSelection(page: Page, selected: string[]) {
   for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch', 'Sprechen', 'Hören']) {
@@ -69,21 +67,10 @@ test.describe('B-12 Auswahl merken', () => {
       en: { apfel: { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
       fr: { hund: { box: 1, seen: 2, lastSeenAt: '2026-10-28T08:00:00.000Z' } },
     };
-    await page.addInitScript(
-      ([k, p]) => {
-        if (!localStorage.getItem(k)) {
-          localStorage.setItem(
-            k,
-            JSON.stringify({
-              version: 1,
-              settings: { companion: null, language: null, mode: 'speak' },
-              progress: p,
-            }),
-          );
-        }
-      },
-      [KEY, progress] as const,
-    );
+    await storeOnce(page, {
+      settings: { companion: null, language: null, mode: 'speak' },
+      progress,
+    });
     await page.goto('./');
     await btn(page, 'Mimi').click();
     await btn(page, 'Englisch').click();
@@ -103,6 +90,9 @@ test.describe('B-12 Auswahl merken', () => {
       });
     });
     await page.goto('./');
+    // B-97: ohne Speicher kein Name – erst fragt die Begrüßung
+    await page.getByRole('textbox', { name: 'Wie heißt du?' }).fill('Lina');
+    await btn(page, 'Fertig').click(); // „Weiter“ tippt die Fixture
     await btn(page, 'Mots').click();
     await btn(page, 'Englisch').click();
     await btn(page, 'Los geht’s').click();

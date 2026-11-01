@@ -116,7 +116,7 @@ export function renderStart(store: Store): ViewHandle {
   const view = document.createElement('main');
   view.className = 'view view--start';
   view.dataset.view = 'start';
-  const header = createAppHeader();
+  const header = createAppHeader({ name: data.name });
   const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
   view.append(header, groups, footer);
   return { el: view, dispose: release };

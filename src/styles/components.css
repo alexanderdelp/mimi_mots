@@ -154,6 +154,22 @@
   align-items: center;
 }
 
+.app-header__slot--start {
+  min-width: 0;
+  gap: 16px;
+}
+
+/* B-97: Name des Kinds – klein, nur Text; zu lang → Auslassungspunkte statt Überlauf */
+.app-header__name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: clamp(22px, 3dvh, 28px);
+  font-weight: 800;
+  color: var(--lila-700);
+}
+
 .app-header__slot--end {
   justify-content: flex-end;
 }
@@ -285,6 +301,14 @@
 
   .app-header h1 {
     font-size: 22px;
+  }
+
+  .app-header__slot--start {
+    gap: 10px;
+  }
+
+  .app-header__name {
+    font-size: 18px;
   }
 
   .close-button {

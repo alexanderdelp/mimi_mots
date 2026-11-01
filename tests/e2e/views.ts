@@ -1,14 +1,33 @@
 // B-60/B-61: führt reproduzierbar zu jeder Ansicht und prüft sie im Browser (Überlauf, Kontrast,
 // Farben, Schaltflächen, Bewegung). Zufall und Uhr sind festgelegt.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { CHILD_ID } from './fixtures';
 import { fakeMedia, vocabularyIds } from './helpers';
 
-export const KEY = 'mimi-mots:v1';
+/** B-97: gespeicherter Stand mit allen Kindern. */
+export const KEY = 'mimi-mots:v2';
+
+/** Ein Kind (B-97) als gespeicherter Stand Version 2. */
+export const childStore = (child: object) => ({
+  version: 2,
+  activeChildId: CHILD_ID,
+  children: [
+    {
+      id: CHILD_ID,
+      createdAt: '2026-10-29T08:00:00.000Z',
+      updatedAt: '2026-10-29T08:00:00.000Z',
+      ...child,
+    },
+  ],
+});
 
 /** Legt einen gespeicherten Stand an, bevor die App lädt – nur beim ersten Laden des Tabs, damit
- *  Neuladen den Stand der App zeigt (B-91: eine Stelle statt Kopien je Test). */
+ *  Neuladen den Stand der App zeigt (B-91: eine Stelle statt Kopien je Test). Ein Objekt ohne
+ *  `children` gilt als Daten des einen Kinds (B-97) und wird eingepackt; Texte (z. B. kaputte
+ *  Daten) landen unverändert unter `KEY`. */
 export async function storeOnce(page: Page, data: object | string) {
-  const value = typeof data === 'string' ? data : JSON.stringify(data);
+  const value =
+    typeof data === 'string' ? data : JSON.stringify('children' in data ? data : childStore(data));
   await page.addInitScript(
     ([key, v]) => {
       if (!sessionStorage.getItem('seeded')) {
@@ -20,8 +39,15 @@ export async function storeOnce(page: Page, data: object | string) {
   );
 }
 
-/** Gespeicherter Stand der App (null, wenn nichts gespeichert ist). */
+/** Gespeicherte Daten des aktiven Kinds (null, wenn nichts gespeichert ist). */
 export const stored = (page: Page) =>
+  page.evaluate((k) => {
+    const data = JSON.parse(localStorage.getItem(k) ?? 'null');
+    return data?.children?.find((c: { id: string }) => c.id === data.activeChildId) ?? null;
+  }, KEY);
+
+/** Der ganze gespeicherte Stand (Version 2, alle Kinder). */
+export const storedAll = (page: Page) =>
   page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
 export const TODAY = new Date(2026, 9, 30, 10, 0);
 
@@ -34,6 +60,10 @@ interface Seed {
   tutorial?: boolean;
   /** Tutorial der Hörrunde noch nicht gesehen (B-89). */
   listenTutorial?: boolean;
+  /** B-97: Name des Kinds (null: noch keiner); fehlt er, gilt der der Fixture („Lina“). */
+  name?: string | null;
+  /** B-97: Begrüßung nicht gleich verlassen. */
+  greeting?: boolean;
 }
 
 /** Uhr, Zufall, Audio-Attrappe und gespeicherter Stand – vor dem ersten Laden. */
@@ -49,19 +79,36 @@ export async function prepare(page: Page, seed?: Seed) {
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   });
+  if (seed?.greeting) await keepGreeting(page);
   if (!seed) return;
-  await storeOnce(page, {
-    version: 1,
-    settings: { companion: 'mimi', language: seed.language ?? 'fr', mode: 'speak' },
-    progress: { en: {}, fr: {}, ja: {}, it: {} },
-    enabledLanguages: ['en', 'fr', 'ja', 'it'],
-    ...(seed.tutorial ? { tutorialDone: false } : {}),
-    ...(seed.listenTutorial ? { listenTutorialDone: false } : {}),
-    rest: {
-      sleeping: seed.sleeping ?? [],
-      since: '2026-10-30',
-    },
+  await storeOnce(
+    page,
+    childStore({
+      ...(seed.name !== undefined ? { name: seed.name } : {}),
+      settings: { companion: 'mimi', language: seed.language ?? 'fr', mode: 'speak' },
+      progress: { en: {}, fr: {}, ja: {}, it: {} },
+      enabledLanguages: ['en', 'fr', 'ja', 'it'],
+      ...(seed.tutorial ? { tutorialDone: false } : {}),
+      ...(seed.listenTutorial ? { listenTutorialDone: false } : {}),
+      rest: {
+        sleeping: seed.sleeping ?? [],
+        since: '2026-10-30',
+      },
+    }),
+  );
+}
+
+/** B-97: Die Begrüßung bleibt stehen (die Fixture verlässt sie sonst gleich). */
+export async function keepGreeting(page: Page) {
+  await page.addInitScript(() => {
+    (window as unknown as { __keepGreeting: boolean }).__keepGreeting = true;
   });
+}
+
+/** B-97: Begrüßung – mit Namen „Hallo Lina!“, ohne die Namensfrage. */
+export async function welcomeView(page: Page) {
+  await page.goto('./');
+  await expect(page.locator('[data-view="welcome"]')).toBeVisible();
 }
 
 /** Gedrückt halten (Long-Press: [×], App-Icon) – über die Testuhr, `page.clock` muss laufen. */
@@ -144,6 +191,8 @@ export async function adminView(page: Page) {
 
 /** Ansichten für die Prüfungen: Name, Vorbereitung, Weg dorthin. */
 export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<void> }[] = [
+  { name: 'begruessung-name', seed: { name: null }, open: welcomeView },
+  { name: 'begruessung', seed: { greeting: true, sleeping: ['mots'] }, open: welcomeView },
   { name: 'start-erststart', open: startView },
   { name: 'start-schlafend', seed: { sleeping: ['mimi'] }, open: startView },
   { name: 'tutorial', seed: { tutorial: true }, open: (p) => roundView(p) },

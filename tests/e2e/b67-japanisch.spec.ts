@@ -1,9 +1,8 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { enableJapanese, fakeMedia, mediaCalls, vocabularyIds } from './helpers';
-import { btn } from './views';
+import { btn, stored } from './views';
 
-const KEY = 'mimi-mots:v1';
 const speaker = (page: Page) => btn(page, 'Auf Japanisch anhören');
 
 async function startRound(page: Page) {
@@ -33,8 +32,8 @@ test.describe('B-67 Japanisch', () => {
     await expect(btn(page, 'Japanisch')).toHaveAttribute('aria-pressed', 'true');
     await page.reload();
     await expect(btn(page, 'Japanisch')).toHaveAttribute('aria-pressed', 'true');
-    const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.settings.language).toBe('ja');
+    const saved = await stored(page);
+    expect(saved.settings.language).toBe('ja');
   });
 
   test(

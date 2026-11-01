@@ -1,18 +1,18 @@
 // B-69: Gruppierung der Wörter nach Stufe im Elternbereich – nur der Wortschatz (B-84).
 import { describe, expect, it } from 'vitest';
 import { vocabulary } from '../src/data/vocabulary';
-import { defaults } from '../src/storage';
+import { childDefaults } from '../src/storage';
 import { wordsByLevel } from '../src/views/admin';
 
 describe('wordsByLevel (B-69)', () => {
   it('ohne Lernstand sind alle Wörter neu', () => {
-    const groups = wordsByLevel(defaults().progress, 'en');
+    const groups = wordsByLevel(childDefaults().progress, 'en');
     expect(groups.get(null)).toHaveLength(vocabulary('en').length);
     for (const level of [0, 1, 2, 3, 4]) expect(groups.get(level)).toEqual([]);
   });
 
   it('ordnet jedes Wort genau einer Stufe zu', () => {
-    const progress = defaults().progress;
+    const progress = childDefaults().progress;
     const entry = (box: number) => ({ box, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' });
     progress.fr = { apfel: entry(0), hund: entry(4), katze: entry(2) };
     const groups = wordsByLevel(progress, 'fr');

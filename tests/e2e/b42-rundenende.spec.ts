@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './fixtures';
 import { fakeMedia, mediaCalls } from './helpers';
-import { btn } from './views';
+import { btn, stored } from './views';
 
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 const speaker = (page: Page) => btn(page, 'Auf Französisch anhören');
@@ -50,9 +50,7 @@ test.describe('B-42 Rundenende', () => {
     await speaker(page).click();
     await btn(page, 'Wusste ich').click();
     await expect(view(page, 'end')).toBeVisible();
-    const progress = await page.evaluate(
-      () => JSON.parse(localStorage.getItem('mimi-mots:v1')!).progress.fr,
-    );
+    const progress = (await stored(page)).progress.fr;
     expect(progress[word!]).toMatchObject({ box: 1, seen: 1 });
   });
 

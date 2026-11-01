@@ -1,13 +1,11 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { hasVocabulary } from '../src/data/vocabulary';
-import { LANGUAGES, defaults, type AppData } from '../src/storage';
+import { LANGUAGES, childDefaults, type ChildData } from '../src/storage';
 import { vocabularyIds } from '../src/data/vocabulary';
 import {
   activeWords,
   canToggleWord,
-  createStore,
-  createStore as createStoreAt,
   isComplete,
   canToggleLanguage,
   nextView,
@@ -17,10 +15,13 @@ import {
   type AppState,
   type ViewName,
 } from '../src/state';
+import { createStore as createRealStore } from '../src/state';
+import { createStore, createStore as createStoreAt } from './test-store';
 
 /** Daten mit vollständiger Auswahl, damit Play erlaubt ist. */
 const complete = () => {
-  const data = defaults();
+  const data = childDefaults();
+  data.name = 'Lina'; // B-97: ohne Namen führt kein Weg zum Start
   data.settings = { companion: 'mimi', language: 'en', mode: 'speak' };
   data.tutorialDone = true; // sonst endet „finish“ als Tutorial-Abbruch (B-87)
   return data;
@@ -55,7 +56,7 @@ describe('nextView', () => {
 });
 
 describe('reduce', () => {
-  const base: AppState = { view: 'round', portrait: false, data: defaults(), round: null };
+  const base: AppState = { view: 'round', portrait: false, data: childDefaults(), round: null };
 
   it('setzt portrait, ohne Ansicht oder Daten zu ändern', () => {
     const next = reduce(base, { type: 'orientation', portrait: true });
@@ -71,11 +72,11 @@ describe('reduce', () => {
 
 describe('createStore', () => {
   it('startet immer in der Startansicht', () => {
-    expect(createStore(defaults()).getState().view).toBe('start');
+    expect(createStore(childDefaults()).getState().view).toBe('start');
   });
 
   it('übernimmt die anfängliche Ausrichtung', () => {
-    expect(createStore(defaults(), true).getState().portrait).toBe(true);
+    expect(createStore(childDefaults(), true).getState().portrait).toBe(true);
   });
 
   it('benachrichtigt bei Änderungen mit neuem und altem State', () => {
@@ -90,7 +91,7 @@ describe('createStore', () => {
   });
 
   it('benachrichtigt nicht bei ignorierten Ereignissen', () => {
-    const store = createStore(defaults());
+    const store = createStore(childDefaults());
     const listener = vi.fn();
     store.subscribe(listener);
     store.dispatch({ type: 'home' });
@@ -121,12 +122,12 @@ describe('Auswahl (B-11)', () => {
   const startState = (): AppState => ({
     view: 'start',
     portrait: false,
-    data: defaults(),
+    data: childDefaults(),
     round: null,
   });
 
   it('isComplete braucht Begleiter, Sprache und Modus', () => {
-    expect(isComplete(defaults().settings)).toBe(false);
+    expect(isComplete(childDefaults().settings)).toBe(false);
     expect(isComplete(complete().settings)).toBe(true);
     expect(isComplete({ ...complete().settings, language: null })).toBe(false);
     expect(isComplete({ ...complete().settings, mode: null })).toBe(false);
@@ -163,7 +164,7 @@ describe('Auswahl (B-11)', () => {
   });
 
   it('Store: Auswahl treffen, dann spielen', () => {
-    const store = createStore(defaults());
+    const store = createStore(childDefaults());
     store.dispatch({ type: 'play' });
     expect(store.getState().view).toBe('start');
     store.dispatch({ type: 'select', settings: { companion: 'mimi', language: 'en' } });
@@ -411,7 +412,7 @@ describe('Schlafende Begleiter (B-65)', () => {
     data.rest = { sleeping, since };
     return data;
   };
-  const createStore = (data: AppData) => createStoreAt(data, false, now);
+  const createStore = (data: ChildData) => createStoreAt(data, false, now);
   beforeEach(() => {
     clock = TODAY;
   });
@@ -589,7 +590,7 @@ describe('Schlafende Begleiter (B-65)', () => {
     expect(store.getState().view).toBe('sleep');
     clock = new Date(2026, 9, 31, 0, 1);
     store.dispatch({ type: 'day' });
-    expect(store.getState().view).toBe('start');
+    expect(store.getState().view).toBe('welcome'); // B-97: wie ein neues Öffnen am Morgen
     expect(store.getState().data.rest.sleeping).toEqual([]);
   });
 
@@ -923,5 +924,87 @@ describe('Spielbare Sprachen (B-81/B-84)', () => {
     const start = at('start');
     start.data.enabledLanguages = [...LANGUAGES];
     expect(reduce(start, { type: 'select', settings: { language: empty } })).toBe(start);
+  });
+});
+
+describe('Begrüßung (B-97)', () => {
+  const TODAY = new Date(2026, 9, 30, 9, 0);
+  const at = (view: ViewName, data: ChildData = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+  const unnamed = () => ({ ...complete(), name: null });
+  const asleep = (data: ChildData) => ({
+    ...data,
+    rest: { sleeping: ['mimi', 'mots'] as ('mimi' | 'mots')[], since: '2026-10-30' },
+  });
+
+  it('AT-97.1/97.2: beim Öffnen zuerst die Begrüßung – mit und ohne Namen', () => {
+    expect(createRealStore(childDefaults(), false, () => TODAY).getState().view).toBe('welcome');
+    expect(createRealStore(complete(), false, () => TODAY).getState().view).toBe('welcome');
+  });
+
+  it('AT-97.3: schlafen beide, kommt die Schlafseite – auch ohne Namen', () => {
+    const store = createRealStore(asleep(unnamed()), false, () => TODAY);
+    expect(store.getState().view).toBe('sleep');
+  });
+
+  it('AT-97.1: Name eingeben – aufgeräumt gespeichert, Ansicht bleibt die Begrüßung', () => {
+    const store = createRealStore(unnamed(), false, () => TODAY);
+    store.dispatch({ type: 'name', name: '  Lina   Marie ' });
+    expect(store.getState().view).toBe('welcome');
+    expect(store.getState().data.name).toBe('Lina Marie');
+  });
+
+  it('AT-97.1: leerer Name und Name außerhalb der Begrüßung werden ignoriert', () => {
+    const state = at('welcome', unnamed());
+    expect(reduce(state, { type: 'name', name: '   ' })).toBe(state);
+    expect(reduce(at('start'), { type: 'name', name: 'Tom' }).data.name).toBe('Lina');
+  });
+
+  it('AT-97.1: Name wird auf 16 Zeichen gekürzt', () => {
+    const next = reduce(at('welcome', unnamed()), { type: 'name', name: 'Maximilian-Josefine' });
+    expect(next.data.name).toBe('Maximilian-Josef');
+  });
+
+  it('AT-97.2: „Weiter“ führt nur mit Namen zur Auswahl', () => {
+    expect(reduce(at('welcome'), { type: 'enter' }).view).toBe('start');
+    expect(reduce(at('welcome', unnamed()), { type: 'enter' }).view).toBe('welcome');
+    expect(reduce(at('start'), { type: 'enter' }).view).toBe('start');
+  });
+
+  it('AT-97.4: nach der Runde Start bzw. Schlafseite, nie die Begrüßung', () => {
+    expect(reduce(at('end'), { type: 'home' }, '2026-10-30').view).toBe('start');
+    const both = asleep(complete());
+    expect(reduce(at('end', both), { type: 'home' }, '2026-10-30').view).toBe('sleep');
+    // auch wenn die Runde über Mitternacht ging
+    expect(reduce(at('end', both), { type: 'home' }, '2026-10-31').view).toBe('start');
+  });
+
+  it('AT-97.3: Elternbereich verlassen ohne Namen → Namensfrage, sonst Start', () => {
+    expect(reduce(at('admin', unnamed()), { type: 'leave' }, '2026-10-30').view).toBe('welcome');
+    expect(reduce(at('admin'), { type: 'leave' }, '2026-10-30').view).toBe('start');
+    const both = asleep(unnamed());
+    expect(reduce(at('admin', both), { type: 'leave' }, '2026-10-30').view).toBe('sleep');
+  });
+
+  it('AT-97.3: neuer Tag auf der Schlafseite → Begrüßung; auf der Begrüßung wachen alle auf', () => {
+    expect(reduce(at('sleep', asleep(complete())), { type: 'day' }, '2026-10-31').view).toBe(
+      'welcome',
+    );
+    const next = reduce(
+      at('welcome', { ...complete(), rest: { sleeping: ['mimi'], since: '2026-10-30' } }),
+      { type: 'day' },
+      '2026-10-31',
+    );
+    expect(next.view).toBe('welcome');
+    expect(next.data.rest).toEqual({ sleeping: [], since: null });
+  });
+
+  it('AT-97.8: Elternbereich auch von der Begrüßung', () => {
+    expect(reduce(at('welcome'), { type: 'admin' }).view).toBe('admin');
+    expect(reduce(at('welcome', unnamed()), { type: 'admin' }).view).toBe('admin');
   });
 });
