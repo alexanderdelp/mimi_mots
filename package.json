@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
+    "telegram": "node tools/telegram.mjs",
     "audio": "node scripts/run-python.mjs scripts/generate_audio.py",
     "test:audio": "node scripts/run-python.mjs scripts/test_generate_audio.py",
     "icons": "node scripts/render-icons.mjs"
