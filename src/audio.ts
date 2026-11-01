@@ -36,7 +36,7 @@ function synth(): SpeechSynthesis | undefined {
  * Stößt das Laden der Stimmenliste an: Browser liefern sie verzögert, beim allerersten
  * getVoices() oft noch leer. So steht beim ersten Fallback schon die passende Stimme bereit.
  */
-export function warmUpVoices(): void {
+function warmUpVoices(): void {
   try {
     synth()?.getVoices();
   } catch {

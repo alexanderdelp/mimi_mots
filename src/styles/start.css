@@ -1,7 +1,7 @@
 /* Startansicht (B-11, B-26, B-89). */
 
 /* Startansicht (B-11, B-26): Header oben, drei Gruppen in einer Reihe, Play unten mittig.
-   Begleiter-Kacheln hoch; Sprach- und Dauer-Kacheln halb so hoch (inkl. Abstand), damit
+   Begleiter-Kacheln hoch; Sprach- und Modus-Kacheln halb so hoch (inkl. Abstand), damit
    zwei untereinander passen. Innerhalb einer Gruppe sind alle Kacheln gleich groß. */
 .view--start {
   --start-tile-w: clamp(150px, 15vw, 220px);
