@@ -1,0 +1,459 @@
+# Backlog – erledigte Aufgaben (Archiv)
+
+Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich wie beim Abschluss – nur zum Nachschlagen (z. B. die AT-Nummern aus den Testnamen); Offenes und „Später“ stehen in `backlog.md`, der aktuelle Stand der App in `anforderungen.md`.
+
+## M0 – Grundgerüst
+- [x] **B-01 Projekt aufsetzen**: Vite + TS, ESLint/Prettier, Vitest, Playwright (WebKit, Viewports 1024×768, 1180×820, 1366×1024 quer). npm-Skripte laut CLAUDE.md. Dev-Server mit `--host`.
+  - AK: `npm run dev/build/test/test:e2e/lint` laufen grün.
+  - AT-01.1: Die App lädt in WebKit auf 1024×768, 1180×820 und 1366×1024 (quer) ohne Konsolenfehler und ohne fehlgeschlagene Requests.
+  - AT-01.2: Die Seite hat den Titel „Mimi & Mots“, `lang="de"` und einen Viewport-Meta-Tag ohne Zoom (`user-scalable=no`, `viewport-fit=cover`).
+  - AT-01.3: Die App wird unter dem GitHub-Pages-Pfad `/mimi_mots/` ausgeliefert (Preview des Produktionsbuilds) und lädt ihre Skripte von dort.
+  - ~~AT-01.4: Zur Laufzeit gehen keine Requests an fremde Hosts (Leitprinzip 6).~~ – Test entfernt (2026-10-30): abgedeckt durch AT-61.4 (kompletter Ablauf).
+- [x] **B-02 Design-Tokens & Basis-CSS**: `tokens.css`, `base.css` (Reset, `ui-rounded`, Touch-Regeln, kein Scroll/Zoom, Safe Areas, 100dvh-Layout).
+  - AK: Leere Seite füllt Bildschirm ohne Scrollbalken; Doppeltipp zoomt nicht.
+  - AT-02.1: Auf allen drei Viewports füllt `#app` exakt den Bildschirm; Dokument ist weder horizontal noch vertikal scrollbar, auch nicht bei zu großem Inhalt.
+  - AT-02.2: Doppeltipp auf die Seite verändert den Zoom nicht (`visualViewport.scale` bleibt 1); `touch-action: manipulation` ist gesetzt.
+  - AT-02.3: Seitenhintergrund ist `--lila-50` (#F8F4FB), Text `--lila-900` (#3B2A63); Schrift-Stack beginnt mit `ui-rounded`, dann `Nunito`.
+  - AT-02.4: Touch-Regeln aktiv: `user-select: none`, `overscroll-behavior: none` (`-webkit-touch-callout` und – im Windows-Playwright-WebKit – `overscroll-behavior` sind nicht prüfbar → zusätzlich Unit-Test am CSS).
+  - AT-02.5: Die Nunito-Schrift wird von der eigenen Domain geladen (keine externen Requests) und ist nach dem Laden verfügbar.
+- [x] **B-03 Assets einbinden**: Gelieferte PNGs (Avatare, Flaggen) und Icons liegen bereits unverändert in `public/avatars/`, `public/flags/`, `public/icons/` (Namen laut CLAUDE.md). Asset-Mapping Pose → Datei in `src/components/avatar.ts`.
+  - AK: Bildtausch zwischen Posen springt nicht (visueller Check im Dev-Server).
+  - AT-03.1: Alle 8 Avatar-PNGs, alle Flaggen (seit dem Flaggen-Update als SVG) und alle Icons werden unter `/mimi_mots/…` mit Status 200 ausgeliefert; Avatare haben 384 × 440 px.
+  - AT-03.2: Position und Größe von Avatar-Box und Bild bleiben beim Posenwechsel identisch (seit B-24 in der Lernrunde geprüft: zeigt ↔ freut, beide Begleiter).
+  - ~~AT-03.3: Nach dem Vorladen löst ein Posen-Wechsel keinen Netzwerk-Request aus; das neue Bild ist sofort vollständig geladen (seit B-24 in der Lernrunde). **Deaktiviert** (2026-10-30): schlug in WebKit zufällig fehl, Aufwand lohnt nicht.~~ – Test entfernt (2026-10-30): deaktiviert und entfernt.
+  - AT-03.4: Der Avatar wird höchstens 440 CSS-px hoch dargestellt, unten ausgerichtet und ohne Verzerrung (`object-fit: contain`) (seit B-24 in der Lernrunde).
+  - Hinweis: Die Avatar-Vorschau war ein Platzhalter für den visuellen Check; sie ist mit B-24 entfallen, die Tests laufen seitdem in der Lernrunde.
+- [x] **B-04 Wortliste**: `src/data/words.ts` mit Typ `Word { id, emoji, de, en, fr }` und Liste aus Anhang `anforderungen.md`. Export als JSON für das Audio-Skript.
+  - AK: Test prüft eindeutige ids, keine leeren Felder.
+  - AT-04.1: Alle 50 Emojis der Wortliste werden in WebKit als je ein einzelnes Bildzeichen dargestellt (kein Zerfall in mehrere Zeichen, kein leeres Kästchen).
+  - AT-04.2: Die Wortliste liegt als `src/data/words.json` vor, die das Audio-Skript direkt lesen kann, und stimmt Eintrag für Eintrag mit der Tabelle in `anforderungen.md` §10 überein (Unit-Test).
+  - Hinweis: B-04 hat noch keine Oberfläche; AT-04.1 prüft die Darstellung in einer leeren Testseite.
+- [x] **B-05 Storage-Modul**: `load()`, `save()`, Defaults, Versionsfeld, robust bei kaputtem JSON.
+  - AK: Unit-Tests für Defaults, Roundtrip, kaputte Daten.
+  - AT-05.1: Die App startet ohne Konsolenfehler, wenn unter `mimi-mots:v1` kaputtes JSON, ein falscher Datentyp, eine unbekannte Version oder ungültige Einträge liegen.
+  - AT-05.2: Die App startet ohne Fehler, wenn `localStorage` nicht verfügbar ist (Zugriff wirft, wie im privaten Modus).
+  - AT-05.3: Gültige gespeicherte Daten bleiben beim Start und nach Neuladen unverändert erhalten.
+  - Hinweis: Der Roundtrip Speichern → Neuladen über die Oberfläche wird mit B-12 (AT „Auswahl merken“) geprüft; bis dahin per Unit-Test.
+- [x] **B-06 Router/State**: Views `start | round | end`, einfache Zustandsmaschine; Hochformat-Overlay (B-52) vorbereiten.
+  - AT-06.1: Beim Öffnen der App ist die Startansicht aktiv, und es ist genau eine Ansicht im DOM.
+  - AT-06.2: Ablauf Start → (Play) → Lernrunde → (Beenden) → Abschluss → (Zurück) → Start funktioniert; es ist immer genau eine Ansicht sichtbar.
+  - AT-06.3: Neuladen während Lernrunde oder Abschluss startet wieder auf der Startansicht.
+  - ~~AT-06.4: Im Hochformat erscheint ein Overlay „iPad drehen“ über der aktuellen Ansicht; zurück ins Querformat ist es weg und dieselbe Ansicht ist unverändert da.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-52.1/52.3.
+  - ~~AT-06.5: ~~Avatar-Vorschau unter `?vorschau=avatar`~~ – mit B-24 entfallen; seitdem zeigt `?vorschau=avatar` die normale Startansicht.~~ – Test entfernt (2026-10-30): Vorschau-Parameter gibt es nicht mehr.
+  - Hinweis: Start-, Lernrunden- und Abschlussansicht sind Platzhalter mit je einer Schaltfläche; Inhalte folgen in B-11, B-21 ff. und B-43. Beenden per einfachem Tipp, Long-Press folgt in B-25.
+
+## M1 – Startbildschirm
+- [x] **B-10 Komponente Auswahlkachel**: Zustände ausgewählt (5 px lila, `--lila-100`) / nicht ausgewählt (2 px dunkelgrau, weiß); kein Layout-Sprung beim Wechsel; ≥ 88 px; `aria-pressed`.
+  - AT-10.1: Nicht ausgewählte Kachel: weißer Hintergrund, 2 px Rahmen in `--grau-700`; ausgewählte Kachel: Hintergrund `--lila-100`, 5 px Rahmen in `--lila-700`.
+  - AT-10.2: Tipp auf eine Kachel wählt sie aus; in einer Gruppe ist immer genau eine ausgewählt; erneuter Tipp auf die ausgewählte ändert nichts; `aria-pressed` spiegelt den Zustand.
+  - AT-10.3: Ein Auswahlwechsel verschiebt nichts: Position und Größe aller Kacheln und ihrer Inhalte bleiben pixelgleich.
+  - ~~AT-10.4: Jede Kachel ist auf allen drei Viewports mindestens 88 × 88 px groß.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-61.2 (alle Schaltflächen).
+  - AT-10.5: Kacheln verwenden in beiden Zuständen nur Farben aus den Design-Tokens (kein Rot/Grün, Leitprinzip 1).
+  - Hinweis: Geprüft wird in der Vorschau `?vorschau=kacheln` (Begleiter-, Flaggen- und Dauer-Kacheln), bis die Startansicht (B-11) die Kacheln nutzt.
+- [x] **B-11 Startansicht**: Header mit Icon + Titel; Gruppen Begleiter, Sprache, Dauer (nur „5 Min.“ mit Uhr-Symbol); Play-Button. Layout laut Mockup, passt auf alle Ziel-Viewports.
+  - AK: Play erst aktiv, wenn alle drei Gruppen gewählt; Screenshot-Tests für 3 Viewports.
+  - AT-11.1: Header mit App-Icon und „Mimi & Mots“; drei Gruppen mit den Überschriften „Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“.
+  - AT-11.2: Begleiter-Kacheln zeigen Bild (Pose „ruhig“) und Namen; Sprach-Kacheln nur die Flagge ohne Text; Dauer-Kachel ein Uhr-Symbol und „5 Min.“.
+  - AT-11.3: Ohne gespeicherte Auswahl ist nur „5 Min.“ ausgewählt und Play deaktiviert; ein Tipp auf das deaktivierte Play bewirkt nichts.
+  - AT-11.4: Play wird erst aktiv, wenn Begleiter und Sprache gewählt sind; Tipp auf Play startet die Lernrunde.
+  - AT-11.5: Auf allen drei Viewports liegt alles vollständig im Bildschirm, nichts überlappt, nichts scrollt; Kacheln ≥ 88 × 88 px, Play rund und ≥ 96 px.
+  - AT-11.6: Screenshot-Vergleich der Startansicht je Viewport (Erststart und vollständige Auswahl).
+  - Hinweis: Die Kachel-Vorschau aus B-10 entfällt; die B-10-Tests laufen jetzt auf der Startansicht. Speichern der Auswahl folgt in B-12.
+- [x] **B-12 Auswahl merken**: Letzte Auswahl speichern und vorbelegen; Erststart: nur Dauer vorbelegt.
+  - AK: E2E – Auswahl treffen, neu laden, Auswahl ist vorbelegt.
+  - AT-12.1: Begleiter und Sprache wählen, neu laden → beide sind vorbelegt, „5 Min.“ ebenfalls, Play ist sofort aktiv.
+  - AT-12.2: Erststart mit leerem Speicher: nur „5 Min.“ vorbelegt; solange nichts gewählt wurde, wird nichts gespeichert.
+  - AT-12.3: Auswahl ändern (Mimi → Mots, Englisch → Französisch), neu laden → die neue Auswahl ist vorbelegt.
+  - AT-12.4: Nach einer Runde (Play → Beenden → Zurück) zeigt die Startansicht die zuletzt gewählte Auswahl.
+  - AT-12.5: Ein vorhandener Lernstand bleibt beim Speichern der Auswahl unverändert erhalten.
+  - AT-12.6: Ist `localStorage` gesperrt, funktionieren Auswahl und Play trotzdem ohne Fehler (nur ohne Merken).
+
+## M2 – Lernrunde
+- [x] **B-20 Scheduler**: reine Funktion laut anforderungen.md §5 (Leitner-Gewichte, max. 6 neue, Abstand ≥ 3, injizierbarer Zufall).
+  - AK: Unit-Tests: Gewichtung statistisch plausibel, Abstand eingehalten, Neue-Limit, Auffüllen bei wenig Bekannten, Update-Regeln.
+  - Hinweis: B-20 hat keine Oberfläche; die Akzeptanztests simulieren ganze Sessions mit dem echten Scheduler (Vitest, `tests/scheduler.acceptance.test.ts`). Sichtbar wird er ab B-21/B-23.
+  - AT-20.1: In 500 simulierten Sessions à 60 Wörtern erscheint ein Wort nie, bevor mindestens 3 andere Wörter dran waren.
+  - AT-20.2: Keine Session führt mehr als 6 neue Wörter ein.
+  - AT-20.3: Erste Session (leerer Lernstand): die ersten 6 Wörter sind 6 verschiedene neue Wörter; danach kommen keine weiteren neuen.
+  - AT-20.4: Gewichtung: Bei Wörtern gleichmäßig in Box 0–4 entspricht die Häufigkeit der Gewichtswahl 8 : 5 : 3 : 2 : 1 (±10 %); in ganzen Sessions kommen Wörter niedrigerer Boxen häufiger dran als die höherer Boxen.
+  - AT-20.5: Bewertung: „Wusste ich“ → Box + 1 (max. 4), „Noch üben“ → Box 0; `seen` + 1, `lastSeenAt` = jetzt; andere Wörter und die Eingabe bleiben unverändert.
+  - AT-20.6: Gleicher Seed → gleiche Wortfolge (reproduzierbar).
+  - AT-20.7: Über mehrere Sessions werden nach und nach alle Wörter eingeführt (spätestens nach ⌈Wortanzahl ÷ 6⌉ Sessions à 40 Wörtern, wenn alles gewusst wird; bei 50 Wörtern 9, seit B-68 mit 61 Wörtern 11).
+  - AT-20.8: Ab 6 bekannten Wörtern ist in einer Session jedes 3. Wort neu (Positionen 3, 6, 9 …), bis 6 neue eingeführt sind.
+- [x] **B-21 Wortkarte**: Emoji groß, deutsches Wort; Flaggen-Button; Fremdwort verborgen.
+  - AT-21.1: Nach Play zeigt die Lernrunde ein Wort aus der Wortliste: Emoji und deutsches Wort gehören zusammen.
+  - AT-21.2: Das Emoji ist groß (35–45 % der Bildschirmhöhe), das deutsche Wort steht darunter.
+  - AT-21.3: Das Fremdwort (Englisch bzw. Französisch) steht nirgends auf der Seite; Bewertungs-Buttons gibt es noch nicht.
+  - AT-21.4: Rechts neben der Karte steht ein großer Flaggen-Button (≥ 160 px breit) mit der Flagge der gewählten Sprache.
+  - ~~AT-21.5: [×] oben links, Karte mittig, Flagge rechts; auf allen drei Viewports liegt alles im Bildschirm, nichts überlappt, nichts scrollt.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-27.5/27.8.
+  - AT-21.6: Das Wort bleibt gleich, solange nichts bewertet wird (auch nach Hochformat und zurück).
+  - Hinweis: Platz für Avatar (B-24), Timer (B-41), Fremdwort (B-22) und Bewertungs-Buttons (B-23) wird schon freigehalten, damit das Layout später nicht springt.
+- [x] **B-22 Aufdecken**: Tipp auf Flagge zeigt Fremdwort, spielt Audio; erneuter Tipp spielt erneut (von vorn).
+  - AT-22.1: Tipp auf die Flagge zeigt das Fremdwort unter der Flagge (Französisch mit Artikel), vollständig sichtbar und innerhalb seines Bereichs – auch bei langen Wörtern.
+  - ~~AT-22.2: Beim Tipp wird das Fremdwort genau einmal vorgelesen, in der richtigen Sprache (en-GB bzw. fr-FR).~~ – Test entfernt (2026-10-30): abgedeckt durch AT-31.1/64.4.
+  - ~~AT-22.3: Jeder weitere Tipp bricht die laufende Wiedergabe ab und startet sie von vorn; das Fremdwort bleibt sichtbar.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-31.2.
+  - ~~AT-22.4: Das Aufdecken verschiebt nichts: Karte, Flagge und [×] bleiben pixelgleich.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-23.8.
+  - AT-22.5: Vor dem ersten Tipp wird nichts vorgelesen (kein Autoplay).
+  - AT-22.6: Ohne Sprachausgabe im Browser wird das Wort trotzdem aufgedeckt, ohne Fehler.
+  - Hinweis: Bis die MP3-Dateien da sind (B-30a/b, B-31), liest die Web-Speech-Stimme des Geräts vor (Fallback laut Anforderungen). In den Tests wird die Sprachausgabe durch eine Attrappe ersetzt, die Aufrufe mitschreibt.
+- [x] **B-23 Selbsteinschätzung**: Nach erstem Aufdecken zwei gleichwertige Buttons „Wusste ich“ 👍 / „Noch üben“ 🔁 (lila, gleiche Größe); Tipp aktualisiert Lernstand und lädt nächstes Wort. Kein Feedback.
+  - AK: E2E – Buttons vor Aufdecken unsichtbar; nach Tipp neues Wort; Storage aktualisiert.
+  - AT-23.1: Vor dem Aufdecken sind keine Bewertungs-Buttons sichtbar; nach dem ersten Tipp auf die Flagge erscheinen „Wusste ich“ 👍 und „Noch üben“ 🔁.
+  - AT-23.2: Beide Buttons sind gleich groß (≥ 88 px hoch) und gleich gestaltet, nur in Token-Farben (kein Rot/Grün).
+  - AT-23.3: „Wusste ich“ → das nächste Wort erscheint verdeckt, die Buttons verschwinden; im Speicher steht für das alte Wort Box 1, `seen` 1.
+  - AT-23.4: „Noch üben“ → nächstes Wort; im Speicher Box 0, `seen` 1.
+  - AT-23.5: Kein Feedback: Nach dem Tipp erscheint kein zusätzlicher Text oder Hinweis; das nächste Wort ist innerhalb von 200 ms da.
+  - AT-23.6: 12 Wörter hintereinander bewerten: nie dasselbe Wort innerhalb von 3 anderen; alle bewerteten Wörter stehen im Lernstand.
+  - AT-23.7: Der Lernstand gilt pro Sprache: Bewertungen auf Französisch ändern den englischen Lernstand nicht.
+  - AT-23.8: Das Erscheinen der Buttons verschiebt Karte, Flagge und Fremdwort nicht; alles bleibt im Bildschirm.
+- [x] **B-24 Avatar in der Runde**: Avatar links; Pose „zeigt“ bei neuem Wort, „freut“ nach Aufdecken; reiner Bildtausch; alle Posen vorgeladen.
+  - AT-24.1: In der Lernrunde steht der gewählte Begleiter links neben der Karte (keine Überlappung), bei einem neuen Wort in der Pose „zeigt“.
+  - AT-24.2: Nach dem Aufdecken wechselt er zu „freut“; weitere Tipps auf die Flagge ändern daran nichts.
+  - AT-24.3: Beim nächsten Wort zeigt er wieder („zeigt“).
+  - AT-24.4: Mimi zeigt Katzen-, Mots Pony-Bilder.
+  - AT-24.5: Alle vier Posen des Begleiters sind nach dem Start der Runde geladen; der Avatar ist ≤ 440 px hoch, vollständig im Bildschirm und nicht animiert.
+  - Hinweis: Die Avatar-Vorschau (`?vorschau=avatar`) entfällt; AT-03.2–03.4 laufen jetzt in der Lernrunde, AT-06.5 prüft, dass die Adresse die Startansicht zeigt.
+- [x] **B-25 Abbrechen**: [×] oben links, Long-Press 600 ms → Abschluss.
+  - AT-25.1: [×] steht oben links (seit B-26 direkt unter der Kopfleiste), ist mindestens 88 × 88 px groß und unaufdringlich (weiß, dünner grauer Rand).
+  - AT-25.2: Ein kurzer Tipp auf [×] beendet die Runde nicht.
+  - AT-25.3: Gedrückt halten (≥ 600 ms) führt zum Abschluss.
+  - AT-25.4: Loslassen vor 600 ms oder Wegziehen des Fingers bricht ab; erneutes Halten zählt neu.
+  - AT-25.5: Während des Haltens ist [×] sichtbar gedrückt (Hintergrund `--lila-100`), danach wieder weiß.
+  - AT-25.6: Bereits bewertete Wörter bleiben im Lernstand; das aktuelle, unbewertete Wort wird nicht gezählt.
+  - AT-25.7: Während des Haltens füllt sich ein lila Ring um [×] im Uhrzeigersinn (nach ~300 ms etwa halb voll); beim Loslassen ist er sofort weg. Bei „Bewegung reduzieren“ ist er während des Haltens sofort voll.
+  - Hinweis: Frühere Tests, die [×] nur antippen (B-06, B-12, B-22), halten es jetzt gedrückt.
+
+## UI-Überarbeitung (nach M2)
+- [x] **B-26 UI-Überarbeitung**: Dauer 5/10 Minuten nur mit Uhr; Sprachkacheln flach im 2 × 2-Raster mit Japanisch (ausgegraut); Kopfleiste auch in der Lernrunde; runder lila Lautsprecher-Button statt Tipp auf die Flagge; „Wusste ich“/„Noch üben“ als runde lila Buttons nur mit Symbol.
+  - AT-26.1: Startseite: Dauer-Gruppe mit zwei Kacheln untereinander („5 Minuten“, „10 Minuten“ für Screenreader), nur Uhr-Symbol ohne Text; der lila Sektor zeigt 5 bzw. 10 Minuten (30° bzw. 60°).
+  - AT-26.2: 10 Minuten lässt sich wählen, wird gespeichert und nach Neuladen vorbelegt; Erststart: 5 Minuten vorbelegt.
+  - AT-26.3: Sprach-Gruppe im 2 × 2-Raster: Englisch, Französisch, Japanisch (ausgegraut, deaktiviert, Tipp bewirkt nichts), vierter Platz leer.
+  - AT-26.4: Sprach- und Dauer-Kacheln sind gleich groß und halb so hoch wie die Begleiter-Kacheln (inkl. Abstand); innerhalb jeder Gruppe gleich groß; alles ≥ 88 px und im Bildschirm.
+  - AT-26.5: Lernseite hat dieselbe Kopfleiste wie die Startseite (Icon + „Mimi & Mots“); [×] und Timer-Platz liegen darunter links bzw. rechts.
+  - AT-26.6: Rechts neben der Karte: große Flagge der Sprache (≥ 80 % der Spaltenbreite, nur Anzeige, nicht antippbar); der runde lila Lautsprecher-Button überlappt ihre rechte untere Ecke ein Stück (höchstens ein Viertel der Flaggenfläche). Tipp auf den Lautsprecher deckt auf und liest vor, erneuter Tipp liest von vorn.
+  - AT-26.7: „Wusste ich“ und „Noch üben“ sind runde lila Buttons wie der Play-Button, gleich groß, nur mit weißem Symbol, ohne sichtbaren Text (Screenreader-Namen bleiben).
+  - ~~AT-26.8: Auf allen drei Viewports passt die Lernseite ohne Überlappung (außer der gewollten Flaggen-Ecke) und ohne Scrollen; Screenshots der Startseite aktualisiert.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-27.8.
+  - AT-26.9: Lange Fremdwörter: Mehrwortbegriffe bis 22 Zeichen und Einzelwörter bis 25 Zeichen passen vollständig in den Fremdwort-Bereich, mindestens 36 px groß; Einzelwörter werden dafür notfalls getrennt (geprüft am echten Fremdwort-Feld mit der App-Logik, Unit-Tests für `fitText`).
+  - Hinweis: Bestehende Tests werden angepasst (Kachelanzahl, „5 Min.“ → „5 Minuten“, Flaggen-Button → Lautsprecher-Button, Bewertungs-Buttons ohne Text).
+
+- [x] **B-27 Lernansicht überarbeiten**: Dauer 3/7 statt 5/10 Minuten; [×] und Timer fest in der Kopfleiste; Fremdwort und Flagge in einer eigenen Karte, genauso groß wie die Karte des deutschen Worts; Begleiter größer links unten.
+  - AT-27.1: Startseite: Dauer-Kacheln „3 Minuten“ und „7 Minuten“ (Sektor 18° bzw. 42°); Erststart: 3 Minuten vorbelegt.
+  - AT-27.2: Gespeicherte alte Dauern werden übernommen: 5 → 3, 10 → 7 Minuten.
+  - AT-27.3: Die Runde läuft bei 3 Minuten nach 3:00 ab, bei 7 Minuten nach 7:00.
+  - AT-27.4: Kopfleiste auf allen Seiten gleich hoch; in der Lernrunde liegt [×] links und das Timer-Zifferblatt rechts **in** der Kopfleiste, beide mindestens 88 px, vertikal mittig; Icon und Titel bleiben mittig.
+  - AT-27.5: Zwei Karten nebeneinander, exakt gleich groß und auf gleicher Höhe: links Emoji + deutsches Wort, rechts Flagge, Fremdwort-Bereich und Lautsprecher-Button.
+  - AT-27.6: Der Begleiter steht links unten (Unterkante wie die Bewertungszeile), ist größer als bisher (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) und überlappt keine Karte.
+  - AT-27.7: Die Bewertungs-Buttons liegen mittig unter den beiden Karten.
+  - AT-27.8: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen.
+  - AT-27.9: Texte: Überschrift der Sprachgruppe „In welcher Sprache?“, Satz im Abschluss „Bis zum nächsten Mal!“ (frühere Akzeptanztests B-11/B-26/B-43 entsprechend angepasst).
+  - Hinweis: Frühere Tests mit 5/10 Minuten, der alten Kopfleiste und der Antwortspalte (B-11, B-21, B-22, B-25, B-26, B-40–B-43) werden angepasst; die Screenshots von Start- und Abschlussseite werden neu erzeugt (höhere Kopfleiste).
+
+## M3 – Audio
+- [x] **B-30a Audio-Skript**: `scripts/generate_audio.py` (Kokoro; Stimmen EN `bf_emma`, FR `ff_siwis`), liest Wort-JSON, erzeugt nur fehlende Dateien, ffmpeg-Nachbearbeitung (Trim, 150 ms Vorlauf, −16 LUFS, MP3 mono 64 kbit/s), `audio-overrides/` hat Vorrang. README-Abschnitt zur einmaligen lokalen Einrichtung (Python-venv, Modell-Download).
+  - AK: Skript erzeugt `public/audio/{en,fr}/<id>.mp3`; Gesamtgröße < 2 MB.
+  - Hinweis: Kein Browser beteiligt – die Akzeptanztests rufen das echte Skript mit Kokoro und ffmpeg in einem Temp-Ordner auf (`scripts/test_generate_audio.py`, `npm run test:audio`, Python-`unittest`).
+  - AT-30a.1: Für zwei Testwörter erzeugt das Skript `<out>/en/<id>.mp3` und `<out>/fr/<id>.mp3` (EN mit `bf_emma`, FR mit `ff_siwis`, FR mit Artikel).
+  - AT-30a.2: Jede Datei ist MP3, mono, 64 kbit/s, nicht leer, höchstens 2 s lang und kleiner als 16 KB.
+  - AT-30a.3: Lautheit −16 LUFS (±1,5); am Anfang ca. 150 ms Stille (100–250 ms), am Ende keine lange Stille (< 300 ms).
+  - AT-30a.4: Ein zweiter Lauf erzeugt nichts neu (vorhandene Dateien bleiben byte-gleich); mit `--force` wird neu erzeugt.
+  - AT-30a.5: Liegt eine Datei in `audio-overrides/<lang>/<id>.(mp3|wav|m4a)`, wird sie statt Kokoro verwendet (gleiche Nachbearbeitung) und ersetzt eine ältere erzeugte Datei.
+  - AT-30a.6: `npm run audio -- --help` läuft; fehlen Modell oder Stimmen, bricht das Skript mit verständlicher Meldung ab (Hinweis auf README).
+  - AT-30a.7: Die README beschreibt die einmalige Einrichtung (venv, Pakete, Modell-Download) und nennt die Lizenzen (Kokoro Apache-2.0, SIWIS CC BY 4.0).
+- [x] **B-30b Audio erzeugen & prüfen**: Dateien generieren, Hörprüfliste `audio-check.md` (id, ok/neu) zum Abhaken durch den Menschen.
+  - AT-30b.1: Für jedes Wort der Liste gibt es `public/audio/fr/<id>.mp3`, keine überzähligen Dateien; für Englisch gibt es keine MP3s (Entscheidung §11: Gerätestimme) (Unit-Test).
+  - AT-30b.2: Gesamtgröße aller Audiodateien < 2 MB, jede Datei < 16 KB und gültiges MP3 (Unit-Test).
+  - AT-30b.3: Der Produktionsbuild liefert die Dateien unter `/mimi_mots/audio/<lang>/<id>.mp3` aus (Status 200, `audio/mpeg`).
+  - AT-30b.4: `audio-check.md` enthält jedes Wort genau einmal mit einem Kästchen für Französisch (Unit-Test).
+  - AT-30b.5: Die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server, nicht im Build) listet alle Wörter mit einem Abspiel-Button für Französisch.
+  - Menschliche Abnahme: Hörprüfung der 50 französischen Dateien, Ergebnis in `audio-check.md`. Englisch (bf_emma) fiel im Klangvergleich durch einen falschen Anfangslaut durch.
+- [x] **B-31 Audio-Modul**: Vorladen der Session-Dateien, Abspielen per `HTMLAudioElement`, Neustart bei erneutem Tipp, Fallback Web Speech (en-GB/fr-FR) bei fehlender Datei.
+  - AK: Unit-Test für Fallback-Logik (gemockt); manueller Test auf iPad.
+  - AT-31.1: Französisch: Tipp auf den Lautsprecher spielt die MP3 des Worts (`audio/fr/<id>.mp3`) über `HTMLAudioElement`; Web Speech wird dabei nicht benutzt.
+  - AT-31.1b: Englisch: Tipp auf den Lautsprecher liest direkt mit der Gerätestimme vor (en-GB); es wird keine MP3 angefragt oder abgespielt.
+  - AT-31.2: Jeder weitere Tipp startet die Wiedergabe von vorn (Position 0).
+  - AT-31.3: Beim Start einer französischen Runde werden die französischen Audiodateien vorgeladen; bei einer englischen Runde wird keine Audiodatei angefragt.
+  - AT-31.4: Fehlt die Datei eines Worts (404), wird es per Web Speech vorgelesen (en-GB bzw. fr-FR) – ohne Fehlermeldung, das Wort wird trotzdem aufgedeckt.
+  - AT-31.5: Schlägt das Abspielen selbst fehl (z. B. vom Browser blockiert), wird ebenfalls per Web Speech vorgelesen.
+  - AT-31.6: Beim Bewerten (nächstes Wort) und beim Beenden der Runde verstummt eine laufende Wiedergabe.
+  - Hinweis: In den Tests werden `HTMLMediaElement.play/pause` und die Sprachausgabe durch Attrappen ersetzt, die Aufrufe mitschreiben. Offline-Verfügbarkeit folgt mit dem Service Worker (B-51).
+
+## M4 – Timer & Abschluss
+- [x] **B-40 Timer-Logik**: Start beim ersten Wort, Pause bei `visibilitychange`/Hochformat, Ereignis „abgelaufen“; testbar mit Fake-Timers.
+  - Hinweis: Die E2E-Tests steuern die Uhr mit Playwrights Clock-API (`page.clock`), statt eines Test-Parameters wie `?dur=10s` – so braucht der Produktionsbuild keinen Test-Zugang.
+  - AT-40.1: Der Timer startet mit dem ersten Wort der Runde: Nach 4:59 min ist die Runde noch nicht abgelaufen, nach 5:00 min schon (bei Dauer 5 Minuten).
+  - AT-40.2: Bei Dauer 10 Minuten läuft die Runde erst nach 10:00 min ab.
+  - AT-40.3: Zeit auf der Startseite vor dem Tipp auf Play zählt nicht mit.
+  - AT-40.4: Geht die App in den Hintergrund (`visibilitychange`), pausiert der Timer und läuft beim Zurückkehren weiter.
+  - AT-40.5: Im Hochformat pausiert der Timer und läuft nach dem Zurückdrehen weiter.
+  - AT-40.6: Der Ablauf ändert die Runde nicht: kein Ton, kein Hinweis, das aktuelle Wort bleibt (Ansicht meldet nur intern `data-expired`).
+- [x] **B-41 Timer-Zifferblatt**: SVG im Time-Timer-Stil (lila Sektor schrumpft im Uhrzeigersinn, Strichmarken, keine Ziffern), ~120 px oben rechts, aktualisiert ≥ 1×/s.
+  - AT-41.1: Oben rechts unter der Kopfleiste steht ein rundes Zifferblatt (ca. 120 px) mit 12 Strichmarken, ohne Ziffern oder Text.
+  - AT-41.2: Zu Beginn ist die ganze Scheibe lila (volle Scheibe = gewählte Dauer); nach der halben Zeit ist es ein Halbkreis von 6 bis 12 Uhr – der Sektor schrumpft im Uhrzeigersinn.
+  - AT-41.3: Das Zifferblatt aktualisiert sich mindestens einmal pro Sekunde.
+  - AT-41.4: Nach Ablauf ist kein lila Sektor mehr zu sehen; kein Blinken, keine Animation.
+  - AT-41.5: Während einer Pause (Hintergrund, Hochformat) bleibt der Sektor stehen.
+  - AT-41.6: Das Zifferblatt nutzt nur Token-Farben, ist nicht antippbar und liegt vollständig im Bildschirm, ohne andere Elemente zu überlappen.
+- [x] **B-42 Rundenende**: Nach Ablauf läuft das aktuelle Wort unverändert weiter (Aufdecken, Vorlesen beliebig oft); erst nach „Wusste ich“/„Noch üben“ (Lernstand gespeichert) kommt der Abschluss statt eines neuen Worts.
+  - AK: E2E mit verkürzter Dauer (Test-Parameter `?dur=10s`, nur in Dev/Test): Timer läuft ab → Flagge mehrfach tippbar, Audio startet jeweils → Selbsteinschätzung → Abschluss; Fall „Timer läuft vor dem Aufdecken ab“ abgedeckt.
+  - Hinweis: Statt `?dur=10s` steuern die Tests die Uhr mit Playwrights Clock-API (siehe B-40); seit B-26 ersetzt der Lautsprecher die Flagge.
+  - AT-42.1: Läuft die Zeit **vor** dem Aufdecken ab, bleibt das Wort; der Lautsprecher deckt auf und spielt mehrfach (jeweils von vorn); erst nach „Wusste ich“/„Noch üben“ kommt der Abschluss statt eines neuen Worts.
+  - AT-42.2: Läuft die Zeit **nach** dem Aufdecken ab (Buttons schon sichtbar), bleibt alles stehen; der nächste Tipp auf „Wusste ich“/„Noch üben“ führt zum Abschluss.
+  - AT-42.3: Die Bewertung des letzten Worts wird gespeichert (Lernstand im Speicher), auch wenn danach der Abschluss kommt.
+  - AT-42.4: Solange die Zeit nicht abgelaufen ist, führt eine Bewertung wie bisher zum nächsten Wort.
+  - AT-42.5: [×] (gedrückt halten) beendet die Runde auch nach Ablauf sofort.
+- [x] **B-43 Abschlussansicht**: Avatar „winkt“ groß, „Bis zum nächsten Mal!“, Haus-Button → Start. Keine Statistik.
+  - AT-43.1: Der Abschluss zeigt die Kopfleiste und den gewählten Begleiter groß (mindestens 40 % der Bildschirmhöhe, höchstens 440 px) in der Pose „winkt“ (Mimi: Katze, Mots: Pony).
+  - ~~AT-43.2: Der Text lautet „Bis zum nächsten Mal!“; es gibt keine Zahlen, keine Anzahl Wörter, kein Lob und keine Bewertung.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-61.1 und AT-43.4.
+  - AT-43.3: Ein runder lila Haus-Button („Zurück“, nur Symbol) führt zur Startseite; die Auswahl ist dort noch vorbelegt.
+  - AT-43.4: Der Abschluss ist derselbe, egal ob die Runde per Zeitablauf (B-42) oder per [×] endet.
+  - AT-43.5: Auf allen drei Viewports liegt alles im Bildschirm, ohne Überlappung und ohne Scrollen; Screenshot-Vergleich je Viewport.
+
+## M5 – PWA & Offline
+- [x] **B-50 Manifest & Icons**: Vorhandene Icons aus `public/icons/` einbinden (Manifest 192/512/maskable, `apple-touch-icon` 180), Meta-Tags für iOS; Platzhalter im Header durch `icon.svg` ersetzen. Skript `npm run icons` rendert die PNGs aus `icon.svg` neu (z. B. mit `sharp`), damit das Icon später einfach austauschbar ist.
+  - AT-50.1: Die Seite verlinkt das Manifest, das `apple-touch-icon` (180 px), ein SVG-Favicon und setzt `theme-color` #6A4C9C, `apple-mobile-web-app-capable` = yes, Statusleiste `default`, App-Titel „Mimi & Mots“.
+  - AT-50.2: Das Manifest wird ausgeliefert: Name „Mimi & Mots“, `display: standalone`, `orientation: landscape`, `lang: de`, `theme_color` #6A4C9C, `background_color` #F8F4FB, `start_url`/`scope` = `/mimi_mots/`, Icons 192, 512 und maskable 512.
+  - AT-50.3: Alle im Manifest und in der Seite genannten Icons werden ausgeliefert (Status 200) und haben die angegebene Größe.
+  - AT-50.4: `npm run icons` rendert `icon-180/192/512.png` aus `icon.svg` und `icon-maskable-512.png` aus `icon-maskable.svg` in den richtigen Größen (Unit-Test in einem Temp-Ordner).
+  - AT-50.5: Die Kopfleiste zeigt `icons/icon.svg` (seit B-11 umgesetzt, Test bleibt bestehen).
+- [x] **B-51 Service Worker**: vite-plugin-pwa, Precache aller Assets inkl. Audio, stilles Update beim nächsten Start.
+  - AK: Nach erstem Laden im Flugmodus vollständig nutzbar (Start → Runde mit Audio → Abschluss).
+  - AT-51.1: Nach dem ersten Laden ist ein Service Worker aktiv (Bereich `/mimi_mots/`) und kontrolliert die Seite nach dem Neuladen.
+  - AT-51.2: Der Precache enthält alle Dateien der App: Seite, Skripte, Styles, Schrift, Manifest, alle Avatare, Flaggen, Icons und alle 50 französischen MP3s; die Abhörseite (`tools/`) nicht.
+  - AT-51.3: Offline (wie im Flugmodus): Neuladen zeigt die Startseite; eine französische Runde spielt die MP3 (kein Fallback), lässt sich bewerten und endet im Abschluss; kein Request schlägt fehl.
+  - AT-51.4: Stilles Update: kein Hinweis oder Dialog; der neue Service Worker übernimmt nicht sofort (kein `skipWaiting`/`clientsClaim`), sondern beim nächsten Start.
+  - AT-51.5: Alle vorab gespeicherten Dateien zusammen sind kleiner als 5 MB (Leitprinzip 5).
+- [x] **B-52 Hochformat-Overlay**: Avatar + Dreh-Symbol, Timer pausiert.
+  - AT-52.1: Im Hochformat deckt ein Overlay die ganze App ab: gewählter Begleiter in der Pose „ruhig“, ein Dreh-Symbol (SVG, kein Emoji) und der Text „iPad drehen“.
+  - AT-52.2: Ist noch kein Begleiter gewählt (Erststart), zeigt das Overlay Mimi; nach Wahl von Mots zeigt es Mots.
+  - AT-52.3: Die Ansicht darunter ist gesperrt und bleibt erhalten: Nach dem Zurückdrehen geht es mit derselben Ansicht und demselben Wort weiter.
+  - AT-52.4: Der Timer pausiert im Hochformat (abgedeckt durch AT-40.5 und AT-41.5).
+  - ~~AT-52.5: In allen drei Hochformat-Größen (768 × 1024, 820 × 1180, 1024 × 1366) ist alles sichtbar, nichts scrollt.~~ – Test entfernt (2026-10-30): abgedeckt durch AT-60.1 (Hochformat).
+  - AT-52.6: Begleiter und Dreh-Symbol sind statisch (keine Animation).
+- [x] **B-53 Deployment GitHub Pages**: GitHub Action (Build + `actions/deploy-pages`) bei Push auf `main`; Vite `base` = Repo-Pfad; README mit Einrichtung (Pages-Quelle „GitHub Actions“) und Anleitung „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
+  - AK: App unter `https://<user>.github.io/<repo>/` erreichbar, installierbar, offline nutzbar.
+  - AT-53.1: Der Workflow `.github/workflows/deploy.yml` läuft bei jedem Push auf `main` (und von Hand), prüft Lint und Unit-Tests, baut die App und veröffentlicht `dist/` mit `actions/deploy-pages`; nur ein Deployment gleichzeitig (Unit-Test prüft die Datei).
+  - AT-53.2: Nach dem Merge ist die App unter https://alexanderdelp.github.io/mimi_mots/ erreichbar (Status 200, Titel „Mimi & Mots“).
+  - AT-53.3: Dort werden Manifest, Service Worker, Icons und die französischen MP3s ausgeliefert – die App ist installierbar und offline nutzbar.
+  - AT-53.4: Die README beschreibt die Einrichtung (Pages-Quelle „GitHub Actions“) und „Zum Home-Bildschirm hinzufügen“ auf dem iPad.
+  - Hinweis: AT-53.2/53.3 lassen sich erst nach dem Merge auf `main` prüfen (der Workflow läuft nur dort); sie werden dann per Abruf der echten Adresse geprüft. Die E2E-Tests laufen weiter lokal (Screenshot-Referenzen sind Windows-spezifisch), nicht in der Action.
+
+## M6 – Feinschliff
+- [x] **B-60 Layout-Prüfung**: Screenshot-Tests aller Views auf 3 Viewports; keine Überläufe; Kontrast geprüft.
+  - Hinweis: Start, Abschluss, Schlafseite und Elternbereich haben schon Screenshot-Tests (B-11, B-43, B-65, B-69). Neu ist eine gemeinsame Prüfung aller Ansichten; der Zufall der Wortwahl wird im Test festgelegt, damit Screenshots reproduzierbar sind.
+  - AT-60.1: Für jede Ansicht – Start (Erststart, mit schlafendem Begleiter), Lernrunde (verdeckt, aufgedeckt je Sprache), Abschluss, Schlafseite, Elternbereich, Hochformat-Hinweis – passt alles in den Bildschirm: kein Scrollen, kein sichtbares Element ragt über den Rand (1024 × 768, 1180 × 820, 1366 × 1024; Hochformat 768 × 1024 und 820 × 1180).
+  - AT-60.2: Kontrast: Jeder sichtbare Text jeder Ansicht hat zu seinem Hintergrund mindestens 4,5 : 1, große Schrift (≥ 24 px oder fett ≥ 18,7 px) mindestens 3 : 1. Ausgegraute (nicht wählbare) Elemente sind ausgenommen (WCAG).
+  - AT-60.3: Screenshot-Tests auch für Lernrunde (verdeckt und aufgedeckt) und Hochformat-Hinweis.
+- [x] **B-61 Leitprinzipien-Review**: Checkliste – keine Bewertung/Belohnung, keine Avatar-Animation, ≥ 88 px Touch-Ziele, wenig Text.
+  - AT-61.1 (Leitprinzip 1): In keiner Ansicht für das Kind kommen Rot- oder Grüntöne als Text-, Hintergrund- oder Rahmenfarbe vor (Bilder wie Flaggen und Emoji ausgenommen); keine Zahlen, Punkte, Sterne oder Lob-Wörter außerhalb der Lernwörter.
+  - AT-61.2 (Leitprinzip 3): Jede Schaltfläche in jeder Ansicht ist mindestens 88 × 88 px groß.
+  - AT-61.3 (Leitprinzip 4): Avatare haben keine Animation und keinen Übergang; alle Übergänge und Animationen dauern ≤ 200 ms (Ausnahme: Fortschrittsring von [×], dokumentiert); mit „Bewegung reduzieren“ dauert nichts länger als 0 ms.
+  - AT-61.4 (Leitprinzip 6): Ein kompletter Ablauf (Start → Runde → Abschluss → Schlafseite → Elternbereich) stellt keine Anfrage an einen fremden Server.
+  - AT-61.5 (Leitprinzip 5): Der Produktionsbuild ist kleiner als 5 MB und der Service Worker speichert alle Bilder und Audiodateien vor.
+  - AT-61.6 (Leitprinzip 3, Texte): Checkliste der sichtbaren Texte (Deutsch, kurz, du-Form) in `anforderungen.md` §11; in den Kind-Ansichten höchstens 12 Wörter Text außer den Lernwörtern (seit B-75: 14, die Startseite hat mit „Nur bekannte Wörter“ 14).
+
+(B-62 iPad-Praxistest ist noch offen und steht in `backlog.md`.)
+
+## Nach Abschluss
+- [x] **B-64 Englische Aussprache mit Piper**: Englisch aus vorproduzierten MP3s statt Gerätestimme (klang unter Linux schlecht, auf dem iPad je nach installierter Stimme). Stimme nach Klangvergleich (Kokoro `bf_*`/`bm_*`/`am_*`, 23 Piper-Stimmen): Piper `en_US-ljspeech-high` (LJ Speech, public domain). Amy u. ä. fielen aus, weil sie auf der nur für Forschung lizenzierten Lessac-Stimme aufbauen. Französisch bleibt Kokoro `ff_siwis`.
+  - AT-64.1: `generate_audio.py` erzeugt Englisch mit Piper (`en_US-ljspeech-high`) und Französisch weiter mit Kokoro (`ff_siwis`); beide Sprachen sind Standard. Gleiche Nachbearbeitung (MP3 mono 64 kbit/s, −16 LUFS, 150 ms Vorlauf).
+  - AT-64.2: Fehlt die Piper-Stimme, bricht das Skript mit Hinweis auf README ab; mit `--download-models` wird sie geladen.
+  - AT-64.3: Für jedes Wort gibt es `public/audio/en/<id>.mp3`, keine überzähligen Dateien; alle Audiodateien zusammen < 2 MB, jede < 16 KB (Unit-Test, ersetzt „keine englischen MP3s“ aus AT-30b.1).
+  - AT-64.4: Englisch: Tipp auf den Lautsprecher spielt `audio/en/<id>.mp3`, Web Speech wird nicht benutzt (ersetzt AT-31.1b und den Englisch-Fall von AT-22.2).
+  - AT-64.5: Beim Start einer englischen Runde werden die englischen Audiodateien vorgeladen (ersetzt den Englisch-Teil von AT-31.3).
+  - AT-64.6: `audio-check.md` und die Abhörseite haben je eine Spalte für Englisch; README nennt Piper und die Lizenz der Stimme.
+  - Menschliche Abnahme: Stimme im Klangvergleich gewählt; die Hörprüfung aller 50 englischen Wörter (`audio-check.md`) folgt später.
+- [x] **B-65 Schlafende Begleiter**: Nach einer Runde schläft der Begleiter ein und die gespielte Dauer ist verbraucht (auch nach Abbruch mit [×]). Auf der Abschlussseite winkt er noch. Schlafende Begleiter und verbrauchte Dauern sind auf der Startseite ausgegraut, der Begleiter mit Schlafbild. Schlafen beide, kommt statt der Startseite eine Schlafseite. Aufwecken nur über verstecktes Gedrückthalten des Icons in der Kopfleiste der Schlafseite (gleiche Dauer wie [×]). An einem späteren Tag wachen alle von selbst auf. `both_sleeping.png` ist die gelieferte Grafik (Schachbrett-Hintergrund entfernt, verkleinert); `cat_sleeping.png` und `pony_sleeping.png` sind Platzhalter. Überschrift der Begleiter-Gruppe jetzt „Wer soll dich begleiten?“ (AT-11.1 angepasst).
+  - AT-65.1: Nach einer Runde (Zeitablauf) winkt der Begleiter auf der Abschlussseite. Zurück auf der Startseite ist er ausgegraut, nicht wählbar und zeigt das Schlafbild; die gespielte Dauer ist ausgegraut und nicht wählbar.
+  - AT-65.2: Nach Abbruch mit [×] gilt dasselbe.
+  - AT-65.3: Ist nur noch ein Begleiter bzw. eine Dauer frei, sind sie vorausgewählt; mit gewählter Sprache ist Play sofort aktiv.
+  - AT-65.4: Verbraucht wird beim Erreichen der Abschlussseite: Neuladen auf der Abschlussseite und danach jeder App-Start zeigt den Begleiter schlafend (localStorage).
+  - AT-65.5: Nach der Abschlussseite des zweiten Begleiters führt der Haus-Button zur Schlafseite: gleiche Kopfleiste wie überall, Bild beider Begleiter schlafend, Satz „Gute Nacht und bis morgen!“, keine Schaltfläche.
+  - AT-65.6: Schlafen beide, startet die App mit der Schlafseite.
+  - AT-65.7 (seit B-69 geändert: Aufwecken im Elternbereich, siehe AT-69.1/69.3; ursprünglich:) Das Icon in der Kopfleiste der Schlafseite 600 ms gedrückt halten → Startseite, beide Begleiter wach, beide Dauern frei, Auswahl wie zuletzt. Kürzer halten oder tippen bewirkt nichts. Kein Hinweis: Das Icon ist keine Schaltfläche (keine Rolle, kein Name) und verändert sich beim Drücken nicht.
+  - AT-65.9: Wird die App an einem späteren Tag geöffnet (oder nach Mitternacht aus dem Hintergrund zurückgeholt), sind alle Begleiter wach und alle Dauern frei. Maßgeblich ist das lokale Datum des Einschlafens.
+  - AT-65.8: Schlafseite und Startseite mit schlafendem Begleiter passen ohne Scrollen auf 1024 × 768, 1180 × 820 und 1366 × 1024 (Screenshot).
+- [x] **B-66 Silbenfarben**: Das deutsche Wort auf der Wortkarte wird silbenweise abwechselnd gefärbt (Silbenmethode für Leseanfänger): 1., 3., … Silbe in der Schriftfarbe `--lila-900`, 2., 4., … in der neuen Farbe `--beere-600` (#B03A75, Kontrast auf Weiß 5,7 : 1). Die Silben (Sprechsilben, wie in der Grundschule) stehen von Hand gepflegt in `words.json` (`syllables`).
+  - AT-66.1: Jedes Wort hat `syllables`; zusammengesetzt ergeben sie genau das deutsche Wort, keine Silbe ist leer (Unit-Test).
+  - AT-66.2: Auf der Wortkarte stehen die Silben in Reihenfolge; ungerade Silben in `--lila-900`, gerade in `--beere-600` (z. B. „Ba|na|ne“: lila, beere, lila).
+  - AT-66.3: Einsilbige Wörter (z. B. „Hund“) sind einfarbig in `--lila-900`.
+  - AT-66.4: `--beere-600` hat auf Weiß einen Kontrast ≥ 4,5 : 1 und unterscheidet sich deutlich von `--lila-900` (Unit-Test).
+  - AT-66.5: Das Wort bleibt ein Wort: keine Abstände oder Trennzeichen, Text der Karte = deutsches Wort; lange Wörter („Schmetterling“, „Regenschirm“) passen weiterhin auf allen drei Viewports.
+- [x] **B-67 Japanisch**: Dritte Lernsprache. Wörter in üblicher Schreibweise (Kanji, Hiragana oder Katakana) in `words.json` (`ja`), dazu die Kana-Lesung (`jaKana`) als Vorlage für die Aussprache – so liest die Stimme z. B. 月 als „つき“ und nicht „げつ“. Keine Lesehilfe in der App. Aussprache mit VOICEVOX, Stimme 冥鳴ひまり (kostenlos, auch kommerziell, mit Namensnennung „VOICEVOX:冥鳴ひまり“). Japanisch-Kachel auf der Startseite ist wählbar.
+  - AT-67.1: Jedes Wort hat `ja` und `jaKana`; `jaKana` besteht nur aus Hiragana, Katakana und ー (Unit-Test). Die Tabelle in `anforderungen.md` §10 stimmt mit `words.json` überein.
+  - AT-67.2: `generate_audio.py` erzeugt `public/audio/ja/<id>.mp3` mit VOICEVOX aus `jaKana` (gleiche Nachbearbeitung); Englisch, Französisch und Japanisch sind Standard. Fehlt VOICEVOX, bricht das Skript mit Hinweis auf die README ab (kein automatischer Download, weil man den Nutzungsbedingungen zustimmen muss).
+  - AT-67.3: Für jedes Wort gibt es `public/audio/ja/<id>.mp3`, jede < 16 KB (Unit-Test); alle Audiodateien zusammen < 2 MB.
+  - AT-67.4: Startseite: „Japanisch“ ist wählbar und wird gemerkt; das 2 × 2-Raster bleibt (EN | FR / JA | frei).
+  - AT-67.5: Lernrunde auf Japanisch: Flagge JP, „Auf Japanisch anhören“ spielt `audio/ja/<id>.mp3` und deckt `ja` mit `lang="ja"` auf; lange Wörter (z. B. ちょうちょ, じてんしゃ) passen. Japanische Dateien werden vorgeladen, andere nicht. Fallback ohne Datei: Web Speech `ja-JP`.
+  - AT-67.6: Abhörseite und `audio-check.md` haben eine Spalte für Japanisch; README nennt Einrichtung, Lizenzen und die Namensnennung „VOICEVOX:冥鳴ひまり“.
+  - Menschliche Abnahme: Stimme 冥鳴ひまり bestätigt; Hörprüfung der 50 Wörter folgt später.
+- [x] **B-68 Zahlen 0–10**: Elf neue Wörter (null bis zehn) in allen Sprachen, Bild als Tasten-Emoji (0️⃣ … 🔟). Deutsch klein wie die Farben, Französisch ohne Artikel, Japanisch als Kanji bzw. ゼロ (Lesung よん für 4, なな für 7). Audio für alle drei Sprachen.
+  - AT-68.1: Die Wortliste hat 61 Wörter; die Zahlen 0–10 stehen mit id, Emoji, Deutsch (mit Silben), Englisch, Französisch, Japanisch und Kana-Lesung in `words.json` und in `anforderungen.md` §10 (Unit-Test).
+  - AT-68.2: Zahlen haben im Französischen keinen Artikel, im Englischen keinen; alle Emojis bleiben eindeutig und sind ein einzelnes, farbiges Bildzeichen (AT-04.1).
+  - AT-68.3: Für jede Zahl gibt es `audio/<en|fr|ja>/<id>.mp3`, jede < 16 KB; alle Audiodateien zusammen < 2 MB (Unit-Test).
+  - AT-68.4: Zahlen kommen in der Lernrunde vor wie andere Wörter (Scheduler unverändert); `audio-check.md` und Abhörseite enthalten sie.
+- [x] **B-69 Elternbereich**: Verstecktes Gedrückthalten (600 ms) des App-Icons in der Kopfleiste der Start- und der Schlafseite öffnet den Elternbereich (ersetzt das Aufwecken direkt auf der Schlafseite aus B-65). Dort: alle Begleiter aufwecken und alle Timer freigeben; je Sprache die Wörter nach Stufe (neu, Stufe 0 = noch üben … Stufe 4 = sicher); Lernstand einer Sprache nach Sicherheitsabfrage zurücksetzen. Keine Avatare, sonst Design wie überall.
+  - AT-69.1: Icon 600 ms halten auf der Startseite und auf der Schlafseite → Elternbereich. Kürzer halten oder tippen bewirkt nichts; das Icon ist keine Schaltfläche und verändert sich beim Drücken nicht. Auf der Schlafseite weckt das Halten nicht mehr direkt auf.
+  - AT-69.2: Kopfleiste wie überall; runder Haus-Button führt zurück – zur Schlafseite, wenn beide schlafen (oder alle Dauern verbraucht sind), sonst zur Startseite. Keine Avatare.
+  - AT-69.3: „Alle aufwecken“ weckt beide Begleiter und gibt beide Dauern frei; danach führt der Haus-Button zur Startseite. Ist niemand eingeschlafen, ist der Button ausgegraut.
+  - AT-69.4: Je Sprache (Flaggen-Kacheln, vorausgewählt die zuletzt gewählte Sprache) stehen alle Wörter als Emoji in Zeilen „Neu“, „Stufe 0“ … „Stufe 4“ mit Anzahl; jedes Emoji nennt deutsches Wort und Fremdwort (Screenreader/Titel). Die Verteilung entspricht dem gespeicherten Lernstand.
+  - AT-69.5: „Lernstand zurücksetzen“ fragt erst nach („Wirklich zurücksetzen?“ mit „Ja, zurücksetzen“ und „Abbrechen“). Abbrechen ändert nichts; Ja leert den Lernstand nur dieser Sprache (alle Wörter wieder „Neu“), andere Sprachen bleiben, gespeichert in localStorage.
+  - AT-69.6: Der Elternbereich passt ohne Scrollen auf 1024 × 768, 1180 × 820 und 1366 × 1024 – auch wenn alle 61 Wörter in einer Zeile stehen (Screenshot).
+- [x] **B-70 Längere Pause, mehr neue Wörter**: Ein Wort kommt frühestens nach 6 anderen wieder (statt 3) – bei wenigen bekannten Wörtern kürzer (mindestens 3), damit immer mindestens 3 bekannte zur Auswahl bleiben und die Stufen-Gewichtung wirkt. Pro Runde höchstens 8 neue Wörter (statt 6); die Startphase füllt weiterhin nur bis 6 bekannte Wörter auf. Vom Menschen ungesehen abgenommen (2026-10-30).
+  - AT-70.1: Pause = min(6, max(3, bekannte Wörter − 3)): 0–6 bekannte → 3, 8 → 5, ab 9 → 6 (Unit-Test).
+  - AT-70.2: Mit allen Wörtern bekannt kommt kein Wort innerhalb von 6 anderen wieder; AT-20.1 (mindestens 3) gilt weiter für jeden Stand.
+  - AT-70.3: Höchstens 8 neue Wörter pro Runde (ersetzt die 6 in AT-20.2); die erste Runde beginnt mit 6 verschiedenen neuen Wörtern am Stück und führt danach im Takt jedes 3. Wortes bis zu 8 ein (ersetzt AT-20.3).
+  - AT-70.4: Ab 6 bekannten Wörtern ist jedes 3. Wort neu, bis 8 eingeführt sind (ersetzt die 6 in AT-20.8); alle Wörter sind spätestens nach ⌈Wortanzahl ÷ 8⌉ Runden à 40 Wörtern eingeführt (AT-20.7).
+- [x] **B-71 Abhörseite zeigt Prüfstand**: Die Abhörseite (`tools/hoerpruefung.html`, nur Dev-Server) liest `audio-check.md` beim Laden. Abgehakte Dateien haben einen lila ausgefüllten Play-Button, noch nicht abgehakte einen lila gestrichelten, nicht ausgefüllten. Notizen aus der Spalte „neu“ stehen in der Zeile.
+  - AT-71.1: Der Prüfstand wird je Wort und Sprache aus `audio-check.md` gelesen (`[x]` = geprüft, sonst offen); fehlt ein Wort in der Datei, gilt es als offen (Unit-Test).
+  - AT-71.2: Geprüft: lila ausgefüllt; offen: gestrichelter lila Rahmen, kein Hintergrund. Eine Legende erklärt beides.
+  - AT-71.3: Nach einer Änderung an `audio-check.md` zeigt die Seite den neuen Stand (Dev-Server lädt neu).
+- [x] **B-72 Hochformat: Begleiter schlägt Rad**: Der Hochformat-Hinweis zeigt den gewählten Begleiter (ohne Wahl Mimi) beim Radschlagen statt sitzend, dazu weiterhin das Dreh-Symbol. Der Text „iPad drehen“ entfällt (bleibt nur als Name für Screenreader). Bilder `cat_cartwheel.png` und `pony_cartwheel.png` sind Platzhalter.
+  - AT-72.1: Im Hochformat zeigt der Hinweis das Radschlag-Bild des gewählten Begleiters (ohne Wahl Mimi, nach Wahl von Mots das Pony) und das Dreh-Symbol; es ist kein Text sichtbar. Der Hinweis heißt für Screenreader „iPad drehen“ (ersetzt AT-52.1/52.2).
+  - AT-72.2: Die Radschlag-Bilder sind 384 × 440 px groß, werden ausgeliefert und vom Service Worker gespeichert; der Hinweis passt weiter auf 768 × 1024, 820 × 1180 und 1024 × 1366 (AT-60.1).
+- [x] **B-73 Sprachen ein-/ausschalten**: Im Elternbereich lässt sich jede Sprache aktivieren oder deaktivieren. Alle Textbuttons im Elternbereich sind weiß mit Rahmen; „Tiere aufwecken“ (vorher „Alle aufwecken“) steht rechts oben; „Lernstand zurücksetzen“ ist ausgegraut, wenn die gewählte Sprache keinen Lernstand hat. Deaktivierte Sprachen sind auf der Startseite ausgegraut und nicht wählbar. Standard: Englisch und Französisch aktiv, Japanisch aus. Mindestens eine Sprache bleibt aktiv.
+  - AT-73.1: Erststart (und alte Daten ohne Einstellung): Englisch und Französisch wählbar, Japanisch ausgegraut und nicht wählbar.
+  - AT-73.2: Im Elternbereich schaltet „Sprache ausschalten“/„Sprache einschalten“ die dort gewählte Sprache (gleiche Beschriftung für alle Sprachen; der Button ist in beiden Zuständen gleich breit); Ausschalten graut die Sprache auf der Startseite aus, Einschalten macht sie wieder wählbar. Gespeichert in localStorage.
+  - AT-73.3: Die letzte aktive Sprache lässt sich nicht ausschalten (Schalter ausgegraut).
+  - AT-73.4: Wird die gewählte Sprache ausgeschaltet, ist auf der Startseite keine Sprache gewählt – außer es ist nur noch eine aktiv, dann ist diese vorausgewählt. Play mit deaktivierter Sprache ist nicht möglich.
+- [x] **B-74 Tutorial**: In der allerersten Lernrunde erklärt Mimi vor dem ersten echten Wort an einem Probewort (Apfel) in der gewählten Sprache die drei Buttons: Sprechblase mit kurzem Satz, der Button ist hervorgehoben, das Kind tippt ihn selbst an. Reihenfolge: Lautsprecher → Daumen hoch → Wiederholen. Die Uhr läuft dabei nicht, das Probewort zählt nicht zum Lernstand. Danach kommt das Tutorial nicht mehr; im Elternbereich lässt es sich zurücksetzen (dann kommt es bei der nächsten Runde wieder).
+  - AT-74.1: Erste Runde: Vor dem ersten Wort erscheint das Tutorial mit Mimi (auch wenn Mots gewählt ist), Probewort Apfel; [×] und Uhr sind da, die Uhr steht.
+  - AT-74.2: Zuerst zwei Sprechblasen ohne Ziel („Schön, dass du da bist!“ – dabei winkt Mimi –, „Ich erkläre dir, was du hier machst.“) – ein Tipp irgendwohin geht weiter, Buttons wirken dabei nicht. Dann wird der Lautsprecher wie mit dem Stift oval eingekreist (Beere `--beere-600`, Strich etwa so kräftig wie die Schrift des deutschen Worts): „Tippe hier – so klingt das Wort.“; Tipp spielt das Wort und deckt es auf. Dann „Wusste ich“ („Wusstest du es? Dann tippe hier.“), dann „Noch üben“ („Noch nicht? Dann tippe hier.“). Nur der eingekreiste Button reagiert. Zum Schluss „Und jetzt viel Erfolg – los geht’s!“, ein Tipp irgendwohin beendet das Tutorial.
+  - AT-74.3: Nach der Abschluss-Blase beginnt die normale Runde mit dem ersten echten Wort; erst jetzt läuft die Uhr. Der Lernstand enthält das Probewort nicht.
+  - AT-74.4: Bei weiteren Runden (auch nach Neuladen) kommt kein Tutorial. „Tutorial zurücksetzen“ im Elternbereich lässt es in der nächsten Runde wieder erscheinen.
+  - AT-74.5: Tutorial passt auf alle Viewports, Kontrast und Leitprinzipien wie überall (B-60/B-61), Sprechblase ≤ 8 Wörter (seit B-87 ≤ 12).
+- [x] **B-75 Nur bekannte Wörter** (seit B-82 ersetzt durch die Bremse im Elternbereich): Auf der Startseite unten eine Kachel „Nur bekannte Wörter“. Ist sie gewählt, kommen in der nächsten Runde keine neuen Wörter dazu, nur schon gesehene (Stufe 0–4). Bei jedem Betreten der Startseite ist sie abgewählt. Hat das Kind in der gewählten Sprache weniger als 6 gesehene Wörter (oder ist keine Sprache gewählt), ist sie ausgegraut.
+  - AT-75.1: Kachel „Nur bekannte Wörter“ unten neben Play, ≥ 88 px, Optik wie Auswahlkacheln; antippen wählt sie an und wieder ab.
+  - AT-75.2: Ausgegraut, solange in der gewählten Sprache weniger als 6 Wörter gesehen sind; wechselt mit der Sprachwahl.
+  - AT-75.3: Gewählt + Play: In der Runde kommt kein neues Wort (Scheduler ohne neue Wörter); ohne Auswahl wie bisher.
+  - AT-75.4: Zurück auf der Startseite (nach der Runde, nach Neuladen, aus dem Elternbereich) ist sie wieder abgewählt; nicht in localStorage.
+- [x] **B-76 iPhone**: Zusätzlicher Test-Viewport iPhone 15/16 quer (852 × 393), alle Ansichten passen dort ohne Scrollen und Überlauf; im Hochformat (393 × 852) der Dreh-Hinweis.
+  - AT-76.1: Playwright-Projekt `iphone-852x393` (WebKit, Touch); alle bisherigen Akzeptanztests laufen auch dort (Ausnahmen begründet im Test).
+  - AT-76.2: Jede Ansicht (B-60) passt auf 852 × 393: kein Scrollen, kein Überlauf, Kontrast ok; Schaltflächen ≥ 44 px (Apple-Mindestmaß; die 88 px gelten fürs iPad).
+  - AT-76.3: Hochformat 393 × 852: Dreh-Hinweis passt.
+- [x] **B-77 Echte Grafiken für Schlafen und Radschlag**: Die gelieferten Bilder ersetzen die Platzhalter. Sie werden auf die doppelte Anzeigegröße verkleinert und zugeschnitten (Schlafbilder 640 px breit, Radschlag 880 px hoch), damit der Offline-Speicher unter 5 MB bleibt. Das quer liegende Schlafbild nutzt auf der Startseite die volle Kachelbreite und steht unten auf der Grundlinie der Sitzbilder.
+  - AT-77.1: Radschlag-Bilder sind 880–1320 px hoch, Schlafbilder 440–660 px breit (scharf auf Retina, nicht übergroß); AT-72.2 entsprechend angepasst.
+  - AT-77.2: Startseite mit schlafendem Begleiter: Schlafbild so breit wie die Kachel (abzüglich Rand), unten ausgerichtet; passt auf allen Viewports (Screenshot, AT-65.8).
+  - AT-77.3: Precache bleibt unter 5 MB (AT-51.5).
+
+- [x] **B-78 Stimmwahl je Wort**: Seite `tools/stimmwahl.html` (nur Dev-Server): je englisches Wort vier Stimmen (Piper ljspeech, kristin, cori; Kokoro af_heart) jeweils als „Wort“ und „Wort.“ anhören und eine Option auswählen. Die Auswahl wird sofort in die App übernommen. Kandidaten erzeugt `npm run audio -- --candidates --lang en` nach `tools/stimmwahl/` (nicht eingecheckt).
+  - AT-78.1: `generate_audio.py` kennt Stimmoptionen je Sprache und liest `audio-choices.json` (Stimme + Variante je Wort); ohne Eintrag gilt die Standardstimme. „dot“ hängt einen Punkt an den Text (Unit-Test).
+  - AT-78.2: `--candidates` erzeugt je Wort alle Optionen × Varianten unter `tools/stimmwahl/<lang>/<stimme>-<variante>/<id>.mp3` (Unit-Test).
+  - AT-78.3: Auswählen kopiert genau die gehörte Datei nach `public/audio/<lang>/<id>.mp3`, speichert die Wahl in `audio-choices.json` und hakt das Wort für die Sprache in `audio-check.md` ab; Unbekanntes wird abgelehnt, ohne etwas zu ändern (Unit-Test).
+  - AT-78.4: Die Seite zeigt je Wort „App“ (aktuelle Datei) und alle Optionen, markiert die gespeicherte Wahl und abgehakte Wörter, kann auf noch offene Wörter filtern und lädt beim Auswählen nicht neu. Nicht im Produktionsbuild.
+
+- [x] **B-79 Stimmwahl Französisch**: Stimmwahl-Seite für Französisch (`tools/stimmwahl.html?lang=fr`, Sprachwechsel oben). Optionen: Kokoro ff_siwis (bisher), Piper tom (AGPL-Modell – ob die Lizenz für erzeugte Aufnahmen gilt, ist unklar) und MeloTTS Französisch (MIT; eigene Umgebung `.venv-melo` mit Python 3.10, Aufruf als Unterprozess, fester Zufallswert). Piper mls (Sprecher 1840, 3698) war im Hörtest unverständlich und ist wieder entfernt. Piper siwis-medium/upmc entfallen (Lessac-Basis, nur Forschung), siwis-low/gilles/mls_1840-low (Ryan-Basis, nicht-kommerziell, niedrige Qualität).
+  - AT-79.1: `VOICE_OPTIONS['fr']` mit drei Optionen; `--candidates --lang fr` erzeugt 6 Kandidaten je Wort; MeloTTS erzeugt alle Aufnahmen in einem Unterprozess und reproduzierbar (Unit-Test).
+  - AT-79.2: Die Seite wechselt per `?lang=fr` zu Französisch (Titel, Stimmen, Fremdwort, Häkchen der Sprache).
+  - AT-79.3: Audiodateien bis 32 KB je Datei und 3 MB gesamt (vorher 16 KB / 2 MB), weil manche wählbaren Stimmen (z. B. Piper cori) langsamer sprechen; AT-30b.2 angepasst.
+
+- [x] **B-80 Italienisch**: Vierte Lernsprache, füllt den freien Platz im 2 × 2-Raster (EN | FR / JA | IT), standardmäßig ausgeschaltet (wie Japanisch, B-73). Wörter in `words.json` (`it`), Nomen mit bestimmtem Artikel (il, lo, la, l'), Farben und Zahlen ohne. Flagge `flag_it.svg`. Aussprache per Stimmwahl (`tools/stimmwahl.html?lang=it`) mit Kokoro `if_sara` (Standard), Kokoro `im_nicola` und Piper `it_IT-riccardo-x_low`; Piper paola entfällt (Lessac-Basis, nur Forschung), MeloTTS kann kein Italienisch.
+  - AT-80.1: Jedes Wort hat `it`; Nomen mit Artikel, Farben und Zahlen ohne (Unit-Test). Die Tabelle in `anforderungen.md` §10 hat eine Spalte IT und stimmt mit `words.json` überein.
+  - AT-80.2: Startseite: vier Sprachkacheln im 2 × 2-Raster, Italienisch rechts unten mit italienischer Flagge, beim Erststart ausgegraut; eingeschaltet ist Italienisch wählbar und wird gemerkt.
+  - AT-80.3: Lernrunde auf Italienisch: Flagge IT, „Auf Italienisch anhören“ spielt `audio/it/<id>.mp3` und deckt `it` mit `lang="it"` auf. Fallback ohne Datei: Web Speech `it-IT`.
+  - AT-80.4: `generate_audio.py` kennt `VOICES['it']` (Kokoro if_sara) und drei Stimmoptionen; `--candidates --lang it` erzeugt 6 Kandidaten je Wort (Unit-Test). Für jedes Wort gibt es `public/audio/it/<id>.mp3`; alle Audiodateien zusammen bleiben < 3 MB.
+  - AT-80.5: Stimmwahl-Seite wechselt per `?lang=it` zu Italienisch; Abhörseite und `audio-check.md` haben eine Spalte Italienisch, Auswählen hakt dort ab.
+- [x] **B-81 Nur eingeschaltete Sprachen**: Auf der Startseite erscheinen nur eingeschaltete Sprachen; ausgeschaltete fehlen ganz (statt ausgegraut). Raster mit höchstens zwei Spalten, immer zwei Kachelzeilen hoch.
+  - AT-81.1: Erststart: nur Englisch und Französisch nebeneinander, Japanisch und Italienisch fehlen.
+  - AT-81.2: Im Elternbereich eingeschaltet erscheint die Sprache auf der Startseite, ausgeschaltet verschwindet sie; ist nur eine übrig, ist sie vorausgewählt (AT-73.4 bleibt).
+  - AT-81.3: Drei Sprachen: EN | FR in der ersten Zeile, die dritte links darunter.
+- [x] **B-82 Bremse für neue Wörter** (ersetzt B-75): Kachel „Nur bekannte Wörter“ entfällt. Im Elternbereich (Reiter „Sonstiges“) ein Schalter „Neue Wörter bremsen“, Standard an: Stehen in der Sprache 6 oder mehr Wörter auf Stufe 0, kommen keine neuen dazu – bei jedem Wort neu geprüft.
+  - AT-82.1: Die Startseite hat keine Kachel „Nur bekannte Wörter“.
+  - AT-82.2: Schalter „Neue Wörter bremsen“, Standard an (auch bei alten Daten), umschaltbar, gleich breit in beiden Zuständen, gespeichert als `brakeNew` (seit B-86 als Auswahlkachel „Bremsen“).
+  - AT-82.3: Bremse an und ≥ 6 Wörter auf Stufe 0: nur bekannte Wörter, auch nicht im Takt neue; unter 6 oder Bremse aus: neue wie bisher (Unit- und E2E-Test).
+- [x] **B-83 Elternbereich mit Reitern**: Reiter „Sprachen“ und „Sonstiges“ rechts in der Kopfleiste (≥ 88 px). „Sprachen“: Lernstand, Lernstand zurücksetzen, Sprache ein-/ausschalten. „Sonstiges“: Tiere aufwecken, Tutorial zurücksetzen, Bremse – je mit kurzer Erklärung.
+  - AT-83.1: Beim Öffnen ist „Sprachen“ gewählt (`aria-selected`); „Sonstiges“ zeigt die drei Einstellungen und blendet den Lernstand aus. Passt auf alle Viewports (B-60/B-69).
+- [x] **B-84 Wortschatz nur mit gewählter Aufnahme**: In einer Sprache kommen nur Wörter vor, für die in der Stimmwahl eine Aufnahme gewählt wurde (`audio-choices.json`). „keins“ und noch nicht entschiedene Wörter fehlen – in der Lernrunde, beim Vorladen und im Lernstand des Elternbereichs. Eine Sprache ohne Wörter erscheint nicht auf der Startseite.
+  - AT-84.1: `vocabulary(lang)` = Wörter mit Eintrag ≠ null in `audio-choices.json`, in Reihenfolge der Wortliste (Unit-Test).
+  - AT-84.2: Lernrunde und Vorladen nur mit Wörtern des Wortschatzes.
+  - AT-84.3: Eingeschaltete Sprache ohne Wörter fehlt auf der Startseite; der Elternbereich zeigt „Noch keine Wörter vorhanden“ (seit B-86 ohne Hinweis auf die Stimmwahl).
+  - AT-84.4: Der Lernstand im Elternbereich zeigt nur Wörter des Wortschatzes.
+- [x] **B-85 Stimmwahl: „keins“, ohne Notizen, Japanisch**: je Wort eine Option „keins“; die Notizspalte entfällt in `audio-check.md`, Abhör- und Stimmwahl-Seite; Japanisch (VOICEVOX, „Wort“ und „Wort。“) in der Stimmwahl.
+  - AT-85.1: „keins“ speichert `null`, löscht `public/audio/<lang>/<id>.mp3` und nimmt den Haken weg; eine spätere Wahl geht wieder (Unit-Test). `npm run audio` erzeugt für „keins“ keine Datei.
+  - AT-85.2: Die Seite zeigt je Wort die Spalte „keins“ und markiert entschiedene Wörter (✓ gewählt, – keins); „nur noch nicht entschiedene“ blendet beide aus.
+  - AT-85.3: `audio-check.md` hat keine Notizspalte; abgehakt sind genau die Wörter mit gewählter Aufnahme (Unit-Test).
+  - AT-85.4: `--candidates --lang ja` erzeugt je Wort „Wort“ und „Wort。“ mit VOICEVOX (Unit-Test).
+- [x] **B-86 Elternbereich: Feinschliff und Sprachen ohne Wörter**: Zurück-Pfeil statt Haus. Bremse als Auswahlkachel „Bremsen“ wie bei den Begleitern (an = lila Rahmen und Hintergrund, aus = dunkler Rahmen, weiß). Ohne Wörter steht nur „Noch keine Wörter vorhanden“. Eine Sprache ohne Wörter lässt sich nicht einschalten; die letzte Sprache mit Wörtern nicht ausschalten – so hat die Startseite immer mindestens eine Sprache.
+  - AT-86.1: Gespeicherte Daten mit nur Sprachen ohne Wörter → beim Laden fallen sie weg, es gilt der Standard (Englisch, Französisch); keine Sprache vorgewählt, Play erst nach Wahl. Auch der Erststart schaltet nur Sprachen mit Wörtern ein.
+  - AT-86.2: Reiter „Sonstiges“: Kachel „Bremsen“ (`aria-pressed`), Optik wie die Auswahlkacheln, gleich breit in beiden Zuständen.
+  - AT-86.3: Für eine Sprache ohne Wörter ist „Sprache einschalten“ ausgegraut; der Lernstand zeigt „Noch keine Wörter vorhanden“.
+  - AT-86.4: „Sprache ausschalten“ ist ausgegraut, wenn keine andere eingeschaltete Sprache Wörter hat.
+  - AT-86.5: Oben links ein runder Zurück-Pfeil (Name „Zurück“) statt des Hauses.
+- [x] **B-87 Tutorial überarbeiten**: Der gewählte Begleiter erklärt in zehn Schritten; jeder Tipp irgendwohin geht weiter. Eine Blur-Ebene lenkt den Fokus. Das Gemeinte wird mit einem gezogenen Stiftkreis markiert (gut eine Umdrehung, durchgängig). Abbruch im Tutorial führt zur Auswahl, ohne Einschlafen; das Tutorial bleibt offen.
+  - AT-87.1: [×] gehalten im Tutorial → Startseite; kein Begleiter schläft, keine Dauer verbraucht, `tutorialDone` bleibt false; die nächste Runde zeigt das Tutorial wieder von vorn. Nach dem Tutorial endet [×] wie gewohnt mit Abschluss und Schlaf.
+  - AT-87.2: Schritte (Pose, Text, Kreis, unscharf): winkt „Hallo! Schön, dass du da bist!“ (–, alles) · freut sich (idle) „Lass uns mal sehen, was du hier machen kannst.“ (–, alles) · zeigt „Hier ist das Wort zum Übersetzen.“ (Wortkarte, Übersetzungskarte) · zeigt „Sprich das übersetzte Wort laut aus.“ (Flagge, nichts) · zeigt „Tippe hier, um es anzuhören.“ (Lautsprecher) · sitzt „Hast du es gewusst? Dann tippe hier.“ (Daumen) · sitzt „Wusstest du es noch nicht? Dann tippe hier.“ (Wiederholen) · sitzt „Das Wort kommt dann später wieder.“ (Wiederholen) · zeigt „Nach einiger Zeit werde ich müde und möchte mich hinlegen.“ (Uhr, alles) · winkt „Los geht’s!“ (–, alles). Danach ist nichts mehr unscharf. Es spricht der gewählte Begleiter.
+  - AT-87.3: Unscharf ist je Schritt genau das Angegebene („alles“ = Karten und Bewertung); Kopfleiste (mit Uhr), Begleiter und Sprechblase bleiben immer scharf.
+  - AT-87.4: Der Kreis (Beere) liegt in einer eigenen Ebene, umschließt das Ziel, bleibt ganz im Bild und wird vollständig gezogen (Animation `tutorial-draw` über die ganze Weglänge, bei „Bewegung reduzieren“ keine); die Schleife läuft mehr als einmal herum (Unit-Test).
+  - AT-87.5 (seit B-95 ersetzt durch AT-95.2/95.3: nur „Weiter“ geht weiter; ursprünglich:) Jeder Tipp geht weiter, auch auf Buttons; sie bewerten nicht und decken nicht auf. Ein Tipp auf den Lautsprecher in seinem Schritt spielt das Probewort; ab dem Schritt danach ist es aufgedeckt. Uhr steht, Probewort zählt nicht zum Lernstand (AT-74.3 bleibt).
+  - AT-87.6: Die Uhr ist im Tutorial unsichtbar (ihr Platz bleibt) und erscheint erst mit „Nach einiger Zeit …“; danach bleibt sie.
+- [x] **B-88 Wörter ein-/ausschalten**: Im Elternbereich (Reiter „Sprachen“) lässt sich jedes Wort der gewählten Sprache per Tipp auf sein Emoji aus- und wieder einschalten. Ausgeschaltete Wörter bleiben in ihrer Stufe stehen, wirken aber blass (`grayscale` + `opacity` wie ausgeschaltete Sprachen, B-73) – kein Springen. Je Sprache getrennt gespeichert (`disabledWords`, fehlt bei alten Daten → keine ausgeschaltet). Ausgeschaltete Wörter kommen in der Lernrunde und beim Vorladen nicht vor und zählen nicht für die Bremse (B-82); ihr Lernstand bleibt erhalten. Das letzte eingeschaltete Wort einer Sprache lässt sich nicht ausschalten (wie B-86). Emoji-Tippflächen auf dem iPad ≥ 44 px (Elternbereich, nicht für das Kind; 88 px passen bei 61 Wörtern nicht), auf dem iPhone so groß wie bisher.
+  - AT-88.1: Im Reiter „Sprachen“ ist jedes Emoji ein Button (Name „Deutsch · Fremdwort“, `aria-pressed` = eingeschaltet). Ein Tipp schaltet aus: blass (`grayscale`, `opacity`), an derselben Stelle in derselben Stufe; ein weiterer Tipp schaltet wieder ein. Gespeichert als `disabledWords.<Sprache>`; andere Sprachen und der Lernstand bleiben unverändert.
+  - AT-88.2: Ausgeschaltete Wörter kommen in der Lernrunde nicht vor (auch nicht als Probewort im Tutorial) und werden nicht vorgeladen.
+  - AT-88.3: Ist in der Sprache nur noch ein Wort an, lässt es sich nicht ausschalten (`disabled`, sieht aus wie eingeschaltet).
+  - AT-88.4: Die Bremse (B-82) zählt nur eingeschaltete Wörter auf Stufe 0 (Unit-Test).
+  - AT-88.5: Alte Daten ohne `disabledWords` → alle Wörter an; unbekannte Wörter fallen weg; sind alle Wörter einer Sprache aus, sind beim Laden alle wieder an.
+  - AT-88.6: Wort-Buttons auf dem iPad ≥ 44 × 44 px; der Elternbereich passt weiter auf alle Viewports, auch mit allen Wörtern in einer Zeile (AT-69.6). AT-61.2 nimmt die Wort-Buttons von der 88-px-Regel aus.
+- [x] **B-89 Hörrunde**: Zweiter Lernmodus neben dem bisherigen („Sprechen“). Die Dauer-Auswahl entfällt, jede Runde dauert 5 Minuten; an ihrer Stelle wählt das Kind den Modus (zwei flache Kacheln, nur Symbol: Kopf mit Schallwellen = Sprechen, Ohr = Hören; Überschrift „Bei was?“). Ablauf der Hörrunde: Links der Begleiter, in der Mitte die Karte mit Flagge, Fremdwort und Lautsprecher – das Wort steht sofort da und wird einmal abgespielt (erneut per Lautsprecher). Rechts die Karte für Bild und deutsches Wort, zunächst leer bis auf einen runden lila Button (Auge, „Zeig mir das deutsche Wort“). Nach dem Aufdecken wie gewohnt „Wusste ich“ und „Noch üben“. Eigenes Tutorial für die Hörrunde (wie B-87, kommt beim ersten Mal in diesem Modus).
+  - Lernstand: eigener Leitner-Stand je Modus (Hören ist leichter als Sprechen und soll den Sprechen-Stand nicht anheben); der bisherige Stand ist „Sprechen“. Bremse (B-82) je Modus, ausgeschaltete Wörter (B-88) für beide. Elternbereich: im Reiter „Sprachen“ die Wahl Sprechen | Hören (gleiche Symbole), Lernstand zurücksetzen wirkt auf den gezeigten Modus.
+  - Schlafen (B-65): Modi verbrauchen sich nicht, nur die Tiere – schlafen beide, geht an dem Tag nichts mehr (2 × 5 = 10 Minuten wie vorher 3 + 7).
+  - AT-89.1: Startseite: statt „Wie lange?“ die Gruppe „Bei was?“ mit „Sprechen“ und „Hören“ (nur Symbol, gleich groß, untereinander); Sprechen ist beim Erststart vorgewählt, die Wahl wird gespeichert. Keine Uhr-Kacheln mehr. Alte Daten mit `durationMin` laden ohne Fehler.
+  - AT-89.2 (seit B-93 ersetzt durch AT-93.3; ursprünglich:) Jede Runde dauert 5 Minuten (volle Scheibe = 5 Minuten), in beiden Modi.
+  - AT-89.3: Schlafen: Nach einer Runde schläft der Begleiter, egal in welchem Modus; beide Modi bleiben wählbar. Schlafen beide, kommt die Schlafseite. Elternbereich „Tiere aufwecken“ ohne Hinweis auf Dauern.
+  - AT-89.4: Hörrunde: In der Mitte die Karte mit Flagge, Fremdwort (sofort sichtbar) und Lautsprecher, rechts die Karte für Bild und deutsches Wort – leer bis auf den Auge-Button („Zeig mir das deutsche Wort“). Das Wort wird beim Erscheinen einmal abgespielt, der Lautsprecher spielt es erneut. Bewertung erst nach dem Aufdecken; nach dem Aufdecken sind Bild und deutsches Wort (Silbenfarben) zu sehen, der Auge-Button ist weg.
+  - AT-89.5: Lernstand je Modus: Bewertungen der Hörrunde landen in `listenProgress`, die der Sprechrunde wie bisher in `progress`; der Scheduler (und die Bremse) nutzt den Stand des Modus.
+  - AT-89.6: Eigenes Tutorial der Hörrunde (zehn Schritte, Sprechblase ≤ 12 Wörter), kommt beim ersten Mal in der Hörrunde, unabhängig vom Tutorial der Sprechrunde; Abbruch wie AT-87.1; im Elternbereich (Reiter „Sonstiges“) je Modus zurücksetzbar: „Tutorial Sprechen“ und „Tutorial Hören“ mit den Buttons „Sprechen zurücksetzen“ und „Hören zurücksetzen“, ausgegraut, solange das Tutorial noch offen ist.
+  - AT-89.7: Elternbereich: Wahl Sprechen | Hören (gleiche Symbole) vor den Flaggen; die Stufen zeigen den Stand des Modus; „Lernstand zurücksetzen“ fragt nach „Französisch, Hören: Wirklich zurücksetzen?“ bzw. „Sprechen“ und leert nur diesen Modus. Ausgeschaltete Wörter gelten in beiden Modi.
+  - AT-89.8: Alle Ansichten (Startseite, Hörrunde verdeckt/aufgedeckt, Tutorial, Elternbereich) passen auf alle Viewports, Leitprinzipien wie überall (B-60/B-61).
+- [x] **B-91 Tests aufräumen** (vor B-90): schnellere, stabilere und leichter änderbare Testsuite bei gleicher Abdeckung.
+  - Verhalten läuft nur noch auf dem Referenz-Viewport 1180 × 820; Tests zu Größe, Lage, Überlauf und Screenshots tragen `@layout` und laufen weiter auf allen vier Viewports (900 → 475 Läufe).
+  - Screenshots an einer Stelle (b60, je Ansicht ein Bild, neu auch die Hörrunde); Hochformat-Screenshots nur einmal (setzen ihre Größe selbst). Gestrichen, weil anderswo abgedeckt: AT-11.6 (Screenshot → b60 start-erststart), AT-65.8 Schlafseite und AT-69.6 (Passt/Screenshot → b60 schlafseite/elternbereich), AT-89.8 (Leiste passt → Überlauf-Prüfung b60 elternbereich); aus AT-65.8 bleibt AT-77.2 (Schlafbild), aus AT-43.5 die Überlappungsprüfung.
+  - Feste Wartezeiten durch die Testuhr ersetzt (Halten von [×] und App-Icon) bzw. durch „Bewegung reduzieren“ und Warten auf den Zustand; übrig sind nur zwei bewusste Negativ-Wartezeiten (kein Zoom nach Doppeltipp, kein Vorlesen ohne Tipp) und eine im Offline-Test.
+  - Gemeinsame Hilfen in `tests/e2e/views.ts`: `btn`, `hold` (Selektor oder Locator, über die Testuhr), `storeOnce`, `stored`, `KEY` – statt Kopien in bis zu 23 Dateien.
+  - Vitest: Standardumgebung Node, nur Tests mit DOM wählen jsdom per `@vitest-environment jsdom`.
+  - AT-91.1: Alle bisherigen Akzeptanztests sind grün oder nachweislich an anderer Stelle abgedeckt (Liste oben).
+  - AT-91.2: Auf 1024 × 768, 1366 × 1024 und dem iPhone laufen nur `@layout`-Tests; auf 1180 × 820 alle.
+  - AT-91.3: Keine kopierten `btn`/`hold`/Seed-Hilfen mehr in den Spec-Dateien.
+- [x] **B-92 Parallel mit Koordinator vorbereiten**: Ports je Worktree per `DEV_PORT`/`PREVIEW_PORT` (Standard 5181/4181), Playwright startet immer einen eigenen Server (`reuseExistingServer: false`); Arbeitsweise mit Koordinator in `CLAUDE.md` (nur unabhängige Aufgaben parallel, `backlog.md`/`anforderungen.md` und Referenzbilder beim Koordinator, Merge nacheinander); `views.css` in eine Datei je Ansicht aufgeteilt.
+  - AT-92.1: Mit `PREVIEW_PORT=4182` laufen die E2E-Tests auf Port 4182; ist der Port belegt, bricht der Lauf mit Fehlermeldung ab (kein fremder Server wird getestet).
+  - AT-92.2: Nach dem Aufteilen der Styles sind alle Layout-, Kontrast- und Screenshot-Tests unverändert grün (keine Referenzbilder neu erzeugt).
+- [x] **B-93 Rundendauer im Elternbereich** (vor B-90): Statt fester 5 Minuten (B-89) stellt man im Elternbereich (Reiter „Sonstiges“) die Dauer einer Runde von 3 bis 10 Minuten ein, Standard 5. Bedienung mit „−“ und „+“ und der Dauer dazwischen. Gilt für Sprechen und Hören.
+  - AT-93.1 (seit B-100 ersetzt durch AT-100.2/AT-100.3; ursprünglich:) Reiter „Sonstiges“, Zeile „Rundendauer“: runde Buttons „−“ (Name „Kürzer“) und „+“ („Länger“), dazwischen die Dauer („5 Min.“). Je Tipp eine Minute, von 3 bis 10; an den Grenzen ist der Button ausgegraut. Die Anzeige ist immer gleich breit (nichts springt). Gespeichert als `roundMin`.
+  - AT-93.2: Erststart, alte Daten ohne `roundMin` und ungültige Werte (keine ganze Zahl, < 3, > 10) → 5 Minuten (Unit-Test).
+  - AT-93.3: Die Runde dauert die eingestellte Dauer, die volle Scheibe entspricht ihr – in der Sprech- und der Hörrunde: Bei 3 Minuten ist die Zeit nach 3 Minuten abgelaufen, bei 10 Minuten nach 9 Minuten noch nicht (ersetzt AT-89.2).
+  - AT-93.4 (seit B-100 ersetzt durch AT-100.5; ursprünglich:) Der Elternbereich passt mit der neuen Zeile auf alle Viewports; „−“ und „+“ ≥ 88 px, auf dem iPhone ≥ 44 px.
+- [x] **B-94 Tiere einzeln wecken und schlafen legen** (nach B-93, auf dessen Branch): Statt „Tiere aufwecken“ lässt sich im Elternbereich (Reiter „Sonstiges“) jedes Tier einzeln zwischen wach und schläft umschalten – Auswahlkacheln „Mimi“ und „Mots“ wie „Bremsen“ (ohne Avatare, AT-69.2). Schlafen beide, kommt wie bisher die Schlafseite.
+  - AT-94.1: Zeile „Schlafen“: Kacheln „Mimi“ und „Mots“ (Optik wie „Bremsen“, `aria-pressed` = schläft, gleich breit in beiden Zuständen); der Button „Tiere aufwecken“ entfällt.
+  - AT-94.2: Tipp auf ein waches Tier legt es schlafen (`rest.sleeping`, `since` = heute), Tipp auf ein schlafendes weckt es; schläft keins mehr, ist `since` leer. Das andere Tier bleibt, wie es ist (Unit- und E2E-Test).
+  - AT-94.3: Zurück mit beiden schlafend → Schlafseite; mit einem schlafend → Startseite, das schlafende ausgegraut mit Schlafbild, das wache vorgewählt. Ein im Elternbereich schlafen gelegtes Tier wacht am nächsten Tag auf wie nach einer Runde (B-65).
+  - AT-94.4: Schlafen Tiere noch von einem früheren Tag, gilt beim Umschalten zuerst der neue Tag (alle wach), dann das Umschalten (Unit-Test).
+  - AT-94.5: Der Elternbereich passt auf alle Viewports; Kacheln ≥ 88 px hoch, auf dem iPhone ≥ 44 px.
+- [x] **B-95 „Weiter“-Button im Tutorial** (vor B-90): Bisher ging jeder Tipp im Tutorial weiter (AT-87.5); Kinder tippten dabei auf „Wusste ich“/„Noch üben“ und waren verwirrt. Neu schaltet nur ein eigener „Weiter“-Button die Schritte weiter: rund, lila, nur mit Pfeil (Name „Weiter“ für Screenreader), bei der Sprechblase. Alle anderen Buttons tun im Tutorial nichts; der Lautsprecher spielt wie bisher in seinem Schritt das Probewort. Gilt für beide Tutorials (Sprechen, Hören).
+  - AT-95.1: In jedem Tutorial-Schritt (beide Modi) steht bei der Sprechblase ein runder lila Button nur mit Pfeil-Symbol (Name „Weiter“), ≥ 88 px (iPhone ≥ 44 px), ganz im Bild, nie unscharf und ohne andere Elemente zu verdecken. Nach dem Tutorial ist er weg.
+  - AT-95.2: Nur „Weiter“ schaltet weiter: Tipps auf Karten, Hintergrund, Begleiter, Sprechblase, „Wusste ich“, „Noch üben“, Auge und Lautsprecher lassen den Schritt stehen, bewerten nicht und decken nicht auf (ersetzt AT-87.5). „Weiter“ im letzten Schritt beginnt die Runde mit dem ersten echten Wort.
+  - AT-95.3: Der Lautsprecher spielt im Lautsprecher-Schritt das Probewort (auch mehrmals), in allen anderen Schritten nichts; ab dem Schritt danach ist das Wort aufgedeckt (wie AT-87.5). Das Probewort zählt nicht zum Lernstand.
+  - AT-95.4: [×] gehalten bricht das Tutorial weiter ab wie AT-87.1.
+  - AT-95.5: Das Tutorial passt mit dem Button auf alle Viewports (beide Modi).
+  - Umsetzung: Button rechts unten in der Sprechblase (88 px, iPhone 44 px, Pfeil nach rechts wie „Zurück“ gespiegelt). AT-87.5 ersetzt durch AT-95.2/95.3 (Test aus b87 nach `b95-tutorial-weiter.spec.ts` umgebaut); b87/b89 klicken jetzt „Weiter“ statt irgendwohin. Sprechblasentexte unverändert.
+- [x] **B-96 Flaggen Japanisch/Italienisch im Elternbereich prüfen**: In einer (vielleicht veralteten) Browser-Ansicht fehlten im Elternbereich die Flaggen für Japanisch und Italienisch. Untersuchen (blasse Darstellung ausgeschalteter Sprachen B-73, alter Service-Worker-Cache, SVG, schmale Viewports); nur bei einem echten Fehler beheben.
+  - Befund (2026-11-01, WebKit, alle vier Viewports, Standard- und „alle an“-Daten): kein Fehler. Beide Flaggen werden geladen (`naturalWidth` 900), liegen ganz im Bild und stehen auch im Precache des Service Workers. Japanisch und Italienisch sind standardmäßig ausgeschaltet und daher blass (`grayscale(1)`, `opacity: .45`, B-73): Japan wird ein grauer Punkt auf weißer Kachel, Italien grau-weiß-grau – ohne Farbe und ohne Rand verschmilzt das Weiß mit der Kachel, das wirkt wie „fehlt“. Mit eingeschalteter Sprache sind beide farbig. Keine Code-Änderung; ob ausgeschaltete Flaggen anders aussehen sollen (z. B. nur blass ohne Graustufen oder mit dünnem Rand), entscheidet der Mensch.
+- [x] **B-97 Kind-Profil und Begrüßung** (vor B-90, läuft allein – ändert Speicherformat, State und Router): Vorbereitung für mehrere Kinder und den späteren Abgleich mit Supabase. Alle gespeicherten Daten (Auswahl, Lernstand beider Modi, Schlaf, Tutorials, Sprachen, Bremse, ausgeschaltete Wörter, Rundendauer) gehören zu **einem Kind**: neuer Schlüssel `mimi-mots:v2` mit `{ version: 2, activeChildId, children: [{ id, name, createdAt, updatedAt, …Daten }] }` (id als UUID, Zeitstempel ISO). Alte Daten (`mimi-mots:v1`) werden nicht übernommen – mit der neuen Version beginnt alles neu (Erststart mit Namensfrage); der alte Schlüssel wird weder gelesen noch gelöscht. Neuer erster Bildschirm „Begrüßung“, wenn mindestens ein Tier wach ist: ohne Namen die Frage „Wie heißt du?“ mit Eingabefeld (darf ein Elternteil tippen), mit Namen „Hallo Lina!“; dazu beide Tiere (wach winkend, schlafend mit Schlafbild) und ein runder lila Button mit Pfeil zur Auswahl. Schlafen beide, kommt wie bisher die Schlafseite. Nach einer Runde wie bisher Auswahl bzw. Schlafseite. Der Name steht klein links in der Kopfleiste. Elternbereich ohne Erweiterung. Kein Abgleich, keine Netzwerk-Anfragen (Leitprinzip 6 gilt weiter).
+  - AT-97.1: Erststart (nichts gespeichert): Begrüßung mit beiden Tieren (winkend), Frage „Wie heißt du?“, Eingabefeld und runder lila Button mit Haken (Name „Fertig“). Ist das Feld leer oder enthält nur Leerzeichen, ist der Button ausgegraut und auch Enter tut nichts. Höchstens 16 Zeichen. Nach „Fertig“ (oder Enter) steht „Hallo Lina!“ da und der Weiter-Button erscheint; der Name ist gespeichert (ohne Leerzeichen am Rand).
+  - AT-97.2: Mit gespeichertem Namen kommt beim Öffnen die Begrüßung „Hallo Lina!“ mit beiden Tieren: wache winken, schlafende zeigen ihr Schlafbild (nur Bildtausch). Der runde lila Button mit Pfeil (Name „Weiter“) führt zur Auswahl, mit der Vorauswahl wie bisher.
+  - AT-97.3: Schlafen beide Tiere, kommt beim Öffnen direkt die Schlafseite, auch ohne Namen. Weckt man sie im Elternbereich, folgt nach „Zurück“ die Namensfrage, solange kein Name da ist, sonst die Auswahl. Wird es auf der Schlafseite ein neuer Tag (App wieder sichtbar), kommt die Begrüßung.
+  - AT-97.4: Nach einer Runde (Abschluss → „Zurück“) kommt die Auswahl bzw. die Schlafseite, nie die Begrüßung – ebenso nach Abbruch im Tutorial und nach dem Elternbereich.
+  - AT-97.5: Der Name steht in der Kopfleiste von Auswahl, Runde (neben [×]), Abschluss und Schlafseite, nicht auf der Begrüßung und nicht im Elternbereich. Er ist kein Button, verdeckt nichts und berührt weder [×] noch Titel noch Uhr – auch mit 16 Zeichen, auf allen Viewports.
+  - AT-97.6: Speicherformat: Nach der Namenseingabe steht das Kind unter `mimi-mots:v2` (`version: 2`, `activeChildId` = id des Kinds als UUID, `createdAt`/`updatedAt` als ISO-Zeit, dazu Name und alle Daten des Kinds); jede Änderung landet im aktiven Kind. Alte Daten (`mimi-mots:v1`) werden nicht übernommen: Erststart mit Namensfrage und Standardwerten, `mimi-mots:v1` bleibt unverändert liegen.
+  - AT-97.7 (Unit): `sanitize` repariert kaputte v2-Daten (ungültige id → neue UUID, ungültige Zeitstempel → jetzt, unbekanntes `activeChildId` → erstes Kind, Name wird gekürzt, leer → kein Name, doppelte ids → nur das erste Kind); sind die Daten unbrauchbar (kaputt, andere Version, ohne Kind), gilt der Erststart – ohne Absturz. UUIDs auch ohne `crypto.randomUUID` (über `crypto.getRandomValues`, sonst `Math.random`). Jede Änderung setzt `updatedAt` des Kinds.
+  - AT-97.8: Der Elternbereich öffnet sich weiter durch Halten des App-Icons auf Auswahl und Schlafseite, neu auch auf der Begrüßung. Der Hochformat-Hinweis erscheint auch über der Begrüßung.
+  - AT-97.9: Die Begrüßung (Namensfrage und mit Namen) passt auf alle Viewports, ist kontrastreich genug, ohne Rot-/Grüntöne, Buttons ≥ 88 px (iPhone ≥ 44 px), wenig Text (B-60/B-61); Screenshots beider Varianten in b60.
+  - AT-97.10: Ein kompletter Ablauf mit Begrüßung fragt keinen fremden Server an (AT-61.4).
+- [x] **B-98 Version im Elternbereich** (parallel zu B-97, fasst nur Elternbereich und Build an): Im Reiter „Sonstiges“ eine Zeile „Version“ mit Versionsnummer aus `package.json`, kurzem Git-Commit und Build-Datum, z. B. „0.1.0 · 8f48636 · 01.11.2026“. Eingesetzt zur Build-Zeit per Vite `define`, auch im Build der GitHub Action; ohne Git steht „unbekannt“ statt des Commits.
+  - AT-98.1: Reiter „Sonstiges“: Zeile „Version“ mit „Version · Commit · Datum“ – Version aus `package.json`, Commit als 7 Zeichen (`git rev-parse --short=7 HEAD` beim Bauen), Datum des Builds als TT.MM.JJJJ. Im Reiter „Sprachen“ steht sie nicht.
+  - AT-98.2 (Unit): Formatierung (Datum zweistellig, deutsch); ohne Git oder bei einem Fehler „unbekannt“ – der Build bricht nicht ab.
+  - AT-98.3: Der Elternbereich passt mit der neuen Zeile auf alle Viewports (kein Überlauf, Kontrast ok); das Referenzbild des Elternbereichs (Reiter „Sprachen“) bleibt unverändert.
+  - AT-98.4: Der Build der GitHub Action liefert den Commit (Workflow geprüft, Unit-Test wie `deploy-workflow.test.ts`).
+- [x] **B-99 Kleine Anpassungen nach dem Test**: Elternbereich führt zurück, woher man kam (auch zur Begrüßung). In der Lernrunde hängt die Uhr rechts unten am Begleiter; der Name steht auf allen Seiten oben rechts in der Kopfleiste. Deutsches Wort und Fremdwort in gleicher Größe und Stärke (Silbenfarben bleiben). Neben der Version im Elternbereich ein schlichter Kopier-Button (zwei Rechtecke, kein lila Rundbutton).
+  - AT-99.1: Begrüßung → Elternbereich → Zurück führt zur Begrüßung; Auswahl → Elternbereich → Zurück zur Auswahl; schlafen beide, zur Schlafseite.
+  - AT-99.2: Lernrunde: Uhr nicht in der Kopfleiste, sondern direkt rechts neben dem Tier (höchstens 12 px neben seiner sichtbaren Kante, ohne es zu überdecken), auf Höhe der Bewertung, links von „Wusste ich“; alles im Bild auf allen Viewports. Tutorial kreist die Uhr dort ein.
+  - AT-99.3: Name oben rechts in der Kopfleiste auf Auswahl, Lernrunde, Abschluss und Schlafseite (gleiche Stelle); [×] links.
+  - AT-99.4: Deutsches Wort und Fremdwort (Sprechen aufgedeckt, Hören) haben gleiche Schriftgröße und -stärke; nur zu lange Fremdwörter werden kleiner.
+  - AT-99.5: Neben der Version ein schlichter Kopier-Button (weiß, Rahmen, Symbol aus zwei Rechtecken); Tipp kopiert die Version in die Zwischenablage und zeigt kurz einen Haken (gleiche Größe); der Text ist zusätzlich markierbar.
