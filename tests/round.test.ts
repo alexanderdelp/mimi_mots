@@ -4,7 +4,8 @@ import { WORDS, getWord } from '../src/data/words';
 import { seededRng } from '../src/scheduler';
 import { childDefaults } from '../src/storage';
 import { createStore } from './test-store';
-import { TUTORIAL_STEPS, penLoop, renderRound, showNextWord } from '../src/views/round';
+import { renderRound, showNextWord } from '../src/views/round';
+import { TUTORIAL_STEPS } from '../src/views/tutorial';
 
 // Vorladen der Audiodateien: in jsdom gibt es keinen Server – alle Dateien gelten als vorhanden.
 // (Der Player ist modulweit geteilt; ohne das würden frühe Tests Dateien als fehlend markieren.)
@@ -488,28 +489,6 @@ describe('Tutorial (B-74)', () => {
     expect(store.getState().data.progress.fr).toEqual({}); // Probewort zählt nicht
     expect(avatar()).toMatch(/pony_/);
     expect(el.querySelectorAll('.tutorial-target')).toHaveLength(0);
-  });
-
-  it('B-87: penLoop ist eine geschlossene Schleife mit mehr als einer Umdrehung', () => {
-    const d = penLoop(200, 100);
-    const pts = d
-      .slice(1)
-      .split(' L')
-      .map((p) => p.split(' ').map(Number));
-    for (const [x, y] of pts) {
-      expect(x).toBeGreaterThanOrEqual(0);
-      expect(x).toBeLessThanOrEqual(200);
-      expect(y).toBeGreaterThanOrEqual(0);
-      expect(y).toBeLessThanOrEqual(100);
-    }
-    // Winkel um die Mitte aufsummieren: mehr als 360°
-    let total = 0;
-    for (let i = 1; i < pts.length; i++) {
-      const a = Math.atan2(pts[i - 1][1] - 50, pts[i - 1][0] - 100);
-      const b = Math.atan2(pts[i][1] - 50, pts[i][0] - 100);
-      total += Math.atan2(Math.sin(b - a), Math.cos(b - a));
-    }
-    expect(Math.abs(total)).toBeGreaterThan(2 * Math.PI);
   });
 
   it('kein Tutorial, wenn es schon gesehen wurde', () => {
