@@ -23,6 +23,7 @@ Fachliche Anforderungen: `anforderungen.md`. Aufgaben und Reihenfolge: `backlog.
 - **Schrift:** `ui-rounded` (SF Pro Rounded auf iPad), Fallback `"Nunito"` selbst gehostet, dann `system-ui`.
 - **Persistenz:** `localStorage` (Einstellungen + Lernstand), ein Schlüssel, versioniert.
 - **Hosting:** GitHub Pages, Deploy per GitHub Action. Vite `base` = `/<repo-name>/`; Manifest `start_url`/`scope` und SW-Pfade relativ dazu.
+- **Datenbank (geplant, noch nicht angebunden):** Supabase-Projekt `mimi_mots` (Region `eu-west-1`, Irland), `https://itfoodhenchgedwjtdkw.supabase.co` – Einstellungen und Vorgehen in `backlog.md` unter „Später“ → „Lernstand in einer Datenbank sichern“. Bis dahin gilt Leitprinzip 6 unverändert.
 
 ## Befehle
 ```bash
