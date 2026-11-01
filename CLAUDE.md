@@ -127,7 +127,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
   3. Implementieren; dabei sinnvolle Unit-Tests (Vitest) ergänzen.
   4. **Fertig** ist eine Aufgabe, wenn sie funktional korrekt umgesetzt ist und **alle** bisher existierenden Akzeptanz- und Unit-Tests grün sind (plus Lint und die Definition of Done unten).
   5. Übergabe zur **lokalen Abnahme** durch den Menschen (Dev-Server/Preview, ggf. iPad). Ohne Abnahme kein Pull Request.
-  6. Nach grüner Abnahme: Häkchen in `backlog.md`, Version erhöhen (siehe „Versionierung“), Commit (`feat: B-12 Timer-Zifferblatt`), Push, Pull Request nach `main` erstellen und mergen; danach Git-Tag `vX.Y.Z` auf dem Merge-Commit setzen und pushen.
+  6. Nach grüner Abnahme: Häkchen in `backlog.md` und die Aufgabe samt Akzeptanztests gleich ans Ende von `docs/archiv/backlog-erledigt.md` verschieben (`backlog.md` enthält nur Offenes), Version erhöhen (siehe „Versionierung“), Commit (`feat: B-12 Timer-Zifferblatt`), Push, Pull Request nach `main` erstellen und mergen; danach Git-Tag `vX.Y.Z` auf dem Merge-Commit setzen und pushen.
   7. Nach erfolgreichem Merge den Feature-Branch lokal und auf GitHub löschen, `main` lokal aktualisieren.
 - Nie direkt auf `main` committen.
 - Vor größeren Entscheidungen, die von `anforderungen.md` abweichen: fragen.
