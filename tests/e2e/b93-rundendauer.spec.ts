@@ -1,15 +1,8 @@
-import { expect, minSize, test, type Page } from './fixtures';
-import { btn, hold, overflow, prepare, stored, storeOnce } from './views';
+import { expect, test, type Page } from './fixtures';
+import { btn, prepare, storeOnce } from './views';
 
 const MIN = 60_000;
 const round = (page: Page) => page.locator('[data-view="round"]');
-const minutes = (page: Page) => page.locator('.admin__minutes');
-
-async function openOther(page: Page) {
-  await page.goto('./');
-  await hold(page, '.app-header__icon');
-  await page.getByRole('tab', { name: 'Sonstiges' }).click();
-}
 
 /** Zeitsprung (ohne jeden 250-ms-Takt einzeln abzuarbeiten), danach ein Takt. */
 async function advance(page: Page, ms: number) {
@@ -29,37 +22,8 @@ async function seed(page: Page, mode: 'speak' | 'listen', roundMin?: number) {
 }
 
 test.describe('B-93 Rundendauer im Elternbereich', () => {
-  test('AT-93.1: „−“ und „+“ stellen 3 bis 10 Minuten ein, gemerkt als roundMin', async ({
-    page,
-  }) => {
-    await prepare(page, {});
-    await openOther(page);
-    await expect(page.getByText('Rundendauer', { exact: true })).toBeVisible();
-    await expect(minutes(page)).toHaveText('5 Min.');
-    const shorter = btn(page, 'Kürzer');
-    const longer = btn(page, 'Länger');
-    const width = (await minutes(page).boundingBox())!.width;
-
-    await shorter.click();
-    await shorter.click();
-    await expect(minutes(page)).toHaveText('3 Min.');
-    await expect(shorter).toBeDisabled();
-    await expect(longer).toBeEnabled();
-    expect((await stored(page)).roundMin).toBe(3);
-
-    for (let i = 0; i < 7; i++) await longer.click();
-    await expect(minutes(page)).toHaveText('10 Min.');
-    await expect(longer).toBeDisabled();
-    await expect(shorter).toBeEnabled();
-    // Anzeige gleich breit, egal ob ein- oder zweistellig
-    expect((await minutes(page).boundingBox())!.width).toBeCloseTo(width, 0);
-    expect((await stored(page)).roundMin).toBe(10);
-
-    await page.reload();
-    await hold(page, '.app-header__icon');
-    await page.getByRole('tab', { name: 'Sonstiges' }).click();
-    await expect(minutes(page)).toHaveText('10 Min.');
-  });
+  // AT-93.1 (Einstellen, gemerkt als roundMin) seit B-100 als Schieberegler: AT-100.2/AT-100.3
+  // in b100-sonstiges.spec.ts; der Reducer bleibt als Unit-Test AT-93.1 in state.test.ts.
 
   for (const [mode, name] of [
     ['speak', 'Sprechrunde'],
@@ -95,18 +59,5 @@ test.describe('B-93 Rundendauer im Elternbereich', () => {
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
   });
 
-  test(
-    'AT-93.4: Reiter „Sonstiges“ passt, „−“ und „+“ groß genug',
-    { tag: '@layout' },
-    async ({ page }) => {
-      await prepare(page, {});
-      await openOther(page);
-      for (const name of ['Kürzer', 'Länger']) {
-        const box = (await btn(page, name).boundingBox())!;
-        expect(box.width).toBeGreaterThanOrEqual(minSize(88));
-        expect(box.height).toBeGreaterThanOrEqual(minSize(88));
-      }
-      expect(await overflow(page)).toEqual([]);
-    },
-  );
+  // AT-93.4 (Elternbereich passt) seit B-100 ersetzt durch AT-100.5 in b100-sonstiges.spec.ts.
 });

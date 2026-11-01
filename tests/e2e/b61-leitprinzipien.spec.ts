@@ -2,7 +2,7 @@ import { expect, test, type Page, minSize } from './fixtures';
 import { VIEWS, adminView, btn, endView, prepare, settle, sleepView } from './views';
 
 /** Ansichten für das Kind (der Elternbereich ist für Erwachsene). */
-const CHILD_VIEWS = VIEWS.filter((v) => v.name !== 'elternbereich');
+const CHILD_VIEWS = VIEWS.filter((v) => !v.name.startsWith('elternbereich'));
 
 /** Farben (Text, Hintergrund, Rahmen, SVG) mit Rot- oder Grünton; Bilder und Emoji zählen nicht. */
 const redOrGreen = (page: Page) =>

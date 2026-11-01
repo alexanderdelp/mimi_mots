@@ -189,6 +189,13 @@ export async function adminView(page: Page) {
   await expect(page.locator('[data-view="admin"]')).toBeVisible();
 }
 
+/** B-100: Elternbereich, Reiter „Sonstiges“. */
+export async function adminOtherView(page: Page) {
+  await adminView(page);
+  await page.getByRole('tab', { name: 'Sonstiges' }).click();
+  await expect(page.locator('.admin__other')).toBeVisible();
+}
+
 /** Ansichten für die Prüfungen: Name, Vorbereitung, Weg dorthin. */
 export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<void> }[] = [
   { name: 'begruessung-name', seed: { name: null }, open: welcomeView },
@@ -212,6 +219,7 @@ export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<v
     open: sleepView,
   },
   { name: 'elternbereich', seed: {}, open: adminView },
+  { name: 'elternbereich-sonstiges', seed: {}, open: adminOtherView },
 ];
 
 /** Kein Scrollen, kein sichtbares Element über den Rand (Rundungen auf halbe Pixel). */

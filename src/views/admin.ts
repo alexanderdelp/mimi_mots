@@ -1,7 +1,9 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
 // zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorial zurücksetzen,
-// Bremse für neue Wörter (B-82), Rundendauer (B-93), Version (B-98). Keine Avatare; sonst dieselben Bausteine wie überall.
+// Bremse für neue Wörter (B-82), Rundendauer (B-93, seit B-100 als Schieberegler), Version (B-98).
+// Keine Avatare; sonst dieselben Bausteine wie überall. B-100: alle Bedienelemente von
+// „Sonstiges“ stehen rechts in einer festen Spalte (Flucht).
 import { createAppHeader } from '../components/app-header';
 import { COMPANIONS, COMPANION_NAMES } from '../components/avatar';
 import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
@@ -66,7 +68,8 @@ const TABS: readonly [Tab, string][] = [
   ['sonstiges', 'Sonstiges'],
 ];
 
-/** Zeile im Reiter „Sonstiges“: Titel und kurze Erklärung links, Button rechts. */
+/** Zeile im Reiter „Sonstiges“: Titel und kurze Erklärung links, Bedienelement rechts in der
+ *  festen Spalte (B-100). */
 function settingRow(title: string, hint: string, button: HTMLElement): HTMLElement {
   const row = el('section', 'admin__setting');
   const label = el('div', 'admin__label');
@@ -206,20 +209,36 @@ export function renderAdmin(store: Store): ViewHandle {
     onSelect: () => store.dispatch({ type: 'toggleBrake' }),
   });
   brake.el.classList.add('admin__brake');
-  // B-93: Rundendauer – runde Buttons „−“ und „+“, dazwischen die Dauer in fester Breite
-  const shorter = roundButton('Kürzer', 'minus', 'admin__step');
-  const longer = roundButton('Länger', 'plus', 'admin__step');
+  // B-93/B-100: Rundendauer als Schieberegler (natives range, rastet je Minute ein), rechts die
+  // Dauer in fester Breite. Das Element bleibt bestehen (render setzt nur den Wert), damit ein
+  // Neu-Rendern das Ziehen nicht unterbricht; gespeichert wird bei `change` (Loslassen, Taste).
+  const range = document.createElement('input');
+  range.type = 'range';
+  range.className = 'admin__range';
+  range.min = String(ROUND_MIN_LOWEST);
+  range.max = String(ROUND_MIN_HIGHEST);
+  range.step = '1';
+  range.setAttribute('aria-label', 'Rundendauer');
   const minutes = el('span', 'admin__minutes');
-  for (const [button, delta] of [
-    [shorter, -1],
-    [longer, 1],
-  ] as const) {
-    button.addEventListener('click', () =>
-      store.dispatch({ type: 'roundMin', minutes: store.getState().data.roundMin + delta }),
-    );
-  }
-  const duration = el('div', 'admin__duration');
-  duration.append(shorter, minutes, longer);
+  let sliding = false; // Wert gezogen, aber noch nicht gespeichert
+  const showMinutes = (value: number) => {
+    const fraction = (value - ROUND_MIN_LOWEST) / (ROUND_MIN_HIGHEST - ROUND_MIN_LOWEST);
+    range.style.setProperty('--fill', String(fraction));
+    range.setAttribute('aria-valuetext', `${value} Minuten`);
+    minutes.textContent = `${value} Min.`;
+  };
+  range.addEventListener('input', () => {
+    sliding = true;
+    showMinutes(Number(range.value));
+  });
+  range.addEventListener('change', () => {
+    sliding = false;
+    store.dispatch({ type: 'roundMin', minutes: Number(range.value) });
+  });
+  const track = el('div', 'admin__track');
+  track.append(range);
+  const duration = el('div', 'admin__slider');
+  duration.append(track, minutes);
   const other = el('div', 'admin__other');
   other.append(
     settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration),
@@ -257,9 +276,10 @@ export function renderAdmin(store: Store): ViewHandle {
     tutorials.speak.disabled = !data.tutorialDone;
     tutorials.listen.disabled = !data.listenTutorialDone;
     brake.setSelected(data.brakeNew);
-    minutes.textContent = `${data.roundMin} Min.`;
-    shorter.disabled = data.roundMin <= ROUND_MIN_LOWEST;
-    longer.disabled = data.roundMin >= ROUND_MIN_HIGHEST;
+    if (!sliding) {
+      if (range.value !== String(data.roundMin)) range.value = String(data.roundMin);
+      showMinutes(data.roundMin);
+    }
 
     const name = LANGUAGE_INFO[language].name;
     const progress = data[progressKey(mode)]; // B-89: Lernstand des gezeigten Modus
