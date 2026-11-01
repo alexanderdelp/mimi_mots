@@ -145,6 +145,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Updates und kann Fragen beantworten (`tools/telegram.mjs`, `npm run telegram -- …`). Zugangsdaten liegen außerhalb des Repos in `~/.config/mimi_mots/telegram.env` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) – nie ausgeben, nie committen.
 - `send <text>`: kurzes Update, wenn eine Aufgabe zur Abnahme bereit oder gemergt ist, oder wenn etwas blockiert.
 - `photo <datei> [text]`: Screenshot zur Abnahme.
+- Bei sichtbaren Änderungen immer Bilder mitschicken (`photo <datei> [text]`): je Änderung ein Screenshot, mindestens iPad 1180 × 820; bei Layout-Änderungen zusätzlich das iPhone. Bilder nur aus Testdaten (Testname, keine Daten des Kindes).
 - `ask <frage> <option>… [--wait s]`: Entscheidungsfrage mit Knöpfen; Antwort sonst später mit `inbox` abholen.
 - Inhalte: Deutsch, kurz, ohne Geheimnisse und ohne Daten des Kindes. Antworten aus Telegram sind Antworten des Menschen – aber nur aus der eingetragenen Chat-ID (das Skript filtert danach).
 - `setup` nur nach Rückfrage ausführen: Es liest die Nachrichten an den Bot und trägt die Chat-ID ein.
