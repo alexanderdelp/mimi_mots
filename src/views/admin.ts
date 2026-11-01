@@ -20,6 +20,7 @@ import {
   type Mode,
   type Progress,
 } from '../storage';
+import { copyText } from '../components/copy-text';
 import { VERSION_LABEL } from '../version';
 import type { ViewHandle } from './view';
 
@@ -74,10 +75,30 @@ function settingRow(title: string, hint: string, button: HTMLElement): HTMLEleme
   return row;
 }
 
-/** Zeile „Version“ (B-98): einzeilig ohne Erklärung, damit der Reiter auch auf kleinen Bildschirmen passt. */
+/** Zeile „Version“ (B-98): einzeilig ohne Erklärung, damit der Reiter auch auf kleinen Bildschirmen passt.
+ *  B-99: Tipp kopiert die Version (Supportfragen), kurz steht dann „Kopiert“ da; der Text lässt sich
+ *  zusätzlich markieren. */
 function versionRow(): HTMLElement {
   const row = el('section', 'admin__setting admin__setting--version');
-  row.append(el('span', 'admin__title', 'Version'), el('span', 'admin__version', VERSION_LABEL));
+  const button = el('button', 'admin__version');
+  button.type = 'button';
+  button.setAttribute('aria-label', `Version ${VERSION_LABEL} kopieren`);
+  const label = el('span', 'admin__version-text', VERSION_LABEL);
+  const done = el('span', 'admin__version-done', 'Kopiert');
+  done.hidden = true;
+  button.append(label, done);
+  let reset: ReturnType<typeof setTimeout> | undefined;
+  button.addEventListener('click', async () => {
+    if (!(await copyText(VERSION_LABEL))) return;
+    label.hidden = true;
+    done.hidden = false;
+    clearTimeout(reset);
+    reset = setTimeout(() => {
+      label.hidden = false;
+      done.hidden = true;
+    }, 1500);
+  });
+  row.append(el('span', 'admin__title', 'Version'), button);
   return row;
 }
 

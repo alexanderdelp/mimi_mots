@@ -23,7 +23,7 @@ export type AppEvent =
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
   | { type: 'admin' } // Begrüßung/Start/Schlafseite → Elternbereich (Halten des Icons, B-69/B-97)
-  | { type: 'leave' } // Elternbereich → Start bzw. Schlafseite
+  | { type: 'leave' } // Elternbereich → zurück (Begrüßung oder Start) bzw. Schlafseite
   | { type: 'toggleSleep'; companion: Companion } // Elternbereich: Tier wecken/hinlegen (B-94)
   | { type: 'resetProgress'; language: Language; mode: Mode } // Elternbereich: Lernstand leeren
   | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
@@ -169,6 +169,8 @@ export interface AppState {
   portrait: boolean;
   data: ChildData;
   round: RoundState | null;
+  /** B-99: von wo der Elternbereich geöffnet wurde – dorthin geht es zurück. */
+  adminFrom?: 'welcome' | 'start' | 'sleep';
 }
 
 /** Erlaubte Ansichtswechsel; alles andere wird ignoriert. */
@@ -285,7 +287,9 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
   }
   if (event.type === 'leave' && state.view === 'admin') {
     const data = withRestSettings(state.data);
-    return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
+    // B-99: zurück zur Begrüßung, wenn er von dort geöffnet wurde; schlafen beide → Schlafseite
+    const back = state.adminFrom === 'welcome' ? 'welcome' : 'start';
+    return { ...state, view: allAsleep(data) ? 'sleep' : back, data, adminFrom: undefined };
   }
   if (event.type === 'tutorialDone' && state.view === 'round' && !tutorialSeen(state.data)) {
     const key = tutorialKey(state.data.settings.mode ?? 'speak');
@@ -335,6 +339,9 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
     view === 'round'
       ? { session: createSession(), wordId: null, revealed: false, expired: false }
       : state.round;
+  if (view === 'admin') {
+    return { ...state, view, round, adminFrom: state.view as AppState['adminFrom'] };
+  }
   return { ...state, view, round };
 }
 

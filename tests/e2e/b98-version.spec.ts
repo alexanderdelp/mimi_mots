@@ -19,7 +19,7 @@ test.describe('B-98 Version im Elternbereich', () => {
     await prepare(page, {});
     await openTab(page, 'Sonstiges');
     await expect(page.getByText('Version', { exact: true })).toBeVisible();
-    const label = page.locator('.admin__version');
+    const label = page.locator('.admin__version-text'); // seit B-99 in einem Kopier-Button
     await expect(label).toHaveText(FORMAT);
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
     expect(await label.textContent()).toMatch(

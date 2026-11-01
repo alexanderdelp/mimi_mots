@@ -171,6 +171,7 @@
 }
 
 .app-header__slot--end {
+  min-width: 0;
   justify-content: flex-end;
 }
 

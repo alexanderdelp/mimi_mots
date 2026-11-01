@@ -273,11 +273,29 @@
 
 .admin__version {
   min-width: 280px;
+  min-height: 44px; /* B-99: antippbar zum Kopieren; Zeile bleibt so niedrig wie bisher */
+  display: grid;
+  justify-items: end;
+  align-items: center;
+  padding: 0;
   text-align: right;
+  user-select: text; /* zusätzlich markierbar, falls die Zwischenablage nicht erreichbar ist */
+  -webkit-user-select: text;
   font-size: 18px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--lila-900);
+}
+
+.admin__version-text,
+.admin__version-done {
+  grid-area: 1 / 1;
+}
+
+/* beide Beschriftungen im selben Feld: Breite bleibt, nichts springt */
+.admin__version > [hidden] {
+  display: block;
+  visibility: hidden;
 }
 
 .admin__brake {
@@ -457,8 +475,13 @@
     padding: 4px 16px;
   }
 
+  /* B-99: etwas enger, damit „Sonstiges“ mit der antippbaren Version aufs iPhone passt */
   .admin__setting {
-    padding: 6px 0;
+    padding: 4px 0;
+  }
+
+  .admin__setting--version {
+    padding: 0;
   }
 
   .admin__setting .text-button,

@@ -59,6 +59,11 @@
 }
 
 .round__timer {
+  /* B-99: links neben der Bewertung, nah beim Begleiter (vorher oben rechts in der Kopfleiste) */
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: start;
+  align-self: center;
   width: 88px;
   height: 88px;
   pointer-events: none;
@@ -121,7 +126,7 @@
    (≈ 6,6 em breit) in eine Zeile passt. */
 .word-card__de {
   font-size: min(48px, 14cqi);
-  font-weight: 700;
+  font-weight: 800; /* B-99: wie das Fremdwort */
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -164,7 +169,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  font-size: 56px;
+  font-size: 48px; /* Startwert; fitText setzt die Größe des deutschen Worts (B-99) */
   font-weight: 800;
   line-height: 1.2;
   text-align: center;
