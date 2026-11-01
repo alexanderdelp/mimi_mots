@@ -116,6 +116,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Nie direkt auf `main` committen.
 - Vor größeren Entscheidungen, die von `anforderungen.md` abweichen: fragen.
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.
+- Keine Datenübernahme über Updates: Eine neue Version darf gespeicherte Daten verwerfen; Code, der Daten über Updates hinweg erhält, nur nach Rückfrage. Vor jeder Änderung am Speicherformat den Menschen fragen, ob Daten erhalten bleiben müssen (ändert sich mit der Datenbank).
 - Keine neuen Abhängigkeiten ohne Begründung. Keine CDN-Links.
 
 ### Parallel mit Koordinator (B-92)
