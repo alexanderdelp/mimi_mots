@@ -10,12 +10,12 @@ import type { Store } from './state';
 import { isUuid, newId } from './uuid';
 
 export const STORAGE_KEY = 'mimi-mots:v2';
-export const VERSION = 2;
+const VERSION = 2;
 /** B-97: Länge des Namens – passt so in die Kopfleiste (1024 px, iPhone). */
 export const NAME_MAX = 16;
 
 export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja', 'it'];
-/** B-93: Dauer einer Runde in Minuten, im Elternbereich einstellbar (B-89: fest 5). */
+/** B-93: Dauer einer Runde in Minuten (Standard), im Elternbereich einstellbar. */
 export const ROUND_MIN = 5;
 export const ROUND_MIN_LOWEST = 3;
 export const ROUND_MIN_HIGHEST = 10;
@@ -45,7 +45,7 @@ export type Progress = Record<Language, Record<string, WordProgress>>;
 export type DisabledWords = Record<Language, string[]>;
 
 /** B-65: Nach einer Runde schläft der Begleiter – bis zum nächsten Tag (`since`: lokales Datum
- *  JJJJ-MM-TT des Einschlafens). Seit B-89 verbraucht sich keine Dauer mehr. */
+ *  JJJJ-MM-TT des Einschlafens). */
 export interface Rest {
   sleeping: Companion[];
   since: string | null;
@@ -90,7 +90,7 @@ export interface AppData {
 }
 
 /** Standard: Englisch und Französisch aktiv, Japanisch und Italienisch aus (B-73/B-80). */
-export const DEFAULT_ENABLED_LANGUAGES: readonly Language[] = ['en', 'fr'];
+const DEFAULT_ENABLED_LANGUAGES: readonly Language[] = ['en', 'fr'];
 
 /**
  * B-86: Eingeschaltet sein können nur Sprachen mit Wörtern (B-84), und mindestens eine ist an –
@@ -105,7 +105,7 @@ export function withWords(enabled: readonly Language[]): Language[] {
   return [];
 }
 
-/** Erststart: nur der Modus ist vorbelegt (anforderungen.md §3.1, seit B-89 statt der Dauer). */
+/** Erststart: nur der Modus ist vorbelegt (anforderungen.md §3.1). */
 export function childDefaults(): ChildData {
   return {
     name: null,
@@ -185,7 +185,7 @@ function sanitizeSettings(raw: unknown): Settings {
   return {
     companion: oneOf<Companion | null>([...COMPANIONS, null], raw.companion, d.companion),
     language: oneOf<Language | null>([...LANGUAGES, null], raw.language, d.language),
-    mode: oneOf<Mode | null>([...MODES, null], raw.mode, d.mode), // früher `durationMin`
+    mode: oneOf<Mode | null>([...MODES, null], raw.mode, d.mode),
   };
 }
 

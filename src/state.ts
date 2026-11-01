@@ -35,7 +35,7 @@ export type AppEvent =
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
   | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
-  | { type: 'reveal' } // Fremdwort aufdecken (Tipp auf Flagge)
+  | { type: 'reveal' } // aufdecken (Lautsprecher, in der Hörrunde Auge)
   | { type: 'rate'; rating: Rating; at: string } // Selbsteinschätzung (ISO-Zeitpunkt)
   | { type: 'expire' } // Session-Timer abgelaufen (Runde läuft bis zur nächsten Bewertung weiter)
   | { type: 'orientation'; portrait: boolean };
@@ -45,7 +45,7 @@ export function isComplete(settings: Settings): boolean {
   return settings.companion !== null && settings.language !== null && settings.mode !== null;
 }
 
-/** Schlafseite statt Start: kein Begleiter mehr wach (B-65; Modi verbrauchen sich nicht, B-89). */
+/** Schlafseite statt Start: kein Begleiter mehr wach (B-65). */
 export function allAsleep(data: ChildData): boolean {
   return data.rest.sleeping.length === COMPANIONS.length;
 }
@@ -90,7 +90,7 @@ export function canToggleWord(data: ChildData, language: Language, id: string): 
   return activeWords(data, language).some((w) => w.id !== id);
 }
 
-/** Auswahl passend zu Schlaf, Verbrauch und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
+/** Auswahl passend zu Schlaf und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
  *  fällt weg, ist nur noch eine Möglichkeit frei, wird sie vorausgewählt. */
 export function withRestSettings(data: ChildData): ChildData {
   const pick = <T>(all: readonly T[], gone: readonly T[], current: T | null): T | null => {
@@ -117,7 +117,7 @@ function isStale(data: ChildData, today: string): boolean {
   return sleeping.length > 0 && (since === null || since < today);
 }
 
-/** An einem neuen Tag sind alle wach und alle Dauern frei. */
+/** An einem neuen Tag sind alle wach. */
 function wakeIfNewDay(data: ChildData, today: string): ChildData {
   return isStale(data, today) ? { ...data, rest: AWAKE } : data;
 }

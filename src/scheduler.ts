@@ -14,8 +14,8 @@ export const NEW_INTERVAL = 3;
 export const MAX_GAP = 6;
 /** … aber nie weniger als 3, und es bleiben immer mindestens 3 bekannte Wörter zur Auswahl,
  *  damit die Gewichtung nach Stufe auch bei kleinem Wortschatz wirkt. */
-export const MIN_GAP = 3;
-export const MIN_CHOICES = 3;
+const MIN_GAP = 3;
+const MIN_CHOICES = 3;
 /** B-82: Bremse – ab so vielen Wörtern auf Stufe 0 („noch üben“) kommen keine neuen dazu. */
 export const BRAKE_AT = 6;
 
