@@ -1,0 +1,31 @@
+/* Hochformat-Hinweis (B-52/B-72). */
+
+/* Hochformat-Hinweis (B-52/B-72): Begleiter beim Radschlagen und Dreh-Symbol – statisch, ohne
+   Text, deckt alles ab */
+.portrait-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 3dvh, 32px);
+  padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom);
+  background: var(--lila-50);
+  color: var(--lila-900);
+}
+
+.portrait-overlay[hidden] {
+  display: none;
+}
+
+.portrait-overlay__avatar .avatar {
+  --avatar-h: min(440px, 40dvh);
+}
+
+.portrait-overlay__icon {
+  width: clamp(96px, 12dvh, 140px);
+  height: auto;
+  color: var(--lila-700);
+}

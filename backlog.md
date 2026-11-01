@@ -413,6 +413,9 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-91.1: Alle bisherigen Akzeptanztests sind grün oder nachweislich an anderer Stelle abgedeckt (Liste oben).
   - AT-91.2: Auf 1024 × 768, 1366 × 1024 und dem iPhone laufen nur `@layout`-Tests; auf 1180 × 820 alle.
   - AT-91.3: Keine kopierten `btn`/`hold`/Seed-Hilfen mehr in den Spec-Dateien.
+- [x] **B-92 Parallel mit Koordinator vorbereiten**: Ports je Worktree per `DEV_PORT`/`PREVIEW_PORT` (Standard 5181/4181), Playwright startet immer einen eigenen Server (`reuseExistingServer: false`); Arbeitsweise mit Koordinator in `CLAUDE.md` (nur unabhängige Aufgaben parallel, `backlog.md`/`anforderungen.md` und Referenzbilder beim Koordinator, Merge nacheinander); `views.css` in eine Datei je Ansicht aufgeteilt.
+  - AT-92.1: Mit `PREVIEW_PORT=4182` laufen die E2E-Tests auf Port 4182; ist der Port belegt, bricht der Lauf mit Fehlermeldung ab (kein fremder Server wird getestet).
+  - AT-92.2: Nach dem Aufteilen der Styles sind alle Layout-, Kontrast- und Screenshot-Tests unverändert grün (keine Referenzbilder neu erzeugt).
 - [ ] **B-90 Mehrere Kinder** (nach B-89): Titelbildschirm zur Wahl des Kindes. Beim ersten Start wird das erste Kind angelegt, mit Namen (tippt ggf. ein Elternteil – ist keine Vokabel); weitere Kinder nur über den Elternbereich (sonst legt man sich 30 Kinder an). Je Kind eigene Auswahl, eigener Lernstand, Schlafzustand, Tutorial und ausgeschaltete Wörter; Elternbereich zeigt den Lernstand je Kind, dort auch Umbenennen und Löschen (mit Sicherheitsabfrage). Gespeicherte Daten werden zum ersten Kind.
 
 ## Später

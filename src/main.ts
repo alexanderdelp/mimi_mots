@@ -1,6 +1,13 @@
 import './styles/tokens.css';
 import './styles/base.css';
-import './styles/views.css';
+// B-92: eine Datei je Ansicht, damit parallele Aufgaben selten dieselbe Datei ändern
+import './styles/components.css';
+import './styles/portrait.css';
+import './styles/start.css';
+import './styles/round.css';
+import './styles/end.css';
+import './styles/sleep.css';
+import './styles/admin.css';
 import { COMPANION_NAMES, cartwheelAvatarUrl } from './components/avatar';
 import { icon } from './components/icons';
 import { load, persistOnChange } from './storage';
