@@ -88,6 +88,7 @@ test.describe('B-67 Japanisch', () => {
     await speaker(page).click();
     await expect(page.locator('.round__foreign')).toHaveText(word.ja);
     const speaks = (await mediaCalls(page)).filter((c) => c.op === 'speak');
-    expect(speaks).toEqual([{ op: 'speak', text: word.ja, lang: 'ja-JP' }]);
+    // AT-103.3: die Ersatz-Sprachausgabe liest die Kana-Lesung, angezeigt bleibt die Schreibweise
+    expect(speaks).toEqual([{ op: 'speak', text: word.jaKana, lang: 'ja-JP' }]);
   });
 });

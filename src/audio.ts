@@ -110,7 +110,9 @@ export function createAudioPlayer(deps: AudioPlayerDeps = defaultDeps): AudioPla
   const files = new Map<string, FileState>();
   let element: HTMLAudioElement | null = null;
 
-  const fallback = (word: Word, language: Language) => deps.speak(word[language], language);
+  // B-103: Japanisch über die Kana-Lesung – die Gerätestimme spricht Kanji sonst womöglich falsch
+  const fallback = (word: Word, language: Language) =>
+    deps.speak(language === 'ja' ? word.jaKana || word.ja : word[language], language);
 
   return {
     async preload(language, ids) {

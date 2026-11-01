@@ -8,7 +8,6 @@ Erledigte Aufgaben samt Akzeptanztests stehen im Archiv `docs/archiv/backlog-erl
 
 ## Offen
 - [ ] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten.
-- [ ] **B-103 Kleinigkeiten aufräumen**: Beschreibung in `package.json` und im Manifest nennt nur Englisch/Französisch → alle vier Sprachen. Überzählige Audiodateien in `public/audio/` für Wörter ohne gewählte Aufnahme (z. B. IT, JA) entfernen, damit der Precache kleiner wird – vorher prüfen, dass Stimmwahl und `npm run audio` sie nicht brauchen. Web-Speech-Fallback auf Japanisch liest `jaKana` statt `ja` (Kanji/Mischschrift).
 - [ ] **B-90 Mehrere Kinder** (nach B-97, baut auf dem Kind-Profil auf): Seit B-97 gehören alle Daten zu einem Kind in `children`; B-90 erlaubt weitere. Auf der Begrüßung wählt man das Kind (je Kind eine große Kachel mit Namen, danach gilt `activeChildId`); mit nur einem Kind bleibt es bei „Hallo Lina!“. Weitere Kinder nur im Elternbereich anlegen (sonst legt man sich 30 Kinder an), dort auch Umbenennen und Löschen (mit Sicherheitsabfrage) und der Lernstand je Kind. Je Kind eigene Auswahl, eigener Lernstand, Schlafzustand, Tutorials und ausgeschaltete Wörter (steckt seit B-97 schon im Kind). Vorher klären: Gelten Sprachen, Bremse, Rundendauer und der Schlaf der Tiere je Kind (so seit B-97) oder für das ganze Gerät?
   - Entschieden (2026-11-01): Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind (wie seit B-97) – dynamischer, und bei einem Kind ohne Unterschied.
 

@@ -9,8 +9,9 @@ import { isChecked, parseAudioCheck } from '../tools/audio-check-status';
 const LANGS = ['en', 'fr', 'ja', 'it'] as const;
 const dir = (lang: string) => `public/audio/${lang}`;
 const chosen = (lang: string) => (choices as Record<string, Record<string, unknown>>)[lang] ?? {};
-/** B-85: „keins“ (null) – für das Wort gibt es in der Sprache keine Datei. */
-const withFile = (lang: string) => WORDS.filter((w) => chosen(lang)[w.id] !== null);
+/** B-85/B-103: Datei nur für Wörter mit gewählter Aufnahme – nicht bei „keins“ (null) und nicht
+ *  für noch unentschiedene Wörter (die nutzt die App nicht, B-84). */
+const withFile = (lang: string) => WORDS.filter((w) => chosen(lang)[w.id] != null);
 
 /** MP3 erkennbar an ID3-Tag oder MPEG-Frame-Sync (0xFFE…). */
 function isMp3(path: string): boolean {
@@ -19,7 +20,7 @@ function isMp3(path: string): boolean {
 }
 
 describe('Audiodateien (B-30b)', () => {
-  it.each(LANGS)('AT-30b.1/AT-85.1: %s – genau eine Datei pro Wort, außer bei „keins“', (lang) => {
+  it.each(LANGS)('AT-30b.1/AT-85.1/AT-103.2: %s – genau eine Datei je gewähltem Wort', (lang) => {
     const files = readdirSync(dir(lang)).filter((f) => f.endsWith('.mp3'));
     expect(files.sort()).toEqual(
       withFile(lang)

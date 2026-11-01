@@ -470,3 +470,7 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-102.1: Alle bisherigen Unit- und Akzeptanztests sind ohne inhaltliche Änderung grün (nur Imports umgestellt); kein Referenzbild ändert sich.
   - AT-102.2 (Unit): Die Tutorial-Schritte beider Modi und `penLoop` kommen aus `src/views/tutorial.ts`; `round.ts` enthält keine Tutorial-Schritte und keinen Stiftkreis mehr.
   - AT-102.3: `tsc --noEmit --noUnusedLocals --noUnusedParameters` meldet nichts (außer ggf. in `admin.ts`); jede Klasse aus `src/styles/` (außer `admin.css`) kommt in `src/` oder `index.html` vor.
+- [x] **B-103 Kleinigkeiten aufräumen**: Beschreibung in `package.json` und im Manifest nennt nur Englisch/Französisch → alle vier Sprachen. Überzählige Audiodateien in `public/audio/` für Wörter ohne gewählte Aufnahme (z. B. IT, JA) entfernen, damit der Precache kleiner wird – vorher prüfen, dass Stimmwahl und `npm run audio` sie nicht brauchen. Web-Speech-Fallback auf Japanisch liest `jaKana` statt `ja` (Kanji/Mischschrift).
+  - AT-103.1: Beschreibung in `package.json` und Manifest: „Spielerisch erste Wörter in anderen Sprachen lernen – mit Mimi und Mots.“
+  - AT-103.2: In `public/audio/<Sprache>/` liegt genau für jedes Wort mit gewählter Aufnahme (`audio-choices.json`) eine Datei, keine weitere (Unit-Test); der Precache enthält keine überzähligen Aufnahmen.
+  - AT-103.3: Fehlt auf Japanisch eine Datei, liest die Ersatz-Sprachausgabe die Kana-Lesung (`jaKana`), nicht die Schreibweise mit Kanji.

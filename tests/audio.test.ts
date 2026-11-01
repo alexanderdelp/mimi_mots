@@ -172,6 +172,13 @@ describe('createAudioPlayer (B-31)', () => {
     expect(audio.play).not.toHaveBeenCalled();
   });
 
+  it('AT-103.3: Japanisch fällt auf die Kana-Lesung zurück', async () => {
+    const { deps, player } = setup({ exists: () => false });
+    await player.preload('ja', ['apfel']);
+    player.play({ ...word, ja: '林檎', jaKana: 'りんご' }, 'ja'); // Schreibweise mit Kanji
+    expect(deps.speak).toHaveBeenCalledWith('りんご', 'ja');
+  });
+
   it('Abspielen scheitert → Web Speech', async () => {
     const { deps, player } = setup({
       play: () => Promise.reject(new DOMException('blockiert', 'NotAllowedError')),
