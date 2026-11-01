@@ -1,7 +1,6 @@
 import { expect, test, type Page, minSize } from './fixtures';
-import { btn } from './views';
+import { btn, stored } from './views';
 
-const KEY = 'mimi-mots:v1';
 const close = (page: Page) => btn(page, 'Beenden');
 
 test.beforeEach(async ({ page }) => {
@@ -100,10 +99,7 @@ test.describe('B-25 Abbrechen', () => {
     await page.clock.runFor(700);
     await page.mouse.up();
     await expect(page.locator('[data-view="end"]')).toBeVisible();
-    const progress = await page.evaluate(
-      (k) => JSON.parse(localStorage.getItem(k)!).progress.en,
-      KEY,
-    );
+    const progress = (await stored(page)).progress.en;
     expect(Object.keys(progress).sort()).toEqual([...rated].sort());
     expect(progress[current]).toBeUndefined();
   });

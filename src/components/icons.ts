@@ -48,6 +48,9 @@ const ICONS = {
   eye:
     '<path d="M8 50 C22 28 36 20 50 20 C64 20 78 28 92 50 C78 72 64 80 50 80 C36 80 22 72 8 50 Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round" />' +
     '<circle cx="50" cy="50" r="14" fill="currentColor" />',
+  // B-97 Begrüßung: Haken – Namen bestätigen („Fertig“)
+  check:
+    '<path d="M20 52 L42 74 L82 28" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />',
   // B-93 Rundendauer im Elternbereich: kürzer (−) und länger (+)
   minus:
     '<path d="M22 50 H78" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />',

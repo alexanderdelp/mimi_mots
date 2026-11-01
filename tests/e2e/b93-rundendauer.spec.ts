@@ -20,7 +20,6 @@ async function advance(page: Page, ms: number) {
 /** Gespeicherter Stand mit Dauer, Tutorials gesehen, Französisch gewählt. */
 async function seed(page: Page, mode: 'speak' | 'listen', roundMin?: number) {
   await storeOnce(page, {
-    version: 1,
     settings: { companion: 'mimi', language: 'fr', mode },
     progress: { en: {}, fr: {}, ja: {}, it: {} },
     tutorialDone: true,

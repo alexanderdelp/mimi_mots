@@ -1,13 +1,16 @@
 import { expect, test, type Page } from './fixtures';
-import { storeOnce } from './views';
+import { KEY, childStore, storeOnce } from './views';
 
-const KEY = 'mimi-mots:v1';
-
-const VALID = JSON.stringify({
-  version: 1,
-  settings: { companion: 'mimi', language: 'en', mode: 'speak' },
-  progress: { en: { apfel: { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' } }, fr: {} },
-});
+const VALID = JSON.stringify(
+  childStore({
+    name: 'Lina',
+    settings: { companion: 'mimi', language: 'en', mode: 'speak' },
+    progress: {
+      en: { apfel: { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
+      fr: {},
+    },
+  }),
+);
 
 /** Sammelt Konsolen- und Seitenfehler. */
 function collectErrors(page: Page): string[] {
@@ -23,20 +26,33 @@ async function seed(page: Page, value: string) {
 }
 
 test.describe('B-05 Storage-Modul', () => {
+  // B-97: kaputte oder alte Daten → Erststart mit Namensfrage (die Fixture lässt sie durch)
   for (const [name, value] of [
-    ['kaputtes JSON', '{"version":1,'],
+    ['kaputtes JSON', '{"version":2,'],
     ['falscher Typ', '[1,2,3]'],
     ['unbekannte Version', '{"version":99,"settings":{}}'],
-    ['ungültige Einträge', '{"version":1,"settings":{"companion":7},"progress":{"fr":{"x":5}}}'],
+    ['Version 1 (bis B-96)', '{"version":1,"settings":{"companion":"mimi"}}'],
+    ['ohne Kinder', '{"version":2,"children":[]}'],
+    ['kaputtes Kind', '{"version":2,"activeChildId":"x","children":[{"id":7,"name":3}]}'],
   ]) {
-    test(`AT-05.1: startet ohne Fehler bei ${name}`, async ({ page }) => {
+    test(`AT-05.1/97.7: startet ohne Fehler bei ${name}`, async ({ page }) => {
       const errors = collectErrors(page);
       await seed(page, value);
       await page.goto('./');
-      await expect(page.locator('[data-view="start"]')).toBeVisible();
+      await expect(page.getByText('Wie heißt du?')).toBeVisible();
       expect(errors).toEqual([]);
     });
   }
+
+  test('AT-05.1: ungültige Einträge im Kind – startet ohne Fehler mit dem Rest', async ({
+    page,
+  }) => {
+    const errors = collectErrors(page);
+    await storeOnce(page, { settings: { companion: 7 }, progress: { fr: { x: 5 } } });
+    await page.goto('./');
+    await expect(page.locator('[data-view="start"]')).toBeVisible();
+    expect(errors).toEqual([]);
+  });
 
   test('AT-05.2: startet ohne Fehler, wenn localStorage nicht verfügbar ist', async ({ page }) => {
     const errors = collectErrors(page);
@@ -48,7 +64,8 @@ test.describe('B-05 Storage-Modul', () => {
       });
     });
     await page.goto('./');
-    await expect(page.locator('[data-view="start"]')).toBeVisible();
+    // B-97: ohne Speicher gibt es keinen Namen – die Begrüßung fragt danach
+    await expect(page.getByText('Wie heißt du?')).toBeVisible();
     expect(errors).toEqual([]);
   });
 

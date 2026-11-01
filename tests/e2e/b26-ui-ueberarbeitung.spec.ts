@@ -1,8 +1,8 @@
-import { expect, test, type Locator, type Page, isPhone } from './fixtures';
+import { CHILD_ID, expect, test, type Locator, type Page, isPhone } from './fixtures';
 import { mediaCalls } from './helpers';
-import { btn } from './views';
+import { btn, stored } from './views';
 
-const KEY = 'mimi-mots:v1';
+const KEY = 'mimi-mots:v2';
 const box = async (l: Locator) => (await l.boundingBox())!;
 
 type SpeechCall = { op: 'cancel' } | { op: 'speak'; text: string };
@@ -71,8 +71,8 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'false');
     await page.reload();
     await expect(btn(page, 'Hören')).toHaveAttribute('aria-pressed', 'true');
-    const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.settings.mode).toBe('listen');
+    const saved = await stored(page);
+    expect(saved.settings.mode).toBe('listen');
   });
 
   test(
@@ -94,10 +94,18 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     'AT-81.3: eingeschaltete Sprachen im Raster mit zwei Spalten (EN | FR / IT)',
     { tag: '@layout' },
     async ({ page }) => {
-      await page.evaluate((k) => {
-        const data = JSON.parse(localStorage.getItem(k) ?? '{"version":1}');
-        localStorage.setItem(k, JSON.stringify({ ...data, enabledLanguages: ['en', 'fr', 'it'] }));
-      }, KEY);
+      await page.evaluate(
+        ([k, id]) => {
+          const data = JSON.parse(localStorage.getItem(k) ?? 'null') ?? {
+            version: 2,
+            activeChildId: id,
+            children: [{ id }],
+          };
+          data.children[0].enabledLanguages = ['en', 'fr', 'it'];
+          localStorage.setItem(k, JSON.stringify(data));
+        },
+        [KEY, CHILD_ID] as const,
+      );
       await page.reload();
       const it = btn(page, 'Italienisch');
       await expect(it.locator('img')).toHaveAttribute('src', /flag_it\.svg$/);

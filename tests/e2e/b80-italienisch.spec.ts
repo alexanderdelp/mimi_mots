@@ -1,9 +1,8 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { enableLanguages, fakeMedia, mediaCalls, vocabularyIds } from './helpers';
-import { btn } from './views';
+import { btn, stored } from './views';
 
-const KEY = 'mimi-mots:v1';
 const speaker = (page: Page) => btn(page, 'Auf Italienisch anhören');
 
 async function startRound(page: Page) {
@@ -38,8 +37,8 @@ test.describe('B-80 Italienisch', () => {
       await expect(btn(page, 'Italienisch')).toHaveAttribute('aria-pressed', 'true');
       await page.reload();
       await expect(btn(page, 'Italienisch')).toHaveAttribute('aria-pressed', 'true');
-      const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-      expect(stored.settings.language).toBe('it');
+      const saved = await stored(page);
+      expect(saved.settings.language).toBe('it');
     });
 
     test('AT-80.3: Lernrunde spielt die italienische MP3 und deckt das Wort auf', async ({

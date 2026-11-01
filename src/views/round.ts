@@ -255,7 +255,10 @@ export function renderRound(store: Store): ViewHandle {
 
   const body = el('div', 'round__body');
   body.append(avatarSlot, cards, rating);
-  view.append(createAppHeader({ start: close, end: timerSlot }), body);
+  view.append(
+    createAppHeader({ start: close, end: timerSlot, name: store.getState().data.name }),
+    body,
+  );
 
   // Hörrunde: jedes neue Wort einmal abspielen (der Tipp davor war eine Nutzer-Geste). Gezählt
   // wird am Verlauf der Session – der Store meldet dasselbe Wort beim Start sonst zweimal.

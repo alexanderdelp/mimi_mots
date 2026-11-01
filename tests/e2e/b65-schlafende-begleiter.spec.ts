@@ -1,8 +1,7 @@
 import { expect, test, type Page } from './fixtures';
 import { fakeMedia } from './helpers';
-import { btn, hold, storeOnce } from './views';
+import { btn, hold, storeOnce, stored } from './views';
 
-const KEY = 'mimi-mots:v1';
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 
 /** Feste lokale Uhrzeit: 30.10.2026, 10 Uhr. */
@@ -16,7 +15,6 @@ test.beforeEach(async ({ page }) => {
 /** Speichert einen Stand, bevor die App lädt. */
 async function seed(page: Page, sleeping: string[], since = '2026-10-30') {
   await storeOnce(page, {
-    version: 1,
     settings: { companion: 'mots', language: 'fr', mode: 'listen' },
     progress: { en: {}, fr: {} },
     rest: { sleeping, since },
@@ -84,8 +82,8 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await page.reload();
     await expect(view(page, 'start')).toBeVisible();
     await expectAsleep(page, 'Mimi', 'cat');
-    const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.rest).toEqual({ sleeping: ['mimi'], since: '2026-10-30' });
+    const saved = await stored(page);
+    expect(saved.rest).toEqual({ sleeping: ['mimi'], since: '2026-10-30' });
   });
 
   test('AT-65.5: nach dem zweiten Begleiter kommt die Schlafseite', async ({ page }) => {

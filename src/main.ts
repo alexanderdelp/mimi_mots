@@ -3,6 +3,7 @@ import './styles/base.css';
 // B-92: eine Datei je Ansicht, damit parallele Aufgaben selten dieselbe Datei ändern
 import './styles/components.css';
 import './styles/portrait.css';
+import './styles/welcome.css';
 import './styles/start.css';
 import './styles/round.css';
 import './styles/end.css';
@@ -10,9 +11,10 @@ import './styles/sleep.css';
 import './styles/admin.css';
 import { COMPANION_NAMES, cartwheelAvatarUrl } from './components/avatar';
 import { icon } from './components/icons';
-import { load, persistOnChange } from './storage';
+import { activeChild, childData, load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
 import type { ViewHandle } from './views/view';
+import { renderWelcome } from './views/welcome';
 import { renderStart } from './views/start';
 import { renderRound } from './views/round';
 import { renderEnd } from './views/end';
@@ -20,6 +22,7 @@ import { renderSleep } from './views/sleep';
 import { renderAdmin } from './views/admin';
 
 const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
+  welcome: renderWelcome,
   start: renderStart,
   round: renderRound,
   end: renderEnd,
@@ -69,7 +72,9 @@ function createPortraitOverlay(store: Store): HTMLElement {
 
 function start(app: HTMLElement) {
   const portraitQuery = window.matchMedia(PORTRAIT_QUERY);
-  const store = createStore(load(), portraitQuery.matches);
+  // B-97: gespeichert sind alle Kinder, der Store arbeitet mit dem aktiven
+  const stored = load();
+  const store = createStore(childData(activeChild(stored)), portraitQuery.matches);
 
   const viewRoot = document.createElement('div');
   viewRoot.className = 'view-root';
@@ -87,7 +92,7 @@ function start(app: HTMLElement) {
     viewRoot.inert = portrait;
   };
 
-  persistOnChange(store);
+  persistOnChange(store, stored);
   store.subscribe((state, previous) => {
     if (state.view !== previous.view) showView(state.view);
     if (state.portrait !== previous.portrait) showOverlay(state.portrait);
