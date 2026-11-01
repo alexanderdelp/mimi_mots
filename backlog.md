@@ -453,6 +453,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-98.3: Der Elternbereich passt mit der neuen Zeile auf alle Viewports (kein Überlauf, Kontrast ok); das Referenzbild des Elternbereichs (Reiter „Sprachen“) bleibt unverändert.
   - AT-98.4: Der Build der GitHub Action liefert den Commit (Workflow geprüft, Unit-Test wie `deploy-workflow.test.ts`).
 - [ ] **B-90 Mehrere Kinder** (nach B-97, baut auf dem Kind-Profil auf): Seit B-97 gehören alle Daten zu einem Kind in `children`; B-90 erlaubt weitere. Auf der Begrüßung wählt man das Kind (je Kind eine große Kachel mit Namen, danach gilt `activeChildId`); mit nur einem Kind bleibt es bei „Hallo Lina!“. Weitere Kinder nur im Elternbereich anlegen (sonst legt man sich 30 Kinder an), dort auch Umbenennen und Löschen (mit Sicherheitsabfrage) und der Lernstand je Kind. Je Kind eigene Auswahl, eigener Lernstand, Schlafzustand, Tutorials und ausgeschaltete Wörter (steckt seit B-97 schon im Kind). Vorher klären: Gelten Sprachen, Bremse, Rundendauer und der Schlaf der Tiere je Kind (so seit B-97) oder für das ganze Gerät?
+  - Entschieden (2026-11-01): Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind (wie seit B-97) – dynamischer, und bei einem Kind ohne Unterschied.
 
 ## Später
 - Themenwahl · Eigene Illustrationen
