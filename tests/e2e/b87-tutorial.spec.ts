@@ -1,7 +1,6 @@
-// Tutorial (B-74, Ablauf seit B-87): der gewählte Begleiter erklärt an einem Probewort; jeder Tipp
-// geht weiter, das Gemeinte wird mit dem Stift eingekreist, zu Beginn ist alles andere unscharf.
+// Tutorial (B-74, Ablauf seit B-87): der gewählte Begleiter erklärt an einem Probewort; „Weiter“
+// geht weiter (B-95), das Gemeinte wird mit dem Stift eingekreist, zu Beginn ist alles andere unscharf.
 import { expect, test, type Page } from './fixtures';
-import { mediaCalls } from './helpers';
 import { btn, hold, prepare, stored } from './views';
 
 test.use({ tutorial: true }); // hier soll das Tutorial erscheinen
@@ -18,11 +17,8 @@ async function startRound(page: Page) {
   await expect(view(page, 'round')).toBeVisible();
 }
 
-/** Ein Tipp irgendwohin – auf die leere Fläche unten in der Mitte. */
-async function tapAnywhere(page: Page) {
-  const { width, height } = page.viewportSize()!;
-  await page.mouse.click(width / 2, height - 8);
-}
+/** Nächster Schritt: nur „Weiter“ schaltet weiter (B-95). */
+const next = (page: Page) => btn(page, 'Weiter').click();
 
 type Blur = 'none' | 'all' | 'answer';
 /** Text, Pose (Dateiname), eingekreistes Element (Name bzw. Klasse), unscharf */
@@ -58,7 +54,7 @@ const isBlurred = (page: Page, selector: string) =>
 
 test.describe('B-87 Tutorial', () => {
   test(
-    'AT-87.2–87.5: Ablauf mit Begleiter, Blur, Umkreisungen; danach normale Runde',
+    'AT-87.2–87.4: Ablauf mit Begleiter, Blur, Umkreisungen; danach normale Runde',
     { tag: '@layout' },
     async ({ page }) => {
       await prepare(page);
@@ -109,7 +105,7 @@ test.describe('B-87 Tutorial', () => {
         // nach dem Lautsprecher ist das Probewort aufgedeckt
         if (i >= 5) await expect(page.locator('.round__foreign')).toHaveText('la pomme');
         else await expect(page.locator('.round__foreign')).toHaveText('');
-        await tapAnywhere(page); // AT-87.5: ein Tipp irgendwohin geht weiter
+        await next(page); // B-95: „Weiter“ geht weiter
       }
 
       // normale Runde mit Mots, Uhr läuft, Lernstand ohne Probewort
@@ -126,29 +122,8 @@ test.describe('B-87 Tutorial', () => {
     },
   );
 
-  test('AT-87.5: Buttons wirken im Tutorial nicht, gehen aber weiter; Lautsprecher spielt', async ({
-    page,
-  }) => {
-    await prepare(page);
-    await page.goto('./');
-    await startRound(page);
-    // Schritt 1: der (unscharfe) Lautsprecher geht nur weiter – kein Aufdecken, kein Ton
-    await btn(page, 'Auf Französisch anhören').click();
-    await expect(bubble(page)).toHaveText(STEPS[1][0]);
-    await expect(page.locator('.round__foreign')).toHaveText('');
-    expect((await mediaCalls(page)).filter((c) => c.op === 'play')).toEqual([]);
-    await tapAnywhere(page);
-    await tapAnywhere(page);
-    await tapAnywhere(page);
-    await expect(bubble(page)).toHaveText(STEPS[4][0]);
-    await btn(page, 'Auf Französisch anhören').click();
-    await expect(bubble(page)).toHaveText(STEPS[5][0]);
-    const plays = (await mediaCalls(page)).filter((c) => c.op === 'play');
-    expect(plays.at(-1)).toMatchObject({ src: '/mimi_mots/audio/fr/apfel.mp3' });
-    await btn(page, 'Wusste ich').click();
-    await expect(bubble(page)).toHaveText(STEPS[6][0]);
-    expect((await stored(page))?.progress?.fr ?? {}).toEqual({}); // nichts bewertet
-  });
+  // AT-87.5 (jeder Tipp geht weiter) ist seit B-95 ersetzt durch AT-95.2/95.3:
+  // b95-tutorial-weiter.spec.ts (nur „Weiter“ geht weiter, Lautsprecher spielt in seinem Schritt).
 
   test('AT-87.4: der Kreis wird gezogen (Animation), bei reduzierter Bewegung sofort', async ({
     page,
@@ -156,8 +131,8 @@ test.describe('B-87 Tutorial', () => {
     await prepare(page);
     await page.goto('./');
     await startRound(page);
-    await tapAnywhere(page);
-    await tapAnywhere(page);
+    await next(page);
+    await next(page);
     const path = page.locator('.tutorial-mark path');
     await expect(path).toHaveCSS('animation-name', 'tutorial-draw');
     // durchgängig: Strichmuster und Weglänge passen, die Schleife geht mehr als einmal herum
@@ -176,7 +151,7 @@ test.describe('B-87 Tutorial', () => {
     await prepare(page);
     await page.goto('./');
     await startRound(page);
-    await tapAnywhere(page);
+    await next(page);
     await hold(page, '.close-button');
     await expect(view(page, 'start')).toBeVisible();
     await expect(btn(page, 'Mots')).toBeEnabled();
@@ -193,7 +168,7 @@ test.describe('B-87 Tutorial', () => {
     await prepare(page);
     await page.goto('./');
     await startRound(page);
-    for (let i = 0; i < STEPS.length; i++) await tapAnywhere(page);
+    for (let i = 0; i < STEPS.length; i++) await next(page);
     await expect(bubble(page)).toBeHidden();
     await hold(page, '.close-button');
     await btn(page, 'Zurück').click();

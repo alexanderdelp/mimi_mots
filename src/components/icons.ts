@@ -24,6 +24,10 @@ const ICONS = {
   back:
     '<g fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">' +
     '<path d="M46 22 L18 50 L46 78" /><path d="M20 50 H82" /></g>',
+  // Weiter: Pfeil nach rechts (Tutorial, B-95) – Spiegelbild von „Zurück“
+  next:
+    '<g fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M54 22 L82 50 L54 78" /><path d="M80 50 H18" /></g>',
   // Drehen: iPad hochkant, gebogener Pfeil nach rechts zur Querlage
   rotate:
     '<rect x="14" y="24" width="38" height="60" rx="7" fill="none" stroke="currentColor" stroke-width="6" />' +

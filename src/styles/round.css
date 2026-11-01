@@ -253,14 +253,42 @@
   align-self: stretch;
   position: relative;
   z-index: 1;
-  margin: 0;
-  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 12px;
+  padding: 14px 14px 14px 18px;
   border-radius: var(--radius-m);
   background: var(--white);
   box-shadow: var(--shadow);
   font-size: clamp(18px, 2.6dvh, 24px);
   font-weight: 800;
   line-height: 1.25;
+}
+
+.tutorial-bubble__text {
+  flex: 1 1 auto;
+  align-self: center;
+  margin: 0;
+}
+
+/* B-95: nur „Weiter“ schaltet die Schritte weiter – rechts unten in der Sprechblase, so groß
+   wie die Mindestgröße (88 px, iPhone 44 px), damit die Blase nicht zu hoch wird */
+.tutorial-next {
+  margin-left: auto;
+  width: 88px;
+  height: 88px;
+}
+
+.tutorial-next svg {
+  width: 44px;
+  height: 44px;
+}
+
+/* Im Tutorial tun die übrigen Buttons nichts – sie sehen beim Drücken auch nicht so aus;
+   der Lautsprecher spielt in seinem Schritt das Probewort (B-95) */
+.view--round[data-tutorial] .round-button:not(.tutorial-next, .speak-button):active {
+  background: var(--lila-700);
 }
 
 .tutorial-bubble[hidden] {
@@ -390,8 +418,19 @@
   }
 
   .tutorial-bubble {
-    padding: 8px 10px;
+    gap: 6px;
+    padding: 6px 6px 6px 10px;
     font-size: 14px;
+  }
+
+  .tutorial-next {
+    width: 44px;
+    height: 44px;
+  }
+
+  .tutorial-next svg {
+    width: 24px;
+    height: 24px;
   }
 
   .tutorial-mark path {

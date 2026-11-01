@@ -176,10 +176,8 @@ test.describe('B-89 Tutorial der Hörrunde', () => {
     ['Los geht’s!', 'waving', null, 'all'],
   ];
 
-  async function tapAnywhere(page: Page) {
-    const { width, height } = page.viewportSize()!;
-    await page.mouse.click(width / 2, height - 8);
-  }
+  /** Nächster Schritt: nur „Weiter“ schaltet weiter (B-95). */
+  const next = (page: Page) => btn(page, 'Weiter').click();
 
   test('AT-89.6: eigenes Tutorial beim ersten Mal in der Hörrunde', async ({ page }) => {
     await prepare(page);
@@ -211,7 +209,7 @@ test.describe('B-89 Tutorial der Hörrunde', () => {
       if (i === 2) {
         await expect.poll(() => plays(page)).toEqual(['/mimi_mots/audio/fr/apfel.mp3']);
       }
-      await tapAnywhere(page);
+      await next(page);
     }
     await expect(bubble).toBeHidden();
     const data = await stored(page);
@@ -251,7 +249,7 @@ test.describe('B-89 Tutorial der Hörrunde', () => {
     await page.goto('./');
     await btn(page, 'Los geht’s').click();
     await expect(page.locator('.tutorial-bubble')).toHaveText(STEPS[0][0]);
-    await tapAnywhere(page);
+    await next(page);
     await hold(page, '.close-button');
     await expect(view(page, 'start')).toBeVisible();
     expect((await stored(page)).listenTutorialDone).toBe(false);
