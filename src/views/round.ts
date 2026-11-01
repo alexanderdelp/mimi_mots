@@ -26,7 +26,7 @@ const FOREIGN_MIN_PX = 28;
 /** Unter dieser Größe wird ein zu langes Wort lieber getrennt als weiter verkleinert. */
 const FOREIGN_BREAK_BELOW_PX = 36;
 
-/** Tutorial (B-74/B-87): Probewort und die Schritte. Ein Tipp irgendwohin geht weiter. */
+/** Tutorial (B-74/B-87): Probewort und die Schritte. Nur „Weiter“ geht weiter (B-95). */
 export const TUTORIAL_WORD = 'apfel';
 
 /** Probewort: Apfel, oder das erste Wort, wenn Apfel fehlt (B-84) oder ausgeschaltet ist (B-88). */
@@ -181,9 +181,13 @@ export function renderRound(store: Store): ViewHandle {
   const timerStep = steps.findIndex((step) => step.target === 'timer');
   const avatarSlot = el('div', 'round__avatar');
   const avatar = createAvatar(settings.companion ?? 'mimi', 'zeigt');
-  const bubble = el('p', 'tutorial-bubble');
-  bubble.setAttribute('role', 'status');
+  // Sprechblase mit Text und „Weiter“-Button (B-95): nur er schaltet die Schritte weiter
+  const bubble = el('div', 'tutorial-bubble');
   bubble.hidden = true;
+  const bubbleText = el('p', 'tutorial-bubble__text');
+  bubbleText.setAttribute('role', 'status');
+  const next = roundButton('Weiter', 'next', 'tutorial-next');
+  bubble.append(bubbleText, next);
   avatarSlot.append(bubble, avatar.el);
 
   // Zwei gleich große Karten: links das deutsche Wort, rechts Flagge, Fremdwort, Lautsprecher.
@@ -336,7 +340,7 @@ export function renderRound(store: Store): ViewHandle {
   onVisibility();
   if (store.getState().portrait) timer.pause('portrait');
 
-  // Tutorial (B-74/B-87): ein Tipp irgendwohin geht weiter; das Probewort zählt nicht
+  // Tutorial (B-74/B-87/B-95): „Weiter“ geht weiter; das Probewort zählt nicht
   const targets: Record<TutorialTarget, Element> = {
     card,
     answer,
@@ -379,7 +383,7 @@ export function renderRound(store: Store): ViewHandle {
     view.dataset.tutorial = String(tutorialStep + 1);
     view.dataset.tutorialBlur = step.blur ?? 'none';
     view.dataset.tutorialTimer = String(tutorialStep >= timerStep);
-    bubble.textContent = step.text;
+    bubbleText.textContent = step.text;
     bubble.hidden = false;
     // nach dem Lautsprecher (Hörrunde: dem Auge) ist das Probewort aufgedeckt, damit die
     // Bewertung Sinn ergibt
@@ -413,19 +417,19 @@ export function renderRound(store: Store): ViewHandle {
     if (tutorialStep < steps.length) return showTutorialStep();
     finishTutorial();
   };
-  // Jeder Tipp geht weiter – vor den Buttons abgefangen, damit sie im Tutorial nichts tun.
-  // Ein Tipp auf den Lautsprecher spielt das Probewort trotzdem ab.
+  // Jeder Tipp wird vor den Buttons abgefangen, damit sie im Tutorial nichts tun (B-95). Nur
+  // „Weiter“ geht weiter; der Lautsprecher spielt in seinem Schritt das Probewort ab.
   const onTutorialTap = (event: Event) => {
     if (tutorialStep < 0) return;
     event.stopPropagation();
     event.preventDefault();
-    const step = steps[tutorialStep];
-    if (step.target === 'speaker' && speaker.contains(event.target as Node)) {
-      player.play(tutorialWord(words), language);
-    } else {
+    const tapped = event.target as Node;
+    if (next.contains(tapped)) {
       player.stop();
+      nextTutorialStep();
+    } else if (steps[tutorialStep].target === 'speaker' && speaker.contains(tapped)) {
+      player.play(tutorialWord(words), language);
     }
-    nextTutorialStep();
   };
   view.addEventListener('click', onTutorialTap, true);
   const finishTutorial = () => {

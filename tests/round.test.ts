@@ -408,13 +408,14 @@ describe('Tutorial (B-74)', () => {
   const click = (el: HTMLElement, label: string) =>
     el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!.click();
 
-  it('B-87: zehn Schritte, jeder Tipp geht weiter, Buttons wirken nicht, zählt nicht', () => {
+  it('B-87/B-95: zehn Schritte, nur „Weiter“ geht weiter, Buttons wirken nicht, zählt nicht', () => {
     const store = tutorialStore();
     const { el } = renderRound(store);
     const bubble = el.querySelector('.tutorial-bubble')!;
     const avatar = () => el.querySelector('.round__avatar img')!.getAttribute('src');
     const marked = () => el.querySelector('.tutorial-target');
-    const tap = () => el.querySelector<HTMLElement>('.word-card')!.click();
+    const tap = () => click(el, 'Weiter');
+    const step = () => el.dataset.tutorial;
     expect(el.querySelector('.word-card')!.getAttribute('data-word-id')).toBe('apfel');
     expect(TUTORIAL_STEPS).toHaveLength(10);
     for (const step of TUTORIAL_STEPS) expect(step.text.split(' ').length).toBeLessThanOrEqual(12);
@@ -425,7 +426,11 @@ describe('Tutorial (B-74)', () => {
     expect(el.dataset.tutorialBlur).toBe('all');
     expect(el.dataset.tutorialTimer).toBe('false'); // Uhr erst mit ihrem Schritt
     expect(marked()).toBeNull();
-    click(el, 'Wusste ich'); // jeder Tipp geht weiter, bewertet aber nicht
+    click(el, 'Wusste ich'); // B-95: geht nicht weiter und bewertet nicht
+    el.querySelector<HTMLElement>('.word-card')!.click();
+    bubble.querySelector<HTMLElement>('.tutorial-bubble__text')!.click();
+    expect(step()).toBe('1');
+    tap();
     expect(bubble.textContent).toBe('Lass uns mal sehen, was du hier machen kannst.');
     expect(avatar()).toMatch(/pony_idle/);
     tap();
@@ -441,18 +446,27 @@ describe('Tutorial (B-74)', () => {
     expect(marked()!.classList.contains('round__flag')).toBe(true);
     expect(bubble.textContent).toBe('Sprich das übersetzte Wort laut aus.');
     click(el, 'Noch üben');
+    click(el, 'Auf Französisch anhören'); // außerhalb seines Schritts: nichts
+    expect(HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
+    expect(step()).toBe('4');
+    tap();
     expect(marked()!.getAttribute('aria-label')).toBe('Auf Französisch anhören');
     expect(el.querySelector('.round__foreign')!.textContent).toBe('');
-    click(el, 'Auf Französisch anhören');
+    click(el, 'Auf Französisch anhören'); // spielt das Probewort, bleibt im Schritt
+    expect(HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(1);
+    expect(step()).toBe('5');
+    tap();
     expect(el.querySelector('.round__foreign')!.textContent).toBe('la pomme');
     expect(marked()!.getAttribute('aria-label')).toBe('Wusste ich');
     click(el, 'Wusste ich');
+    expect(step()).toBe('6');
+    tap();
     expect(marked()!.getAttribute('aria-label')).toBe('Noch üben');
     const path = el.querySelector('.tutorial-mark path')!.getAttribute('d');
-    click(el, 'Noch üben');
+    tap();
     expect(bubble.textContent).toBe('Das Wort kommt dann später wieder.');
     expect(el.querySelector('.tutorial-mark path')!.getAttribute('d')).toBe(path); // bleibt stehen
-    click(el, 'Noch üben');
+    tap();
     expect(marked()!.classList.contains('round__timer')).toBe(true);
     expect(el.dataset.tutorialBlur).toBe('all');
     expect(el.dataset.tutorialTimer).toBe('true');
@@ -468,7 +482,7 @@ describe('Tutorial (B-74)', () => {
     expect(el.dataset.tutorial).toBeUndefined();
     expect(el.dataset.tutorialBlur).toBeUndefined();
     expect(el.dataset.tutorialTimer).toBeUndefined();
-    expect(bubble.hasAttribute('hidden')).toBe(true);
+    expect(bubble.hasAttribute('hidden')).toBe(true); // samt „Weiter“
     expect(store.getState().data.tutorialDone).toBe(true);
     expect(store.getState().round!.wordId).not.toBeNull();
     expect(store.getState().data.progress.fr).toEqual({}); // Probewort zählt nicht
