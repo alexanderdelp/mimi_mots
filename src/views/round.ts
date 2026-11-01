@@ -186,7 +186,7 @@ export function renderRound(store: Store): ViewHandle {
   bubbleText.setAttribute('role', 'status');
   const next = roundButton('Weiter', 'next', 'tutorial-next');
   bubble.append(bubbleText, next);
-  avatarSlot.append(bubble, avatar.el);
+  avatarSlot.append(bubble, avatar.el, timerSlot);
 
   // Zwei gleich große Karten: links das deutsche Wort, rechts Flagge, Fremdwort, Lautsprecher.
   // Hörrunde (B-89): umgekehrt – erst das Fremdwort, rechts Bild und deutsches Wort, die das
@@ -252,10 +252,10 @@ export function renderRound(store: Store): ViewHandle {
     rateButton('practice', 'repeat', 'Noch üben'),
   );
 
-  // B-99: die Uhr steht links neben der Bewertung, nah beim Begleiter – oben rechts in der
-  // Kopfleiste ist Platz für den Namen (wie auf allen Seiten)
+  // B-99: die Uhr hängt rechts unten am Begleiter (im avatarSlot) – oben rechts in der Kopfleiste
+  // ist Platz für den Namen (wie auf allen Seiten)
   const body = el('div', 'round__body');
-  body.append(avatarSlot, cards, rating, timerSlot);
+  body.append(avatarSlot, cards, rating);
   view.append(createAppHeader({ start: close, name: store.getState().data.name }), body);
 
   // Hörrunde: jedes neue Wort einmal abspielen (der Tipp davor war eine Nutzer-Geste). Gezählt

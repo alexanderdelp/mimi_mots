@@ -272,30 +272,44 @@
 }
 
 .admin__version {
-  min-width: 280px;
-  min-height: 44px; /* B-99: antippbar zum Kopieren; Zeile bleibt so niedrig wie bisher */
-  display: grid;
-  justify-items: end;
+  display: flex;
   align-items: center;
-  padding: 0;
-  text-align: right;
-  user-select: text; /* zusätzlich markierbar, falls die Zwischenablage nicht erreichbar ist */
-  -webkit-user-select: text;
+  gap: 12px;
   font-size: 18px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--lila-900);
 }
 
-.admin__version-text,
-.admin__version-done {
-  grid-area: 1 / 1;
+/* B-99: Versionstext markierbar, falls die Zwischenablage nicht erreichbar ist */
+.admin__version-text {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
-/* beide Beschriftungen im selben Feld: Breite bleibt, nichts springt */
-.admin__version > [hidden] {
-  display: block;
-  visibility: hidden;
+/* B-99: schlichter Kopier-Button wie die Textbuttons im Elternbereich (weiß, grauer Rahmen),
+   kein lila Rundbutton; 44 px, damit die Zeile niedrig bleibt (Elternbereich) */
+.admin__copy {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--lila-900);
+  box-shadow: inset 0 0 0 2px var(--grau-700);
+}
+
+.admin__copy svg {
+  width: 24px;
+  height: 24px;
+}
+
+.admin__copy:focus-visible {
+  outline: 3px solid var(--lila-700);
+  outline-offset: 2px;
 }
 
 .admin__brake {

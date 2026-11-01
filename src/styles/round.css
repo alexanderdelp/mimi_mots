@@ -59,11 +59,12 @@
 }
 
 .round__timer {
-  /* B-99: links neben der Bewertung, nah beim Begleiter (vorher oben rechts in der Kopfleiste) */
-  grid-column: 2;
-  grid-row: 2;
-  justify-self: start;
-  align-self: center;
+  /* B-99: rechts unten am Begleiter, auf Höhe der Bewertung (vorher oben rechts in der
+     Kopfleiste). In Höhe der Uhr reicht kein Tierbild weiter als 89 % seiner Breite nach rechts
+     (alle Posen von Mimi und Mots) – 8 px daneben überdeckt sie nichts. */
+  position: absolute;
+  left: calc(89% + 8px);
+  bottom: 12px;
   width: 88px;
   height: 88px;
   pointer-events: none;
@@ -71,6 +72,7 @@
 }
 
 .round__avatar {
+  position: relative; /* Bezug für die Uhr (B-99) */
   grid-column: 1;
   grid-row: 1 / span 2;
   align-self: end;
@@ -372,6 +374,10 @@
   .round__timer {
     width: 48px;
     height: 48px;
+  }
+
+  .round__timer {
+    bottom: 8px;
   }
 
   /* Lernrunde */

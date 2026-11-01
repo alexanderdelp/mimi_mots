@@ -147,6 +147,9 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
     for (let i = 0; i < parts.length; i++) {
       for (let j = i + 1; j < parts.length; j++) {
         const [a, b] = [parts[i], parts[j]];
+        // B-99: die Uhr sitzt im durchsichtigen Rand des Tierbilds – geprüft in AT-99.2
+        const names = [a.n, b.n].join(' ');
+        if (names.includes('round__timer') && names.includes('avatar')) continue;
         const overlap =
           a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
         expect(overlap, `${a.n} / ${b.n}`).toBe(false);

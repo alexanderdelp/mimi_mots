@@ -76,29 +76,34 @@ function settingRow(title: string, hint: string, button: HTMLElement): HTMLEleme
 }
 
 /** Zeile „Version“ (B-98): einzeilig ohne Erklärung, damit der Reiter auch auf kleinen Bildschirmen passt.
- *  B-99: Tipp kopiert die Version (Supportfragen), kurz steht dann „Kopiert“ da; der Text lässt sich
- *  zusätzlich markieren. */
+ *  B-99: daneben ein schlichter Kopier-Button (zwei Rechtecke, kein lila Rundbutton) für
+ *  Supportfragen; nach dem Kopieren zeigt er kurz einen Haken. Der Text ist zusätzlich markierbar. */
 function versionRow(): HTMLElement {
   const row = el('section', 'admin__setting admin__setting--version');
-  const button = el('button', 'admin__version');
-  button.type = 'button';
-  button.setAttribute('aria-label', `Version ${VERSION_LABEL} kopieren`);
-  const label = el('span', 'admin__version-text', VERSION_LABEL);
-  const done = el('span', 'admin__version-done', 'Kopiert');
-  done.hidden = true;
-  button.append(label, done);
+  const value = el('span', 'admin__version');
+  const text = el('span', 'admin__version-text', VERSION_LABEL);
+  const copy = el('button', 'admin__copy');
+  copy.type = 'button';
+  copy.setAttribute('aria-label', 'Version kopieren');
+  const copyIcon = icon('copy');
+  const doneIcon = icon('check');
+  doneIcon.style.display = 'none';
+  copy.append(copyIcon, doneIcon);
   let reset: ReturnType<typeof setTimeout> | undefined;
-  button.addEventListener('click', async () => {
+  copy.addEventListener('click', async () => {
     if (!(await copyText(VERSION_LABEL))) return;
-    label.hidden = true;
-    done.hidden = false;
+    copyIcon.style.display = 'none';
+    doneIcon.style.display = '';
+    copy.setAttribute('aria-label', 'Kopiert');
     clearTimeout(reset);
     reset = setTimeout(() => {
-      label.hidden = false;
-      done.hidden = true;
+      copyIcon.style.display = '';
+      doneIcon.style.display = 'none';
+      copy.setAttribute('aria-label', 'Version kopieren');
     }, 1500);
   });
-  row.append(el('span', 'admin__title', 'Version'), button);
+  value.append(text, copy);
+  row.append(el('span', 'admin__title', 'Version'), value);
   return row;
 }
 

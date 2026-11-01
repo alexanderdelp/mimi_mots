@@ -52,7 +52,7 @@ test.describe('B-99 Elternbereich führt zurück', () => {
 
 test.describe('B-99 Uhr und Name', () => {
   test(
-    'AT-99.2: Uhr links neben der Bewertung, rechts vom Begleiter',
+    'AT-99.2: Uhr direkt rechts neben dem Begleiter, auf Höhe der Bewertung',
     { tag: '@layout' },
     async ({ page }) => {
       await prepare(page, {});
@@ -68,10 +68,15 @@ test.describe('B-99 Uhr und Name', () => {
         ].map(async (l) => (await l.boundingBox())!),
       );
       const vp = page.viewportSize()!;
-      expect(t.x + t.width).toBeLessThanOrEqual(known.x); // links neben „Wusste ich“
-      expect(t.x).toBeGreaterThanOrEqual(avatar.x + avatar.width - 1); // rechts vom Begleiter
+      // In Höhe der Uhr reicht kein Tierbild weiter als 89 % seiner Breite nach rechts
+      const animalRight = avatar.x + avatar.width * 0.89;
+      expect(t.x).toBeGreaterThanOrEqual(animalRight); // überdeckt das Tier nicht …
+      expect(t.x - animalRight).toBeLessThanOrEqual(12); // … steht aber dicht daneben
+      expect(t.x + t.width).toBeLessThanOrEqual(known.x); // links von „Wusste ich“
       expect(t.y).toBeGreaterThanOrEqual(cards.y + cards.height - 1); // unter den Karten
       expect(t.y + t.height).toBeLessThanOrEqual(vp.height);
+      // etwa auf Höhe der Bewertung
+      expect(Math.abs(t.y + t.height / 2 - (known.y + known.height / 2))).toBeLessThan(12);
       await expect(timer).toBeVisible();
     },
   );
@@ -144,7 +149,9 @@ test.describe('B-99 einheitliche Schrift', () => {
 });
 
 test.describe('B-99 Version kopieren', () => {
-  test('AT-99.5: Tipp kopiert die Version, kurz „Kopiert“, Text markierbar', async ({ page }) => {
+  test('AT-99.5: Kopier-Button neben der Version, kurz ein Haken; Text markierbar', async ({
+    page,
+  }) => {
     await page.addInitScript(() => {
       const copied: string[] = [];
       (window as unknown as { __copied: string[] }).__copied = copied;
@@ -155,18 +162,26 @@ test.describe('B-99 Version kopieren', () => {
     await prepare(page, {});
     await adminView(page);
     await page.getByRole('tab', { name: 'Sonstiges' }).click();
-    const version = page.locator('.admin__version');
-    const label = (await version.locator('.admin__version-text').textContent())!;
+    const text = page.locator('.admin__version-text');
+    const label = (await text.textContent())!;
     expect(label).toMatch(/^\d+\.\d+\.\d+ · /);
-    await expect(version).toHaveCSS('user-select', 'text');
-    const width = (await version.boundingBox())!.width;
-    await version.click();
-    await expect(version.locator('.admin__version-done')).toBeVisible();
+    await expect(text).toHaveCSS('user-select', 'text');
+
+    const copy = btn(page, 'Version kopieren');
+    // schlichter Button mit Kopier-Symbol, kein lila Rundbutton
+    await expect(copy.locator('svg[data-icon="copy"]')).toBeVisible();
+    await expect(copy).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(copy).not.toHaveClass(/round-button/);
+    const box = (await copy.boundingBox())!;
+    expect(box.x).toBeGreaterThan((await text.boundingBox())!.x); // rechts neben dem Text
+
+    await copy.click();
     expect(
       await page.evaluate(() => (window as unknown as { __copied: string[] }).__copied),
     ).toEqual([label]);
-    expect((await version.boundingBox())!.width).toBeCloseTo(width, 0);
+    await expect(btn(page, 'Kopiert').locator('svg[data-icon="check"]')).toBeVisible();
+    expect((await btn(page, 'Kopiert').boundingBox())!.width).toBeCloseTo(box.width, 0);
     await page.clock.runFor(1600);
-    await expect(version.locator('.admin__version-text')).toBeVisible();
+    await expect(btn(page, 'Version kopieren')).toBeVisible();
   });
 });
