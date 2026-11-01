@@ -23,19 +23,16 @@ async function advance(page: Page, ms: number) {
 
 test.describe('B-41 Timer-Zifferblatt', () => {
   test(
-    'AT-41.1: rundes Zifferblatt rechts in der Kopfleiste, 12 Striche, keine Ziffern',
+    'AT-41.1: rundes Zifferblatt beim Begleiter (seit B-99), 12 Striche, keine Ziffern',
     { tag: '@layout' },
     async ({ page }) => {
-      const vp = page.viewportSize()!;
       const header = (await page.locator('header.app-header').boundingBox())!;
       const box = (await dial(page).boundingBox())!;
-      // seit B-27: 88 px in der Kopfleiste
+      // 88 px (iPhone 48 px); seit B-99 unter der Kopfleiste beim Begleiter (Lage: AT-99.2)
       expect(box.width).toBeGreaterThanOrEqual(minSize(80));
       expect(box.width).toBeLessThanOrEqual(140);
       expect(box.height).toBeCloseTo(box.width, 0);
-      expect(box.x + box.width).toBeGreaterThan(vp.width * 0.85);
-      expect(box.y).toBeGreaterThanOrEqual(header.y);
-      expect(box.y + box.height).toBeLessThanOrEqual(header.y + header.height);
+      expect(box.y).toBeGreaterThanOrEqual(header.y + header.height);
       await expect(dial(page).locator('.timer-dial__ticks line')).toHaveCount(12);
       expect(await dial(page).evaluate((el) => el.textContent)).toBe('');
     },

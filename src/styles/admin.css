@@ -272,12 +272,44 @@
 }
 
 .admin__version {
-  min-width: 280px;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 18px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--lila-900);
+}
+
+/* B-99: Versionstext markierbar, falls die Zwischenablage nicht erreichbar ist */
+.admin__version-text {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* B-99: schlichter Kopier-Button wie die Textbuttons im Elternbereich (weiß, grauer Rahmen),
+   kein lila Rundbutton; 44 px, damit die Zeile niedrig bleibt (Elternbereich) */
+.admin__copy {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--lila-900);
+  box-shadow: inset 0 0 0 2px var(--grau-700);
+}
+
+.admin__copy svg {
+  width: 24px;
+  height: 24px;
+}
+
+.admin__copy:focus-visible {
+  outline: 3px solid var(--lila-700);
+  outline-offset: 2px;
 }
 
 .admin__brake {
@@ -457,8 +489,13 @@
     padding: 4px 16px;
   }
 
+  /* B-99: etwas enger, damit „Sonstiges“ mit der antippbaren Version aufs iPhone passt */
   .admin__setting {
-    padding: 6px 0;
+    padding: 4px 0;
+  }
+
+  .admin__setting--version {
+    padding: 0;
   }
 
   .admin__setting .text-button,

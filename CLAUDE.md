@@ -115,13 +115,19 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
   3. Implementieren; dabei sinnvolle Unit-Tests (Vitest) ergänzen.
   4. **Fertig** ist eine Aufgabe, wenn sie funktional korrekt umgesetzt ist und **alle** bisher existierenden Akzeptanz- und Unit-Tests grün sind (plus Lint und die Definition of Done unten).
   5. Übergabe zur **lokalen Abnahme** durch den Menschen (Dev-Server/Preview, ggf. iPad). Ohne Abnahme kein Pull Request.
-  6. Nach grüner Abnahme: Häkchen in `backlog.md`, Commit (`feat: B-12 Timer-Zifferblatt`), Push, Pull Request nach `main` erstellen und mergen.
+  6. Nach grüner Abnahme: Häkchen in `backlog.md`, Version erhöhen (siehe „Versionierung“), Commit (`feat: B-12 Timer-Zifferblatt`), Push, Pull Request nach `main` erstellen und mergen; danach Git-Tag `vX.Y.Z` auf dem Merge-Commit setzen und pushen.
   7. Nach erfolgreichem Merge den Feature-Branch lokal und auf GitHub löschen, `main` lokal aktualisieren.
 - Nie direkt auf `main` committen.
 - Vor größeren Entscheidungen, die von `anforderungen.md` abweichen: fragen.
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.
 - Keine Datenübernahme über Updates: Eine neue Version darf gespeicherte Daten verwerfen; Code, der Daten über Updates hinweg erhält, nur nach Rückfrage. Vor jeder Änderung am Speicherformat den Menschen fragen, ob Daten erhalten bleiben müssen (ändert sich mit der Datenbank).
 - Keine neuen Abhängigkeiten ohne Begründung. Keine CDN-Links.
+
+### Versionierung
+`package.json` → `version` nach SemVer `MAJOR.MINOR.PATCH`, sichtbar im Elternbereich (B-98):
+- **MINOR** +1 für jede neue Funktion (`feat:`), **PATCH** +1 für Korrekturen und kleine Anpassungen (`fix:` oder kleine `feat:` wie B-99); reine Doku, Tests oder Werkzeuge (`docs:`, `chore:`) ohne neue Version.
+- **1.0.0**, sobald der Lernstand in Supabase liegt – ab dann dürfen Updates keine Daten mehr verlieren.
+- Erhöht wird erst im Abnahme-Commit beim Merge (nicht auf dem Feature-Branch), damit parallele Branches nicht kollidieren; danach Git-Tag `vX.Y.Z` auf `main`. Keine GitHub-Releases.
 
 ### Telegram (Updates und Fragen an den Menschen)
 Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Updates und kann Fragen beantworten (`tools/telegram.mjs`, `npm run telegram -- …`). Zugangsdaten liegen außerhalb des Repos in `~/.config/mimi_mots/telegram.env` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) – nie ausgeben, nie committen.

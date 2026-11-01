@@ -191,7 +191,9 @@ test.describe('B-97 Begrüßung mit Namen', () => {
     ]);
   });
 
-  test('AT-97.8: Elternbereich auch von der Begrüßung; zurück zur Auswahl', async ({ page }) => {
+  test('AT-97.8: Elternbereich auch von der Begrüßung; zurück zur Begrüßung (B-99)', async ({
+    page,
+  }) => {
     await prepare(page, {});
     await page.goto('./');
     await expect(view(page, 'welcome')).toBeVisible();
@@ -199,7 +201,7 @@ test.describe('B-97 Begrüßung mit Namen', () => {
     await expect(view(page, 'admin')).toBeVisible();
     await expect(page.locator('.app-header__name')).toHaveCount(0);
     await btn(page, 'Zurück').click();
-    await expect(view(page, 'start')).toBeVisible();
+    await expect(view(page, 'welcome')).toBeVisible();
   });
 
   test('AT-97.8: Hochformat-Hinweis auch über der Begrüßung', async ({ page }) => {
@@ -222,7 +224,7 @@ test.describe('B-97 Name in der Kopfleiste', () => {
   async function nameFits(page: Page) {
     const name = await page.locator('.app-header__name').boundingBox();
     expect(name).not.toBeNull();
-    const others = ['.close-button', '.app-header__brand', '.app-header__slot--end > *'];
+    const others = ['.close-button', '.app-header__brand', '.app-header__slot--start > *'];
     for (const selector of others) {
       for (const other of await page.locator(selector).all()) {
         const box = (await other.boundingBox())!;
@@ -241,9 +243,8 @@ test.describe('B-97 Name in der Kopfleiste', () => {
     await prepare(page, {});
     await revealedView(page);
     await expect(page.locator('.app-header__name')).toHaveText('Lina');
-    // in der Runde neben [×], kein Button
-    const slot = page.locator('.app-header__slot--start');
-    await expect(slot.locator('.close-button + .app-header__name')).toHaveCount(1);
+    // seit B-99 rechts in der Kopfleiste, kein Button
+    await expect(page.locator('.app-header__slot--end .app-header__name')).toHaveCount(1);
     await expect(page.getByRole('button', { name: 'Lina' })).toHaveCount(0);
     await hold(page, btn(page, 'Beenden'));
     await expect(view(page, 'end')).toBeVisible();

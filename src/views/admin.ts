@@ -20,6 +20,7 @@ import {
   type Mode,
   type Progress,
 } from '../storage';
+import { copyText } from '../components/copy-text';
 import { VERSION_LABEL } from '../version';
 import type { ViewHandle } from './view';
 
@@ -74,10 +75,35 @@ function settingRow(title: string, hint: string, button: HTMLElement): HTMLEleme
   return row;
 }
 
-/** Zeile „Version“ (B-98): einzeilig ohne Erklärung, damit der Reiter auch auf kleinen Bildschirmen passt. */
+/** Zeile „Version“ (B-98): einzeilig ohne Erklärung, damit der Reiter auch auf kleinen Bildschirmen passt.
+ *  B-99: daneben ein schlichter Kopier-Button (zwei Rechtecke, kein lila Rundbutton) für
+ *  Supportfragen; nach dem Kopieren zeigt er kurz einen Haken. Der Text ist zusätzlich markierbar. */
 function versionRow(): HTMLElement {
   const row = el('section', 'admin__setting admin__setting--version');
-  row.append(el('span', 'admin__title', 'Version'), el('span', 'admin__version', VERSION_LABEL));
+  const value = el('span', 'admin__version');
+  const text = el('span', 'admin__version-text', VERSION_LABEL);
+  const copy = el('button', 'admin__copy');
+  copy.type = 'button';
+  copy.setAttribute('aria-label', 'Version kopieren');
+  const copyIcon = icon('copy');
+  const doneIcon = icon('check');
+  doneIcon.style.display = 'none';
+  copy.append(copyIcon, doneIcon);
+  let reset: ReturnType<typeof setTimeout> | undefined;
+  copy.addEventListener('click', async () => {
+    if (!(await copyText(VERSION_LABEL))) return;
+    copyIcon.style.display = 'none';
+    doneIcon.style.display = '';
+    copy.setAttribute('aria-label', 'Kopiert');
+    clearTimeout(reset);
+    reset = setTimeout(() => {
+      copyIcon.style.display = '';
+      doneIcon.style.display = 'none';
+      copy.setAttribute('aria-label', 'Version kopieren');
+    }, 1500);
+  });
+  value.append(text, copy);
+  row.append(el('span', 'admin__title', 'Version'), value);
   return row;
 }
 

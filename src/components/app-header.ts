@@ -1,6 +1,7 @@
 // Kopfleiste mit App-Icon und Titel – auf allen Seiten gleich. Links und rechts gibt es feste
 // Plätze, z. B. für [×] und den Timer in der Lernrunde; Icon und Titel bleiben immer mittig.
-// B-97: links (nach [×]) steht klein der Name des Kinds – nur Text, keine Schaltfläche.
+// B-97: Name des Kinds klein in der Kopfleiste – nur Text, keine Schaltfläche; seit B-99 immer
+// rechts, damit er auf allen Seiten an derselben Stelle steht.
 import { onLongPress } from './long-press';
 
 export interface AppHeaderSlots {
@@ -32,14 +33,14 @@ export function createAppHeader(slots: AppHeaderSlots = {}): HTMLElement {
   title.textContent = 'Mimi & Mots';
   brand.append(logo, title);
 
-  const start = slot('start', slots.start);
+  const end = slot('end', slots.end);
   if (slots.name) {
     const name = document.createElement('span');
     name.className = 'app-header__name';
     name.textContent = slots.name;
-    start.append(name);
+    end.append(name);
   }
-  el.append(start, brand, slot('end', slots.end));
+  el.append(slot('start', slots.start), brand, end);
   return el;
 }
 

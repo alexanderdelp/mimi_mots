@@ -35,9 +35,10 @@ test.describe('B-60 Layout-Prüfung', () => {
       await prepare(page, view.seed);
       await view.open(page);
       await settle(page);
-      // die Uhr läuft (eigene Tests in B-41) – im Bild ausgeblendet
+      // die Uhr läuft (eigene Tests in B-41) – im Bild ausgeblendet; seit B-99 steht sie beim
+      // Begleiter, rechts in der Kopfleiste steht der Name (der bleibt sichtbar)
       await expect(page).toHaveScreenshot(`${name}.png`, {
-        mask: [page.locator('.app-header__slot--end')],
+        mask: [page.locator('.round__timer')],
       });
     });
   }

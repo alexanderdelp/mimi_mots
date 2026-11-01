@@ -149,14 +149,10 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
     await expect(header.locator('img')).toHaveAttribute('src', /icons\/icon\.svg$/);
     expect(await box(header)).toEqual(startHeader);
     const close = await box(btn(page, 'Beenden'));
-    const timer = await box(page.locator('.round__timer'));
-    // seit B-27 liegen [×] und Timer in der Kopfleiste
-    for (const b of [close, timer]) {
-      expect(b.y).toBeGreaterThanOrEqual(startHeader.y);
-      expect(b.y + b.height).toBeLessThanOrEqual(startHeader.y + startHeader.height);
-    }
+    // seit B-27 liegt [×] in der Kopfleiste (die Uhr seit B-99 beim Begleiter, AT-99.2)
+    expect(close.y).toBeGreaterThanOrEqual(startHeader.y);
+    expect(close.y + close.height).toBeLessThanOrEqual(startHeader.y + startHeader.height);
     expect(close.x).toBeLessThan(page.viewportSize()!.width / 4);
-    expect(timer.x).toBeGreaterThan((page.viewportSize()!.width * 3) / 4);
   });
 
   test('AT-26.6: Lautsprecher statt Flaggen-Tipp', async ({ page }) => {

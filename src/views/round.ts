@@ -20,7 +20,7 @@ import type { ViewHandle } from './view';
 
 /** Ein Player für alle Runden: auf iOS bleibt das Audio-Element nach dem ersten Tipp freigeschaltet. */
 const player = createAudioPlayer();
-const FOREIGN_MAX_PX = 56;
+const FOREIGN_MAX_PX = 48;
 const FOREIGN_MIN_PX = 28;
 /** Unter dieser Größe wird ein zu langes Wort lieber getrennt als weiter verkleinert. */
 const FOREIGN_BREAK_BELOW_PX = 36;
@@ -118,9 +118,8 @@ export function penLoop(w: number, h: number): string {
   return `M${points.join(' L')}`;
 }
 
-/** Abstand des Kreises um das Ziel – um die Uhr am Rand der Kopfleiste enger. */
-function markPadding(target: TutorialTarget, height: number): [number, number] {
-  if (target === 'timer') return [height * 0.16, height * 0.08];
+/** Abstand des Kreises um das Ziel. */
+function markPadding(height: number): [number, number] {
   return [Math.min(44, height * 0.45), Math.min(16, height * 0.18)];
 }
 
@@ -187,7 +186,7 @@ export function renderRound(store: Store): ViewHandle {
   bubbleText.setAttribute('role', 'status');
   const next = roundButton('Weiter', 'next', 'tutorial-next');
   bubble.append(bubbleText, next);
-  avatarSlot.append(bubble, avatar.el);
+  avatarSlot.append(bubble, avatar.el, timerSlot);
 
   // Zwei gleich große Karten: links das deutsche Wort, rechts Flagge, Fremdwort, Lautsprecher.
   // Hörrunde (B-89): umgekehrt – erst das Fremdwort, rechts Bild und deutsches Wort, die das
@@ -253,12 +252,11 @@ export function renderRound(store: Store): ViewHandle {
     rateButton('practice', 'repeat', 'Noch üben'),
   );
 
+  // B-99: die Uhr hängt rechts unten am Begleiter (im avatarSlot) – oben rechts in der Kopfleiste
+  // ist Platz für den Namen (wie auf allen Seiten)
   const body = el('div', 'round__body');
   body.append(avatarSlot, cards, rating);
-  view.append(
-    createAppHeader({ start: close, end: timerSlot, name: store.getState().data.name }),
-    body,
-  );
+  view.append(createAppHeader({ start: close, name: store.getState().data.name }), body);
 
   // Hörrunde: jedes neue Wort einmal abspielen (der Tipp davor war eine Nutzer-Geste). Gezählt
   // wird am Verlauf der Session – der Store meldet dasselbe Wort beim Start sonst zweimal.
@@ -306,7 +304,12 @@ export function renderRound(store: Store): ViewHandle {
     // Hörrunde: das Fremdwort steht sofort da, aufgedeckt wird die Bildkarte (per CSS)
     const shown = (revealed || listen) && word;
     foreign.textContent = shown ? word[language] : '';
-    if (shown) fitText(foreign, FOREIGN_MAX_PX, FOREIGN_MIN_PX, FOREIGN_BREAK_BELOW_PX);
+    if (shown) {
+      // B-99: so groß wie das deutsche Wort (gleiche Größe und Stärke); nur zu lange Fremdwörter
+      // werden kleiner gesetzt
+      const max = Math.round(parseFloat(getComputedStyle(german).fontSize)) || FOREIGN_MAX_PX;
+      fitText(foreign, max, Math.min(FOREIGN_MIN_PX, max), Math.min(FOREIGN_BREAK_BELOW_PX, max));
+    }
   };
 
   const unsubscribe = store.subscribe((state, previous) => {
@@ -366,7 +369,7 @@ export function renderRound(store: Store): ViewHandle {
     if (!marked) return;
     const box = targets[marked].getBoundingClientRect();
     const frame = view.getBoundingClientRect();
-    const [padX, padY] = markPadding(marked, box.height);
+    const [padX, padY] = markPadding(box.height);
     const left = Math.max(2, box.left - frame.left - padX);
     const top = Math.max(2, box.top - frame.top - padY);
     const right = Math.min(frame.width - 2, box.right - frame.left + padX);

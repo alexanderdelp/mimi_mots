@@ -618,6 +618,17 @@ describe('Elternbereich (B-69)', () => {
     round: null,
   });
 
+  it('AT-99.1: leave führt zurück, woher man kam (Begrüßung oder Start)', () => {
+    for (const from of ['welcome', 'start'] as const) {
+      const admin = reduce(at(from), { type: 'admin' }, '2026-10-30');
+      expect(admin.view).toBe('admin');
+      expect(admin.adminFrom).toBe(from);
+      const back = reduce(admin, { type: 'leave' }, '2026-10-30');
+      expect(back.view).toBe(from);
+      expect(back.adminFrom).toBeUndefined();
+    }
+  });
+
   it('erreichbar von Start- und Schlafseite, nicht aus Runde oder Abschluss', () => {
     expect(reduce(at('start'), { type: 'admin' }).view).toBe('admin');
     expect(reduce(at('sleep'), { type: 'admin' }).view).toBe('admin');

@@ -50,7 +50,7 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
   }
 
   test(
-    'AT-27.4: [×] und Timer in der Kopfleiste, gleiche Höhe überall',
+    'AT-27.4: [×] in der Kopfleiste, gleiche Höhe überall (Uhr seit B-99 beim Begleiter)',
     { tag: '@layout' },
     async ({ page }) => {
       await page.goto('./');
@@ -65,13 +65,13 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
       for (const b of [close, timer]) {
         expect(b.width).toBeGreaterThanOrEqual(minSize(88));
         expect(b.height).toBeGreaterThanOrEqual(minSize(88));
-        expect(b.y).toBeGreaterThanOrEqual(header.y);
-        expect(b.y + b.height).toBeLessThanOrEqual(header.y + header.height);
-        // vertikal mittig
-        expect(Math.abs(b.y + b.height / 2 - (header.y + header.height / 2))).toBeLessThan(2);
       }
+      expect(close.y).toBeGreaterThanOrEqual(header.y);
+      expect(close.y + close.height).toBeLessThanOrEqual(header.y + header.height);
+      // vertikal mittig
+      expect(Math.abs(close.y + close.height / 2 - (header.y + header.height / 2))).toBeLessThan(2);
       expect(close.x).toBeLessThan(vp.width * 0.1);
-      expect(timer.x + timer.width).toBeGreaterThan(vp.width * 0.9);
+      expect(timer.y).toBeGreaterThanOrEqual(header.y + header.height); // nicht mehr in der Kopfleiste
       expect(Math.abs(brand.x + brand.width / 2 - vp.width / 2)).toBeLessThan(2);
     },
   );
@@ -147,6 +147,9 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
     for (let i = 0; i < parts.length; i++) {
       for (let j = i + 1; j < parts.length; j++) {
         const [a, b] = [parts[i], parts[j]];
+        // B-99: die Uhr sitzt im durchsichtigen Rand des Tierbilds – geprüft in AT-99.2
+        const names = [a.n, b.n].join(' ');
+        if (names.includes('round__timer') && names.includes('avatar')) continue;
         const overlap =
           a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
         expect(overlap, `${a.n} / ${b.n}`).toBe(false);

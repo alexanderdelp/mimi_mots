@@ -72,12 +72,11 @@ describe('renderWelcome (B-97)', () => {
 });
 
 describe('Name in der Kopfleiste (AT-97.5)', () => {
-  it('steht links nach dem Inhalt des Platzes, als Text', () => {
+  it('AT-99.3: steht rechts in der Kopfleiste, als Text; [×] bleibt links', () => {
     const close = document.createElement('button');
     const header = createAppHeader({ start: close, name: 'Lina' });
-    const slot = header.querySelector('.app-header__slot--start')!;
-    expect(slot.firstChild).toBe(close);
-    const name = slot.querySelector('.app-header__name')!;
+    expect(header.querySelector('.app-header__slot--start')!.firstChild).toBe(close);
+    const name = header.querySelector('.app-header__slot--end .app-header__name')!;
     expect(name.tagName).toBe('SPAN');
     expect(name.textContent).toBe('Lina');
   });
