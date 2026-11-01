@@ -46,7 +46,7 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
   });
 
   for (const mode of ['Sprechen', 'Hören'] as const) {
-    test(`AT-27.3/AT-89.2: Runde läuft nach 5:00 ab (${mode})`, async ({ page }) => {
+    test(`AT-27.3/AT-93.3: Runde läuft nach 5:00 ab (${mode})`, async ({ page }) => {
       await page.clock.install();
       await startRound(page, mode);
       await page.clock.fastForward(5 * MIN - 2000);

@@ -9,8 +9,10 @@ export const STORAGE_KEY = 'mimi-mots:v1';
 export const VERSION = 1;
 
 export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja', 'it'];
-/** B-89: jede Runde dauert 5 Minuten (vorher wählbar 3 oder 7). */
+/** B-93: Dauer einer Runde in Minuten, im Elternbereich einstellbar (B-89: fest 5). */
 export const ROUND_MIN = 5;
+export const ROUND_MIN_LOWEST = 3;
+export const ROUND_MIN_HIGHEST = 10;
 /** B-89: Lernmodus – Sprechen (Bild → Fremdwort) oder Hören (Fremdwort → Bild). */
 export const MODES = ['speak', 'listen'] as const;
 export type Mode = (typeof MODES)[number];
@@ -61,6 +63,8 @@ export interface AppData {
   brakeNew: boolean;
   /** B-88: ausgeschaltete Wörter – kommen in der Lernrunde nicht vor, ihr Lernstand bleibt. */
   disabledWords: DisabledWords;
+  /** B-93: Dauer einer Runde in Minuten (3 bis 10), gilt für beide Modi. */
+  roundMin: number;
 }
 
 /** Standard: Englisch und Französisch aktiv, Japanisch und Italienisch aus (B-73/B-80). */
@@ -92,6 +96,7 @@ export function defaults(): AppData {
     listenTutorialDone: false,
     brakeNew: true,
     disabledWords: { en: [], fr: [], ja: [], it: [] },
+    roundMin: ROUND_MIN,
   };
 }
 
@@ -131,6 +136,15 @@ function sanitizeRest(raw: unknown): Rest {
     sleeping: subsetOf(COMPANIONS, raw.sleeping), // `usedDurations` (bis B-89) fällt weg
     since: typeof raw.since === 'string' && DAY.test(raw.since) ? raw.since : null,
   };
+}
+
+/** B-93: ganze Minuten von 3 bis 10; alles andere (auch fehlend) → 5. */
+export function isRoundMin(value: unknown): value is number {
+  return (
+    Number.isInteger(value) &&
+    (value as number) >= ROUND_MIN_LOWEST &&
+    (value as number) <= ROUND_MIN_HIGHEST
+  );
 }
 
 function sanitizeEnabled(raw: unknown): Language[] {
@@ -186,6 +200,7 @@ export function sanitize(raw: unknown): AppData {
     listenTutorialDone: raw.listenTutorialDone === true,
     brakeNew: raw.brakeNew !== false, // fehlt bei älteren Daten → an
     disabledWords: sanitizeDisabled(raw.disabledWords), // fehlt bei älteren Daten → alle an
+    roundMin: isRoundMin(raw.roundMin) ? raw.roundMin : ROUND_MIN, // fehlt bei älteren Daten → 5
   };
 }
 

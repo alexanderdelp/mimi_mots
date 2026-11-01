@@ -118,7 +118,8 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await hold(page, '[data-view="sleep"] .app-header__icon', 700);
     await expect(view(page, 'admin')).toBeVisible();
     await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
-    await btn(page, 'Tiere aufwecken').click();
+    await btn(page, 'Mimi').click(); // B-94: einzeln
+    await btn(page, 'Mots').click();
     await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
     for (const name of ['Mimi', 'Mots', 'Sprechen', 'Hören']) {

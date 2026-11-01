@@ -24,6 +24,10 @@ const ICONS = {
   back:
     '<g fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">' +
     '<path d="M46 22 L18 50 L46 78" /><path d="M20 50 H82" /></g>',
+  // Weiter: Pfeil nach rechts (Tutorial, B-95) – Spiegelbild von „Zurück“
+  next:
+    '<g fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M54 22 L82 50 L54 78" /><path d="M80 50 H18" /></g>',
   // Drehen: iPad hochkant, gebogener Pfeil nach rechts zur Querlage
   rotate:
     '<rect x="14" y="24" width="38" height="60" rx="7" fill="none" stroke="currentColor" stroke-width="6" />' +
@@ -44,6 +48,10 @@ const ICONS = {
   eye:
     '<path d="M8 50 C22 28 36 20 50 20 C64 20 78 28 92 50 C78 72 64 80 50 80 C36 80 22 72 8 50 Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round" />' +
     '<circle cx="50" cy="50" r="14" fill="currentColor" />',
+  // B-93 Rundendauer im Elternbereich: kürzer (−) und länger (+)
+  minus:
+    '<path d="M22 50 H78" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />',
+  plus: '<path d="M22 50 H78 M50 22 V78" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />',
 } as const;
 
 export type IconName = keyof typeof ICONS;
