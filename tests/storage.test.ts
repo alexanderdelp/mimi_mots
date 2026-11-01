@@ -36,6 +36,7 @@ const valid = (): AppData => ({
   listenTutorialDone: false,
   brakeNew: false,
   disabledWords: { en: ['hund'], fr: [], ja: [], it: [] },
+  roundMin: 7,
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -63,6 +64,7 @@ describe('defaults', () => {
       listenTutorialDone: false,
       brakeNew: true,
       disabledWords: { en: [], fr: [], ja: [], it: [] },
+      roundMin: 5,
     });
   });
 
@@ -371,5 +373,18 @@ describe('persistOnChange (B-12)', () => {
     persistOnChange(store, write)();
     store.dispatch({ type: 'select', settings: { companion: 'mots' } });
     expect(write).not.toHaveBeenCalled();
+  });
+});
+
+describe('Rundendauer (B-93)', () => {
+  it('AT-93.2: fehlend oder ungültig → 5 Minuten, sonst 3 bis 10 ganze Minuten', () => {
+    const old: Partial<AppData> = valid();
+    delete old.roundMin;
+    expect(sanitize(old).roundMin).toBe(5);
+    expect(sanitize(valid()).roundMin).toBe(7);
+    for (const bad of [2, 11, 0, -5, 4.5, '6', null, NaN, Infinity]) {
+      expect(sanitize({ ...valid(), roundMin: bad }).roundMin).toBe(5);
+    }
+    for (const ok of [3, 5, 10]) expect(sanitize({ ...valid(), roundMin: ok }).roundMin).toBe(ok);
   });
 });

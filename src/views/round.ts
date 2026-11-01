@@ -15,7 +15,6 @@ import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { getWord, type Language, type Word } from '../data/words';
 import { pickNext, type Rating } from '../scheduler';
 import { activeWords, progressKey, tutorialSeen, type AppState, type Store } from '../state';
-import { ROUND_MIN } from '../storage';
 import { createSessionTimer } from '../timer';
 import type { ViewHandle } from './view';
 
@@ -325,7 +324,7 @@ export function renderRound(store: Store): ViewHandle {
   // Session-Timer: läuft ab dem ersten Wort, pausiert im Hintergrund und im Hochformat.
   // Der Ablauf ändert an der Runde nichts Sichtbares (§3.4); Abschluss erst nach Bewertung (B-42).
   view.dataset.expired = 'false';
-  const durationMs = ROUND_MIN * 60_000; // B-89: immer 5 Minuten
+  const durationMs = store.getState().data.roundMin * 60_000; // B-93: im Elternbereich eingestellt
   const timer = createSessionTimer({
     durationMs,
     onTick: (remaining) => dial.setFraction(remaining / durationMs),

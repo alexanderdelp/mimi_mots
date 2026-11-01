@@ -184,7 +184,8 @@ test.describe('B-87 Tutorial', () => {
     await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
     await btn(page, 'Sprechen zurücksetzen').click();
     await expect(btn(page, 'Sprechen zurücksetzen')).toBeDisabled();
-    await btn(page, 'Tiere aufwecken').click();
+    await btn(page, 'Mimi').click(); // B-94: einzeln wecken
+    await btn(page, 'Mots').click();
     await btn(page, 'Zurück').click();
     await btn(page, 'Los geht’s').click();
     await expect(bubble(page)).toHaveText(STEPS[0][0]);

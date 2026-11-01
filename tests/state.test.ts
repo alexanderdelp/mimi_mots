@@ -512,26 +512,61 @@ describe('Schlafende Begleiter (B-65)', () => {
     expect(state.data.settings).toMatchObject({ companion: 'mots', mode: 'speak' });
   });
 
-  it('wake (Elternbereich, B-69) weckt alle und behält die Auswahl', () => {
+  it('AT-94.2: toggleSleep weckt im Elternbereich ein Tier und behält die Auswahl', () => {
     const data = rest(['mimi', 'mots']);
     data.settings = { companion: 'mots', language: 'fr', mode: 'listen' };
     const store = createStore(data);
     store.dispatch({ type: 'admin' });
     expect(store.getState().view).toBe('admin');
-    store.dispatch({ type: 'wake' });
+    store.dispatch({ type: 'toggleSleep', companion: 'mimi' });
+    expect(store.getState().data.rest).toEqual({ sleeping: ['mots'], since: '2026-10-30' });
+    store.dispatch({ type: 'toggleSleep', companion: 'mots' });
     expect(store.getState().view).toBe('admin');
+    expect(store.getState().data.rest).toEqual({ sleeping: [], since: null });
     store.dispatch({ type: 'leave' });
     const state = store.getState();
     expect(state.view).toBe('start');
-    expect(state.data.rest).toEqual({ sleeping: [], since: null });
     expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', mode: 'listen' });
   });
 
-  it('wake wirkt nur im Elternbereich (nicht mehr auf der Schlafseite)', () => {
+  it('AT-94.2/94.3: toggleSleep legt hin (seit heute); beide schlafend → Schlafseite', () => {
+    const store = createStore(rest([]));
+    store.dispatch({ type: 'admin' });
+    store.dispatch({ type: 'toggleSleep', companion: 'mots' });
+    expect(store.getState().data.rest).toEqual({ sleeping: ['mots'], since: '2026-10-30' });
+    store.dispatch({ type: 'toggleSleep', companion: 'mimi' });
+    expect(store.getState().data.rest).toEqual({
+      sleeping: ['mimi', 'mots'],
+      since: '2026-10-30',
+    });
+    store.dispatch({ type: 'leave' });
+    expect(store.getState().view).toBe('sleep');
+  });
+
+  it('AT-94.3: ein Tier hingelegt → Startseite, das andere vorgewählt', () => {
+    const store = createStore(rest([]));
+    store.dispatch({ type: 'admin' });
+    store.dispatch({ type: 'toggleSleep', companion: 'mimi' });
+    store.dispatch({ type: 'leave' });
+    const state = store.getState();
+    expect(state.view).toBe('start');
+    expect(state.data.settings.companion).toBe('mots');
+  });
+
+  it('AT-94.4: Schlaf von einem früheren Tag gilt beim Umschalten als vorbei', () => {
+    const store = createStore(rest([]));
+    store.dispatch({ type: 'admin' });
+    store.dispatch({ type: 'toggleSleep', companion: 'mimi' });
+    clock = new Date(2026, 9, 31, 7, 0); // Elternbereich über Mitternacht offen
+    store.dispatch({ type: 'toggleSleep', companion: 'mots' });
+    expect(store.getState().data.rest).toEqual({ sleeping: ['mots'], since: '2026-10-31' });
+  });
+
+  it('toggleSleep wirkt nur im Elternbereich (nicht auf Schlaf- oder Startseite)', () => {
     for (const data of [rest(['mimi']), rest(['mimi', 'mots'])]) {
       const store = createStore(data);
       const before = store.getState();
-      store.dispatch({ type: 'wake' });
+      store.dispatch({ type: 'toggleSleep', companion: 'mimi' });
       expect(store.getState()).toBe(before);
     }
   });
@@ -796,6 +831,28 @@ describe('Bremse für neue Wörter (B-82)', () => {
     expect(reduce(off, { type: 'toggleBrake' }).data.brakeNew).toBe(true);
     const start = at('start');
     expect(reduce(start, { type: 'toggleBrake' })).toBe(start);
+  });
+});
+
+describe('Rundendauer (B-93)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+
+  it('AT-93.1: roundMin stellt im Elternbereich 3 bis 10 Minuten ein, sonst nichts', () => {
+    const admin = at('admin');
+    expect(admin.data.roundMin).toBe(5);
+    expect(reduce(admin, { type: 'roundMin', minutes: 3 }).data.roundMin).toBe(3);
+    expect(reduce(admin, { type: 'roundMin', minutes: 10 }).data.roundMin).toBe(10);
+    for (const bad of [2, 11, 4.5]) {
+      expect(reduce(admin, { type: 'roundMin', minutes: bad })).toBe(admin);
+    }
+    expect(reduce(admin, { type: 'roundMin', minutes: 5 })).toBe(admin); // unverändert
+    const start = at('start');
+    expect(reduce(start, { type: 'roundMin', minutes: 3 })).toBe(start);
   });
 });
 

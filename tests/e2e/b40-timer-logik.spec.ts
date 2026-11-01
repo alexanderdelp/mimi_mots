@@ -36,7 +36,9 @@ async function setHidden(page: Page, hidden: boolean) {
 }
 
 test.describe('B-40 Timer-Logik', () => {
-  test('AT-40.1/AT-89.2: 5 Minuten ab dem ersten Wort (seit B-89)', async ({ page }) => {
+  test('AT-40.1/AT-93.3: Standard 5 Minuten ab dem ersten Wort (seit B-89, einstellbar seit B-93)', async ({
+    page,
+  }) => {
     await startRound(page);
     await advance(page, 5 * MIN - 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'false');
@@ -44,7 +46,7 @@ test.describe('B-40 Timer-Logik', () => {
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
   });
 
-  test('AT-40.2/AT-89.2: Hörrunde ebenfalls 5 Minuten', async ({ page }) => {
+  test('AT-40.2/AT-93.3: Hörrunde ebenfalls 5 Minuten (Standard)', async ({ page }) => {
     await startRound(page, 'Hören');
     await advance(page, 5 * MIN - 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'false');

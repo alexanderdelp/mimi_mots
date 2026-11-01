@@ -78,8 +78,12 @@ test.describe('B-69 Elternbereich', () => {
 
     await hold(page, ICON, 700);
     await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
-    await btn(page, 'Tiere aufwecken').click();
-    await expect(btn(page, 'Tiere aufwecken')).toBeDisabled();
+    // B-94: jedes Tier einzeln wecken
+    for (const name of ['Mimi', 'Mots']) {
+      await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'true');
+      await btn(page, name).click();
+      await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');
+    }
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
     expect(stored.rest).toMatchObject({ sleeping: [] });
     await btn(page, 'Zurück').click();
