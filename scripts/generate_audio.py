@@ -38,7 +38,8 @@ VOICES = {
 }
 DEFAULT_LANGS = ['en', 'fr', 'ja', 'it']
 # B-78: Stimmoptionen je Sprache für die Stimmwahl-Seite (tools/stimmwahl.html). Je Wort steht die
-# Wahl (Stimme + Variante) in audio-choices.json; ohne Eintrag gilt VOICES mit Variante „word“.
+# Wahl (Stimme + Variante) in audio-choices.json; ohne Eintrag gilt VOICES mit Variante „word“ –
+# seit B-103 nur, solange die Sprache noch gar keine Auswahl hat (die App nutzt nur gewählte, B-84).
 VOICE_OPTIONS = {
     'en': {
         'piper-ljspeech': VOICES['en'],
@@ -183,6 +184,11 @@ def plan_jobs(
             continue
         for lang in langs:
             if is_rejected(choices or {}, lang, word['id']):
+                continue
+            # B-103: Hat die Sprache schon eine Auswahl, nur Wörter mit Eintrag – unentschiedene legt
+            # erst die Stimmwahl an. Eine Sprache ganz ohne Auswahl bekommt Standard-Aufnahmen.
+            decided = (choices or {}).get(lang, {})
+            if decided and word['id'] not in decided:
                 continue
             voice, suffix, label = resolve_voice(choices or {}, lang, word['id'])
             jobs.append(

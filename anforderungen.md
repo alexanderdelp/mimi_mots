@@ -283,6 +283,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - „keins“, wenn keine Aufnahme taugt: gespeichert als `null`, die App-Datei wird gelöscht, kein Haken; `npm run audio` erzeugt dafür nichts. Keine Notizspalte in `audio-check.md` (B-85).
 - Grenzen: je Datei < 32 KB, alle zusammen < 3 MB – manche wählbaren Stimmen sprechen langsamer (B-79).
 - Kokoro über `kokoro-onnx` (gleiches Modell, ohne PyTorch); Python-Umgebung `.venv`, Modelle in `.models/` (nicht eingecheckt). Beim Start einer Runde werden alle Audiodateien der Sprache vorgeladen. Hörprüfung über `tools/hoerpruefung.html` (nur Dev-Server) und `audio-check.md` (B-30a, B-31, B-71).
+- In `public/audio/` liegen nur Aufnahmen für Wörter mit gewählter Stimme (`audio-choices.json`); `npm run audio` erzeugt für Sprachen mit Auswahl nichts für unentschiedene Wörter – die nutzt die App nicht (B-84), und erst die Stimmwahl legt sie an. Eine Sprache ganz ohne Auswahl bekommt weiter Standard-Aufnahmen. Fehlt auf Japanisch eine Datei, liest die Ersatz-Sprachausgabe die Kana-Lesung (B-103).
 
 ### Sprachen und Wortschatz
 - Wortliste: `src/data/words.json` ist Quelle für App und Audio-Skript, `words.ts` liefert Typ und Zugriff (B-04).

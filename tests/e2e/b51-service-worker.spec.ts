@@ -62,7 +62,8 @@ test.describe('B-51 Service Worker', () => {
     const media = readdirSync('public', { recursive: true, encoding: 'utf8' })
       .filter((f) => /\.(png|svg|mp3)$/.test(f))
       .map((f) => `/mimi_mots/${f.replaceAll('\\', '/')}`);
-    expect(media.length).toBeGreaterThan(3 * words.length);
+    // seit B-103 nur gewählte Aufnahmen: mindestens zwei volle Sprachen (EN, FR) plus Bilder
+    expect(media.length).toBeGreaterThan(2 * words.length);
     for (const path of media) expect(paths, path).toContain(path);
     expect(paths.some((p) => /\/assets\/index-.*\.js$/.test(p))).toBe(true);
     expect(paths.some((p) => /\/assets\/index-.*\.css$/.test(p))).toBe(true);

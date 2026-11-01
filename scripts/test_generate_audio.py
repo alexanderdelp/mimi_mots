@@ -149,7 +149,20 @@ class HelperTests(unittest.TestCase):
 
     def test_rejected_words_get_no_file(self):
         """B-85: „keins“ (null) – kein Auftrag für das Wort in dieser Sprache, andere bleiben."""
-        choices = {'it': {'katze': None}}
+        word = {'voice': 'kokoro-siwis', 'variant': 'word'}
+        choices = {'it': {'katze': None, 'apfel': {'voice': 'kokoro-sara', 'variant': 'word'}},
+                   'fr': {'katze': word, 'apfel': word}}
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = ga.plan_jobs(WORDS, ['it', 'fr'], Path(tmp), Path(tmp) / 'ov', None, choices)
+        self.assertEqual(
+            sorted((j.lang, j.word_id) for j in jobs),
+            [('fr', 'apfel'), ('fr', 'katze'), ('it', 'apfel')],
+        )
+
+    def test_undecided_words_get_no_file(self):
+        """B-103: Hat die Sprache schon eine Auswahl, kein Auftrag für unentschiedene Wörter; eine
+        Sprache ganz ohne Auswahl (hier fr) bekommt weiter Standard-Aufnahmen."""
+        choices = {'it': {'apfel': {'voice': 'kokoro-sara', 'variant': 'word'}}}
         with tempfile.TemporaryDirectory() as tmp:
             jobs = ga.plan_jobs(WORDS, ['it', 'fr'], Path(tmp), Path(tmp) / 'ov', None, choices)
         self.assertEqual(
