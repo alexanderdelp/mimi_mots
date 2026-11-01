@@ -799,6 +799,28 @@ describe('Bremse für neue Wörter (B-82)', () => {
   });
 });
 
+describe('Rundendauer (B-93)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+
+  it('AT-93.1: roundMin stellt im Elternbereich 3 bis 10 Minuten ein, sonst nichts', () => {
+    const admin = at('admin');
+    expect(admin.data.roundMin).toBe(5);
+    expect(reduce(admin, { type: 'roundMin', minutes: 3 }).data.roundMin).toBe(3);
+    expect(reduce(admin, { type: 'roundMin', minutes: 10 }).data.roundMin).toBe(10);
+    for (const bad of [2, 11, 4.5]) {
+      expect(reduce(admin, { type: 'roundMin', minutes: bad })).toBe(admin);
+    }
+    expect(reduce(admin, { type: 'roundMin', minutes: 5 })).toBe(admin); // unverändert
+    const start = at('start');
+    expect(reduce(start, { type: 'roundMin', minutes: 3 })).toBe(start);
+  });
+});
+
 describe('Wörter ein-/ausschalten (B-88)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,

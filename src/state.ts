@@ -4,7 +4,7 @@ import { COMPANIONS } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
 import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
-import { LANGUAGES, localDay, type AppData, type Mode, type Settings } from './storage';
+import { LANGUAGES, isRoundMin, localDay, type AppData, type Mode, type Settings } from './storage';
 
 export type ViewName = 'start' | 'round' | 'end' | 'sleep' | 'admin';
 
@@ -21,6 +21,7 @@ export type AppEvent =
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
   | { type: 'resetTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus kommt wieder
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
+  | { type: 'roundMin'; minutes: number } // Elternbereich: Dauer einer Runde (B-93)
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
   | { type: 'word'; id: string; session: Session } // nächstes Wort der Lernrunde
@@ -261,6 +262,11 @@ function step(state: AppState, event: AppEvent): AppState {
   }
   if (event.type === 'toggleBrake' && state.view === 'admin') {
     return { ...state, data: { ...state.data, brakeNew: !state.data.brakeNew } };
+  }
+  if (event.type === 'roundMin' && state.view === 'admin') {
+    const { minutes } = event;
+    if (!isRoundMin(minutes) || minutes === state.data.roundMin) return state;
+    return { ...state, data: { ...state.data, roundMin: minutes } };
   }
   if (event.type === 'toggleLanguage' && state.view === 'admin') {
     if (!canToggleLanguage(state.data, event.language)) return state;
