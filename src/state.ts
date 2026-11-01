@@ -1,6 +1,6 @@
 // App-State: aktuelle Ansicht als einfache Zustandsmaschine, plus gespeicherte Daten
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
-import { COMPANIONS } from './components/avatar';
+import { COMPANIONS, type Companion } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
 import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
@@ -14,7 +14,7 @@ export type AppEvent =
   | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
   | { type: 'admin' } // Start/Schlafseite → Elternbereich (verstecktes Halten des Icons, B-69)
   | { type: 'leave' } // Elternbereich → Start bzw. Schlafseite
-  | { type: 'wake' } // Elternbereich: alle wach und alle Dauern frei (B-65/B-69)
+  | { type: 'toggleSleep'; companion: Companion } // Elternbereich: Tier wecken/hinlegen (B-94)
   | { type: 'resetProgress'; language: Language; mode: Mode } // Elternbereich: Lernstand leeren
   | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
   | { type: 'toggleWord'; language: Language; id: string } // Elternbereich: Wort an/aus (B-88)
@@ -125,6 +125,17 @@ function consume(data: AppData, today: string): AppData {
   };
 }
 
+/** B-94: ein Tier im Elternbereich wecken oder hinlegen. Zuerst gilt ein neuer Tag (alle wach),
+ *  dann wird umgeschaltet; wer hingelegt wird, schläft bis morgen wie nach einer Runde. */
+export function toggleSleep(data: AppData, companion: Companion, today: string): AppData {
+  const { sleeping } = wakeIfNewDay(data, today).rest;
+  const next = sleeping.includes(companion)
+    ? sleeping.filter((c) => c !== companion)
+    : COMPANIONS.filter((c) => sleeping.includes(c) || c === companion);
+  const rest = next.length === 0 ? AWAKE : { sleeping: next, since: today };
+  return { ...data, rest };
+}
+
 /** Auswahl vollständig, Sprache spielbar und gewählter Begleiter wach. */
 function isAvailable(data: AppData): boolean {
   return (
@@ -169,7 +180,7 @@ export function reduce(
   event: AppEvent,
   today: string = localDay(new Date()),
 ): AppState {
-  const next = step(state, event);
+  const next = step(state, event, today);
   // Wer die Abschlussseite erreicht, hat begleitet – egal ob per Zeitablauf oder [×].
   if (state.view === 'round' && next.view === 'end') {
     return { ...next, data: consume(next.data, today) };
@@ -181,7 +192,7 @@ export function reduce(
   return next;
 }
 
-function step(state: AppState, event: AppEvent): AppState {
+function step(state: AppState, event: AppEvent, today: string): AppState {
   if (event.type === 'orientation') {
     return event.portrait === state.portrait ? state : { ...state, portrait: event.portrait };
   }
@@ -245,8 +256,9 @@ function step(state: AppState, event: AppEvent): AppState {
     const data = withRestSettings(state.data);
     return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
   }
-  if (event.type === 'wake' && state.view === 'admin') {
-    return { ...state, data: withRestSettings({ ...state.data, rest: AWAKE }) };
+  if (event.type === 'toggleSleep' && state.view === 'admin') {
+    // Auswahl erst beim Verlassen anpassen (leave) – so bleibt sie über mehrere Tipps erhalten
+    return { ...state, data: toggleSleep(state.data, event.companion, today) };
   }
   if (event.type === 'leave' && state.view === 'admin') {
     const data = withRestSettings(state.data);
