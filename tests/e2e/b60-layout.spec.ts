@@ -29,6 +29,7 @@ test.describe('B-60 Layout-Prüfung', () => {
     'abschluss',
     'schlafseite',
     'elternbereich',
+    'elternbereich-sonstiges',
   ]) {
     test(`AT-60.3: Screenshot ${name}`, { tag: '@layout' }, async ({ page }) => {
       const view = VIEWS.find((v) => v.name === name)!;
@@ -37,8 +38,9 @@ test.describe('B-60 Layout-Prüfung', () => {
       await settle(page);
       // die Uhr läuft (eigene Tests in B-41) – im Bild ausgeblendet; seit B-99 steht sie beim
       // Begleiter, rechts in der Kopfleiste steht der Name (der bleibt sichtbar)
+      // B-100: im Reiter „Sonstiges“ auch den Versionstext (Commit und Build-Datum ändern sich)
       await expect(page).toHaveScreenshot(`${name}.png`, {
-        mask: [page.locator('.round__timer')],
+        mask: [page.locator('.round__timer'), page.locator('.admin__version-text')],
       });
     });
   }

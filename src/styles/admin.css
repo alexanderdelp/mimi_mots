@@ -240,7 +240,10 @@
   display: none;
 }
 
+/* B-100: Bedienelemente rechts in einer festen Spalte (--admin-col) – gleiche linke und rechte
+   Kante für alle Zeilen, unabhängig vom Text */
 .admin__other {
+  --admin-col: 320px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -251,9 +254,9 @@
 }
 
 .admin__setting {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--admin-col);
   align-items: center;
-  justify-content: space-between;
   gap: 24px;
   padding: 12px 0;
 }
@@ -262,19 +265,22 @@
   border-top: 1px solid var(--lila-100);
 }
 
-.admin__setting .text-button,
-.admin__brake {
-  min-width: 280px;
+/* jedes Bedienelement füllt die Spalte */
+.admin__setting > :last-child {
+  width: 100%;
+  min-width: 0;
 }
 
 .admin__setting--version {
   padding: 6px 0;
 }
 
+/* Text links in der Spalte, Kopier-Button am rechten Rand */
 .admin__version {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 8px;
   font-size: 18px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -283,6 +289,7 @@
 
 /* B-99: Versionstext markierbar, falls die Zwischenablage nicht erreichbar ist */
 .admin__version-text {
+  min-width: 0;
   user-select: text;
   -webkit-user-select: text;
 }
@@ -325,7 +332,6 @@
 .admin__sleep {
   display: flex;
   gap: 16px;
-  min-width: 280px;
 }
 
 .admin__sleeper {
@@ -333,35 +339,109 @@
   height: 88px;
 }
 
-/* B-93: Rundendauer – „−“, Dauer, „+“; so breit wie die anderen Bedienelemente der Spalte */
-.admin__duration {
-  display: flex;
+/* B-100: Rundendauer als Schieberegler – Spur --lila-200, links vom Griff --lila-700, runder
+   weißer Griff mit lila Rand, acht Striche für 3 bis 10 Minuten; rechts die Dauer in fester
+   Breite. --fill (0 … 1) setzt admin.ts; WebKit kennt keine eigene Füllung der Spur, daher der
+   Verlauf, dessen Kante genau in der Griffmitte liegt (Griffbreite eingerechnet). */
+.admin__slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.2em;
   align-items: center;
-  justify-content: space-between;
-  min-width: 280px;
+  gap: 12px;
+  font-size: 22px;
 }
 
-.view--admin .admin__step {
-  width: 88px;
-  height: 88px;
+.admin__track {
+  --thumb: 44px;
+  --rail: 12px;
+  position: relative;
+  display: flex;
 }
 
-.view--admin .admin__step svg {
-  width: 40px;
-  height: 40px;
+/* Striche unter der Spur, je einer unter jeder Griffposition (Mitte des Griffs) */
+.admin__track::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--thumb) / 2 - 1px);
+  right: calc(var(--thumb) / 2 - 1px);
+  top: calc(50% + var(--rail) / 2 + 4px);
+  height: 8px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--lila-500) 0 2px,
+    transparent 2px calc((100% - 2px) / 7)
+  );
+  pointer-events: none;
 }
 
-.admin__step:disabled {
-  opacity: 0.45;
-  cursor: default;
+.admin__range {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.admin__range::-webkit-slider-runnable-track {
+  height: var(--rail);
+  border-radius: calc(var(--rail) / 2);
+  background: linear-gradient(
+    to right,
+    var(--lila-700) 0 calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--fill, 0)),
+    var(--lila-200) 0
+  );
+}
+
+.admin__range::-webkit-slider-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  margin-top: calc((var(--rail) - var(--thumb)) / 2);
+  border: 4px solid var(--lila-700);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.admin__range::-moz-range-track {
+  height: var(--rail);
+  border-radius: calc(var(--rail) / 2);
+  background: var(--lila-200);
+}
+
+.admin__range::-moz-range-progress {
+  height: var(--rail);
+  border-radius: calc(var(--rail) / 2);
+  background: var(--lila-700);
+}
+
+.admin__range::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--thumb);
+  height: var(--thumb);
+  border: 4px solid var(--lila-700);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.admin__range:focus-visible {
+  outline: 3px solid var(--lila-500);
+  outline-offset: 4px;
+  border-radius: var(--radius-m);
 }
 
 .admin__minutes {
-  min-width: 4.5em;
-  text-align: center;
+  text-align: right;
   font-size: 22px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: var(--lila-900);
 }
 
@@ -485,6 +565,7 @@
   }
 
   .admin__other {
+    --admin-col: 260px;
     gap: 0;
     padding: 4px 16px;
   }
@@ -496,11 +577,6 @@
 
   .admin__setting--version {
     padding: 0;
-  }
-
-  .admin__setting .text-button,
-  .admin__brake {
-    min-width: 200px;
   }
 
   .admin__setting--version {
@@ -522,11 +598,6 @@
     font-size: 16px;
   }
 
-  .admin__duration,
-  .admin__sleep {
-    min-width: 200px;
-  }
-
   .admin__sleep {
     gap: 12px;
   }
@@ -537,14 +608,23 @@
     padding: 4px;
   }
 
-  .view--admin .admin__step {
-    width: 44px;
-    height: 44px;
+  .admin__slider {
+    gap: 8px;
+    font-size: 16px;
   }
 
-  .view--admin .admin__step svg {
-    width: 22px;
-    height: 22px;
+  .admin__track {
+    --thumb: 32px;
+    --rail: 8px;
+  }
+
+  .admin__track::before {
+    top: calc(50% + var(--rail) / 2 + 3px);
+    height: 6px;
+  }
+
+  .admin__range {
+    height: 44px;
   }
 
   .admin__minutes {

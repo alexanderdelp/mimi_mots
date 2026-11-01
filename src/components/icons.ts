@@ -51,15 +51,11 @@ const ICONS = {
   // B-97 Begrüßung: Haken – Namen bestätigen („Fertig“)
   check:
     '<path d="M20 52 L42 74 L82 28" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />',
-  // B-93 Rundendauer im Elternbereich: kürzer (−) und länger (+)
-  minus:
-    '<path d="M22 50 H78" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />',
   // B-99: Kopieren – das übliche Symbol aus zwei überlappenden Rechtecken
   copy:
     '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round">' +
     '<rect x="34" y="32" width="46" height="54" rx="8" />' +
     '<path d="M24 66 H22 A6 6 0 0 1 16 60 V20 A6 6 0 0 1 22 14 H58 A6 6 0 0 1 64 20 V22" /></g>',
-  plus: '<path d="M22 50 H78 M50 22 V78" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />',
 } as const;
 
 export type IconName = keyof typeof ICONS;
