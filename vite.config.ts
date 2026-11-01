@@ -40,8 +40,10 @@ function stimmwahl(): Plugin {
 
 export default defineConfig({
   base: BASE,
-  server: { port: 5173 },
-  preview: { port: 4173, strictPort: true },
+  // eigene Ports statt der Vite-Standards, damit sich Projekte auf dem Rechner nicht in die Quere
+  // kommen; belegt → Fehler statt stillem Ausweichen
+  server: { port: 5181, strictPort: true },
+  preview: { port: 4181, strictPort: true },
   plugins: [
     stimmwahl(),
     // Service Worker (B-51): alle Dateien vorab speichern, damit die App offline läuft.

@@ -1,5 +1,5 @@
-// Startansicht (anforderungen.md §3.1): Begleiter, Sprache, Dauer wählen, dann Play.
-// Schlafende Begleiter und verbrauchte Dauern sind ausgegraut (B-65). Sprachen erscheinen nur, wenn
+// Startansicht (anforderungen.md §3.1): Begleiter, Sprache, Modus wählen, dann Play.
+// Schlafende Begleiter sind ausgegraut (B-65). Modus (Sprechen/Hören) statt Dauer seit B-89. Sprachen erscheinen nur, wenn
 // sie eingeschaltet sind und Wörter haben (B-81/B-84) – ausgeschaltete fehlen ganz.
 import {
   COMPANIONS,
@@ -10,11 +10,12 @@ import {
 } from '../components/avatar';
 import { createAppHeader, onIconHold } from '../components/app-header';
 import { createChoiceGroup } from '../components/choice-tile';
-import { clockIcon, icon } from '../components/icons';
+import { icon } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
+import { MODE_INFO } from '../data/modes';
 import type { Language } from '../data/words';
 import { isComplete, playableLanguages, type Store } from '../state';
-import { DURATIONS, type DurationMin } from '../storage';
+import { MODES, type Mode } from '../storage';
 import type { ViewHandle } from './view';
 
 function img(src: string, className: string): HTMLImageElement {
@@ -83,17 +84,16 @@ export function renderStart(store: Store): ViewHandle {
     },
   );
 
-  const duration = createChoiceGroup<`${DurationMin}`>(
-    'Wie lange?',
-    DURATIONS.map((minutes) => ({
-      value: `${minutes}` as const,
-      label: `${minutes} Minuten`,
-      disabled: rest.usedDurations.includes(minutes),
-      content: [clockIcon(minutes)],
+  const modes = createChoiceGroup<Mode>(
+    'Bei was?',
+    MODES.map((mode) => ({
+      value: mode,
+      label: MODE_INFO[mode].name,
+      content: [icon(MODE_INFO[mode].icon, 'mode-icon')],
     })),
-    settings.durationMin ? `${settings.durationMin}` : null,
-    (value) => {
-      store.dispatch({ type: 'select', settings: { durationMin: Number(value) as DurationMin } });
+    settings.mode,
+    (mode) => {
+      store.dispatch({ type: 'select', settings: { mode } });
       updatePlay();
     },
   );
@@ -102,11 +102,11 @@ export function renderStart(store: Store): ViewHandle {
   languages.el.classList.add('start__group--language');
   // eine Sprache: eine Spalte, sonst zwei (2 × 2 bei vier Sprachen)
   languages.el.style.setProperty('--language-columns', String(Math.min(2, languages.tiles.size)));
-  duration.el.classList.add('start__group--duration');
+  modes.el.classList.add('start__group--mode');
 
   const groups = document.createElement('div');
   groups.className = 'start__groups';
-  groups.append(companions.el, languages.el, duration.el);
+  groups.append(companions.el, languages.el, modes.el);
 
   const footer = document.createElement('div');
   footer.className = 'start__footer';

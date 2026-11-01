@@ -253,11 +253,11 @@
 }
 
 .start__group--language .choice-tile,
-.start__group--duration .choice-tile {
+.start__group--mode .choice-tile {
   --tile-h: var(--start-tile-small-h);
 }
 
-/* Sprachen im Raster mit höchstens zwei Spalten (nur eingeschaltete, B-81), Dauer untereinander */
+/* Sprachen im Raster mit höchstens zwei Spalten (nur eingeschaltete, B-81), Modi untereinander */
 .start__group--language .choice-group__tiles {
   display: grid;
   grid-template-columns: repeat(var(--language-columns, 2), var(--start-tile-w));
@@ -266,7 +266,7 @@
   gap: var(--start-tile-gap) 24px;
 }
 
-.start__group--duration .choice-group__tiles {
+.start__group--mode .choice-group__tiles {
   flex-direction: column;
   gap: var(--start-tile-gap);
 }
@@ -296,29 +296,11 @@
   box-shadow: 0 0 0 1px var(--lila-200);
 }
 
-.clock-icon {
-  height: 78%;
+/* B-89: Symbol des Modus (Sprechen/Hören), lila auf der Kachel */
+.mode-icon {
+  height: 74%;
   width: auto;
-}
-
-.clock-icon__face {
-  fill: var(--white);
-  stroke: var(--lila-900);
-  stroke-width: 4;
-}
-
-.clock-icon__ticks line {
-  stroke: var(--lila-900);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-
-.clock-icon__sector {
-  fill: var(--lila-700);
-}
-
-.clock-icon__hub {
-  fill: var(--lila-900);
+  color: var(--lila-700);
 }
 
 .start__footer {
@@ -563,6 +545,26 @@
   visibility: hidden;
 }
 
+/* Hörrunde (B-89): Bild und deutsches Wort bleiben verdeckt, bis das Kind den Auge-Button
+   antippt; der Button sitzt mittig in der Karte und verschwindet danach. */
+.word-card {
+  position: relative;
+}
+
+.reveal-button {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 104px;
+  height: 104px;
+}
+
+.view--round[data-mode='listen'][data-revealed='false'] .word-card__emoji,
+.view--round[data-mode='listen'][data-revealed='false'] .word-card__de,
+.view--round[data-revealed='true'] .reveal-button {
+  visibility: hidden;
+}
+
 /* Abschluss (B-43): Kopfleiste, Begleiter winkt groß, Satz, Haus-Button */
 .view--end {
   justify-content: flex-start;
@@ -665,10 +667,28 @@
   gap: 24px;
 }
 
+.admin__modes,
 .admin__languages {
   flex-direction: row;
   align-items: center;
   gap: 20px;
+}
+
+/* B-89: Modi, Sprachen und Buttons in einer Leiste – die Gruppennamen („Lernstand“, „Sprache“)
+   nur für Screenreader, sonst passt die Leiste nicht auf 1024 px */
+.admin__modes .choice-group__title,
+.admin__languages .choice-group__title {
+  display: none;
+}
+
+.admin__modes .choice-group__tiles {
+  gap: 8px;
+}
+
+.admin__modes .choice-tile {
+  width: 88px;
+  height: 88px;
+  padding: 10px;
 }
 
 /* vier Sprachen (B-80): schmalere Kacheln, damit die Leiste auch auf 1024 px passt */
@@ -698,6 +718,26 @@
 .admin__question {
   font-size: 22px;
   font-weight: 800;
+}
+
+.admin__toolbar[data-confirming='true'] .admin__modes,
+.admin__toolbar[data-confirming='true'] .admin__languages {
+  display: none;
+}
+
+.admin__toolbar[data-confirming='true'] .admin__actions {
+  flex: 1;
+  min-height: 88px;
+}
+
+.admin__toolbar[data-confirming='true'] .admin__question {
+  margin-right: auto;
+}
+
+/* B-89: schmaler, damit Modi, Flaggen und Buttons nebeneinander passen */
+.admin__actions .text-button {
+  padding: 0 16px;
+  font-size: 18px;
 }
 
 .text-button {
@@ -817,12 +857,15 @@
   transition: filter var(--transition);
 }
 
-/* B-87: „all“ – Karten und Bewertung; „answer“ – nur Übersetzungskarte (und Bewertung).
+/* B-87: „all“ – Karten und Bewertung; „answer“ – nur Übersetzungskarte (und Bewertung);
+   „word“ (Hörrunde, B-89) – nur Bildkarte (und Bewertung).
    Kopfleiste und Begleiter bleiben immer scharf. */
 .view--round[data-tutorial-blur='all'] .round__cards > *,
 .view--round[data-tutorial-blur='all'] .round__rating,
 .view--round[data-tutorial-blur='answer'] .round__answer,
-.view--round[data-tutorial-blur='answer'] .round__rating {
+.view--round[data-tutorial-blur='answer'] .round__rating,
+.view--round[data-tutorial-blur='word'] .word-card,
+.view--round[data-tutorial-blur='word'] .round__rating {
   filter: blur(8px);
 }
 
@@ -1201,8 +1244,24 @@
     gap: 12px;
   }
 
+  .admin__modes,
   .admin__languages {
     gap: 10px;
+  }
+
+  .admin__modes .choice-tile {
+    width: 44px;
+    height: 44px;
+    padding: 4px;
+  }
+
+  .admin__toolbar[data-confirming='true'] .admin__actions {
+    min-height: 44px;
+  }
+
+  .admin__actions .text-button {
+    padding: 0 14px;
+    font-size: 16px;
   }
 
   .admin__languages .choice-tile {

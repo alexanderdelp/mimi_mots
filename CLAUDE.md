@@ -27,9 +27,9 @@ Fachliche Anforderungen: `anforderungen.md`. Aufgaben und Reihenfolge: `backlog.
 ## Befehle
 ```bash
 npm install
-npm run dev          # Dev-Server (--host, damit das iPad im WLAN zugreifen kann)
+npm run dev          # Dev-Server auf Port 5181 (--host, damit das iPad im WLAN zugreifen kann)
 npm run build        # Produktionsbuild nach dist/
-npm run preview      # Build lokal testen (SW aktiv)
+npm run preview      # Build lokal testen auf Port 4181 (SW aktiv; auch Port der E2E-Tests)
 npm run test         # Vitest
 npm run test:e2e     # Playwright (WebKit, iPad quer)
 npm run lint         # ESLint + Prettier-Check

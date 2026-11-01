@@ -65,7 +65,7 @@ test.describe('B-10 Auswahlkachel', () => {
     const mots = page.getByRole('button', { name: 'Mots' });
     const en = page.getByRole('button', { name: 'Englisch' });
     const fr = page.getByRole('button', { name: 'Französisch' });
-    const dauer = page.getByRole('button', { name: '3 Minuten' });
+    const dauer = page.getByRole('button', { name: 'Sprechen' });
 
     for (const t of [mimi, mots, en, fr]) await expect(t).toHaveAttribute('aria-pressed', 'false');
     await expect(dauer).toHaveAttribute('aria-pressed', 'true');

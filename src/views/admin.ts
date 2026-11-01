@@ -1,15 +1,16 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
-// Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Sprache nach Stufe ansehen,
+// Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
 // zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere aufwecken, Tutorial zurücksetzen,
 // Bremse für neue Wörter (B-82). Keine Avatare; sonst dieselben Bausteine wie überall.
 import { createAppHeader } from '../components/app-header';
 import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
-import { roundButton } from '../components/icons';
+import { icon, roundButton } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
+import { MODE_INFO } from '../data/modes';
 import { vocabulary } from '../data/vocabulary';
 import type { Language } from '../data/words';
-import { canToggleLanguage, canToggleWord, type Store } from '../state';
-import { LANGUAGES, MAX_BOX, type Progress } from '../storage';
+import { canToggleLanguage, canToggleWord, progressKey, type Store } from '../state';
+import { LANGUAGES, MAX_BOX, MODES, type Mode, type Progress } from '../storage';
 import type { ViewHandle } from './view';
 
 /** Zeilen der Übersicht: noch nie dran (null), dann Stufe 0 (noch üben) bis 4 (sicher). */
@@ -65,6 +66,7 @@ function settingRow(title: string, hint: string, button: HTMLButtonElement): HTM
 
 export function renderAdmin(store: Store): ViewHandle {
   let language: Language = store.getState().data.settings.language ?? 'en';
+  let mode: Mode = store.getState().data.settings.mode ?? 'speak';
   let confirming = false;
   let tab: Tab = 'sprachen';
 
@@ -75,8 +77,25 @@ export function renderAdmin(store: Store): ViewHandle {
   const home = roundButton('Zurück', 'back', 'home-button admin__home');
   home.addEventListener('click', () => store.dispatch({ type: 'leave' }));
 
-  const languages = createChoiceGroup<Language>(
+  // B-89: Lernstand je Modus – gleiche Symbole wie auf der Startseite
+  const modes = createChoiceGroup<Mode>(
     'Lernstand',
+    MODES.map((m) => ({
+      value: m,
+      label: MODE_INFO[m].name,
+      content: [icon(MODE_INFO[m].icon, 'mode-icon')],
+    })),
+    mode,
+    (value) => {
+      mode = value;
+      confirming = false;
+      render();
+    },
+  );
+  modes.el.classList.add('admin__modes');
+
+  const languages = createChoiceGroup<Language>(
+    'Sprache',
     LANGUAGES.map((l) => ({
       value: l,
       label: LANGUAGE_INFO[l].name,
@@ -119,10 +138,15 @@ export function renderAdmin(store: Store): ViewHandle {
   const wake = textButton('Tiere aufwecken');
   wake.classList.add('admin__wake');
   wake.addEventListener('click', () => store.dispatch({ type: 'wake' }));
-  // B-74: Tutorial kommt in der nächsten Runde wieder
-  const tutorial = textButton('Tutorial zurücksetzen');
-  tutorial.classList.add('admin__tutorial');
-  tutorial.addEventListener('click', () => store.dispatch({ type: 'resetTutorial' }));
+  // B-74: Tutorial kommt in der nächsten Runde wieder – je Modus getrennt (B-89)
+  const tutorials = Object.fromEntries(
+    MODES.map((m) => {
+      const button = textButton(`${MODE_INFO[m].name} zurücksetzen`);
+      button.classList.add('admin__tutorial');
+      button.addEventListener('click', () => store.dispatch({ type: 'resetTutorial', mode: m }));
+      return [m, button];
+    }),
+  ) as Record<Mode, HTMLButtonElement>;
   // B-82/B-86: Schalter als Auswahlkachel wie bei Begleiter und Sprache – an = lila gerahmt
   const brake = createChoiceTile({
     content: [el('span', 'admin__brake-label', 'Bremsen')],
@@ -131,8 +155,9 @@ export function renderAdmin(store: Store): ViewHandle {
   brake.el.classList.add('admin__brake');
   const other = el('div', 'admin__other');
   other.append(
-    settingRow('Schlafen', 'Mimi und Mots sind wach, beide Dauern wieder frei.', wake),
-    settingRow('Tutorial', 'Kommt in der nächsten Runde wieder.', tutorial),
+    settingRow('Schlafen', 'Mimi und Mots sind wieder wach.', wake),
+    settingRow('Tutorial Sprechen', 'Kommt beim nächsten Sprechen wieder.', tutorials.speak),
+    settingRow('Tutorial Hören', 'Kommt beim nächsten Hören wieder.', tutorials.listen),
     settingRow(
       'Neue Wörter bremsen',
       'Stehen 6 oder mehr Wörter auf „noch üben“, kommen keine neuen dazu.',
@@ -158,25 +183,32 @@ export function renderAdmin(store: Store): ViewHandle {
     languagesPanel.hidden = tab !== 'sprachen';
     otherPanel.hidden = tab !== 'sonstiges';
 
-    const awake = data.rest.sleeping.length === 0 && data.rest.usedDurations.length === 0;
-    wake.disabled = awake;
-    tutorial.disabled = !data.tutorialDone;
+    wake.disabled = data.rest.sleeping.length === 0;
+    tutorials.speak.disabled = !data.tutorialDone;
+    tutorials.listen.disabled = !data.listenTutorialDone;
     brake.setSelected(data.brakeNew);
 
     const name = LANGUAGE_INFO[language].name;
+    const progress = data[progressKey(mode)]; // B-89: Lernstand des gezeigten Modus
     const enabled = data.enabledLanguages.includes(language);
     // ausgeschaltete Sprachen bleiben wählbar (Lernstand ansehen, wieder einschalten), wirken aber blass
     languages.tiles.forEach((tile, l) => {
       tile.el.dataset.off = String(!data.enabledLanguages.includes(l));
     });
 
+    // Sicherheitsabfrage (B-89): nimmt die ganze Leiste ein, die Frage nennt Sprache und Modus
+    toolbar.dataset.confirming = String(confirming);
     if (confirming) {
-      const question = el('p', 'admin__question', `${name}: Wirklich zurücksetzen?`);
+      const question = el(
+        'p',
+        'admin__question',
+        `${name}, ${MODE_INFO[mode].name}: Wirklich zurücksetzen?`,
+      );
       const yes = textButton('Ja, zurücksetzen');
       const no = textButton('Abbrechen');
       yes.addEventListener('click', () => {
         confirming = false;
-        store.dispatch({ type: 'resetProgress', language });
+        store.dispatch({ type: 'resetProgress', language, mode });
       });
       no.addEventListener('click', () => {
         confirming = false;
@@ -185,7 +217,7 @@ export function renderAdmin(store: Store): ViewHandle {
       actions.replaceChildren(question, yes, no);
     } else {
       const reset = textButton('Lernstand zurücksetzen');
-      reset.disabled = Object.keys(data.progress[language]).length === 0; // nichts zurückzusetzen
+      reset.disabled = Object.keys(progress[language]).length === 0; // nichts zurückzusetzen
       reset.addEventListener('click', () => {
         confirming = true;
         render();
@@ -207,7 +239,7 @@ export function renderAdmin(store: Store): ViewHandle {
       actions.replaceChildren(reset, toggle);
     }
 
-    const groups = wordsByLevel(data.progress, language);
+    const groups = wordsByLevel(progress, language);
     if (vocabulary(language).length === 0) {
       // B-84: ohne gewählte Aufnahmen erscheint die Sprache nicht auf der Startseite
       levels.replaceChildren(el('p', 'admin__empty', 'Noch keine Wörter vorhanden'));
@@ -248,7 +280,7 @@ export function renderAdmin(store: Store): ViewHandle {
   };
 
   const toolbar = el('div', 'admin__toolbar');
-  toolbar.append(languages.el, actions);
+  toolbar.append(modes.el, languages.el, actions);
 
   languagesPanel.append(toolbar, levels);
   otherPanel.append(other);

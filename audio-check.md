@@ -1,8 +1,8 @@
 # Hörprüfung Audio (B-30b)
 
-Je Wort und Sprache: `[x]` = auf der Stimmwahl-Seite eine Aufnahme gewählt, `[ ]` = noch offen oder „keins“. Die Häkchen setzt die Stimmwahl selbst (http://localhost:5173/mimi_mots/tools/stimmwahl.html, nur `npm run dev`). In der App kommen nur Wörter mit gewählter Aufnahme vor (B-84) – maßgeblich ist dafür `audio-choices.json`, diese Liste ist die Übersicht dazu.
+Je Wort und Sprache: `[x]` = auf der Stimmwahl-Seite eine Aufnahme gewählt, `[ ]` = noch offen oder „keins“. Die Häkchen setzt die Stimmwahl selbst (http://localhost:5181/mimi_mots/tools/stimmwahl.html, nur `npm run dev`). In der App kommen nur Wörter mit gewählter Aufnahme vor (B-84) – maßgeblich ist dafür `audio-choices.json`, diese Liste ist die Übersicht dazu.
 
-Abhörseite für den Stand der App: http://localhost:5173/mimi_mots/tools/hoerpruefung.html
+Abhörseite für den Stand der App: http://localhost:5181/mimi_mots/tools/hoerpruefung.html
 
 | id | Deutsch | Englisch | ok | Französisch | ok | Japanisch | ok | Italienisch | ok |
 |---|---|---|---|---|---|---|---|---|---|

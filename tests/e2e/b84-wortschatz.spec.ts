@@ -36,7 +36,7 @@ test.describe('B-84 Nur Wörter mit gewählter Aufnahme', () => {
         'mimi-mots:v1',
         JSON.stringify({
           version: 1,
-          settings: { companion: 'mimi', language: 'ja', durationMin: 3 },
+          settings: { companion: 'mimi', language: 'ja', mode: 'speak' },
           enabledLanguages: ['ja'],
         }),
       );

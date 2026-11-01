@@ -14,10 +14,11 @@ beforeEach(() => {
   );
 });
 
-function roundStore(language: 'en' | 'fr' = 'en') {
+function roundStore(language: 'en' | 'fr' = 'en', mode: 'speak' | 'listen' = 'speak') {
   const data = defaults();
-  data.settings = { companion: 'mimi', language, durationMin: 3 };
+  data.settings = { companion: 'mimi', language, mode };
   data.tutorialDone = true; // Tutorial (B-74) eigens getestet
+  data.listenTutorialDone = true;
   const store = createStore(data);
   store.dispatch({ type: 'play' });
   return store;
@@ -40,7 +41,7 @@ describe('showNextWord', () => {
 
   it('AT-88.2: ausgeschaltete Wörter kommen nicht vor', () => {
     const data = defaults();
-    data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
+    data.settings = { companion: 'mimi', language: 'en', mode: 'speak' };
     data.tutorialDone = true;
     const off = WORDS.slice(0, WORDS.length - 4).map((w) => w.id);
     data.disabledWords.en = off;
@@ -56,7 +57,7 @@ describe('showNextWord', () => {
   it('AT-88.4: die Bremse zählt nur eingeschaltete Wörter auf Stufe 0', () => {
     const at = (box: number) => ({ box, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' });
     const data = defaults();
-    data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
+    data.settings = { companion: 'mimi', language: 'en', mode: 'speak' };
     data.tutorialDone = true;
     const ids = WORDS.map((w) => w.id);
     // 6 auf Stufe 0 bremsen; eins davon aus → nur noch 5, neue Wörter kommen wieder
@@ -237,6 +238,77 @@ describe('Aufdecken in der Lernrunde (B-22, seit B-31 mit MP3)', () => {
   });
 });
 
+describe('Hörrunde (B-89)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const media = () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, 'play')
+      .mockImplementation(() => Promise.resolve());
+    vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+    return play;
+  };
+
+  it('AT-89.4: Fremdwortkarte zuerst, Fremdwort sofort sichtbar und einmal abgespielt', () => {
+    const play = media();
+    const store = roundStore('fr', 'listen');
+    const { el } = renderRound(store);
+    expect(el.dataset.mode).toBe('listen');
+    const cards = [...el.querySelector('.round__cards')!.children];
+    expect(cards.map((c) => c.classList.contains('round__answer'))).toEqual([true, false]);
+    const word = getWord(el.querySelector<HTMLElement>('.word-card')!.dataset.wordId!)!;
+    expect(el.querySelector('.round__foreign')!.textContent).toBe(word.fr);
+    expect(play).toHaveBeenCalledTimes(1);
+    expect((play.mock.instances[0] as HTMLAudioElement).src).toMatch(`/audio/fr/${word.id}.mp3`);
+    expect(el.dataset.revealed).toBe('false');
+  });
+
+  it('AT-89.4: Lautsprecher spielt erneut, deckt aber nicht auf; Auge deckt auf', () => {
+    const play = media();
+    const store = roundStore('fr', 'listen');
+    const { el } = renderRound(store);
+    el.querySelector<HTMLButtonElement>('.speak-button')!.click();
+    expect(play).toHaveBeenCalledTimes(2);
+    expect(store.getState().round!.revealed).toBe(false);
+    const reveal = el.querySelector<HTMLButtonElement>('.word-card .reveal-button')!;
+    expect(reveal.getAttribute('aria-label')).toBe('Zeig mir das deutsche Wort');
+    reveal.click();
+    expect(store.getState().round!.revealed).toBe(true);
+    expect(el.dataset.revealed).toBe('true');
+    expect(play).toHaveBeenCalledTimes(2); // Aufdecken spielt nicht noch einmal
+  });
+
+  it('AT-89.4: nächstes Wort wird wieder abgespielt', () => {
+    const play = media();
+    const store = roundStore('fr', 'listen');
+    const { el } = renderRound(store);
+    el.querySelector<HTMLButtonElement>('.reveal-button')!.click();
+    el.querySelector<HTMLButtonElement>('[data-rating="known"]')!.click();
+    expect(play).toHaveBeenCalledTimes(2);
+    expect(store.getState().data.listenProgress.fr).not.toEqual({});
+    expect(store.getState().data.progress.fr).toEqual({});
+  });
+
+  it('Sprechrunde hat keinen Auge-Button', () => {
+    const { el } = renderRound(roundStore('fr'));
+    expect(el.querySelector('.reveal-button')).toBeNull();
+    expect(el.dataset.mode).toBe('speak');
+  });
+
+  it('AT-89.5: der Scheduler nutzt den Hör-Lernstand', () => {
+    const store = roundStore('en', 'listen');
+    const entry = { box: 4, seen: 3, lastSeenAt: '2026-10-29T10:00:00.000Z' };
+    const ids = WORDS.map((w) => w.id);
+    // im Sprech-Lernstand alles bekannt, im Hör-Lernstand nichts → in der Hörrunde nur neue
+    const data = store.getState().data;
+    data.progress.en = Object.fromEntries(ids.map((id) => [id, entry]));
+    showNextWord(store, seededRng(2));
+    expect(store.getState().round!.session.introduced).toHaveLength(1);
+  });
+});
+
 describe('Selbsteinschätzung in der Lernrunde (B-23)', () => {
   afterEach(() => vi.unstubAllGlobals());
 
@@ -294,7 +366,7 @@ describe('Avatar in der Lernrunde (B-24)', () => {
     vi.stubGlobal('speechSynthesis', { cancel: vi.fn(), speak: vi.fn(), getVoices: () => [] });
     vi.stubGlobal('SpeechSynthesisUtterance', class {});
     const data = defaults();
-    data.settings = { companion: 'mots', language: 'en', durationMin: 3 };
+    data.settings = { companion: 'mots', language: 'en', mode: 'speak' };
     data.tutorialDone = true;
     const store = createStore(data);
     store.dispatch({ type: 'play' });
@@ -326,7 +398,7 @@ describe('Tutorial (B-74)', () => {
     vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
     vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
     const data = defaults();
-    data.settings = { companion: 'mots', language: 'fr', durationMin: 3 };
+    data.settings = { companion: 'mots', language: 'fr', mode: 'speak' };
     const store = createStore(data);
     store.dispatch({ type: 'play' });
     return store;

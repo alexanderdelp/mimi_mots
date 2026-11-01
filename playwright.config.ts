@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Getestet wird der Produktionsbuild unter dem Pages-Pfad, wie auf GitHub Pages.
-const PORT = 4173;
+// Eigener Vorschau-Port des Projekts (wie `preview.port` in vite.config.ts) – auf 4173 lief
+// schon ein anderes Projekt, und reuseExistingServer hätte es mitgetestet.
+const PORT = 4181;
 export const APP_URL = `http://localhost:${PORT}/mimi_mots/`;
 
 const ipad = devices['iPad Pro 11 landscape'];

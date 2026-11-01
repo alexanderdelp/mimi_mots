@@ -1,4 +1,4 @@
-// Gemeinsame Test-Basis: Seit B-74 kommt in der ersten Runde ein Tutorial. Damit die übrigen
+// Gemeinsame Test-Basis: Seit B-74 kommt in der ersten Runde ein Tutorial (seit B-89 je Modus). Damit die übrigen
 // Tests nicht jedes Mal hindurchklicken müssen, gilt es standardmäßig als gesehen – nur beim
 // ersten Lesen des Speichers durch die App, gespeichert wird dadurch nichts. Tutorial-Tests schalten das ab:
 // test.use({ tutorial: true }).
@@ -23,6 +23,10 @@ export const test = base.extend<{ tutorial: boolean }>({
               const data = value ? JSON.parse(value) : { version: 1 };
               if (data && typeof data === 'object' && !('tutorialDone' in data)) {
                 data.tutorialDone = true;
+              }
+              // B-89: ebenso das Tutorial der Hörrunde
+              if (data && typeof data === 'object' && !('listenTutorialDone' in data)) {
+                data.listenTutorialDone = true;
               }
               return JSON.stringify(data);
             } catch {

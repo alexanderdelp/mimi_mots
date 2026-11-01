@@ -20,7 +20,7 @@ async function seed(page: Page, brakeNew?: boolean) {
       KEY,
       JSON.stringify({
         version: 1,
-        settings: { companion: 'mimi', language: 'fr', durationMin: 3 },
+        settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
         progress: { en: {}, fr: Object.fromEntries(SEEN.map((id) => [id, entry])) },
         tutorialDone: true,
         ...(brakeNew === undefined ? {} : { brakeNew }),
@@ -76,7 +76,8 @@ test.describe('B-82 Bremse für neue Wörter / B-83 Reiter im Elternbereich', ()
     await expect(tab(page, 'Sonstiges')).toHaveAttribute('aria-selected', 'true');
     await expect(btn(page, 'Lernstand zurücksetzen')).toBeHidden();
     await expect(btn(page, 'Tiere aufwecken')).toBeVisible();
-    await expect(btn(page, 'Tutorial zurücksetzen')).toBeVisible();
+    await expect(btn(page, 'Sprechen zurücksetzen')).toBeVisible();
+    await expect(btn(page, 'Hören zurücksetzen')).toBeVisible(); // B-89: je Modus
     // B-86: Auswahlkachel „Bremsen“ wie bei den Begleitern – an = lila gerahmt
     const brake = btn(page, 'Bremsen');
     await expect(brake).toHaveAttribute('aria-pressed', 'true'); // Standard: an

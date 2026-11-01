@@ -4,7 +4,7 @@ const KEY = 'mimi-mots:v1';
 
 const VALID = JSON.stringify({
   version: 1,
-  settings: { companion: 'mimi', language: 'en', durationMin: 5 },
+  settings: { companion: 'mimi', language: 'en', mode: 'speak' },
   progress: { en: { apfel: { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' } }, fr: {} },
 });
 

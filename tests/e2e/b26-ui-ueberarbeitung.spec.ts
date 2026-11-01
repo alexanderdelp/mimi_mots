@@ -48,28 +48,29 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     await page.goto('./');
   });
 
-  test('AT-26.1: zwei Dauern nur als Uhr (seit B-27: 3/7 Minuten)', async ({ page }) => {
-    const group = page.getByRole('group', { name: 'Wie lange?' });
+  test('AT-26.1/AT-89.1: zwei Modi nur als Symbol, untereinander (seit B-89 statt Dauer)', async ({
+    page,
+  }) => {
+    const group = page.getByRole('group', { name: 'Bei was?' });
     await expect(group.getByRole('button')).toHaveCount(2);
-    const five = btn(page, '3 Minuten');
-    const ten = btn(page, '7 Minuten');
-    for (const tile of [five, ten]) expect(await tile.innerText()).toBe('');
-    await expect(five.locator('svg.clock-icon')).toHaveAttribute('data-angle', '18');
-    await expect(ten.locator('svg.clock-icon')).toHaveAttribute('data-angle', '42');
-    const [b5, b10] = [await box(five), await box(ten)];
-    expect(b10.y).toBeGreaterThan(b5.y + b5.height - 1); // untereinander
-    expect(b10.x).toBeCloseTo(b5.x, 0);
+    const speak = btn(page, 'Sprechen');
+    const listen = btn(page, 'Hören');
+    for (const tile of [speak, listen]) expect(await tile.innerText()).toBe('');
+    await expect(page.locator('svg.clock-icon')).toHaveCount(0);
+    const [a, b] = [await box(speak), await box(listen)];
+    expect(b.y).toBeGreaterThan(a.y + a.height - 1); // untereinander
+    expect(b.x).toBeCloseTo(a.x, 0);
   });
 
-  test('AT-26.2: längere Dauer wählen und merken', async ({ page }) => {
-    await expect(btn(page, '3 Minuten')).toHaveAttribute('aria-pressed', 'true');
-    await btn(page, '7 Minuten').click();
-    await expect(btn(page, '7 Minuten')).toHaveAttribute('aria-pressed', 'true');
-    await expect(btn(page, '3 Minuten')).toHaveAttribute('aria-pressed', 'false');
+  test('AT-26.2/AT-89.1: Hören wählen und merken', async ({ page }) => {
+    await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'true');
+    await btn(page, 'Hören').click();
+    await expect(btn(page, 'Hören')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'false');
     await page.reload();
-    await expect(btn(page, '7 Minuten')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, 'Hören')).toHaveAttribute('aria-pressed', 'true');
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.settings.durationMin).toBe(7);
+    expect(stored.settings.mode).toBe('listen');
   });
 
   test('AT-26.3/AT-81.1: Erststart – nur Englisch und Französisch, nebeneinander', async ({
@@ -109,9 +110,9 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     const vp = page.viewportSize()!;
     const big = await box(btn(page, 'Mimi'));
     const small = await Promise.all(
-      ['Englisch', 'Französisch', '3 Minuten', '7 Minuten'].map((n) => box(btn(page, n))),
+      ['Englisch', 'Französisch', 'Sprechen', 'Hören'].map((n) => box(btn(page, n))),
     );
-    const gap = (await box(btn(page, '7 Minuten'))).y - (small[2].y + small[2].height);
+    const gap = (await box(btn(page, 'Hören'))).y - (small[2].y + small[2].height);
     for (const s of small) {
       expect(s.width).toBeCloseTo(big.width, 0);
       expect(s.height).toBeCloseTo((big.height - gap) / 2, 0);

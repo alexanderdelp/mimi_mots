@@ -1,4 +1,4 @@
-// Eigene, schlichte SVG-Symbole (weiß auf lila Rundbuttons) und das Uhr-Symbol der Dauer.
+// Eigene, schlichte SVG-Symbole (weiß auf lila Rundbuttons, lila auf den Modus-Kacheln).
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -30,6 +30,20 @@ const ICONS = {
     '<circle cx="33" cy="76" r="3" fill="currentColor" />' +
     '<g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">' +
     '<path d="M48 16 A36 36 0 0 1 86 50" /><path d="M76 46 L86 54 L94 42" /></g>',
+  // B-89 Modus Sprechen: Kopf im Profil mit Schallwellen vor dem Mund
+  speak:
+    '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M22 88 V72 C10 64 8 50 10 40 C13 22 26 12 41 12 C55 12 63 22 63 34 L69 47 L63 50 V59 C63 65 59 67 53 67 H47 V88" />' +
+    '<path d="M76 30 A14 14 0 0 1 76 52" /><path d="M85 21 A27 27 0 0 1 85 61" /></g>',
+  // B-89 Modus Hören: Ohr mit Muschel
+  listen:
+    '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M30 40 C30 22 42 12 54 12 C70 12 80 24 80 40 C80 54 70 58 66 66 C62 76 58 88 44 88 C36 88 32 82 32 76" />' +
+    '<path d="M44 42 C44 32 50 28 56 28 C64 28 68 34 68 40 C68 48 58 50 56 58 C55 63 52 66 48 66" /></g>',
+  // B-89 Hörrunde: Auge – „Zeig mir das deutsche Wort“
+  eye:
+    '<path d="M8 50 C22 28 36 20 50 20 C64 20 78 28 92 50 C78 72 64 80 50 80 C36 80 22 72 8 50 Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round" />' +
+    '<circle cx="50" cy="50" r="14" fill="currentColor" />',
 } as const;
 
 export type IconName = keyof typeof ICONS;
@@ -41,35 +55,6 @@ export function icon(name: IconName, className?: string): SVGSVGElement {
   svg.dataset.icon = name;
   if (className) svg.setAttribute('class', className);
   svg.innerHTML = ICONS[name];
-  return svg;
-}
-
-/** Endpunkt auf dem Kreis für einen Winkel im Uhrzeigersinn ab 12 Uhr. */
-function pointAt(deg: number, r: number): [number, number] {
-  const a = (deg * Math.PI) / 180;
-  return [50 + r * Math.sin(a), 50 - r * Math.cos(a)];
-}
-
-/** Uhr-Symbol im Stil des Timers (B-41): Scheibe, Strichmarken, lila Sektor für `minutes` von 60. */
-export function clockIcon(minutes: number): SVGSVGElement {
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 100 100');
-  svg.setAttribute('class', 'clock-icon');
-  svg.setAttribute('aria-hidden', 'true');
-  const ticks = Array.from({ length: 12 }, (_, i) => {
-    const [x1, y1] = pointAt(i * 30, 40);
-    const [x2, y2] = pointAt(i * 30, 45);
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" />`;
-  }).join('');
-  const angle = (minutes / 60) * 360;
-  const [ex, ey] = pointAt(angle, 38);
-  const largeArc = angle > 180 ? 1 : 0;
-  svg.dataset.angle = String(angle);
-  svg.innerHTML =
-    `<circle class="clock-icon__face" cx="50" cy="50" r="47" />` +
-    `<g class="clock-icon__ticks">${ticks}</g>` +
-    `<path class="clock-icon__sector" d="M50 50 L50 12 A38 38 0 ${largeArc} 1 ${ex} ${ey} Z" />` +
-    `<circle class="clock-icon__hub" cx="50" cy="50" r="5" />`;
   return svg;
 }
 

@@ -186,7 +186,7 @@ test.describe('B-87 Tutorial', () => {
     await hold(page, '.close-button');
     await expect(view(page, 'start')).toBeVisible();
     await expect(btn(page, 'Mots')).toBeEnabled();
-    await expect(btn(page, '3 Minuten')).toBeEnabled();
+    await expect(btn(page, 'Sprechen')).toBeEnabled();
     const data = await stored(page);
     expect(data.tutorialDone).toBe(false);
     expect(data.rest?.sleeping ?? []).toEqual([]);
@@ -204,7 +204,7 @@ test.describe('B-87 Tutorial', () => {
     await hold(page, '.close-button');
     await btn(page, 'Zurück').click();
     await page.reload();
-    await btn(page, 'Los geht’s').click(); // Mimi und 7 Minuten sind übrig
+    await btn(page, 'Los geht’s').click(); // Mimi ist übrig
     await expect(view(page, 'round')).toBeVisible();
     await expect(bubble(page)).toBeHidden();
     await hold(page, '.close-button');
@@ -213,8 +213,8 @@ test.describe('B-87 Tutorial', () => {
     // Schlafseite → Elternbereich: Tutorial zurücksetzen, aufwecken, nächste Runde zeigt es
     await hold(page, '.app-header__icon');
     await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
-    await btn(page, 'Tutorial zurücksetzen').click();
-    await expect(btn(page, 'Tutorial zurücksetzen')).toBeDisabled();
+    await btn(page, 'Sprechen zurücksetzen').click();
+    await expect(btn(page, 'Sprechen zurücksetzen')).toBeDisabled();
     await btn(page, 'Tiere aufwecken').click();
     await btn(page, 'Zurück').click();
     await btn(page, 'Los geht’s').click();

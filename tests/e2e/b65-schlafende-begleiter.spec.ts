@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 /** Speichert einen Stand, bevor die App lädt. */
-async function seed(page: Page, sleeping: string[], usedDurations: number[], since = '2026-10-30') {
+async function seed(page: Page, sleeping: string[], since = '2026-10-30') {
   await page.addInitScript(
     ([key, value]) => {
       if (!sessionStorage.getItem('seeded')) {
@@ -26,18 +26,18 @@ async function seed(page: Page, sleeping: string[], usedDurations: number[], sin
       KEY,
       JSON.stringify({
         version: 1,
-        settings: { companion: 'mots', language: 'fr', durationMin: 7 },
+        settings: { companion: 'mots', language: 'fr', mode: 'listen' },
         progress: { en: {}, fr: {} },
-        rest: { sleeping, usedDurations, since },
+        rest: { sleeping, since },
       }),
     ] as const,
   );
 }
 
-async function startRound(page: Page, companion: 'Mimi' | 'Mots', minutes: 3 | 7) {
+async function startRound(page: Page, companion: 'Mimi' | 'Mots', mode: 'Sprechen' | 'Hören') {
   await btn(page, companion).click();
   await btn(page, 'Französisch').click();
-  await btn(page, `${minutes} Minuten`).click();
+  await btn(page, mode).click();
   await btn(page, 'Los geht’s').click();
   await expect(view(page, 'round')).toBeVisible();
 }
@@ -62,12 +62,12 @@ async function expectAsleep(page: Page, name: 'Mimi' | 'Mots', file: string) {
 }
 
 test.describe('B-65 Schlafende Begleiter', () => {
-  test('AT-65.1: nach Zeitablauf schläft der Begleiter, die Dauer ist verbraucht', async ({
+  test('AT-65.1/AT-89.3: nach Zeitablauf schläft der Begleiter, beide Modi bleiben', async ({
     page,
   }) => {
     await page.goto('./');
-    await startRound(page, 'Mimi', 3);
-    await page.clock.fastForward(3 * 60_000 + 1000);
+    await startRound(page, 'Mimi', 'Sprechen');
+    await page.clock.fastForward(5 * 60_000 + 1000);
     await page.clock.runFor(300);
     await btn(page, 'Auf Französisch anhören').click();
     await btn(page, 'Noch üben').click();
@@ -76,20 +76,19 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
     await expectAsleep(page, 'Mimi', 'cat');
-    await expect(btn(page, '3 Minuten')).toBeDisabled();
     await expect(btn(page, 'Mots')).toBeEnabled();
     await expect(btn(page, 'Mots').locator('img')).toHaveAttribute('src', /pony_sitting/);
-    await expect(btn(page, '7 Minuten')).toBeEnabled();
+    for (const name of ['Sprechen', 'Hören']) await expect(btn(page, name)).toBeEnabled();
   });
 
   test('AT-65.2/65.3: nach [×] ebenso, Rest vorausgewählt, Play aktiv', async ({ page }) => {
     await page.goto('./');
-    await startRound(page, 'Mots', 7);
+    await startRound(page, 'Mots', 'Hören');
     await closeRound(page);
     await btn(page, 'Zurück').click();
     await expectAsleep(page, 'Mots', 'pony');
-    await expect(btn(page, '7 Minuten')).toBeDisabled();
-    for (const name of ['Mimi', 'Französisch', '3 Minuten']) {
+    await expect(btn(page, 'Hören')).toBeEnabled();
+    for (const name of ['Mimi', 'Französisch', 'Hören']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'true');
     }
     await expect(btn(page, 'Los geht’s')).toBeEnabled();
@@ -99,22 +98,21 @@ test.describe('B-65 Schlafende Begleiter', () => {
     page,
   }) => {
     await page.goto('./');
-    await startRound(page, 'Mimi', 7);
+    await startRound(page, 'Mimi', 'Hören');
     await closeRound(page);
     await page.reload();
     await expect(view(page, 'start')).toBeVisible();
     await expectAsleep(page, 'Mimi', 'cat');
-    await expect(btn(page, '7 Minuten')).toBeDisabled();
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.rest).toEqual({ sleeping: ['mimi'], usedDurations: [7], since: '2026-10-30' });
+    expect(stored.rest).toEqual({ sleeping: ['mimi'], since: '2026-10-30' });
   });
 
   test('AT-65.5: nach dem zweiten Begleiter kommt die Schlafseite', async ({ page }) => {
     await page.goto('./');
-    await startRound(page, 'Mimi', 3);
+    await startRound(page, 'Mimi', 'Sprechen');
     await closeRound(page);
     await btn(page, 'Zurück').click();
-    await btn(page, 'Los geht’s').click(); // Mots und 7 Minuten sind vorausgewählt
+    await btn(page, 'Los geht’s').click(); // Mots ist vorausgewählt, Sprechen bleibt
     await closeRound(page);
     await expect(view(page, 'end').locator('.avatar img')).toHaveAttribute('src', /pony_waving/);
     await btn(page, 'Zurück').click();
@@ -127,14 +125,14 @@ test.describe('B-65 Schlafende Begleiter', () => {
   });
 
   test('AT-65.6: schlafen beide, startet die App mit der Schlafseite', async ({ page }) => {
-    await seed(page, ['mimi', 'mots'], [3, 7]);
+    await seed(page, ['mimi', 'mots']);
     await page.goto('./');
     await expect(view(page, 'sleep')).toBeVisible();
     await expect(view(page, 'start')).toHaveCount(0);
   });
 
   test('AT-65.7 (seit B-69): Aufwecken über den Elternbereich', async ({ page }) => {
-    await seed(page, ['mimi', 'mots'], [3, 7]);
+    await seed(page, ['mimi', 'mots']);
     await page.goto('./');
     await hold(page, '[data-view="sleep"] .app-header__icon', 700);
     await expect(view(page, 'admin')).toBeVisible();
@@ -142,28 +140,26 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await btn(page, 'Tiere aufwecken').click();
     await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
-    for (const name of ['Mimi', 'Mots', '3 Minuten', '7 Minuten']) {
+    for (const name of ['Mimi', 'Mots', 'Sprechen', 'Hören']) {
       await expect(btn(page, name)).toBeEnabled();
     }
-    for (const name of ['Mots', 'Französisch', '7 Minuten']) {
+    for (const name of ['Mots', 'Französisch', 'Hören']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'true');
     }
     await expect(btn(page, 'Mimi').locator('img')).toHaveAttribute('src', /cat_sitting/);
   });
 
-  test('AT-65.9: App-Start an einem späteren Tag: alle wach, alle Dauern frei', async ({
-    page,
-  }) => {
-    await seed(page, ['mimi', 'mots'], [3, 7], '2026-10-29');
+  test('AT-65.9: App-Start an einem späteren Tag: alle wach', async ({ page }) => {
+    await seed(page, ['mimi', 'mots'], '2026-10-29');
     await page.goto('./');
     await expect(view(page, 'start')).toBeVisible();
-    for (const name of ['Mimi', 'Mots', '3 Minuten', '7 Minuten']) {
+    for (const name of ['Mimi', 'Mots', 'Sprechen', 'Hören']) {
       await expect(btn(page, name)).toBeEnabled();
     }
   });
 
   test('AT-65.9: App bleibt offen, nach Mitternacht zurückgeholt → alle wach', async ({ page }) => {
-    await seed(page, ['mimi', 'mots'], [3, 7]);
+    await seed(page, ['mimi', 'mots']);
     await page.goto('./');
     await expect(view(page, 'sleep')).toBeVisible();
     const comeBack = () =>
@@ -178,7 +174,7 @@ test.describe('B-65 Schlafende Begleiter', () => {
   });
 
   test('AT-65.8: Schlafseite passt auf den Bildschirm, Screenshot', async ({ page }) => {
-    await seed(page, ['mimi', 'mots'], [3, 7]);
+    await seed(page, ['mimi', 'mots']);
     await page.goto('./');
     await page.waitForFunction(() => {
       const img = document.querySelector<HTMLImageElement>('.sleep__picture');
@@ -194,7 +190,7 @@ test.describe('B-65 Schlafende Begleiter', () => {
   });
 
   test('AT-65.8: Startseite mit schlafendem Begleiter passt, Screenshot', async ({ page }) => {
-    await seed(page, ['mimi'], [3]);
+    await seed(page, ['mimi']);
     await page.goto('./');
     await page.waitForFunction(() =>
       [...document.querySelectorAll<HTMLImageElement>('.start__avatar')].every(

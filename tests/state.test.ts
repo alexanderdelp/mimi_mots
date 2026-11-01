@@ -20,7 +20,7 @@ import {
 /** Daten mit vollständiger Auswahl, damit Play erlaubt ist. */
 const complete = () => {
   const data = defaults();
-  data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
+  data.settings = { companion: 'mimi', language: 'en', mode: 'speak' };
   data.tutorialDone = true; // sonst endet „finish“ als Tutorial-Abbruch (B-87)
   return data;
 };
@@ -124,11 +124,11 @@ describe('Auswahl (B-11)', () => {
     round: null,
   });
 
-  it('isComplete braucht Begleiter, Sprache und Dauer', () => {
+  it('isComplete braucht Begleiter, Sprache und Modus', () => {
     expect(isComplete(defaults().settings)).toBe(false);
     expect(isComplete(complete().settings)).toBe(true);
     expect(isComplete({ ...complete().settings, language: null })).toBe(false);
-    expect(isComplete({ ...complete().settings, durationMin: null })).toBe(false);
+    expect(isComplete({ ...complete().settings, mode: null })).toBe(false);
   });
 
   it('Play ohne vollständige Auswahl wird ignoriert', () => {
@@ -140,13 +140,13 @@ describe('Auswahl (B-11)', () => {
     let state = startState();
     state = reduce(state, { type: 'select', settings: { companion: 'mots' } });
     state = reduce(state, { type: 'select', settings: { language: 'fr' } });
-    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', durationMin: 3 });
+    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', mode: 'speak' });
     expect(reduce(state, { type: 'play' }).view).toBe('round');
   });
 
   it('select ohne Änderung liefert denselben State', () => {
     const state = startState();
-    expect(reduce(state, { type: 'select', settings: { durationMin: 3 } })).toBe(state);
+    expect(reduce(state, { type: 'select', settings: { mode: 'speak' } })).toBe(state);
   });
 
   it('select ändert die Daten nicht in-place', () => {
@@ -405,13 +405,9 @@ describe('Schlafende Begleiter (B-65)', () => {
   const TODAY = new Date(2026, 9, 30, 9, 0); // 30.10.2026, lokale Zeit
   let clock = TODAY;
   const now = () => clock;
-  const rest = (
-    sleeping: ('mimi' | 'mots')[],
-    usedDurations: (3 | 7)[],
-    since: string | null = '2026-10-30',
-  ) => {
+  const rest = (sleeping: ('mimi' | 'mots')[], since: string | null = '2026-10-30') => {
     const data = complete();
-    data.rest = { sleeping, usedDurations, since };
+    data.rest = { sleeping, since };
     return data;
   };
   const createStore = (data: AppData) => createStoreAt(data, false, now);
@@ -425,14 +421,13 @@ describe('Schlafende Begleiter (B-65)', () => {
     store.dispatch({ type: 'finish' });
   }
 
-  it('Ende der Runde: Begleiter schläft, Dauer verbraucht, Abschluss zeigt ihn noch', () => {
+  it('Ende der Runde: Begleiter schläft, Abschluss zeigt ihn noch', () => {
     const store = createStore(complete());
     playAndFinish(store);
     const state = store.getState();
     expect(state.view).toBe('end');
     expect(state.data.rest).toEqual({
       sleeping: ['mimi'],
-      usedDurations: [3],
       since: '2026-10-30',
     });
     expect(state.data.settings.companion).toBe('mimi');
@@ -448,12 +443,11 @@ describe('Schlafende Begleiter (B-65)', () => {
     expect(store.getState().view).toBe('end');
     expect(store.getState().data.rest).toEqual({
       sleeping: ['mimi'],
-      usedDurations: [3],
       since: '2026-10-30',
     });
   });
 
-  it('zurück zum Start: verbleibender Begleiter und Dauer vorausgewählt, Sprache bleibt', () => {
+  it('zurück zum Start: verbleibender Begleiter vorausgewählt, Sprache und Modus bleiben', () => {
     const store = createStore(complete());
     playAndFinish(store);
     store.dispatch({ type: 'home' });
@@ -461,23 +455,34 @@ describe('Schlafende Begleiter (B-65)', () => {
     expect(store.getState().data.settings).toEqual({
       companion: 'mots',
       language: 'en',
-      durationMin: 7,
+      mode: 'speak',
     });
   });
 
-  it('schlafender Begleiter und verbrauchte Dauer sind nicht wählbar', () => {
-    const store = createStore(rest(['mimi'], [3]));
+  it('schlafender Begleiter ist nicht wählbar', () => {
+    const store = createStore(rest(['mimi']));
     const before = store.getState();
     store.dispatch({ type: 'select', settings: { companion: 'mimi' } });
-    store.dispatch({ type: 'select', settings: { durationMin: 3 } });
     expect(store.getState()).toBe(before);
+  });
+
+  it('AT-89.3: Modi verbrauchen sich nicht – nach einer Hörrunde geht auch wieder Hören', () => {
+    const data = complete();
+    data.settings.mode = 'listen';
+    data.listenTutorialDone = true;
+    const store = createStore(data);
+    playAndFinish(store);
+    store.dispatch({ type: 'home' });
+    expect(store.getState().data.settings).toMatchObject({ companion: 'mots', mode: 'listen' });
+    store.dispatch({ type: 'play' });
+    expect(store.getState().view).toBe('round');
   });
 
   it('Play mit schlafendem Begleiter wird ignoriert', () => {
     const state: AppState = {
       view: 'start',
       portrait: false,
-      data: rest(['mimi'], []),
+      data: rest(['mimi']),
       round: null,
     };
     expect(reduce(state, { type: 'play' }, '2026-10-30')).toBe(state);
@@ -490,7 +495,6 @@ describe('Schlafende Begleiter (B-65)', () => {
     playAndFinish(store);
     expect(store.getState().data.rest).toEqual({
       sleeping: ['mimi', 'mots'],
-      usedDurations: [3, 7],
       since: '2026-10-30',
     });
     store.dispatch({ type: 'home' });
@@ -498,18 +502,18 @@ describe('Schlafende Begleiter (B-65)', () => {
   });
 
   it('App-Start mit beiden schlafend → Schlafseite', () => {
-    expect(createStore(rest(['mimi', 'mots'], [3, 7])).getState().view).toBe('sleep');
+    expect(createStore(rest(['mimi', 'mots'])).getState().view).toBe('sleep');
   });
 
   it('App-Start mit einem schlafend → Start mit Vorauswahl', () => {
-    const state = createStore(rest(['mimi'], [3])).getState();
+    const state = createStore(rest(['mimi'])).getState();
     expect(state.view).toBe('start');
-    expect(state.data.settings).toMatchObject({ companion: 'mots', durationMin: 7 });
+    expect(state.data.settings).toMatchObject({ companion: 'mots', mode: 'speak' });
   });
 
-  it('wake (Elternbereich, B-69) weckt alle, gibt alle Dauern frei und behält die Auswahl', () => {
-    const data = rest(['mimi', 'mots'], [3, 7]);
-    data.settings = { companion: 'mots', language: 'fr', durationMin: 7 };
+  it('wake (Elternbereich, B-69) weckt alle und behält die Auswahl', () => {
+    const data = rest(['mimi', 'mots']);
+    data.settings = { companion: 'mots', language: 'fr', mode: 'listen' };
     const store = createStore(data);
     store.dispatch({ type: 'admin' });
     expect(store.getState().view).toBe('admin');
@@ -518,12 +522,12 @@ describe('Schlafende Begleiter (B-65)', () => {
     store.dispatch({ type: 'leave' });
     const state = store.getState();
     expect(state.view).toBe('start');
-    expect(state.data.rest).toEqual({ sleeping: [], usedDurations: [], since: null });
-    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', durationMin: 7 });
+    expect(state.data.rest).toEqual({ sleeping: [], since: null });
+    expect(state.data.settings).toEqual({ companion: 'mots', language: 'fr', mode: 'listen' });
   });
 
   it('wake wirkt nur im Elternbereich (nicht mehr auf der Schlafseite)', () => {
-    for (const data of [rest(['mimi'], [3]), rest(['mimi', 'mots'], [3, 7])]) {
+    for (const data of [rest(['mimi']), rest(['mimi', 'mots'])]) {
       const store = createStore(data);
       const before = store.getState();
       store.dispatch({ type: 'wake' });
@@ -531,20 +535,20 @@ describe('Schlafende Begleiter (B-65)', () => {
     }
   });
 
-  it('App-Start an einem späteren Tag: alle wach, Dauern frei, Startseite', () => {
+  it('App-Start an einem späteren Tag: alle wach, Startseite', () => {
     clock = new Date(2026, 9, 31, 7, 0);
-    const state = createStore(rest(['mimi', 'mots'], [3, 7], '2026-10-30')).getState();
+    const state = createStore(rest(['mimi', 'mots'], '2026-10-30')).getState();
     expect(state.view).toBe('start');
-    expect(state.data.rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+    expect(state.data.rest).toEqual({ sleeping: [], since: null });
   });
 
   it('am selben Tag bleibt es beim Schlaf, auch kurz vor Mitternacht', () => {
     clock = new Date(2026, 9, 30, 23, 59);
-    expect(createStore(rest(['mimi', 'mots'], [3, 7])).getState().view).toBe('sleep');
+    expect(createStore(rest(['mimi', 'mots'])).getState().view).toBe('sleep');
   });
 
   it('App bleibt offen: Tageswechsel weckt beim Zurückholen (day)', () => {
-    const store = createStore(rest(['mimi', 'mots'], [3, 7]));
+    const store = createStore(rest(['mimi', 'mots']));
     store.dispatch({ type: 'day' });
     expect(store.getState().view).toBe('sleep');
     clock = new Date(2026, 9, 31, 0, 1);
@@ -554,19 +558,18 @@ describe('Schlafende Begleiter (B-65)', () => {
   });
 
   it('Begleiter von gestern wacht auf, wenn heute der andere einschläft', () => {
-    const store = createStore(rest(['mimi'], [3], '2026-10-30'));
+    const store = createStore(rest(['mimi'], '2026-10-30'));
     clock = new Date(2026, 9, 31, 8, 0);
-    store.dispatch({ type: 'play' }); // Mots, 7 Minuten (vorausgewählt) – App war offen
+    store.dispatch({ type: 'play' }); // Mots (vorausgewählt) – App war offen
     store.dispatch({ type: 'finish' });
     expect(store.getState().data.rest).toEqual({
       sleeping: ['mots'],
-      usedDurations: [7],
       since: '2026-10-31',
     });
   });
 
   it('Schlaf ohne Datum gilt als alt', () => {
-    expect(createStore(rest(['mimi', 'mots'], [3, 7], null)).getState().view).toBe('start');
+    expect(createStore(rest(['mimi', 'mots'], null)).getState().view).toBe('start');
   });
 });
 
@@ -587,28 +590,41 @@ describe('Elternbereich (B-69)', () => {
 
   it('leave führt zur Schlafseite, wenn beide schlafen, sonst zum Start', () => {
     const asleep = complete();
-    asleep.rest = { sleeping: ['mimi', 'mots'], usedDurations: [3, 7], since: '2026-10-30' };
+    asleep.rest = { sleeping: ['mimi', 'mots'], since: '2026-10-30' };
     expect(reduce(at('admin', asleep), { type: 'leave' }, '2026-10-30').view).toBe('sleep');
     expect(reduce(at('admin'), { type: 'leave' }, '2026-10-30').view).toBe('start');
   });
 
-  it('resetProgress leert nur die gewählte Sprache', () => {
+  it('resetProgress leert nur die gewählte Sprache im gewählten Modus (B-89)', () => {
     const data = complete();
     const entry = { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' };
     data.progress = { en: { apfel: entry }, fr: { hund: entry }, ja: { katze: entry }, it: {} };
-    const next = reduce(at('admin', data), { type: 'resetProgress', language: 'fr' });
+    data.listenProgress = { en: {}, fr: { maus: entry }, ja: {}, it: {} };
+    const next = reduce(at('admin', data), {
+      type: 'resetProgress',
+      language: 'fr',
+      mode: 'speak',
+    });
     expect(next.data.progress).toEqual({
       en: { apfel: entry },
       fr: {},
       ja: { katze: entry },
       it: {},
     });
+    expect(next.data.listenProgress).toBe(data.listenProgress);
     expect(next.view).toBe('admin');
+    const listen = reduce(at('admin', data), {
+      type: 'resetProgress',
+      language: 'fr',
+      mode: 'listen',
+    });
+    expect(listen.data.listenProgress.fr).toEqual({});
+    expect(listen.data.progress).toBe(data.progress);
   });
 
   it('resetProgress wirkt nur im Elternbereich', () => {
     const state = at('start');
-    expect(reduce(state, { type: 'resetProgress', language: 'en' })).toBe(state);
+    expect(reduce(state, { type: 'resetProgress', language: 'en', mode: 'speak' })).toBe(state);
   });
 });
 
@@ -691,8 +707,48 @@ describe('Tutorial abbrechen (B-87)', () => {
     const state = store.getState();
     expect(state.view).toBe('start');
     expect(state.round).toBeNull();
-    expect(state.data.rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+    expect(state.data.rest).toEqual({ sleeping: [], since: null });
     expect(state.data.tutorialDone).toBe(false);
+  });
+
+  it('AT-89.6: Hörrunde hat ihr eigenes Tutorial; Abbruch dort lässt es offen', () => {
+    const data = complete(); // Sprech-Tutorial gesehen
+    data.settings.mode = 'listen';
+    const store = createStore(data);
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'finish' });
+    expect(store.getState().view).toBe('start');
+    expect(store.getState().data.listenTutorialDone).toBe(false);
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'tutorialDone' });
+    expect(store.getState().data).toMatchObject({ tutorialDone: true, listenTutorialDone: true });
+  });
+
+  it('AT-89.6: resetTutorial setzt nur das Tutorial des Modus zurück', () => {
+    const data = complete();
+    data.listenTutorialDone = true;
+    const admin: AppState = { view: 'admin', portrait: false, data, round: null };
+    const listen = reduce(admin, { type: 'resetTutorial', mode: 'listen' });
+    expect(listen.data).toMatchObject({ tutorialDone: true, listenTutorialDone: false });
+    const speak = reduce(admin, { type: 'resetTutorial', mode: 'speak' });
+    expect(speak.data).toMatchObject({ tutorialDone: false, listenTutorialDone: true });
+    expect(reduce(listen, { type: 'resetTutorial', mode: 'listen' })).toBe(listen);
+  });
+});
+
+describe('Lernstand je Modus (B-89)', () => {
+  it('AT-89.5: Bewertungen der Hörrunde landen in listenProgress', () => {
+    const data = complete();
+    data.settings.mode = 'listen';
+    data.listenTutorialDone = true;
+    const store = createStore(data);
+    store.dispatch({ type: 'play' });
+    store.dispatch({ type: 'word', id: 'hund', session: store.getState().round!.session });
+    store.dispatch({ type: 'reveal' });
+    store.dispatch({ type: 'rate', rating: 'known', at: '2026-10-30T10:00:00.000Z' });
+    const { progress, listenProgress } = store.getState().data;
+    expect(listenProgress.en.hund).toMatchObject({ box: 1, seen: 1 });
+    expect(progress.en).toEqual({});
   });
 
   it('nach dem Tutorial endet die Runde wie gewohnt mit Abschluss und Schlaf', () => {
@@ -715,9 +771,11 @@ describe('Tutorial (B-74)', () => {
     expect(reduce(at('round', false), { type: 'tutorialDone' }).data.tutorialDone).toBe(true);
     const start = at('start', false);
     expect(reduce(start, { type: 'tutorialDone' })).toBe(start);
-    expect(reduce(at('admin', true), { type: 'resetTutorial' }).data.tutorialDone).toBe(false);
+    expect(
+      reduce(at('admin', true), { type: 'resetTutorial', mode: 'speak' }).data.tutorialDone,
+    ).toBe(false);
     const round = at('round', true);
-    expect(reduce(round, { type: 'resetTutorial' })).toBe(round);
+    expect(reduce(round, { type: 'resetTutorial', mode: 'speak' })).toBe(round);
   });
 });
 

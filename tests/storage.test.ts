@@ -16,16 +16,23 @@ import {
 
 const valid = (): AppData => ({
   version: 1,
-  settings: { companion: 'mots', language: 'fr', durationMin: 3 },
+  settings: { companion: 'mots', language: 'fr', mode: 'speak' },
   progress: {
     fr: { apfel: { box: 2, seen: 5, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
     en: { hund: { box: 0, seen: 1, lastSeenAt: '2026-10-28T09:30:00.000Z' } },
     ja: { katze: { box: 1, seen: 2, lastSeenAt: '2026-10-30T08:00:00.000Z' } },
     it: { hase: { box: 4, seen: 7, lastSeenAt: '2026-10-30T09:00:00.000Z' } },
   },
-  rest: { sleeping: [], usedDurations: [7], since: '2026-10-29' },
+  listenProgress: {
+    fr: { hund: { box: 1, seen: 1, lastSeenAt: '2026-10-30T10:00:00.000Z' } },
+    en: {},
+    ja: {},
+    it: {},
+  },
+  rest: { sleeping: ['mimi'], since: '2026-10-29' },
   enabledLanguages: ['en', 'it'],
   tutorialDone: true,
+  listenTutorialDone: false,
   brakeNew: false,
   disabledWords: { en: ['hund'], fr: [], ja: [], it: [] },
 });
@@ -43,14 +50,16 @@ const throwingStorage = {
 beforeEach(() => localStorage.clear());
 
 describe('defaults', () => {
-  it('Erststart: nur die Dauer ist vorbelegt, kein Lernstand', () => {
+  it('Erststart: nur der Modus ist vorbelegt, kein Lernstand', () => {
     expect(defaults()).toEqual({
       version: 1,
-      settings: { companion: null, language: null, durationMin: 3 },
+      settings: { companion: null, language: null, mode: 'speak' },
       progress: { en: {}, fr: {}, ja: {}, it: {} },
-      rest: { sleeping: [], usedDurations: [], since: null },
+      listenProgress: { en: {}, fr: {}, ja: {}, it: {} },
+      rest: { sleeping: [], since: null },
       enabledLanguages: ['en', 'fr'],
       tutorialDone: false,
+      listenTutorialDone: false,
       brakeNew: true,
       disabledWords: { en: [], fr: [], ja: [], it: [] },
     });
@@ -117,30 +126,27 @@ describe('sanitize', () => {
   it('ersetzt ungültige Einstellungen einzeln durch Defaults', () => {
     const data = sanitize({
       ...valid(),
-      settings: { companion: 'hund', language: 'fr', durationMin: 9 },
+      settings: { companion: 'hund', language: 'fr', mode: 'schreiben' },
     });
-    expect(data.settings).toEqual({ companion: null, language: 'fr', durationMin: 3 });
+    expect(data.settings).toEqual({ companion: null, language: 'fr', mode: 'speak' });
   });
 
-  it('akzeptiert 7 Minuten als Dauer (B-27)', () => {
-    const data = sanitize({ ...valid(), settings: { ...valid().settings, durationMin: 7 } });
-    expect(data.settings.durationMin).toBe(7);
-  });
-
-  it.each([
-    [5, 3],
-    [10, 7],
-  ])('übernimmt die alte Dauer %i als %i Minuten (B-27)', (old, now) => {
-    const data = sanitize({ ...valid(), settings: { ...valid().settings, durationMin: old } });
-    expect(data.settings.durationMin).toBe(now);
+  it('AT-89.1: akzeptiert Hören als Modus, alte Dauer wird ignoriert', () => {
+    const data = sanitize({ ...valid(), settings: { ...valid().settings, mode: 'listen' } });
+    expect(data.settings.mode).toBe('listen');
+    const old = sanitize({
+      ...valid(),
+      settings: { companion: 'mimi', language: 'fr', durationMin: 7 },
+    });
+    expect(old.settings).toEqual({ companion: 'mimi', language: 'fr', mode: 'speak' });
   });
 
   it('akzeptiert null als „noch nicht gewählt“', () => {
     const data = sanitize({
       ...valid(),
-      settings: { companion: null, language: null, durationMin: null },
+      settings: { companion: null, language: null, mode: null },
     });
-    expect(data.settings).toEqual({ companion: null, language: null, durationMin: null });
+    expect(data.settings).toEqual({ companion: null, language: null, mode: null });
   });
 
   it('nutzt Default-Einstellungen, wenn settings fehlt', () => {
@@ -179,40 +185,56 @@ describe('sanitize', () => {
   });
 });
 
-describe('Schlaf und verbrauchte Dauern (B-65)', () => {
-  it('Erststart: alle wach, alle Dauern frei', () => {
-    expect(defaults().rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+describe('Schlaf (B-65, seit B-89 ohne verbrauchte Dauern)', () => {
+  it('Erststart: alle wach', () => {
+    expect(defaults().rest).toEqual({ sleeping: [], since: null });
   });
 
   it('ältere Daten ohne rest: alle wach', () => {
     const old: Partial<AppData> = valid();
     delete old.rest;
-    expect(sanitize(old).rest).toEqual({ sleeping: [], usedDurations: [], since: null });
+    expect(sanitize(old).rest).toEqual({ sleeping: [], since: null });
     expect(sanitize(old).progress).toEqual(valid().progress);
   });
 
-  it('verwirft Unbekanntes und Doppeltes, sortiert fest', () => {
+  it('verwirft Unbekanntes und Doppeltes, sortiert fest; alte verbrauchte Dauern fallen weg', () => {
     const data = sanitize({
       ...valid(),
       rest: {
         sleeping: ['mots', 'hund', 'mimi', 'mots'],
-        usedDurations: [7, 5, 3, '3'],
+        usedDurations: [7, 3],
         since: '30.10.2026',
       },
     });
-    expect(data.rest).toEqual({ sleeping: ['mimi', 'mots'], usedDurations: [3, 7], since: null });
+    expect(data.rest).toEqual({ sleeping: ['mimi', 'mots'], since: null });
   });
 
-  it.each([null, 'x', { sleeping: 'mimi', usedDurations: {} }])(
-    'ungültiges rest %j → leer',
-    (rest) => {
-      expect(sanitize({ ...valid(), rest }).rest).toEqual({
-        sleeping: [],
-        usedDurations: [],
-        since: null,
-      });
-    },
-  );
+  it.each([null, 'x', { sleeping: 'mimi' }])('ungültiges rest %j → leer', (rest) => {
+    expect(sanitize({ ...valid(), rest }).rest).toEqual({ sleeping: [], since: null });
+  });
+});
+
+describe('Hörrunde (B-89)', () => {
+  it('AT-89.5: alte Daten ohne listenProgress → leerer Hör-Lernstand, Sprechen bleibt', () => {
+    const old: Partial<AppData> = valid();
+    delete old.listenProgress;
+    const data = sanitize(old);
+    expect(data.listenProgress).toEqual({ en: {}, fr: {}, ja: {}, it: {} });
+    expect(data.progress).toEqual(valid().progress);
+  });
+
+  it('AT-89.5: Hör-Lernstand wird geprüft wie der Sprech-Lernstand', () => {
+    const raw = {
+      ...valid(),
+      listenProgress: { fr: { hund: { box: 9 }, katze: valid().listenProgress.fr.hund } },
+    };
+    expect(sanitize(raw).listenProgress.fr).toEqual({ katze: valid().listenProgress.fr.hund });
+  });
+
+  it('AT-89.6: Tutorial der Hörrunde nur mit echtem true gesehen', () => {
+    expect(sanitize({ ...valid(), listenTutorialDone: true }).listenTutorialDone).toBe(true);
+    expect(sanitize({ ...valid(), listenTutorialDone: 'ja' }).listenTutorialDone).toBe(false);
+  });
 });
 
 describe('localDay (B-65)', () => {
@@ -304,12 +326,12 @@ describe('persistOnChange (B-12)', () => {
     const store = createStore(defaults());
     persistOnChange(store);
     store.dispatch({ type: 'select', settings: { companion: 'mots' } });
-    expect(load().settings).toEqual({ companion: 'mots', language: null, durationMin: 3 });
+    expect(load().settings).toEqual({ companion: 'mots', language: null, mode: 'speak' });
   });
 
   it('speichert nicht bei Ansichts- oder Ausrichtungswechsel', () => {
     const data = defaults();
-    data.settings = { companion: 'mimi', language: 'en', durationMin: 3 };
+    data.settings = { companion: 'mimi', language: 'en', mode: 'speak' };
     const store = createStore(data);
     const write = vi.fn(() => true);
     persistOnChange(store, write);
@@ -322,7 +344,7 @@ describe('persistOnChange (B-12)', () => {
     const store = createStore(defaults());
     const write = vi.fn(() => true);
     persistOnChange(store, write);
-    store.dispatch({ type: 'select', settings: { durationMin: 3 } });
+    store.dispatch({ type: 'select', settings: { mode: 'speak' } });
     expect(write).not.toHaveBeenCalled();
   });
 
