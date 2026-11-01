@@ -1,5 +1,5 @@
 // Startansicht (anforderungen.md §3.1): Begleiter, Sprache, Modus wählen, dann Play.
-// Schlafende Begleiter sind ausgegraut (B-65). Modus (Sprechen/Hören) statt Dauer seit B-89. Sprachen erscheinen nur, wenn
+// Schlafende Begleiter sind ausgegraut (B-65), Modus Sprechen/Hören (B-89). Sprachen erscheinen nur, wenn
 // sie eingeschaltet sind und Wörter haben (B-81/B-84) – ausgeschaltete fehlen ganz.
 import {
   COMPANIONS,

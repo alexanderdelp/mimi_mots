@@ -1,10 +1,16 @@
 # Mimi & Mots
 
-PWA für ein quergelegtes iPad, mit der eine Erstklässlerin spielerisch ein paar Wörter auf Englisch oder Französisch lernt – begleitet von Mimi (Katze) oder Mots (Pony).
+PWA für ein quergelegtes iPad (auch iPhone quer), mit der eine Erstklässlerin spielerisch ein paar Wörter auf Englisch, Französisch, Japanisch oder Italienisch lernt – begleitet von Mimi (Katze) oder Mots (Pony).
 
-- Fachliche Anforderungen: [anforderungen.md](anforderungen.md)
-- Aufgaben und Reihenfolge: [backlog.md](backlog.md)
+- Kurze Runden (Standard 5 Minuten) im Modus **Sprechen** (Bild → Fremdwort) oder **Hören** (Fremdwort → Bild), mit Tutorial beim ersten Mal; danach schläft der Begleiter bis morgen.
+- Neutrale Selbsteinschätzung („Wusste ich“ / „Noch üben“), Wortauswahl nach Leitner – keine Punkte, kein Lob.
+- Versteckter Elternbereich (App-Icon gedrückt halten): Lernstand, Sprachen und Wörter ein-/ausschalten, Rundendauer, Tiere wecken.
+- Offline nach dem ersten Laden, keine Server, kein Tracking.
+
+- Fachliche Anforderungen (aktueller Stand): [anforderungen.md](anforderungen.md)
+- Offene Aufgaben: [backlog.md](backlog.md)
 - Arbeitsweise und Technik: [CLAUDE.md](CLAUDE.md)
+- Archiv (erledigte Aufgaben, Chronik der Entscheidungen): [docs/archiv/](docs/archiv/)
 
 ## Entwicklung
 
@@ -12,10 +18,13 @@ PWA für ein quergelegtes iPad, mit der eine Erstklässlerin spielerisch ein paa
 npm install
 npx playwright install webkit   # einmalig, für die E2E-Tests
 npm run dev                     # http://localhost:5181/mimi_mots/ (auch im WLAN, z. B. iPad)
+npm run preview                 # Produktionsbuild auf http://localhost:4181/mimi_mots/
 npm test                        # Unit-Tests (Vitest)
-npm run test:e2e                # Akzeptanztests (Playwright, WebKit, iPad quer)
+npm run test:e2e                # Akzeptanztests (Playwright, WebKit, iPad quer und iPhone quer)
 npm run lint
 ```
+
+Andere Ports (z. B. für parallele Worktrees): `DEV_PORT=5182 PREVIEW_PORT=4182 npm run …` – die E2E-Tests nutzen `PREVIEW_PORT`.
 
 ## Veröffentlichung (GitHub Pages)
 

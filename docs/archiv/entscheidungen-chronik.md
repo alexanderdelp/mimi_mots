@@ -1,0 +1,227 @@
+# Entscheidungen – Chronik (Archiv)
+
+Vollständige Chronik der Entscheidungen aus `anforderungen.md` §11 (wörtlich, in der damaligen Reihenfolge, inkl. überholter Entscheidungen und des Leitprinzipien-Reviews B-61) sowie die frühere Fassung von §1–§9 und §12 – nur zum Nachschlagen; was heute gilt, steht in `anforderungen.md`.
+
+## Entscheidungen (Chronik bis 2026-11-01)
+- 2026-10-29: Wortliste v1 bestätigt.
+- 2026-10-29: Keine deutsche Sprachausgabe (Kind liest).
+- 2026-10-29: Letztes Wort nach Timer-Ablauf läuft unverändert inkl. Vorlesen; Abschluss erst nach Selbsteinschätzung.
+- 2026-10-29: Avatare und Flaggen als gelieferte transparente PNGs, keine Aufbereitung.
+- 2026-10-29: Hosting GitHub Pages.
+- 2026-10-29: App-Icon als austauschbares SVG generiert.
+- 2026-10-29: Assets aus dem Repo-Root nach `public/avatars/`, `public/flags/`, `public/icons/` verschoben.
+- 2026-10-29: Wortliste liegt als `src/data/words.json` (Quelle für App und Audio-Skript), `words.ts` liefert Typ und Zugriff. Kein separater JSON-Export nötig.
+- 2026-10-29: Takt neuer Wörter (§5): Solange weniger als 6 Wörter bekannt sind, wird mit neuen aufgefüllt; sonst ist jedes 3. Wort neu, bis 6 neue eingeführt sind. Bekannte Wörter werden nach Leitner-Box gewichtet. Grund: Mit „neues Wort als gewichteter Platz“ kamen in späteren Sessions nur noch 2–3 neue Wörter.
+- 2026-10-29: Ausnahme von der 200-ms-Regel (Leitprinzip 4): Beim Gedrückthalten von [×] füllt sich ein Fortschrittsring über 600 ms (= Long-Press-Dauer). Er ist Rückmeldung auf eine Bedienung, keine Deko; bei „Bewegung reduzieren“ ohne Animation.
+- 2026-10-29: UI-Überarbeitung (B-26): Dauer 5 oder 10 Minuten (nur Uhr-Symbol); Sprachkacheln flach im 2 × 2-Raster mit Japanisch ausgegraut; Kopfleiste auch in der Lernrunde; Lautsprecher-Button statt Tipp auf die Flagge; Bewertung als runde lila Buttons nur mit Symbol. Kacheln sind nur noch innerhalb einer Gruppe gleich groß.
+- 2026-10-29: Flaggen GB/FR als SVG statt der gelieferten PNGs (214 × 143 px waren auf dem Retina-iPad in der großen Darstellung unscharf); alle Flaggen im Seitenverhältnis 3 : 2.
+- 2026-10-29: Audio (M3): Kokoro über `kokoro-onnx` (gleiches Modell, ohne PyTorch); Python-Umgebung `.venv`, Modell in `.models/` (beides nicht eingecheckt). Beim Start einer Runde werden alle Audiodateien der gewählten Sprache vorgeladen (~450 KB). Hörprüfung über die Abhörseite `tools/hoerpruefung.html` (nur Dev-Server) und `audio-check.md`.
+- 2026-10-29: Aussprache: Französisch aus vorproduzierten Kokoro-MP3s (`ff_siwis`, Hörprüfung ok). Englisch vorerst live über die Gerätestimme (Web Speech, en-GB): Kokoro `bf_emma` sprach im Klangvergleich bei jedem Wort einen falschen Anfangslaut mit (z. B. „egg“ → „leg“); weder Einblenden noch Satzkontext halfen. Pro Sprache steuert `audioFiles` in `src/data/languages.ts`, ob MP3s genutzt werden. Später prüfen: Piper (en_GB) oder eigene Aufnahmen.
+- 2026-10-29: Timer-Zifferblatt (B-41): Die volle Scheibe entspricht der gewählten Dauer (5 bzw. 10 Minuten), nicht einer 60-Minuten-Skala wie beim echten Time Timer – auf 120 px wäre ein 30°-Keil für ein Kind kaum ablesbar. Die Uhr-Symbole der Startseite zeigen weiterhin 5 bzw. 10 von 60 Minuten, damit sich die Kacheln unterscheiden.
+- 2026-10-29: Lernansicht überarbeitet (B-27): Dauer 3/7 statt 5/10 Minuten (wirkte zu lang; gespeicherte 5/10 werden zu 3/7). [×] und Timer sitzen fest in der Kopfleiste (dafür ist die Kopfleiste auf allen Seiten etwas höher, Timer 88 statt ~120 px). Fremdwort, Flagge und Lautsprecher stehen in einer eigenen Karte, gleich groß wie die Karte mit dem deutschen Wort, damit beide Wörter gleich gewichtet sind. Begleiter größer links unten.
+- 2026-10-29: Texte angepasst: Sprachgruppe „In welcher Sprache?“ statt „Welche Sprache?“, Abschluss „Bis zum nächsten Mal!“ statt „Viel Spaß beim Spielen!“.
+- 2026-10-29: Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme.
+- 2026-10-30: Sprachen nur eingeschaltet sichtbar (B-81): Ausgeschaltete Sprachen fehlen auf der Startseite ganz statt ausgegraut – die Startseite wirkte zu voll. Das Raster hat höchstens zwei Spalten und ist immer zwei Kachelzeilen hoch, damit die Überschrift mit den anderen Gruppen auf einer Linie bleibt.
+- 2026-10-30: Bremse statt „Nur bekannte Wörter“ (B-82, ersetzt B-75): keine Kachel mehr auf der Startseite. Stattdessen ein Schalter „Neue Wörter bremsen“ im Elternbereich (Standard: an, auch für bisher gespeicherte Daten): Stehen in der Sprache 6 oder mehr Wörter auf Stufe 0 („noch üben“), kommen keine neuen dazu. Der Scheduler prüft das bei jedem Wort, neue Wörter kommen also wieder, sobald genug gefestigt ist. Das Kind sieht davon nichts.
+- 2026-10-30: Elternbereich mit zwei Reitern (B-83) rechts in der Kopfleiste: „Sprachen“ (Lernstand, zurücksetzen, ein-/ausschalten) und „Sonstiges“ (Tiere aufwecken, Tutorial zurücksetzen, Bremse) – jeweils mit kurzer Erklärung. Sprachkacheln im Elternbereich 100 statt 120 px breit, damit vier Flaggen auf 1024 px passen. Beim Öffnen ist immer „Sprachen“ gewählt.
+- 2026-10-30: Elternbereich-Feinschliff (B-86): Zurück-Pfeil statt Haus (es geht zurück zur Auswahl, nicht „nach Hause“). Die Bremse ist eine Auswahlkachel „Bremsen“ wie bei der Tierauswahl statt „Ist an/aus“. Kein Hinweis auf die Stimmwahl in der App, nur „Noch keine Wörter vorhanden“. Sprachen ohne Wörter lassen sich nicht einschalten, die letzte Sprache mit Wörtern nicht ausschalten; gespeicherte Daten werden beim Laden entsprechend bereinigt (ohne verbleibende Sprache gilt der Standard). So kann die Startseite nie ohne Sprache sein und Play nicht ohne Sprache aktiv.
+- 2026-10-30: Wortschatz = Wörter mit gewählter Aufnahme (B-84): In einer Sprache kommen nur Wörter vor, für die auf der Stimmwahl-Seite eine Aufnahme gewählt wurde – lieber ein Wort weglassen als eine schlechte Aussprache anbieten. Quelle ist `audio-choices.json` (beim Bauen eingelesen); `audio-check.md` zeigt denselben Stand als Häkchen. Eine Sprache ohne solche Wörter erscheint nicht auf der Startseite, der Elternbereich zeigt „Noch keine Wörter vorhanden“. Fehlt das Probewort Apfel, nimmt das Tutorial das erste Wort des Wortschatzes. Lernstand von Wörtern, die herausfallen, bleibt gespeichert und gilt wieder, wenn sie zurückkommen.
+- 2026-10-30: Stimmwahl „keins“ (B-85): je Wort eine Option „keins“, wenn keine Aufnahme taugt – gespeichert als `null` in `audio-choices.json`, die App-Datei wird gelöscht, der Haken in `audio-check.md` entfernt; `npm run audio` erzeugt dafür keine Datei mehr. Die Notizspalte („neu“) entfällt in `audio-check.md`, Abhör- und Stimmwahl-Seite. Japanisch ist jetzt auch in der Stimmwahl (eine Stimme, „Wort“ und „Wort。“), damit es geprüft werden kann.
+- 2026-10-30: Italienisch (B-80): vierte Lernsprache, füllt den freien Platz im 2 × 2-Raster (EN | FR / JA | IT); standardmäßig ausgeschaltet wie Japanisch. Nomen mit bestimmtem Artikel wie im Französischen (il/lo/la/l'), Farben und Zahlen ohne. Wortwahl kindgerecht: ⚽ „la palla“, 🚗 „la macchina“, 🍰 „la torta“. Stimmen zur Wahl je Wort (Stimmwahl wie B-78): Kokoro `if_sara` (Standard) und `im_nicola` (Apache-2.0) sowie Piper `it_IT-riccardo-x_low` (M-AILABS-Daten, frei nutzbar, aber nur x_low-Qualität). Piper `paola` entfällt (Lessac-Basis, nur Forschung), MeloTTS kann kein Italienisch, MMS-TTS und XTTS sind nur nicht-kommerziell. Alle Audiodateien zusammen bleiben mit vier Sprachen bei ca. 1,6 MB (Grenze 3 MB).
+- 2026-10-31: Stimmwahl Französisch (B-79): Optionen Kokoro ff_siwis, Piper tom (AGPL-Modell, Lizenzwirkung auf Aufnahmen unklar – nur nach bewusster Entscheidung wählen) und MeloTTS (MIT; eigene Umgebung mit Python 3.10, Aufruf als Unterprozess); Piper mls war unverständlich. Grenzen für Audiodateien auf 32 KB je Datei und 3 MB gesamt angehoben (langsamere Sprecher, z. B. Piper cori).
+- 2026-10-31: Stimmwahl je Wort (B-78): Statt einer Stimme pro Sprache kann je Wort eine von mehreren Stimmen (Englisch: Piper ljspeech, kristin, cori; Kokoro af_heart) als „Wort“ oder „Wort.“ gewählt werden. Der Vergleich (rohes WAV, beschnitten, MP3, „Wort.“, Satz) zeigte: Das Beschneiden bei −45 dB kappt teils über 100 ms leises Wortende; „Wort.“ endet bei manchen Stimmen sauberer. Gewählte Dateien werden kopiert statt neu erzeugt, weil Piper nicht bitgleich reproduziert. Die Wahl gilt als Hörprüfung (Häkchen in `audio-check.md`). B-63 (französische Aussprache) entfällt zugunsten dieses Wegs.
+- 2026-10-31: iPhone (B-76): zusätzlicher Test-Viewport iPhone 15/16 quer (852 × 393, wie als Home-Bildschirm-App), nur Querformat wie beim iPad. Für niedrige Bildschirme (Höhe ≤ 500 px) gibt es ein kompaktes Layout mit gleicher Anordnung und kleineren Maßen; Schaltflächen dort mindestens 44 px (Apple-Mindestmaß), die 88 px gelten fürs iPad. Tests mit Hochformat-Wechsel per Größenänderung laufen nur auf iPad-Viewports, weil die iPhone-Emulation dabei kein Orientierungs-Ereignis auslöst; der Hochformat-Hinweis selbst wird auf 393 × 852 geprüft.
+- 2026-10-31: Nur bekannte (B-75): Kachel „Nur bekannte Wörter“ links neben Play; gewählt kommen in der nächsten Runde keine neuen Wörter, nur schon gesehene (Stufe 0–4). Nicht gespeichert, bei jedem Betreten der Startseite abgewählt; ausgegraut unter 6 gesehenen Wörtern der gewählten Sprache. Die Startseite hat damit 14 Wörter Text (Grenze aus B-61 auf 14 angehoben).
+- 2026-10-30: Tutorial überarbeitet (B-87): Es erklärt der gewählte Begleiter (statt immer Mimi) – er ist es auch, der sich am Ende hinlegt. Zehn Sprechblasen, jeder Tipp irgendwohin geht weiter, die Buttons müssen nicht getroffen werden und wirken im Tutorial nicht (ein Tipp auf den Lautsprecher spielt im passenden Schritt das Probewort). Ablauf: Begrüßung (winkt) und Einleitung (Pose „freut“, Bild idle) mit unscharfem Hintergrund – nur Kopfleiste und Begleiter scharf; Wortkarte eingekreist, Übersetzungskarte noch unscharf; dann ohne Unschärfe Flagge („Sprich das übersetzte Wort laut aus.“), Lautsprecher, Daumen, Wiederholen (zweimal); zur Uhr sind wieder die Karten unscharf, auch noch bei „Los geht’s!“ (winkt), danach nichts mehr. Die Kopfleiste ist nie unscharf. Die Uhr erscheint erst mit ihrem Schritt (vorher unsichtbar, ihr Platz bleibt; Einblenden 200 ms). Nach dem Lautsprecher-Schritt ist das Probewort aufgedeckt. Der Kreis liegt in einer eigenen Ebene über der Ansicht (die Flagge ist ein Bild und kann ihn nicht enthalten; so bleibt er auch am Rand ganz im Bild). Er wird in Pixeln passend zum Ziel berechnet – eine leicht wackelnde Schleife mit 1¼ Umdrehungen – und wie mit dem Stift gezogen (700 ms, Ausnahme von der 200-ms-Regel wie der Haltering; bei „Bewegung reduzieren“ sofort da). Vorher war er auf 0–100 gestreckt, und WebKit maß das Strichmuster in Bildschirmpixeln, sodass nur 50–80 % gezogen wurden. Bleibt das Ziel gleich, bleibt der Kreis stehen. Wird die Runde im Tutorial abgebrochen, geht es direkt zur Auswahl: niemand schläft ein, keine Dauer verbraucht, das Tutorial bleibt offen. Ausnahme vom Prinzip „wenig Text“: bis zu 12 Wörter je Sprechblase.
+- 2026-11-01: Versionierung nach SemVer (Nutzerentscheidung): MINOR je neue Funktion, PATCH je Korrektur oder kleine Anpassung, keine neue Version für Doku/Tests/Werkzeuge; 1.0.0, sobald der Lernstand in Supabase liegt. Erhöht wird im Abnahme-Commit beim Merge, danach Git-Tag `vX.Y.Z`; keine GitHub-Releases. B-99 wird 0.1.1.
+- 2026-11-01: Kleine Anpassungen nach dem Test (B-99): Der Elternbereich führt dorthin zurück, wo er geöffnet wurde – auch zur Begrüßung. In der Lernrunde hängt die Uhr rechts unten am Begleiter, auf Höhe der Bewertung (8 px neben der Stelle, bis zu der das breiteste Tierbild in dieser Höhe reicht – 89 % der Bildbreite); die Kopfleiste zeigt auf allen Seiten rechts den Namen (links [×] in der Runde). Deutsches Wort und Fremdwort haben gleiche Größe und Stärke (800; Größe des deutschen Worts), nur zu lange Fremdwörter werden kleiner. Neben der Version im Elternbereich steht ein schlichter Kopier-Button (weiß mit Rahmen, Symbol aus zwei Rechtecken, nach dem Kopieren kurz ein Haken; Text zusätzlich markierbar); auf dem iPhone sind die Zeilen in „Sonstiges“ dafür etwas enger. Die Screenshot-Tests blenden nur noch die Uhr aus, nicht mehr den rechten Teil der Kopfleiste.
+- 2026-11-01: Einstellungen je Kind (für B-90): Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind, nicht für das ganze Gerät (Nutzerentscheidung: dynamischer, bei einem Kind ohne Unterschied).
+- 2026-11-01: Telegram-Bot für Updates und Fragen an den Menschen (`tools/telegram.mjs`, aus game01 übernommen). Eigener Bot statt dem von game01: Telegram hat je Bot nur eine Warteschlange für eingehende Nachrichten, bei einem gemeinsamen Bot würden Antworten im falschen Projekt landen. Token und Chat-ID in `~/.config/mimi_mots/telegram.env`, nie im Repo. Betrifft nur die Entwicklung, nicht die App (Leitprinzip 6 bleibt).
+- 2026-11-01: Eigene Ports: Dev-Server 5181, Vorschau und E2E-Tests 4181 (statt der Vite-Standards 5173/4173), jeweils `strictPort`. Auf 4173 lief ein anderes Projekt, und Playwright hat es wegen `reuseExistingServer` mitgetestet.
+- 2026-11-01: Hörrunde (B-89): Statt der Dauer wählt das Kind den Modus Sprechen oder Hören, jede Runde dauert 5 Minuten. Hörrunde: Fremdwortkarte in der Mitte (Wort sofort sichtbar und einmal abgespielt), rechts die Bildkarte, die das Kind mit einem Auge-Button aufdeckt. Eigener Lernstand je Modus (`listenProgress`), eigenes Tutorial (`listenTutorialDone`), im Elternbereich je Modus zurücksetzbar. Modi verbrauchen sich nicht, nur die Tiere schlafen (2 × 5 = 10 Minuten am Tag). Im Elternbereich stehen die Modi vor den Flaggen; die Gruppennamen sind nur für Screenreader, sonst passt die Leiste nicht auf 1024 px. Die Sicherheitsabfrage nimmt die ganze Leiste ein.
+- 2026-11-01: Rundendauer im Elternbereich (B-93): Statt fester 5 Minuten (B-89) stellen Eltern im Reiter „Sonstiges“ 3 bis 10 Minuten ein (Standard 5, gespeichert als `roundMin`, alte oder ungültige Daten → 5). Gilt für Sprechen und Hören, die volle Scheibe entspricht der eingestellten Dauer. Bedienung mit runden Buttons „−“/„+“ (Namen „Kürzer“/„Länger“ nur für Screenreader) und der Dauer („5 Min.“) dazwischen – acht Kacheln für 3 bis 10 hätten in der Zeile keinen Platz. Die Zahl steht nur im Elternbereich; das Kind wählt weiter keine Dauer.
+- 2026-11-01: Tiere einzeln wecken und schlafen legen (B-94): Statt „Tiere aufwecken“ im Reiter „Sonstiges“ je Tier eine Auswahlkachel „Mimi“ und „Mots“ wie „Bremsen“ (markiert = schläft) – nur Text, keine Avatare (AT-69.2). Hingelegt wird wie nach einer Runde: `since` = heute, am nächsten Tag wachen alle auf; schläft keins mehr, ist `since` leer. Schlafen Tiere noch vom Vortag, gilt beim Umschalten erst der neue Tag. Die Auswahl der Startseite wird erst beim Verlassen des Elternbereichs angepasst, damit sie über mehrere Tipps erhalten bleibt. Schlafen beide, kommt wie bisher die Schlafseite.
+- 2026-10-31: Wörter ein-/ausschalten (B-88): Im Elternbereich lässt sich jedes Wort je Sprache per Tipp auf sein Emoji aus- und einschalten (ausgeschaltet = blass, `grayscale` + `opacity` wie ausgeschaltete Sprachen). Ausgeschaltete Wörter kommen nicht in der Lernrunde vor, ihr Lernstand bleibt. Abweichung von Leitprinzip 3: Die Wort-Buttons sind auf dem iPad nur 44 px groß (Apple-Mindestmaß) statt 88 px – bei 61 Wörtern passen größere nicht auf einen Bildschirm, und der Elternbereich richtet sich an Erwachsene. Auf dem iPhone bleiben sie aus Platzgründen kleiner.
+- 2026-10-31: Tutorial (B-74): in der allerersten Lernrunde, vor dem ersten echten Wort. Immer Mimi (auch wenn Mots gewählt ist), Probewort Apfel in der gewählten Sprache; Begrüßung in zwei Sprechblasen („Schön, dass du da bist!“, „Ich erkläre dir, was du hier machst.“ – Tipp irgendwohin geht weiter), dann drei Schritte mit Sprechblase über Mimi; der gemeinte Button ist wie mit dem Stift eingekreist (Beere, Strich wie die Schrift des deutschen Worts), nur dieser reagiert (Lautsprecher → Daumen → Wiederholen); zum Schluss „Und jetzt viel Erfolg – los geht’s!“. Uhr steht, Probewort zählt nicht. Danach `tutorialDone`; „Tutorial zurücksetzen“ im Elternbereich (links neben dem Haus-Button) lässt es in der nächsten Runde wieder erscheinen. Bisher gespeicherte Daten ohne das Feld sehen es einmal. Ausnahme vom Prinzip „wenig Text“: sechs kurze Sätze (≤ 7 Wörter) – das Kind liest.
+- 2026-10-31: Sprachen ein-/ausschalten (B-73): im Elternbereich je Sprache („Sprache ausschalten/einschalten“ für die dort gewählte Sprache); ausgeschaltete Sprachen sind auf der Startseite ausgegraut. Standard: Englisch und Französisch an, Japanisch aus (auch für bisher gespeicherte Daten). Mindestens eine Sprache bleibt an. „Tiere aufwecken“ (vorher „Alle aufwecken“) sitzt dafür rechts in der Kopfleiste des Elternbereichs; alle Textbuttons dort sind weiß mit Rahmen, ausgegraut bleiben sie weiß (blass). „Lernstand zurücksetzen“ ist ausgegraut, wenn die Sprache keinen Lernstand hat. Gespeichert als `enabledLanguages`.
+- 2026-10-30: Hochformat-Hinweis (B-72): Begleiter schlägt Rad statt zu sitzen, der Text „iPad drehen“ entfällt (nur noch Name für Screenreader). Die Radschlag-Bilder waren zuerst Platzhalter, seit B-77 sind es die gelieferten Grafiken.
+- 2026-10-30: Scheduler (B-70): Pause zwischen Wiederholungen 6 statt 3 Wörter – nach 6 anderen Wörtern muss das Kind das Wort wirklich abrufen, statt es aus dem Kurzzeitgedächtnis zu nehmen. Bei kleinem Wortschatz schrumpft die Pause auf min. 3 (`gapFor`), sonst bliebe keine Auswahl und die Gewichtung nach Stufe wäre wirkungslos. Höchstens 8 neue Wörter pro Runde (statt 6); greift praktisch nur in der 7-Minuten-Runde, weil nur jedes 3. Wort neu ist. Die Startphase bleibt bei 6, damit die erste Runde nicht mit 10 neuen Wörtern am Stück beginnt.
+- 2026-10-30: Elternbereich (B-69): erreichbar durch verstecktes Halten (600 ms) des App-Icons auf Start- und Schlafseite – ohne Hinweis, keine Schaltfläche. Ersetzt das direkte Aufwecken auf der Schlafseite. Inhalt: „Alle aufwecken“ (beide Begleiter, beide Dauern), je Sprache die Wörter als Emoji nach Stufe („Neu“, Stufe 0 = noch üben … Stufe 4 = sicher), „Lernstand zurücksetzen“ mit Sicherheitsabfrage (nur die gewählte Sprache). Haus-Button zurück zur Start- bzw. Schlafseite. Keine Avatare.
+- 2026-10-30: Japanisch (B-67): dritte Lernsprache. Angezeigt wird die übliche Schreibweise (Kanji, Hiragana oder Katakana, z. B. 猫, いちご, バナナ), ohne Lesehilfe. Für die Aussprache gibt es je Wort die Kana-Lesung (`jaKana`), damit die Synthese Kanji nicht falsch liest (月 → つき). Stimme: VOICEVOX 冥鳴ひまり – kostenlos, auch kommerziell, Namensnennung „VOICEVOX:冥鳴ひまり“ (README); die japanischen Kokoro-Stimmen sind nur mit C bis C+ bewertet, No.7 wäre nur nicht-kommerziell. VOICEVOX wird nicht automatisch geladen, weil man beim Download den Nutzungsbedingungen zustimmen muss. Wortwahl nach Bild: 🦆 カモ, ⛵ 船, 🚂 電車, 🍦 アイス.
+- 2026-10-30: Silbenfarben (B-66): Das deutsche Wort wird silbenweise abwechselnd in `--lila-900` und `--beere-600` (#B03A75, Himbeere; Kontrast auf Weiß 5,7 : 1) gefärbt – Silbenmethode für Leseanfänger. Die Sprechsilben stehen von Hand gepflegt in `words.json` (`syllables`), weil automatische Trennung bei Grundschul-Silben (z. B. „E-le-fant“, „o-ran-ge“) unzuverlässig ist. Nebenbei behoben: „Schmetterling“ war auf 1024 × 768 breiter als die Wortkarte; die Schrift des deutschen Worts ist jetzt höchstens 48 px und schrumpft mit der Kartenbreite (`min(48px, 14cqi)`).
+- 2026-10-30: Schlafende Begleiter (B-65): Mit dem Erreichen der Abschlussseite (Zeitablauf oder [×]) schläft der Begleiter ein und die gespielte Dauer ist verbraucht; beides ist auf der Startseite ausgegraut, der Begleiter mit Schlafbild. Ist nur noch ein Begleiter bzw. eine Dauer frei, ist sie vorausgewählt. Schlafen beide (oder sind alle Dauern verbraucht), kommt statt der Startseite die Schlafseite mit „Gute Nacht und bis morgen!“. Aufwecken nur durch 600 ms Halten des Icons in der Kopfleiste der Schlafseite, absichtlich ohne Hinweis. An einem späteren Tag (lokales Datum) wachen alle von selbst auf – beim App-Start und beim Zurückholen aus dem Hintergrund. Gespeichert in `rest` (mit `since` = Tag des Einschlafens) im selben localStorage-Schlüssel (ältere Daten ohne `rest` = alle wach). `both_sleeping.png` ist die gelieferte Grafik `cat_and_pony_sleeping.png`: Sie hatte ein ins Bild gemaltes Schachbrett statt echter Transparenz; das wurde per Flutfüllung vom Rand entfernt, zugeschnitten und auf 1213 × 663 px verkleinert (1,5 MB → 250 KB). Die einzelnen Schlafbilder waren zuerst Platzhalter, seit B-77 sind es die gelieferten Grafiken.
+- 2026-10-29: Englisch aus vorproduzierten MP3s mit Piper `en_US-ljspeech-high` (B-64), ersetzt die Gerätestimme (klang unter Linux schlecht und hängt auf dem iPad von den installierten Stimmen ab). Im Klangvergleich fielen alle englischen Kokoro-Stimmen (`bf_*`, `bm_*`, `am_*`) durch. Unter den Piper-Stimmen fielen die auf Lessac aufbauenden (u. a. Amy) aus Lizenzgründen weg (Blizzard-2013-Daten nur für Forschung); ljspeech ist public domain. Die Stimme ist amerikanisch, die Flagge bleibt vorerst britisch. Der Web-Speech-Fallback bleibt en-GB.
+- 2026-11-01: „Weiter“-Button im Tutorial (B-95): Statt „jeder Tipp geht weiter“ (B-87) schaltet nur ein runder lila Button mit Pfeil nach rechts (Name „Weiter“ nur für Screenreader) die Schritte weiter. Er sitzt rechts unten in der Sprechblase – beim Begleiter, nie unscharf, verdeckt nichts – und ist 88 px groß (iPhone 44 px), damit die Blase auf dem iPhone nicht zu hoch wird. Alle anderen Buttons und Flächen tun im Tutorial nichts (auch kein gedrücktes Aussehen); der Lautsprecher spielt nur in seinem Schritt das Probewort. Grund: Kinder tippten auf „Wusste ich“/„Noch üben“, es ging weiter, und sie waren verwirrt. Die Sprechblasentexte bleiben: „Tippe hier“ erklärt, was das Kind später in der Runde tut; der eingekreiste Button zeigt, wo.
+- 2026-11-01: Kind-Profil und Begrüßung (B-97): Alle gespeicherten Daten gehören zu einem Kind – `{ version: 2, activeChildId, children: [{ id, name, createdAt, updatedAt, …Daten }] }` unter dem neuen Schlüssel `mimi-mots:v2`. ids sind UUIDs (`crypto.randomUUID`, ohne sicheren Kontext – z. B. Dev-Server im WLAN über http – über `crypto.getRandomValues`), Zeitstempel ISO in UTC, damit die Kinder später 1 : 1 als Zeilen in Supabase passen. Alte Daten (`mimi-mots:v1`) werden nicht übernommen, unbrauchbare Daten führen zum Erststart (neues Kind ohne Namen, Namensfrage beim nächsten Wachsein). Der Name hat höchstens 16 Zeichen (passt in die Kopfleiste auf 1024 px und dem iPhone; sonst Auslassungspunkte). Neuer erster Bildschirm Begrüßung beim Öffnen, wenn ein Tier wach ist: ohne Namen die Namensfrage, sonst „Hallo Lina!“ mit beiden Tieren (wache winken, schlafende mit Schlafbild) und Pfeil-Button zur Auswahl. Der Start ist ohne Namen nie erreichbar: Wer z. B. über den Elternbereich die Tiere weckt, landet ohne Namen auf der Namensfrage. Nach einer Runde, nach Abbruch im Tutorial und nach dem Elternbereich kommt nie die Begrüßung; neu ist sie nur, wenn es auf der Schlafseite ein neuer Tag wird (wie ein neues Öffnen am Morgen). Der Elternbereich öffnet sich auch auf der Begrüßung durch Halten des Icons: Sie ist nach dem Öffnen der erste Bildschirm (wie die Schlafseite, wenn beide schlafen), und Eltern sollen nicht erst zur Auswahl tippen müssen. Der Name steht klein links in der Kopfleiste (in der Runde neben [×]), auf der Begrüßung nicht doppelt und im Elternbereich nicht. Für die Tests gilt die Begrüßung als durchgetippt und ein Name („Lina“) als gesetzt, außer mit `test.use({ greeting: true })` bzw. `test.use({ childName: null })`.
+- 2026-11-01: Keine Datenübernahme über Updates (Entscheidung des Menschen): Mit einer neuen Version wird derzeit einfach alles neu installiert; eine neue Version darf gespeicherte Daten verwerfen. Code, der Daten über Updates hinweg erhält, gibt es nur nach Rückfrage; vor jeder Änderung am Speicherformat wird gefragt, ob Daten erhalten bleiben müssen (ändert sich mit der Datenbank). Deshalb übernimmt B-97 die Daten aus `mimi-mots:v1` nicht.
+- 2026-11-01: Version im Elternbereich (B-98): Im Reiter „Sonstiges“ steht ganz unten „Version · Commit · Build-Datum“ (z. B. „0.1.0 · 8f48636 · 01.11.2026“), eingesetzt beim Bauen per Vite `define` (`__APP_VERSION__`, `__APP_COMMIT__`, `__APP_BUILD_DATE__`). Commit aus `git rev-parse --short=7 HEAD`, sonst aus `GITHUB_SHA`, sonst „unbekannt“ – der Build bricht nie ab; der Workflow (`actions/checkout`) bleibt unverändert. Die Zeile hat als einzige keine Erklärung, und die Zeilenabstände im Reiter sind bei Höhen bis 800 px etwas enger – sonst passte er auf 1024 × 768 und dem iPhone nicht. Commit und Datum stehen im JS-Bundle: Jeder neue Build ändert dessen Hash und damit den Precache, der Service Worker aktualisiert still beim nächsten Start (B-51) – gewollt und unkritisch.
+
+### Leitprinzipien-Review (B-61, 2026-10-30)
+Automatisch geprüft (`tests/e2e/b60-layout.spec.ts`, `b61-leitprinzipien.spec.ts`, alle drei Viewports):
+- [x] **1 – Kein Feedback, keine Bewertung:** keine Rot-/Grüntöne in Text, Hintergründen, Rahmen oder Symbolen der Kind-Ansichten (Flaggen und Emoji sind Bilder); keine Zahlen, Punkte, Sterne oder Lob-Wörter außerhalb der Lernwörter. „Wusste ich“ und „Noch üben“ gleich gestaltet (B-23). Die Stufen sieht nur der Elternbereich. Einschlafen nach der Runde ist weder Belohnung noch Strafe – es passiert immer, unabhängig von der Bewertung.
+- [x] **2 – Ein Bildschirm:** jede Ansicht ohne Scrollen und ohne Überlauf auf 1024 × 768, 1180 × 820, 1366 × 1024, Hochformat-Hinweis auf 768 × 1024 und 820 × 1180 (B-60).
+- [x] **3 – Große Schaltflächen, wenig Text:** jede Schaltfläche ≥ 88 × 88 px, auch im Elternbereich; höchstens 12 Wörter Text je Kind-Ansicht außer den Lernwörtern (die Startseite liegt mit 11 knapp darunter). Das versteckte Icon für den Elternbereich ist absichtlich keine Schaltfläche.
+- [x] **4 – Statische Avatare:** keine Animation oder Übergänge an Avataren; alle Übergänge ≤ 200 ms außer dem dokumentierten Fortschrittsring von [×] (600 ms) und dem gezogenen Kreis im Tutorial (700 ms, B-87); mit „Bewegung reduzieren“ alles 0 ms.
+- [x] **5 – Offline, klein:** Precache 209 Dateien, ~3,1 MB (< 5 MB), darin jedes Bild und jede Audiodatei aller drei Sprachen.
+- [x] **6 – Keine externen Anfragen:** ein kompletter Ablauf (zwei Runden, Schlafseite, Elternbereich) fragt nur die eigene Herkunft an.
+- [x] **Kontrast:** jeder sichtbare Text ≥ 4,5 : 1 (große Schrift ≥ 3 : 1); ausgegraute Kacheln sind nach WCAG ausgenommen.
+
+Von Hand durchgesehen – sichtbare Texte (alle Deutsch, kurz, du-Form bzw. neutral):
+Kind-Ansichten: „Mimi & Mots“, „Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“, „Mimi“, „Mots“, „Bis zum nächsten Mal!“, „Gute Nacht und bis morgen!“ (Hochformat-Hinweis seit B-72 ohne Text, „iPad drehen“ nur für Screenreader); Tutorial (seit B-87): „Hallo! Schön, dass du da bist!“, „Lass uns mal sehen, was du hier machen kannst.“, „Hier ist das Wort zum Übersetzen.“, „Sprich das übersetzte Wort laut aus.“, „Tippe hier, um es anzuhören.“, „Hast du es gewusst? Dann tippe hier.“, „Wusstest du es noch nicht? Dann tippe hier.“, „Das Wort kommt dann später wieder.“, „Nach einiger Zeit werde ich müde und möchte mich hinlegen.“, „Los geht’s!“; Schaltflächen nur mit Symbol (Namen nur für Screenreader: „Los geht’s“, „Beenden“, „Wusste ich“, „Noch üben“, „Zurück“, „Auf … anhören“, im Tutorial „Weiter“ seit B-95). Elternbereich: „Lernstand“, „Neu“, „Stufe 0–4“, „noch nicht dran“, „noch üben“, „sicher“, „Lernstand zurücksetzen“, „Wirklich zurücksetzen?“, „Ja, zurücksetzen“, „Abbrechen“, „Tiere aufwecken“, „Sprache ausschalten/einschalten“, „Tutorial zurücksetzen“; seit B-83 Reiter „Sprachen“/„Sonstiges“, dort „Schlafen“, „Tutorial“, „Neue Wörter bremsen“ mit je einer kurzen Erklärung; „Noch keine Wörter vorhanden“ (B-84/B-86), Kachel „Bremsen“ (B-86).
+Ergebnis: keine Abweichung gefunden, nichts zu ändern.
+
+## Frühere Fassung der Anforderungen §1–§9 und §12 (Stand vor B-101)
+
+(Überschriften eine Ebene tiefer gesetzt; §10 Wortliste steht unverändert in `anforderungen.md`.)
+
+### 1. Ziel und Zielgruppe
+- **Nutzerin:** Erstklässlerin (6–7 Jahre), kann einfache Wörter lesen. Deutsche Sprachausgabe ist nicht nötig.
+- **Gerät:** iPad, quer, als PWA vom Home-Bildschirm.
+- **Ziel:** Spielerisch ein paar Wörter auf Englisch oder Französisch kennenlernen. Kurze Sessions, kein Leistungsdruck.
+- **Nicht-Ziele:** Bewertung, Belohnung, Ranglisten, Accounts, Eltern-Statistiken, Schreiben/Tippen, Spracherkennung.
+
+### 2. Didaktische Grundlagen
+| Prinzip | Umsetzung |
+|---|---|
+| Abrufübung (Retrieval Practice) | Kind versucht das Wort erst selbst zu sagen, dann Auflösung per Flaggen-Tipp. |
+| Duale Kodierung | Bild (Emoji) + gesprochenes Wort + geschriebenes Wort. |
+| Verteiltes Wiederholen | Leitner-Boxen: Gewusstes kommt seltener, Ungewusstes öfter. |
+| Dosierung neuer Inhalte | Max. 8 neue Wörter pro Session, gemischt mit bekannten. |
+| Kurze Sessions | Timer (5 min, seit B-89), danach freundlicher Abschluss. |
+| Keine extrinsische Belohnung | Kein Lob/Tadel, neutrale Selbsteinschätzung. Motivation durch Begleiter und Erfolgserleben. |
+| Joint Attention | Avatar zeigt per Geste auf die Aufgabe. |
+| Genus mitlernen (FR) | Französische Nomen mit bestimmtem Artikel (la pomme, le chat). |
+
+### 3. Ablauf
+```
+Begrüßung → Start → Lernrunde (Wort 1..n) → Timer = 0 → aktuelles Wort abschließen → Abschluss → Start
+```
+- Beim Öffnen der App kommt zuerst die Begrüßung (seit B-97); schlafen beide Begleiter, stattdessen die Schlafseite (B-65). Nach dem Abschluss geht es zurück zum Start (bzw. zur Schlafseite), nicht zur Begrüßung.
+
+#### 3.0 Begrüßung (B-97)
+- Header: App-Icon + „Mimi & Mots“ (Halten des Icons öffnet den Elternbereich wie auf Start- und Schlafseite).
+- Beide Begleiter links und rechts: wache winken, schlafende mit Schlafbild (nur Bildtausch).
+- **Ohne Namen** (erster Start): „Wie heißt du?“, Eingabefeld (höchstens 16 Zeichen, tippt ggf. ein Elternteil) und runder lila Button mit Haken („Fertig“, ausgegraut bei leerer Eingabe). Danach die Begrüßung mit Namen.
+- **Mit Namen:** „Hallo Lina!“ und ein runder lila Button mit Pfeil („Weiter“) zum Startbildschirm.
+- Der Name steht danach klein links in der Kopfleiste von Start, Lernrunde (neben [×]), Abschluss und Schlafseite.
+
+#### 3.1 Startbildschirm
+- Header: App-Icon + „Mimi & Mots“.
+- **Begleiter:** zwei große Kacheln (Mimi, Mots) mit Bild (Pose „ruhig“) und Name.
+- **Sprache:** flache Kacheln mit Flagge, ohne Text, in einem Raster mit höchstens zwei Spalten (bis 2 × 2): Englisch (`flag_gb.svg`), Französisch (`flag_fr.svg`), Japanisch (`flag_jp.svg`), Italienisch (`flag_it.svg`, B-80). Es erscheinen nur Sprachen, die im Elternbereich eingeschaltet sind (B-73/B-81) und mindestens ein Wort mit gewählter Aufnahme haben (B-84); Japanisch und Italienisch sind standardmäßig ausgeschaltet.
+- **Modus (seit B-89, statt Dauer):** zwei flache Kacheln untereinander, nur Symbol: Kopf mit Schallwellen = Sprechen, Ohr = Hören; Überschrift „Bei was?“. Sprechen ist beim Erststart vorausgewählt. Jede Runde dauert 5 Minuten.
+- **Kachelgrößen:** Kacheln einer Gruppe sind gleich groß; Sprach- und Dauer-Kacheln sind halb so hoch wie die Begleiter-Kacheln.
+- **Auswahlzustand:** ausgewählt = dicker lila Rahmen (5 px, `--lila-700`) + Hintergrund `--lila-100`; nicht ausgewählt = dünner dunkelgrauer Rahmen (2 px, `--grau-700`) + weißer Hintergrund. Größe der Kacheln ändert sich nicht.
+- **Play-Button** (rund, lila, ≥ 96 px) unten mittig. Aktiv, sobald alle drei Gruppen eine Auswahl haben.
+- Letzte Auswahl (Begleiter, Sprache, Modus) wird gespeichert und beim nächsten Start vorbelegt. Beim allerersten Start: Modus vorbelegt, Begleiter und Sprache leer.
+- Fragen bleiben als kurze Überschrift („Wer soll dich begleiten?“, „In welcher Sprache?“, „Wie lange?“).
+
+#### 3.2 Lernrunde
+**Layout (quer):**
+```
+┌──────────────────────────────────────────────────────┐
+│ [×]          [Icon] Mimi & Mots            (Timer)  │  ← Kopfleiste
+├──────────────────────────────────────────────────────┤
+│             ┌──────────────┐  ┌──────────────┐        │
+│             │      🍎       │  │   Flagge     │        │
+│  Avatar     │              │  │   apple      │        │
+│  (links     │    Apfel     │  │    (🔊)      │        │
+│   unten,    └──────────────┘  └──────────────┘        │
+│   zeigt →)          (👍)        (🔁)                  │
+└──────────────────────────────────────────────────────┘
+```
+- **Kopfleiste** wie auf dem Startbildschirm (App-Icon + „Mimi & Mots“), zusätzlich links [×] und rechts der Timer.
+- **Begleiter** groß links unten, zeigt nach rechts auf die Karten.
+1. **Neues Wort:** Zwei gleich große Karten nebeneinander. Links: Emoji groß (~ 40 % Bildschirmhöhe), darunter deutsches Wort. Rechts: Flagge der Sprache (nur Anzeige), Platz für das Fremdwort (noch leer) und ein runder lila Lautsprecher-Button (🔊). Avatar-Pose „zeigt“ (Richtung Karte/Flagge). Bewertungs-Buttons nicht sichtbar.
+2. **Tipp auf den Lautsprecher:** Fremdwort erscheint in der rechten Karte zwischen Flagge und Lautsprecher, Audio wird einmal abgespielt. Avatar-Pose „freut“ (offener Mund, „spricht mit“).
+3. **Erneuter Tipp auf den Lautsprecher:** Audio erneut (laufende Wiedergabe neu starten). Beliebig oft.
+4. **Nach dem ersten Aufdecken** erscheinen zwei gleichwertige runde lila Buttons wie der Play-Button, nur mit Symbol: „Wusste ich“ (👍) und „Noch üben“ (🔁). Gleiche Größe, kein Text, kein Rot/Grün.
+5. **Tipp auf einen der Buttons:** Lernstand aktualisieren, kein Feedback, direkt nächstes Wort (Übergang ≤ 200 ms).
+- **Timer:** rechts in der Kopfleiste, ~88 px, nicht interaktiv (siehe 3.4).
+- **[×]** links in der Kopfleiste, klein, beendet die Session (springt zum Abschluss). Langes Drücken (600 ms) gegen versehentliches Tippen.
+
+#### 3.3 Abschluss
+- Avatar-Pose „winkt“, groß.
+- Kurzer Text: „Bis zum nächsten Mal!“ (o. ä., ohne Leistungsbezug).
+- Button „Zurück“ (Haus-Icon) → Startbildschirm.
+- Keine Zusammenfassung, keine Anzahl Wörter.
+
+#### 3.4 Timer
+- Optik wie ein „Time Timer“: Kreisscheibe, lila Sektor schrumpft im Uhrzeigersinn bis 0, keine Ziffern, dezente Strichmarken.
+- Startet mit dem ersten angezeigten Wort.
+- Pausiert, wenn die App in den Hintergrund geht (`visibilitychange`), läuft beim Zurückkehren weiter.
+- Bei 0: kein Abbruch, keine Veränderung der Lernrunde. Das aktuelle Wort läuft ganz normal weiter: Aufdecken, Vorlesen und erneutes Vorlesen beliebig oft. Erst nach Tipp auf „Wusste ich“/„Noch üben“ (Lernstand wird wie immer gespeichert) kommt der Abschluss statt eines neuen Worts.
+- Läuft der Timer ab, bevor das aktuelle Wort aufgedeckt wurde, gilt dasselbe: Wort normal fertig machen.
+- Timer-Ende ist still (kein Ton, kein Blinken). Optional: Scheibe zeigt leer.
+
+#### 3.5 Hochformat
+- Overlay mit dem gewählten Begleiter beim Radschlagen und Dreh-Symbol, ohne Text (seit B-72); App-State bleibt erhalten, Timer pausiert.
+
+### 4. Avatare
+| Pose | Mimi | Mots | Einsatz |
+|---|---|---|---|
+| ruhig | `cat_sitting.png` (sitzt, lächelt) | `pony_sitting.png` (sitzt) | Startauswahl, Hochformat-Overlay |
+| zeigt | `cat_pointing.png` (Pfote nach rechts) | `pony_pointing.png` (Huf nach rechts) | neues Wort |
+| freut | `cat_idle.png` (Mund offen) | `pony_idle.png` (steht, Mund offen) | nach Aufdecken |
+| winkt | `cat_waving.png` (zwinkert, winkt) | `pony_waving.png` (winkt) | Abschluss |
+
+- Statische Bilder, Bildtausch ohne Animation. Avatar steht links, damit Zeigegesten nach rechts zur Aufgabe gehen.
+- Dateien liegen als transparente PNGs (384 × 440) vor und werden unverändert übernommen. Alle Posen haben dieselbe Leinwandgröße → in identischer Box darstellen, dann springt der Bildtausch nicht.
+- Darstellungsgröße: max. ca. 440 px Höhe. Für schärfere Darstellung auf Retina können später höher aufgelöste Versionen mit gleichem Dateinamen eingesetzt werden.
+
+### 5. Wortauswahl (Scheduler)
+- Lernstand **pro Sprache und Wort**: `{ box: 0..4, seen: number, lastSeenAt: ISO }`. Wörter ohne Eintrag gelten als „neu“.
+- „Wusste ich“ → `box = min(box + 1, 4)`. „Noch üben“ → `box = 0`.
+- Auswahl gewichtet zufällig: Gewicht Box 0 = 8, 1 = 5, 2 = 3, 3 = 2, 4 = 1.
+- Pro Session max. 8 neue Wörter. Sind weniger als 6 bekannte Wörter vorhanden, wird mit neuen aufgefüllt.
+- Dasselbe Wort frühestens nach 6 anderen Wörtern erneut; bei wenigen bekannten Wörtern kürzer (mindestens 3), damit immer mindestens 3 bekannte zur Auswahl bleiben.
+- Scheduler ist eine reine Funktion (Seed injizierbar) und vollständig unit-getestet.
+
+### 6. Audio
+- **Anforderung:** hochwertige, natürliche Aussprache, kostenlos, offline, klein.
+- **Lösung:** Audio wird einmalig vor dem Build lokal erzeugt und als statische Dateien ausgeliefert/gecacht.
+  - TTS: EN **Piper** `en_US-ljspeech-high` (LJ Speech, public domain), FR **Kokoro** `ff_siwis` (Apache-2.0), JA **VOICEVOX** 冥鳴ひまり (Namensnennung „VOICEVOX:冥鳴ひまり“). Lizenz der jeweiligen Stimme vor Nutzung prüfen.
+  - Nachbearbeitung (ffmpeg): Stille trimmen, 150 ms Vorlauf, Lautheit normalisieren (−16 LUFS), MP3 mono 64 kbit/s.
+  - Größe: ~8 KB/Wort → ~1 MB für 50 Wörter × 2 Sprachen.
+  - Jede Datei wird einmal angehört; schlechte Dateien neu erzeugen (anderer Satzkontext/Stimme) oder durch eigene Aufnahme ersetzen. Override-Ordner `audio-overrides/` hat Vorrang.
+- **Laufzeit:** `HTMLAudioElement`, Dateien der Session vorladen. Fehlt eine Datei → Fallback Web Speech API (`lang` en-GB/fr-FR/ja-JP, beste verfügbare Stimme).
+- Skript `scripts/generate_audio.py` erzeugt nur fehlende Dateien anhand `src/data/words.ts` (bzw. daraus exportiertem JSON).
+
+### 7. Persistenz
+- `localStorage`, Schlüssel `mimi-mots:v2` (seit B-97; alle Daten gehören zu einem Kind, Platz für weitere):
+```json
+{ "version": 2,
+  "activeChildId": "3f0c…-uuid",
+  "children": [{
+    "id": "3f0c…-uuid", "name": "Lina",
+    "createdAt": "2026-11-01T09:00:00.000Z", "updatedAt": "2026-11-01T09:05:00.000Z",
+    "settings": { "companion": "mimi", "language": "fr", "mode": "speak" },
+    "progress": { "fr": { "apfel": { "box": 2, "seen": 5, "lastSeenAt": "…" } }, "en": {} },
+    "listenProgress": { "fr": {}, "en": {} },
+    "rest": { "sleeping": ["mimi"], "since": "2026-10-30" },
+    "enabledLanguages": ["en", "fr"], "tutorialDone": true, "listenTutorialDone": false,
+    "brakeNew": true, "disabledWords": { "en": [] }, "roundMin": 5 }] }
+```
+- Bis B-96 lag ein Kind ohne Namen flach unter `mimi-mots:v1`. Solche Daten werden nicht übernommen (keine Datenübernahme über Updates, siehe §11).
+- Beschädigte/fehlende Daten → Defaults, kein Absturz. Versionsfeld für spätere Migration.
+- Hinweis: Als Home-Bildschirm-App ist der Speicher unter iOS stabil; im Safari-Tab kann er nach längerer Nichtnutzung gelöscht werden.
+
+### 8. Design
+- Aufgeräumt, einheitlich, süß, Lila-basiert (Tokens in `CLAUDE.md`).
+- Große, runde Kacheln mit weichen Schatten; viel Weißraum; maximal 3 Gruppen pro Ansicht.
+- Schrift `ui-rounded`; Wortkarte: deutsches Wort ~48 px, Fremdwort ~56 px, Überschriften ~28 px.
+- Kontrast Text ≥ 4.5:1.
+- Keine Ablenkung: keine Hintergrundmuster, keine Deko-Elemente während der Lernrunde.
+
+### 9. PWA / Technik
+- Manifest: Name „Mimi & Mots“, `display: standalone`, `theme_color` `#6A4C9C`, `background_color` `#F8F4FB`, Icons 180/192/512/maskable.
+- Service Worker precacht alle Assets inkl. Audio. Update: neue Version wird beim nächsten Start aktiv (kein Popup für das Kind).
+- Hosting: **GitHub Pages** (kostenlos, HTTPS). Deploy per GitHub Action bei Push auf `main`. Vite `base` auf Repo-Pfad setzen.
+- App-Icon: `icons/icon.svg` (lila Verlauf, weiße Sprechblase mit Katzen- und Ponyohr, lila Herz wie auf dem Halstuch). Austausch: SVG ersetzen und `npm run icons` ausführen.
+- Performance: Startbildschirm < 1 s nach Cache, keine Layout-Sprünge.
+
+
+### 12. Später (nicht in v1)
+- Weitere Sprachen (das 2 × 2-Raster ist mit EN, FR, JA, IT voll).
+- Themenwahl (Tiere, Essen …).
+- Eigene Illustrationen statt Emoji.

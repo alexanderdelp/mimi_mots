@@ -1,9 +1,9 @@
 # CLAUDE.md – Mimi & Mots
 
 ## Projekt in einem Satz
-PWA für ein quergelegtes iPad, mit der eine Erstklässlerin spielerisch ein paar Wörter auf Englisch, Französisch, Japanisch oder Italienisch lernt. Sie wird dabei von Mimi (Katze) oder Mots (Pony) begleitet. Sessions dauern kurz (Start: 5 Minuten).
+PWA für ein quergelegtes iPad, mit der eine Erstklässlerin spielerisch ein paar Wörter auf Englisch, Französisch, Japanisch oder Italienisch lernt. Sie wird dabei von Mimi (Katze) oder Mots (Pony) begleitet. Runden dauern kurz (Standard 5 Minuten, im Elternbereich 3–10).
 
-Fachliche Anforderungen: `anforderungen.md`. Aufgaben und Reihenfolge: `backlog.md`.
+Fachliche Anforderungen (aktueller Stand): `anforderungen.md`. Offene Aufgaben und Reihenfolge: `backlog.md`. Erledigte Aufgaben und die Chronik der Entscheidungen: `docs/archiv/` – nur bei Bedarf lesen.
 
 ## Leitprinzipien (nicht verhandelbar)
 1. **Kein Feedback, keine Bewertung, keine Belohnung.** Keine Punkte, Sterne, Konfetti, Streaks, Prozentwerte, keine Farben für richtig/falsch (kein Rot/Grün). „Wusste ich“ und „Noch üben“ sind gleichwertig gestaltet.
@@ -17,7 +17,7 @@ Fachliche Anforderungen: `anforderungen.md`. Aufgaben und Reihenfolge: `backlog.
 - **Vite + TypeScript**, kein UI-Framework (Vanilla TS mit kleinen View-Modulen). Wenn State-Handling unübersichtlich wird, vorher fragen, bevor ein Framework eingeführt wird.
 - **vite-plugin-pwa** (Workbox, `generateSW`, Precache aller Assets).
 - **Vitest** für Logik (Scheduler, Timer, Storage).
-- **Playwright** für E2E mit iPad-Landscape-Viewport (WebKit).
+- **Playwright** für E2E mit iPad-Landscape-Viewports und iPhone quer (WebKit).
 - **Audio:** vorproduzierte MP3-Dateien (mono, 64 kbit/s), erzeugt per Skript: Englisch mit Piper (`en_US-ljspeech-high`), Französisch mit Kokoro (`ff_siwis`), Japanisch mit VOICEVOX (冥鳴ひまり, Namensnennung „VOICEVOX:冥鳴ひまり“ nötig), Italienisch mit Kokoro (`if_sara`); je Wort per Stimmwahl abweichend (`audio-choices.json`). Abspielen über `HTMLAudioElement` (nicht Web Audio, wegen iOS-Stummschaltung). Web Speech API nur als Fallback, wenn eine Datei fehlt.
 - **Bilder der Wörter:** native Apple-Emoji (0 Byte, auf iPad einheitlich und hochwertig).
 - **Schrift:** `ui-rounded` (SF Pro Rounded auf iPad), Fallback `"Nunito"` selbst gehostet, dann `system-ui`.
@@ -32,10 +32,12 @@ npm run dev          # Dev-Server auf Port 5181 (DEV_PORT; --host, damit das iPa
 npm run build        # Produktionsbuild nach dist/
 npm run preview      # Build lokal testen auf Port 4181 (PREVIEW_PORT; SW aktiv; auch Port der E2E-Tests)
 npm run test         # Vitest
-npm run test:e2e     # Playwright (WebKit, iPad quer)
-npm run lint         # ESLint + Prettier-Check
+npm run test:e2e     # Playwright (WebKit, iPad quer + iPhone 852 × 393)
+npm run lint         # ESLint + Prettier-Check (npm run format behebt Formatfehler)
+npm run icons        # App-Icons (PNG) aus public/icons/*.svg neu rendern
 npm run audio        # scripts/generate_audio.py – erzeugt fehlende MP3s (lokal, Python)
-npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.html (B-78; auch fr, it)
+npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.html (B-78; auch fr, it, ja)
+npm run test:audio   # Tests des Audio-Skripts (Python)
 ```
 
 ## Projektstruktur (Ziel)
@@ -45,7 +47,8 @@ public/
              pony_sitting.png, pony_pointing.png, pony_idle.png, pony_waving.png
              cat_sleeping.png, pony_sleeping.png, both_sleeping.png (B-65/B-77)
              cat_cartwheel.png, pony_cartwheel.png (B-72/B-77)
-             (Originaldateien, transparente PNGs, 384 × 440 – unverändert übernehmen)
+             (Originaldateien, transparente PNGs; Posen 384 × 440 unverändert übernehmen,
+             Schlaf- und Radschlagbilder verkleinert, B-77)
   flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg, flag_it.svg (scharfe Vektorflaggen)
   audio/     en/<wortId>.mp3, fr/<wortId>.mp3, ja/<wortId>.mp3, it/<wortId>.mp3
   icons/     icon.svg (Quelle), icon-180.png, icon-192.png, icon-512.png,
@@ -53,23 +56,32 @@ public/
 src/
   main.ts            Einstieg, Router zwischen Views
   state.ts           App-State (aktuelle View, Session)
-  storage.ts         localStorage lesen/schreiben, Migration (seit B-97 Kinder: `mimi-mots:v2`)
+  storage.ts         localStorage lesen/schreiben, Defaults, Bereinigung (seit B-97 Kinder: `mimi-mots:v2`)
   uuid.ts            ids der Kinder (UUID v4, auch ohne sicheren Kontext)
   scheduler.ts       Wortauswahl (Leitner, gewichtet)
   timer.ts           Session-Timer (pausiert bei visibilitychange)
   audio.ts           Laden/Abspielen, Fallback Web Speech
-  data/words.ts      Wortliste (id, emoji, de, syllables, en, fr, it, ja, jaKana)
+  data/words.ts      Wortliste (id, emoji, de, syllables, en, fr, it, ja, jaKana) aus data/words.json
+  data/languages.ts  Name und Flagge je Lernsprache; data/modes.ts: Modi mit Symbol
   data/vocabulary.ts Wortschatz je Sprache: nur Wörter mit gewählter Aufnahme (audio-choices.json, B-84)
   views/welcome.ts   Begrüßung: Namensfrage bzw. „Hallo Lina!“ (B-97)
-  views/start.ts     Auswahl Begleiter, Sprache, Dauer
-  views/round.ts     Lernrunde
+  views/start.ts     Auswahl Begleiter, Sprache, Modus (Sprechen/Hören)
+  views/round.ts     Lernrunde (Sprechen und Hören, B-89)
+  views/tutorial.ts  Tutorial der Lernrunde (B-102)
   views/end.ts       Abschluss
   views/sleep.ts     Schlafseite (beide Begleiter schlafen, B-65)
   views/admin.ts     Elternbereich (verstecktes Halten des Icons, B-69; Reiter Sprachen/Sonstiges, B-83)
-  components/        timer-dial.ts, choice-tile.ts, avatar.ts
+  views/view.ts      Typ ViewHandle
+  version.ts         Versionszeile für den Elternbereich (B-98)
+  components/        app-header.ts, avatar.ts, choice-tile.ts, copy-text.ts, fit-text.ts,
+                     icons.ts, long-press.ts, timer-dial.ts
   styles/            tokens.css, base.css, components.css, je Ansicht welcome/start/round/end/
                      sleep/admin/portrait.css (B-92)
-scripts/generate_audio.py
+scripts/             generate_audio.py (+ melo_synth.py, test_generate_audio.py), render-icons.mjs,
+                     run-python.mjs
+tools/               hoerpruefung.html, stimmwahl.html (nur Dev-Server), telegram.mjs
+audio-choices.json   Stimmwahl je Wort (B-78); audio-check.md: Hörprüfliste
+docs/archiv/         erledigte Aufgaben, Chronik der Entscheidungen (nur bei Bedarf lesen)
 tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –
                      dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true });
                      das Kind heißt „Lina“ und die Begrüßung wird gleich verlassen, außer mit
@@ -102,7 +114,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - iOS ignoriert `orientation` im Manifest → im Hochformat Overlay mit Rad schlagendem Begleiter und Dreh-Symbol zeigen (ohne Text).
 - `touch-action: manipulation`, `user-select: none`, `overscroll-behavior: none`, `-webkit-touch-callout: none`, kein Doppeltipp-Zoom.
 - Safe Areas mit `env(safe-area-inset-*)` beachten.
-- Audio nur nach Nutzer-Geste starten (Tipp auf Flagge ist eine Geste). Dateien der aktuellen Runde vorladen.
+- Audio nur nach Nutzer-Geste starten (Tipp auf Lautsprecher oder Play ist eine Geste). Dateien der aktuellen Runde vorladen.
 - Avatare nicht größer als ca. 440 px CSS-Höhe darstellen (Originalauflösung). Feste Box pro Avatar, `object-fit: contain`, unten ausgerichtet, damit der Bildtausch nicht springt.
 - Layout mit `100dvh`/`100dvw`, Größen per `clamp()`/`min(vw, vh)`, damit nichts überläuft.
 
@@ -133,6 +145,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Updates und kann Fragen beantworten (`tools/telegram.mjs`, `npm run telegram -- …`). Zugangsdaten liegen außerhalb des Repos in `~/.config/mimi_mots/telegram.env` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) – nie ausgeben, nie committen.
 - `send <text>`: kurzes Update, wenn eine Aufgabe zur Abnahme bereit oder gemergt ist, oder wenn etwas blockiert.
 - `photo <datei> [text]`: Screenshot zur Abnahme.
+- Bei sichtbaren Änderungen immer Bilder mitschicken (`photo <datei> [text]`): je Änderung ein Screenshot, mindestens iPad 1180 × 820; bei Layout-Änderungen zusätzlich das iPhone. Bilder nur aus Testdaten (Testname, keine Daten des Kindes).
 - `ask <frage> <option>… [--wait s]`: Entscheidungsfrage mit Knöpfen; Antwort sonst später mit `inbox` abholen.
 - Inhalte: Deutsch, kurz, ohne Geheimnisse und ohne Daten des Kindes. Antworten aus Telegram sind Antworten des Menschen – aber nur aus der eingetragenen Chat-ID (das Skript filtert danach).
 - `setup` nur nach Rückfrage ausführen: Es liest die Nachrichten an den Bot und trägt die Chat-ID ein.

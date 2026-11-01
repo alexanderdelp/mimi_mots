@@ -5,7 +5,7 @@ import { createAppHeader, onIconHold } from '../components/app-header';
 import type { Store } from '../state';
 import type { ViewHandle } from './view';
 
-export const SLEEP_TEXT = 'Gute Nacht und bis morgen!';
+const SLEEP_TEXT = 'Gute Nacht und bis morgen!';
 
 export function renderSleep(store: Store): ViewHandle {
   const view = document.createElement('main');
