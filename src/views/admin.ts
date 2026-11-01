@@ -1,7 +1,7 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
 // zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorial zurücksetzen,
-// Bremse für neue Wörter (B-82), Rundendauer (B-93). Keine Avatare; sonst dieselben Bausteine wie überall.
+// Bremse für neue Wörter (B-82), Rundendauer (B-93), Version (B-98). Keine Avatare; sonst dieselben Bausteine wie überall.
 import { createAppHeader } from '../components/app-header';
 import { COMPANIONS, COMPANION_NAMES } from '../components/avatar';
 import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
@@ -20,6 +20,7 @@ import {
   type Mode,
   type Progress,
 } from '../storage';
+import { VERSION_LABEL } from '../version';
 import type { ViewHandle } from './view';
 
 /** Zeilen der Übersicht: noch nie dran (null), dann Stufe 0 (noch üben) bis 4 (sicher). */
@@ -70,6 +71,13 @@ function settingRow(title: string, hint: string, button: HTMLElement): HTMLEleme
   const label = el('div', 'admin__label');
   label.append(el('span', 'admin__title', title), el('span', 'admin__hint', hint));
   row.append(label, button);
+  return row;
+}
+
+/** Zeile „Version“ (B-98): einzeilig ohne Erklärung, damit der Reiter auch auf kleinen Bildschirmen passt. */
+function versionRow(): HTMLElement {
+  const row = el('section', 'admin__setting admin__setting--version');
+  row.append(el('span', 'admin__title', 'Version'), el('span', 'admin__version', VERSION_LABEL));
   return row;
 }
 
@@ -197,6 +205,8 @@ export function renderAdmin(store: Store): ViewHandle {
       'Stehen 6 oder mehr Wörter auf „noch üben“, kommen keine neuen dazu.',
       brake.el,
     ),
+    // B-98: Stand der installierten App (Version · Commit · Build-Datum)
+    versionRow(),
   );
 
   const languagesPanel = el('div', 'admin__panel');

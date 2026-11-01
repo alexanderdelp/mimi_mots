@@ -1,6 +1,8 @@
 import { defineConfig, type Plugin } from 'vite';
+import { formatBuildDate, resolveCommit } from './tools/build-info';
 import { choose, defaultFiles, readState } from './tools/stimmwahl-store';
 import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json';
 
 // GitHub Pages liefert die App unter https://<user>.github.io/<repo>/ aus.
 export const BASE = '/mimi_mots/';
@@ -40,6 +42,13 @@ function stimmwahl(): Plugin {
 
 export default defineConfig({
   base: BASE,
+  // B-98: Version im Elternbereich. Ändert sich bei jedem Build (Commit, Datum) → neuer JS-Hash →
+  // neuer Precache-Eintrag; das ist gewollt: der Service Worker erkennt so, dass es Neues gibt.
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_COMMIT__: JSON.stringify(resolveCommit()),
+    __APP_BUILD_DATE__: JSON.stringify(formatBuildDate(new Date())),
+  },
   // eigene Ports statt der Vite-Standards, damit sich Projekte auf dem Rechner nicht in die Quere
   // kommen; belegt → Fehler statt stillem Ausweichen. B-92: je Worktree per DEV_PORT bzw.
   // PREVIEW_PORT änderbar, damit parallel arbeitende Agenten sich nicht stören.

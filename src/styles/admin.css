@@ -267,6 +267,19 @@
   min-width: 280px;
 }
 
+.admin__setting--version {
+  padding: 6px 0;
+}
+
+.admin__version {
+  min-width: 280px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--lila-900);
+}
+
 .admin__brake {
   height: 88px;
 }
@@ -329,6 +342,17 @@
 
 /* iPhone quer (B-76): niedrige Bildschirme bekommen ein kompaktes Layout – gleiche Anordnung,
    kleinere Maße. Schaltflächen mindestens 44 px (Apple-Mindestmaß); die 88 px gelten fürs iPad. */
+/* B-98: auf 1024 × 768 braucht der Reiter „Sonstiges“ mit der Zeile „Version“ engere Zeilen */
+@media (min-height: 501px) and (max-height: 800px) {
+  .admin__setting {
+    padding: 8px 0;
+  }
+
+  .admin__setting--version {
+    padding: 4px 0;
+  }
+}
+
 @media (max-height: 500px) {
   /* Elternbereich */
   .view--admin .admin__home {
@@ -440,6 +464,15 @@
   .admin__setting .text-button,
   .admin__brake {
     min-width: 200px;
+  }
+
+  .admin__setting--version {
+    padding: 3px 0;
+  }
+
+  .admin__version {
+    min-width: 0;
+    font-size: 14px;
   }
 
   .admin__brake {
