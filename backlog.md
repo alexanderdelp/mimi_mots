@@ -407,7 +407,7 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 - [x] **B-91 Tests aufräumen** (vor B-90): schnellere, stabilere und leichter änderbare Testsuite bei gleicher Abdeckung.
   - Verhalten läuft nur noch auf dem Referenz-Viewport 1180 × 820; Tests zu Größe, Lage, Überlauf und Screenshots tragen `@layout` und laufen weiter auf allen vier Viewports (900 → 475 Läufe).
   - Screenshots an einer Stelle (b60, je Ansicht ein Bild, neu auch die Hörrunde); Hochformat-Screenshots nur einmal (setzen ihre Größe selbst). Gestrichen, weil anderswo abgedeckt: AT-11.6 (Screenshot → b60 start-erststart), AT-65.8 Schlafseite und AT-69.6 (Passt/Screenshot → b60 schlafseite/elternbereich), AT-89.8 (Leiste passt → Überlauf-Prüfung b60 elternbereich); aus AT-65.8 bleibt AT-77.2 (Schlafbild), aus AT-43.5 die Überlappungsprüfung.
-  - Feste Wartezeiten durch die Testuhr ersetzt (Halten von [×] und App-Icon) bzw. durch „Bewegung reduzieren“ und Warten auf den Zustand; übrig sind nur zwei bewusste Negativ-Wartezeiten (kein Zoom nach Doppeltipp, kein Vorlesen ohne Tipp) und der Offline-Test.
+  - Feste Wartezeiten durch die Testuhr ersetzt (Halten von [×] und App-Icon) bzw. durch „Bewegung reduzieren“ und Warten auf den Zustand; übrig sind nur zwei bewusste Negativ-Wartezeiten (kein Zoom nach Doppeltipp, kein Vorlesen ohne Tipp) und eine im Offline-Test.
   - Gemeinsame Hilfen in `tests/e2e/views.ts`: `btn`, `hold` (Selektor oder Locator, über die Testuhr), `storeOnce`, `stored`, `KEY` – statt Kopien in bis zu 23 Dateien.
   - Vitest: Standardumgebung Node, nur Tests mit DOM wählen jsdom per `@vitest-environment jsdom`.
   - AT-91.1: Alle bisherigen Akzeptanztests sind grün oder nachweislich an anderer Stelle abgedeckt (Liste oben).
