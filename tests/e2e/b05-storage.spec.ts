@@ -1,4 +1,5 @@
 import { expect, test, type Page } from './fixtures';
+import { storeOnce } from './views';
 
 const KEY = 'mimi-mots:v1';
 
@@ -18,15 +19,7 @@ function collectErrors(page: Page): string[] {
 
 /** Legt vor dem ersten Skript der Seite einen Wert in localStorage ab (nur beim ersten Laden). */
 async function seed(page: Page, value: string) {
-  await page.addInitScript(
-    ([key, v]) => {
-      if (!sessionStorage.getItem('seeded')) {
-        localStorage.setItem(key, v);
-        sessionStorage.setItem('seeded', '1');
-      }
-    },
-    [KEY, value],
-  );
+  await storeOnce(page, value);
 }
 
 test.describe('B-05 Storage-Modul', () => {

@@ -1,8 +1,8 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { fakeMedia } from './helpers';
+import { btn } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const LILA_900 = 'rgb(59, 42, 99)';
 const BEERE_600 = 'rgb(176, 58, 117)';
 
@@ -38,7 +38,7 @@ test.describe('B-66 Silbenfarben', () => {
     }
   });
 
-  test('AT-66.5: lange Wörter passen in die Wortkarte', async ({ page }) => {
+  test('AT-66.5: lange Wörter passen in die Wortkarte', { tag: '@layout' }, async ({ page }) => {
     await fakeMedia(page);
     await startRound(page);
     const longest = [...words].sort((a, b) => b.de.length - a.de.length).slice(0, 3);

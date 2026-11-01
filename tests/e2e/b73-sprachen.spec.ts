@@ -1,17 +1,5 @@
 import { expect, test, type Page } from './fixtures';
-import { btn, prepare } from './views';
-
-const KEY = 'mimi-mots:v1';
-const stored = (page: Page) =>
-  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
-
-async function hold(page: Page, selector: string, ms = 700) {
-  const box = (await page.locator(selector).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.clock.runFor(ms);
-  await page.mouse.up();
-}
+import { btn, hold, prepare, stored } from './views';
 
 async function openAdmin(page: Page) {
   await hold(page, '.app-header__icon');

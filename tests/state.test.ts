@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { hasVocabulary } from '../src/data/vocabulary';
 import { LANGUAGES, defaults, type AppData } from '../src/storage';

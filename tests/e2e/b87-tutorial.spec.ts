@@ -2,25 +2,14 @@
 // geht weiter, das Gemeinte wird mit dem Stift eingekreist, zu Beginn ist alles andere unscharf.
 import { expect, test, type Page } from './fixtures';
 import { mediaCalls } from './helpers';
-import { btn, prepare } from './views';
+import { btn, hold, prepare, stored } from './views';
 
 test.use({ tutorial: true }); // hier soll das Tutorial erscheinen
 
-const KEY = 'mimi-mots:v1';
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 const bubble = (page: Page) => page.locator('.tutorial-bubble');
 const target = (page: Page) => page.locator('.tutorial-target');
 const avatarSrc = (page: Page) => page.locator('.round__avatar img');
-const stored = (page: Page) =>
-  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
-
-async function hold(page: Page, selector: string, ms = 700) {
-  const box = (await page.locator(selector).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.clock.runFor(ms);
-  await page.mouse.up();
-}
 
 async function startRound(page: Page) {
   await btn(page, 'Mots').click();
@@ -68,69 +57,74 @@ const isBlurred = (page: Page, selector: string) =>
   page.locator(selector).evaluate((e) => getComputedStyle(e).filter.includes('blur'));
 
 test.describe('B-87 Tutorial', () => {
-  test('AT-87.2–87.5: Ablauf mit Begleiter, Blur, Umkreisungen; danach normale Runde', async ({
-    page,
-  }) => {
-    await prepare(page);
-    await page.goto('./');
-    await startRound(page);
-    await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', 'apfel');
-    const dial = page.locator('.round__timer svg');
-    const before = await dial.innerHTML();
-    await page.clock.runFor(5000);
-    expect(await dial.innerHTML()).toBe(before); // Uhr steht
+  test(
+    'AT-87.2–87.5: Ablauf mit Begleiter, Blur, Umkreisungen; danach normale Runde',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await prepare(page);
+      await page.goto('./');
+      await startRound(page);
+      await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', 'apfel');
+      const dial = page.locator('.round__timer svg');
+      const before = await dial.innerHTML();
+      await page.clock.runFor(5000);
+      expect(await dial.innerHTML()).toBe(before); // Uhr steht
 
-    const vp = page.viewportSize()!;
-    for (const [i, [text, pose, mark, blur]] of STEPS.entries()) {
-      await expect(bubble(page), `Schritt ${i + 1}`).toHaveText(text);
-      // AT-87.2: der gewählte Begleiter (Mots) spricht, Pose je Schritt
-      await expect(avatarSrc(page)).toHaveAttribute('src', new RegExp(`pony_${pose}`));
-      // AT-87.6: die Uhr erscheint erst mit ihrem Schritt
-      if (i < 8) await expect(page.locator('.round__timer')).toBeHidden();
-      else await expect(page.locator('.round__timer')).toBeVisible();
-      // AT-87.3: Fokus – je Schritt ist genau das Richtige unscharf (Übergang ≤ 200 ms abwarten)
-      await expect(view(page, 'round')).toHaveAttribute('data-tutorial-blur', blur);
-      for (const part of PARTS) {
-        await expect
-          .poll(() => isBlurred(page, part), `${part} in Schritt ${i + 1}`)
-          .toBe(BLURRED[blur].includes(part));
+      const vp = page.viewportSize()!;
+      for (const [i, [text, pose, mark, blur]] of STEPS.entries()) {
+        await expect(bubble(page), `Schritt ${i + 1}`).toHaveText(text);
+        // AT-87.2: der gewählte Begleiter (Mots) spricht, Pose je Schritt
+        await expect(avatarSrc(page)).toHaveAttribute('src', new RegExp(`pony_${pose}`));
+        // AT-87.6: die Uhr erscheint erst mit ihrem Schritt
+        if (i < 8) await expect(page.locator('.round__timer')).toBeHidden();
+        else await expect(page.locator('.round__timer')).toBeVisible();
+        // AT-87.3: Fokus – je Schritt ist genau das Richtige unscharf (Übergang ≤ 200 ms abwarten)
+        await expect(view(page, 'round')).toHaveAttribute('data-tutorial-blur', blur);
+        for (const part of PARTS) {
+          await expect
+            .poll(() => isBlurred(page, part), `${part} in Schritt ${i + 1}`)
+            .toBe(BLURRED[blur].includes(part));
+        }
+        // AT-87.4: das Gemeinte ist eingekreist, der Kreis bleibt im Bild
+        if (mark === null) {
+          await expect(target(page)).toHaveCount(0);
+        } else {
+          await expect(target(page)).toHaveCount(1);
+          const name =
+            (await target(page).getAttribute('aria-label')) ??
+            (await target(page).getAttribute('class'));
+          expect(name).toContain(mark);
+          const ring = (await page.locator('.tutorial-mark').boundingBox())!;
+          const box = (await target(page).boundingBox())!;
+          expect(ring.x).toBeLessThan(box.x); // umschließt das Ziel
+          expect(ring.x + ring.width).toBeGreaterThan(box.x + box.width);
+          expect(ring.x).toBeGreaterThanOrEqual(-1);
+          expect(ring.y).toBeGreaterThanOrEqual(-1);
+          expect(ring.x + ring.width).toBeLessThanOrEqual(vp.width + 1);
+          await expect(page.locator('.tutorial-mark path')).toHaveCSS(
+            'stroke',
+            'rgb(176, 58, 117)',
+          );
+        }
+        // nach dem Lautsprecher ist das Probewort aufgedeckt
+        if (i >= 5) await expect(page.locator('.round__foreign')).toHaveText('la pomme');
+        else await expect(page.locator('.round__foreign')).toHaveText('');
+        await tapAnywhere(page); // AT-87.5: ein Tipp irgendwohin geht weiter
       }
-      // AT-87.4: das Gemeinte ist eingekreist, der Kreis bleibt im Bild
-      if (mark === null) {
-        await expect(target(page)).toHaveCount(0);
-      } else {
-        await expect(target(page)).toHaveCount(1);
-        const name =
-          (await target(page).getAttribute('aria-label')) ??
-          (await target(page).getAttribute('class'));
-        expect(name).toContain(mark);
-        const ring = (await page.locator('.tutorial-mark').boundingBox())!;
-        const box = (await target(page).boundingBox())!;
-        expect(ring.x).toBeLessThan(box.x); // umschließt das Ziel
-        expect(ring.x + ring.width).toBeGreaterThan(box.x + box.width);
-        expect(ring.x).toBeGreaterThanOrEqual(-1);
-        expect(ring.y).toBeGreaterThanOrEqual(-1);
-        expect(ring.x + ring.width).toBeLessThanOrEqual(vp.width + 1);
-        await expect(page.locator('.tutorial-mark path')).toHaveCSS('stroke', 'rgb(176, 58, 117)');
-      }
-      // nach dem Lautsprecher ist das Probewort aufgedeckt
-      if (i >= 5) await expect(page.locator('.round__foreign')).toHaveText('la pomme');
-      else await expect(page.locator('.round__foreign')).toHaveText('');
-      await tapAnywhere(page); // AT-87.5: ein Tipp irgendwohin geht weiter
-    }
 
-    // normale Runde mit Mots, Uhr läuft, Lernstand ohne Probewort
-    await expect(bubble(page)).toBeHidden();
-    await expect(target(page)).toHaveCount(0);
-    await expect(view(page, 'round')).not.toHaveAttribute('data-tutorial-blur');
-    await expect(page.locator('.tutorial-mark')).toHaveCount(0);
-    await expect(page.locator('.round__timer')).toBeVisible();
-    await page.clock.runFor(5000);
-    expect(await dial.innerHTML()).not.toBe(before);
-    const data = await stored(page);
-    expect(data.tutorialDone).toBe(true);
-    expect(data.progress.fr).toEqual({});
-  });
+      // normale Runde mit Mots, Uhr läuft, Lernstand ohne Probewort
+      await expect(bubble(page)).toBeHidden();
+      await expect(target(page)).toHaveCount(0);
+      await expect(view(page, 'round')).not.toHaveAttribute('data-tutorial-blur');
+      await expect(page.locator('.tutorial-mark')).toHaveCount(0);
+      await expect(page.locator('.round__timer')).toBeVisible();
+      await page.clock.runFor(5000);
+      expect(await dial.innerHTML()).not.toBe(before);
+      const data = await stored(page);
+      expect(data.tutorialDone).toBe(true);
+      expect(data.progress.fr).toEqual({});
+    },
+  );
 
   test('AT-87.5: Buttons wirken im Tutorial nicht, gehen aber weiter; Lautsprecher spielt', async ({
     page,

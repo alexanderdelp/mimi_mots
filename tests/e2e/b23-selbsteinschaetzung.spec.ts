@@ -1,12 +1,9 @@
 import { expect, test, type Page, minSize } from './fixtures';
+import { btn, stored } from './views';
 
-const KEY = 'mimi-mots:v1';
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const known = (page: Page) => page.getByRole('button', { name: /Wusste ich/ });
 const practice = (page: Page) => page.getByRole('button', { name: /Noch üben/ });
 const wordId = (page: Page) => page.locator('.word-card').getAttribute('data-word-id');
-const stored = (page: Page) =>
-  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
 
 test.beforeEach(async ({ page }) => {
   // stumme Sprachausgabe, damit die Tests nichts abspielen
@@ -39,39 +36,43 @@ test.describe('B-23 Selbsteinschätzung', () => {
     await expect(practice(page).locator('svg')).toHaveAttribute('data-icon', 'repeat');
   });
 
-  test('AT-23.2: gleich groß, gleich gestaltet, nur Token-Farben', async ({ page }) => {
-    await startRound(page);
-    await flag(page).click();
-    const style = (l: ReturnType<typeof known>) =>
-      l.evaluate((el) => {
-        const s = getComputedStyle(el);
-        const r = el.getBoundingClientRect();
-        return {
-          w: r.width,
-          h: r.height,
-          bg: s.backgroundColor,
-          color: s.color,
-          shadow: s.boxShadow,
-          font: s.fontSize + s.fontWeight,
-        };
-      });
-    const a = await style(known(page));
-    const b = await style(practice(page));
-    expect(a).toEqual(b);
-    expect(a.h).toBeGreaterThanOrEqual(minSize(88));
-    const tokens = [
-      'rgb(59, 42, 99)',
-      'rgb(106, 76, 156)',
-      'rgb(154, 124, 196)',
-      'rgb(220, 205, 238)',
-      'rgb(237, 228, 244)',
-      'rgb(255, 255, 255)',
-      'rgba(59, 42, 99, 0.12)',
-    ];
-    for (const c of [a.bg, a.color, ...(a.shadow.match(/rgba?\([^)]+\)/g) ?? [])]) {
-      expect(tokens, c).toContain(c);
-    }
-  });
+  test(
+    'AT-23.2: gleich groß, gleich gestaltet, nur Token-Farben',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await startRound(page);
+      await flag(page).click();
+      const style = (l: ReturnType<typeof known>) =>
+        l.evaluate((el) => {
+          const s = getComputedStyle(el);
+          const r = el.getBoundingClientRect();
+          return {
+            w: r.width,
+            h: r.height,
+            bg: s.backgroundColor,
+            color: s.color,
+            shadow: s.boxShadow,
+            font: s.fontSize + s.fontWeight,
+          };
+        });
+      const a = await style(known(page));
+      const b = await style(practice(page));
+      expect(a).toEqual(b);
+      expect(a.h).toBeGreaterThanOrEqual(minSize(88));
+      const tokens = [
+        'rgb(59, 42, 99)',
+        'rgb(106, 76, 156)',
+        'rgb(154, 124, 196)',
+        'rgb(220, 205, 238)',
+        'rgb(237, 228, 244)',
+        'rgb(255, 255, 255)',
+        'rgba(59, 42, 99, 0.12)',
+      ];
+      for (const c of [a.bg, a.color, ...(a.shadow.match(/rgba?\([^)]+\)/g) ?? [])]) {
+        expect(tokens, c).toContain(c);
+      }
+    },
+  );
 
   for (const [name, button, box] of [
     ['Wusste ich', known, 1],
@@ -145,22 +146,26 @@ test.describe('B-23 Selbsteinschätzung', () => {
     expect(data.progress.en).toEqual({});
   });
 
-  test('AT-23.8: Buttons verschieben nichts, alles im Bildschirm', async ({ page }) => {
-    await startRound(page);
-    const boxes = () =>
-      page
-        .locator('.close-button, .word-card, .speak-button, .round__foreign, .round__rating')
-        .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
-    const before = await boxes();
-    await flag(page).click();
-    await expect(known(page)).toBeVisible();
-    expect(await boxes()).toEqual(before);
-    const vp = page.viewportSize()!;
-    for (const l of [known(page), practice(page)]) {
-      const b = (await l.boundingBox())!;
-      expect(b.y + b.height).toBeLessThanOrEqual(vp.height);
-      expect(b.x).toBeGreaterThanOrEqual(0);
-      expect(b.x + b.width).toBeLessThanOrEqual(vp.width);
-    }
-  });
+  test(
+    'AT-23.8: Buttons verschieben nichts, alles im Bildschirm',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await startRound(page);
+      const boxes = () =>
+        page
+          .locator('.close-button, .word-card, .speak-button, .round__foreign, .round__rating')
+          .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
+      const before = await boxes();
+      await flag(page).click();
+      await expect(known(page)).toBeVisible();
+      expect(await boxes()).toEqual(before);
+      const vp = page.viewportSize()!;
+      for (const l of [known(page), practice(page)]) {
+        const b = (await l.boundingBox())!;
+        expect(b.y + b.height).toBeLessThanOrEqual(vp.height);
+        expect(b.x).toBeGreaterThanOrEqual(0);
+        expect(b.x + b.width).toBeLessThanOrEqual(vp.width);
+      }
+    },
+  );
 });

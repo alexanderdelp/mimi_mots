@@ -5,29 +5,33 @@ test.describe('B-02 Design-Tokens & Basis-CSS', () => {
     await page.goto('./');
   });
 
-  test('AT-02.1: #app füllt den Bildschirm, nichts scrollt', async ({ page }) => {
-    const viewport = page.viewportSize()!;
-    const box = await page.locator('#app').boundingBox();
-    expect(box).toEqual({ x: 0, y: 0, width: viewport.width, height: viewport.height });
+  test(
+    'AT-02.1: #app füllt den Bildschirm, nichts scrollt',
+    { tag: '@layout' },
+    async ({ page }) => {
+      const viewport = page.viewportSize()!;
+      const box = await page.locator('#app').boundingBox();
+      expect(box).toEqual({ x: 0, y: 0, width: viewport.width, height: viewport.height });
 
-    // Zu großer Inhalt darf weder die App noch das Dokument scrollbar machen.
-    await page.evaluate(() => {
-      const huge = '<div style="width:5000px;height:5000px">groß</div>';
-      document.querySelector('#app')!.insertAdjacentHTML('beforeend', huge);
-      document.body.insertAdjacentHTML('beforeend', huge);
-    });
-    await page.evaluate(() => window.scrollTo(800, 800));
-    const scroll = await page.evaluate(() => ({
-      x: window.scrollX,
-      y: window.scrollY,
-      appTop: document.querySelector('#app')!.scrollTop,
-    }));
-    expect(scroll.x).toBe(0);
-    expect(scroll.y).toBe(0);
-    expect(scroll.appTop).toBe(0);
-  });
+      // Zu großer Inhalt darf weder die App noch das Dokument scrollbar machen.
+      await page.evaluate(() => {
+        const huge = '<div style="width:5000px;height:5000px">groß</div>';
+        document.querySelector('#app')!.insertAdjacentHTML('beforeend', huge);
+        document.body.insertAdjacentHTML('beforeend', huge);
+      });
+      await page.evaluate(() => window.scrollTo(800, 800));
+      const scroll = await page.evaluate(() => ({
+        x: window.scrollX,
+        y: window.scrollY,
+        appTop: document.querySelector('#app')!.scrollTop,
+      }));
+      expect(scroll.x).toBe(0);
+      expect(scroll.y).toBe(0);
+      expect(scroll.appTop).toBe(0);
+    },
+  );
 
-  test('AT-02.2: Doppeltipp zoomt nicht', async ({ page }) => {
+  test('AT-02.2: Doppeltipp zoomt nicht', { tag: '@layout' }, async ({ page }) => {
     const touchAction = await page.evaluate(() => getComputedStyle(document.body).touchAction);
     expect(touchAction).toBe('manipulation');
 

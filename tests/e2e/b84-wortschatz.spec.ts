@@ -1,15 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test } from './fixtures';
 import { enableLanguages, vocabularyIds } from './helpers';
+import { btn, hold } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
-
-async function hold(page: Page, selector: string) {
-  const box = (await page.locator(selector).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(700);
-  await page.mouse.up();
-}
+// B-91: Halten über die Testuhr statt echter Wartezeit
+test.beforeEach(async ({ page }) => {
+  await page.clock.install();
+});
 
 test.describe('B-84 Nur Wörter mit gewählter Aufnahme', () => {
   test('AT-84.3/AT-86.3: Sprache ohne Wörter fehlt und lässt sich nicht einschalten', async ({

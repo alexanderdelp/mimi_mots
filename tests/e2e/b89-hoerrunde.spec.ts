@@ -3,93 +3,75 @@
 import { expect, test, type Page } from './fixtures';
 import { mediaCalls } from './helpers';
 import words from '../../src/data/words.json' with { type: 'json' };
-import { btn, listenView, prepare } from './views';
+import { btn, hold, listenView, prepare, stored, storeOnce } from './views';
 
-const KEY = 'mimi-mots:v1';
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
-const stored = (page: Page) =>
-  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
 const plays = async (page: Page) =>
   (await mediaCalls(page)).filter((c) => c.op === 'play').map((c) => c.src);
 const entry = (box: number) => ({ box, seen: 2, lastSeenAt: '2026-10-29T10:00:00.000Z' });
 
 /** Stand vor dem ersten Laden: Hörrunde gewählt, Lernstände je Modus. */
 async function seed(page: Page, data: object = {}) {
-  await page.addInitScript(
-    ([key, value]) => {
-      if (!sessionStorage.getItem('seeded')) {
-        localStorage.setItem(key, value);
-        sessionStorage.setItem('seeded', '1');
-      }
-    },
-    [
-      KEY,
-      JSON.stringify({
-        version: 1,
-        settings: { companion: 'mimi', language: 'fr', mode: 'listen' },
-        ...data,
-      }),
-    ] as const,
-  );
-}
-
-async function hold(page: Page, selector: string, ms = 700) {
-  const box = (await page.locator(selector).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.clock.runFor(ms);
-  await page.mouse.up();
+  await storeOnce(page, {
+    version: 1,
+    settings: { companion: 'mimi', language: 'fr', mode: 'listen' },
+    ...data,
+  });
 }
 
 const wordId = (page: Page) => page.locator('.word-card').getAttribute('data-word-id');
 const french = (id: string) => words.find((w) => w.id === id)!.fr;
 
 test.describe('B-89 Hörrunde', () => {
-  test('AT-89.4: Fremdwort sofort da und abgespielt, Bild per Auge aufdecken', async ({ page }) => {
-    await prepare(page, {});
-    await listenView(page);
-    const id = (await wordId(page))!;
-    // in der Mitte die Fremdwortkarte, rechts die Bildkarte
-    const answer = (await page.locator('.round__answer').boundingBox())!;
-    const card = (await page.locator('.word-card').boundingBox())!;
-    const avatar = (await page.locator('.round__avatar').boundingBox())!;
-    expect(avatar.x).toBeLessThan(answer.x);
-    expect(answer.x + answer.width).toBeLessThanOrEqual(card.x);
-    expect(card.width).toBeCloseTo(answer.width, 0);
-    await expect(page.locator('.round__foreign')).toHaveText(french(id));
-    await expect.poll(() => plays(page)).toEqual([`/mimi_mots/audio/fr/${id}.mp3`]);
+  test(
+    'AT-89.4: Fremdwort sofort da und abgespielt, Bild per Auge aufdecken',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await prepare(page, {});
+      await listenView(page);
+      const id = (await wordId(page))!;
+      // in der Mitte die Fremdwortkarte, rechts die Bildkarte
+      const answer = (await page.locator('.round__answer').boundingBox())!;
+      const card = (await page.locator('.word-card').boundingBox())!;
+      const avatar = (await page.locator('.round__avatar').boundingBox())!;
+      expect(avatar.x).toBeLessThan(answer.x);
+      expect(answer.x + answer.width).toBeLessThanOrEqual(card.x);
+      expect(card.width).toBeCloseTo(answer.width, 0);
+      await expect(page.locator('.round__foreign')).toHaveText(french(id));
+      await expect.poll(() => plays(page)).toEqual([`/mimi_mots/audio/fr/${id}.mp3`]);
 
-    // verdeckt: nur der Auge-Button, keine Bewertung
-    await expect(page.locator('.word-card__emoji')).toBeHidden();
-    await expect(page.locator('.word-card__de')).toBeHidden();
-    const reveal = btn(page, 'Zeig mir das deutsche Wort');
-    await expect(reveal).toBeVisible();
-    await expect(page.locator('.round__rating')).toBeHidden();
+      // verdeckt: nur der Auge-Button, keine Bewertung
+      await expect(page.locator('.word-card__emoji')).toBeHidden();
+      await expect(page.locator('.word-card__de')).toBeHidden();
+      const reveal = btn(page, 'Zeig mir das deutsche Wort');
+      await expect(reveal).toBeVisible();
+      await expect(page.locator('.round__rating')).toBeHidden();
 
-    // Lautsprecher spielt erneut, deckt aber nicht auf
-    await btn(page, 'Auf Französisch anhören').click();
-    await expect.poll(async () => (await plays(page)).length).toBe(2);
-    await expect(view(page, 'round')).toHaveAttribute('data-revealed', 'false');
+      // Lautsprecher spielt erneut, deckt aber nicht auf
+      await btn(page, 'Auf Französisch anhören').click();
+      await expect.poll(async () => (await plays(page)).length).toBe(2);
+      await expect(view(page, 'round')).toHaveAttribute('data-revealed', 'false');
 
-    await reveal.click();
-    await expect(view(page, 'round')).toHaveAttribute('data-revealed', 'true');
-    await expect(page.locator('.word-card__emoji')).toBeVisible();
-    await expect(page.locator('.word-card__de .word-card__syllable').first()).toBeVisible();
-    await expect(reveal).toBeHidden();
-    await expect(btn(page, 'Wusste ich')).toBeVisible();
-    await expect(btn(page, 'Noch üben')).toBeVisible();
-    expect(await plays(page)).toHaveLength(2); // Aufdecken spielt nicht
+      await reveal.click();
+      await expect(view(page, 'round')).toHaveAttribute('data-revealed', 'true');
+      await expect(page.locator('.word-card__emoji')).toBeVisible();
+      await expect(page.locator('.word-card__de .word-card__syllable').first()).toBeVisible();
+      await expect(reveal).toBeHidden();
+      await expect(btn(page, 'Wusste ich')).toBeVisible();
+      await expect(btn(page, 'Noch üben')).toBeVisible();
+      expect(await plays(page)).toHaveLength(2); // Aufdecken spielt nicht
 
-    // nächstes Wort: wieder verdeckt und einmal abgespielt
-    await btn(page, 'Wusste ich').click();
-    await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', id);
-    await expect(view(page, 'round')).toHaveAttribute('data-revealed', 'false');
-    const next = (await wordId(page))!;
-    await expect
-      .poll(async () => (await plays(page)).at(-1))
-      .toBe(`/mimi_mots/audio/fr/${next}.mp3`);
-    expect(await plays(page)).toHaveLength(3);
-  });
+      // nächstes Wort: wieder verdeckt und einmal abgespielt
+      await btn(page, 'Wusste ich').click();
+      await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', id);
+      await expect(view(page, 'round')).toHaveAttribute('data-revealed', 'false');
+      const next = (await wordId(page))!;
+      await expect
+        .poll(async () => (await plays(page)).at(-1))
+        .toBe(`/mimi_mots/audio/fr/${next}.mp3`);
+      expect(await plays(page)).toHaveLength(3);
+    },
+  );
 
   test('AT-89.5: Bewertungen landen im Hör-Lernstand, der Sprech-Lernstand bleibt', async ({
     page,
@@ -107,75 +89,64 @@ test.describe('B-89 Hörrunde', () => {
     expect(data.progress.fr).toEqual({ hund: entry(3) });
   });
 
-  test('AT-89.7: Elternbereich zeigt den Lernstand je Modus, Zurücksetzen nur für diesen', async ({
-    page,
-  }) => {
-    await prepare(page);
-    await seed(page, {
-      progress: { fr: { hund: entry(3) } },
-      listenProgress: { fr: { katze: entry(1), maus: entry(1) } },
-    });
-    await page.goto('./');
-    await hold(page, '.app-header__icon');
-    await expect(view(page, 'admin')).toBeVisible();
-    const level = (name: string) =>
-      page.locator(`.admin__level[data-level="${name}"] .admin__word`);
+  test(
+    'AT-89.7: Elternbereich zeigt den Lernstand je Modus, Zurücksetzen nur für diesen',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await prepare(page);
+      await seed(page, {
+        progress: { fr: { hund: entry(3) } },
+        listenProgress: { fr: { katze: entry(1), maus: entry(1) } },
+      });
+      await page.goto('./');
+      await hold(page, '.app-header__icon');
+      await expect(view(page, 'admin')).toBeVisible();
+      const level = (name: string) =>
+        page.locator(`.admin__level[data-level="${name}"] .admin__word`);
 
-    // Modi vor den Flaggen, gleiche Symbole wie auf der Startseite
-    const speak = btn(page, 'Sprechen');
-    const listen = btn(page, 'Hören');
-    await expect(speak.locator('svg[data-icon="speak"]')).toBeVisible();
-    await expect(listen.locator('svg[data-icon="listen"]')).toBeVisible();
-    const flag = (await btn(page, 'Englisch').boundingBox())!;
-    expect((await listen.boundingBox())!.x).toBeLessThan(flag.x);
-    await expect(listen).toHaveAttribute('aria-pressed', 'true'); // wie zuletzt gewählt
+      // Modi vor den Flaggen, gleiche Symbole wie auf der Startseite
+      const speak = btn(page, 'Sprechen');
+      const listen = btn(page, 'Hören');
+      await expect(speak.locator('svg[data-icon="speak"]')).toBeVisible();
+      await expect(listen.locator('svg[data-icon="listen"]')).toBeVisible();
+      const flag = (await btn(page, 'Englisch').boundingBox())!;
+      expect((await listen.boundingBox())!.x).toBeLessThan(flag.x);
+      await expect(listen).toHaveAttribute('aria-pressed', 'true'); // wie zuletzt gewählt
 
-    await expect(level('1')).toHaveCount(2);
-    await expect(level('3')).toHaveCount(0);
-    await speak.click();
-    await expect(level('3')).toHaveCount(1);
-    await expect(level('1')).toHaveCount(0);
+      await expect(level('1')).toHaveCount(2);
+      await expect(level('3')).toHaveCount(0);
+      await speak.click();
+      await expect(level('3')).toHaveCount(1);
+      await expect(level('1')).toHaveCount(0);
 
-    await listen.click();
-    await btn(page, 'Lernstand zurücksetzen').click();
-    await expect(page.locator('.admin__question')).toHaveText(
-      'Französisch, Hören: Wirklich zurücksetzen?',
-    );
-    const fits = await page.evaluate(
-      () =>
-        document.documentElement.scrollWidth <= innerWidth &&
-        [...document.querySelectorAll('.admin__toolbar button')].every(
-          (b) => b.getBoundingClientRect().right <= innerWidth,
-        ),
-    );
-    expect(fits).toBe(true);
-    await btn(page, 'Ja, zurücksetzen').click();
-    await expect(level('1')).toHaveCount(0);
-    const data = await stored(page);
-    expect(data.listenProgress.fr).toEqual({});
-    expect(data.progress.fr).toEqual({ hund: entry(3) });
+      await listen.click();
+      await btn(page, 'Lernstand zurücksetzen').click();
+      await expect(page.locator('.admin__question')).toHaveText(
+        'Französisch, Hören: Wirklich zurücksetzen?',
+      );
+      const fits = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <= innerWidth &&
+          [...document.querySelectorAll('.admin__toolbar button')].every(
+            (b) => b.getBoundingClientRect().right <= innerWidth,
+          ),
+      );
+      expect(fits).toBe(true);
+      await btn(page, 'Ja, zurücksetzen').click();
+      await expect(level('1')).toHaveCount(0);
+      const data = await stored(page);
+      expect(data.listenProgress.fr).toEqual({});
+      expect(data.progress.fr).toEqual({ hund: entry(3) });
 
-    // ausgeschaltete Wörter (B-88) gelten in beiden Modi
-    await page.locator('.admin__word[data-word-id="hund"]').click();
-    await speak.click();
-    await expect(page.locator('.admin__word[data-word-id="hund"]')).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
-  });
-
-  test('AT-89.8: Elternbereich-Leiste passt auf den Bildschirm', async ({ page }) => {
-    await prepare(page, {});
-    await page.goto('./');
-    await hold(page, '.app-header__icon');
-    const overflow = await page.evaluate(
-      () =>
-        [...document.querySelectorAll('.admin__toolbar button')]
-          .map((b) => b.getBoundingClientRect())
-          .filter((r) => r.right > innerWidth + 0.5 || r.bottom > innerHeight + 0.5).length,
-    );
-    expect(overflow).toBe(0);
-  });
+      // ausgeschaltete Wörter (B-88) gelten in beiden Modi
+      await page.locator('.admin__word[data-word-id="hund"]').click();
+      await speak.click();
+      await expect(page.locator('.admin__word[data-word-id="hund"]')).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
+    },
+  );
 });
 
 test.describe('B-89 Tutorial der Hörrunde', () => {
@@ -248,27 +219,31 @@ test.describe('B-89 Tutorial der Hörrunde', () => {
     expect(data.listenProgress.fr).toEqual({});
   });
 
-  test('AT-89.6: Tutorials im Elternbereich je Modus zurücksetzen', async ({ page }) => {
-    await prepare(page);
-    await seed(page, { tutorialDone: true, listenTutorialDone: true });
-    await page.goto('./');
-    await hold(page, '.app-header__icon');
-    await page.getByRole('tab', { name: 'Sonstiges' }).click();
-    await expect(page.locator('.admin__title')).toContainText([
-      'Tutorial Sprechen',
-      'Tutorial Hören',
-    ]);
-    await btn(page, 'Hören zurücksetzen').click();
-    await expect(btn(page, 'Hören zurücksetzen')).toBeDisabled();
-    await expect(btn(page, 'Sprechen zurücksetzen')).toBeEnabled();
-    expect(await stored(page)).toMatchObject({ tutorialDone: true, listenTutorialDone: false });
-    const fits = await page.evaluate(
-      () =>
-        document.documentElement.scrollHeight <= innerHeight &&
-        document.documentElement.scrollWidth <= innerWidth,
-    );
-    expect(fits).toBe(true);
-  });
+  test(
+    'AT-89.6: Tutorials im Elternbereich je Modus zurücksetzen',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await prepare(page);
+      await seed(page, { tutorialDone: true, listenTutorialDone: true });
+      await page.goto('./');
+      await hold(page, '.app-header__icon');
+      await page.getByRole('tab', { name: 'Sonstiges' }).click();
+      await expect(page.locator('.admin__title')).toContainText([
+        'Tutorial Sprechen',
+        'Tutorial Hören',
+      ]);
+      await btn(page, 'Hören zurücksetzen').click();
+      await expect(btn(page, 'Hören zurücksetzen')).toBeDisabled();
+      await expect(btn(page, 'Sprechen zurücksetzen')).toBeEnabled();
+      expect(await stored(page)).toMatchObject({ tutorialDone: true, listenTutorialDone: false });
+      const fits = await page.evaluate(
+        () =>
+          document.documentElement.scrollHeight <= innerHeight &&
+          document.documentElement.scrollWidth <= innerWidth,
+      );
+      expect(fits).toBe(true);
+    },
+  );
 
   test('AT-89.6: Abbruch lässt das Tutorial offen; Sprechen hat sein eigenes', async ({ page }) => {
     await prepare(page);

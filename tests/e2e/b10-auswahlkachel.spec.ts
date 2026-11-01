@@ -86,11 +86,11 @@ test.describe('B-10 Auswahlkachel', () => {
     await expect(dauer).toHaveAttribute('aria-pressed', 'true');
   });
 
-  test('AT-10.3: Auswahlwechsel verschiebt nichts', async ({ page }) => {
+  test('AT-10.3: Auswahlwechsel verschiebt nichts', { tag: '@layout' }, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' }); // ohne Übergang, kein Warten (B-91)
     const before = await geometry(page);
     for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch']) {
       await page.getByRole('button', { name }).click();
-      await page.waitForTimeout(250); // Übergang (≤ 200 ms) abwarten
       expect(await geometry(page), name).toEqual(before);
     }
   });
@@ -108,9 +108,9 @@ test.describe('B-10 Auswahlkachel', () => {
         }
       }
     };
+    await page.emulateMedia({ reducedMotion: 'reduce' }); // ohne Übergang, kein Warten (B-91)
     await check();
     for (const name of ['Mimi', 'Französisch']) await page.getByRole('button', { name }).click();
-    await page.waitForTimeout(250);
     await check();
   });
 });

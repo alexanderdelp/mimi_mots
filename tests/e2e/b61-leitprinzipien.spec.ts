@@ -88,29 +88,35 @@ const uiWords = (page: Page) =>
 
 test.describe('B-61 Leitprinzipien', () => {
   for (const view of CHILD_VIEWS) {
-    test(`AT-61.1/61.2/61.6: ${view.name} – keine Rot/Grün-Töne, große Ziele, wenig Text`, async ({
-      page,
-    }) => {
-      await prepare(page, view.seed);
-      await view.open(page);
-      await settle(page);
-      expect(await redOrGreen(page)).toEqual([]);
-      expect(await smallButtons(page)).toEqual([]);
-      const words = await uiWords(page);
-      // Grenze seit B-75 bei 14 Wörtern (die Kachel „Nur bekannte“ ist seit B-82 wieder weg)
-      expect(words.length, words.join(' ')).toBeLessThanOrEqual(14);
-      expect(words.join(' ')).not.toMatch(
-        /\d|super|toll|richtig|falsch|prima|gut gemacht|punkt|stern/i,
-      );
-    });
+    test(
+      `AT-61.1/61.2/61.6: ${view.name} – keine Rot/Grün-Töne, große Ziele, wenig Text`,
+      { tag: '@layout' },
+      async ({ page }) => {
+        await prepare(page, view.seed);
+        await view.open(page);
+        await settle(page);
+        expect(await redOrGreen(page)).toEqual([]);
+        expect(await smallButtons(page)).toEqual([]);
+        const words = await uiWords(page);
+        // Grenze seit B-75 bei 14 Wörtern (die Kachel „Nur bekannte“ ist seit B-82 wieder weg)
+        expect(words.length, words.join(' ')).toBeLessThanOrEqual(14);
+        expect(words.join(' ')).not.toMatch(
+          /\d|super|toll|richtig|falsch|prima|gut gemacht|punkt|stern/i,
+        );
+      },
+    );
   }
 
-  test('AT-61.2: auch im Elternbereich sind alle Schaltflächen ≥ 88 px', async ({ page }) => {
-    await prepare(page, {});
-    await adminView(page);
-    // B-88: die Wort-Buttons sind kleiner (eigene Regel in AT-88.6)
-    expect(await smallButtons(page, '.admin__word')).toEqual([]);
-  });
+  test(
+    'AT-61.2: auch im Elternbereich sind alle Schaltflächen ≥ 88 px',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await prepare(page, {});
+      await adminView(page);
+      // B-88: die Wort-Buttons sind kleiner (eigene Regel in AT-88.6)
+      expect(await smallButtons(page, '.admin__word')).toEqual([]);
+    },
+  );
 
   test('AT-61.3: Avatare ohne Bewegung, Übergänge ≤ 200 ms, mit „Bewegung reduzieren“ 0 ms', async ({
     page,

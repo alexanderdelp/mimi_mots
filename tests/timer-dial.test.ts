@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import { createTimerDial, sectorPath } from '../src/components/timer-dial';
 

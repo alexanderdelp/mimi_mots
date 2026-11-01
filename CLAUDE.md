@@ -67,7 +67,10 @@ src/
   styles/            tokens.css, base.css, views.css
 scripts/generate_audio.py
 tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –
-                     dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true }))
+                     dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true });
+                     Hilfen aus e2e/views.ts: btn, hold, storeOnce, stored; Layout-Tests mit
+                     { tag: '@layout' } – nur sie laufen auf allen Viewports, alles andere auf
+                     1180 × 820; Screenshots nur in b60-layout.spec.ts)
 ```
 
 ## Design-Tokens (in `src/styles/tokens.css`, nur diese verwenden)

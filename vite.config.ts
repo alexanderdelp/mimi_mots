@@ -61,7 +61,7 @@ export default defineConfig({
     }),
   ],
   test: {
-    environment: 'jsdom',
+    environment: 'node', // B-91: DOM-Tests wählen jsdom selbst (@vitest-environment jsdom)
     include: ['tests/**/*.test.ts'],
   },
 });

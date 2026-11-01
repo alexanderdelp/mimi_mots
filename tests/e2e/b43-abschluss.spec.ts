@@ -1,7 +1,7 @@
 import { expect, test, type Page, minSize } from './fixtures';
 import { fakeMedia } from './helpers';
+import { btn } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 
 test.beforeEach(async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe('B-43 Abschlussansicht', () => {
     ['Mimi', 'cat_waving'],
     ['Mots', 'pony_waving'],
   ] as const) {
-    test(`AT-43.1: ${companion} winkt groß`, async ({ page }) => {
+    test(`AT-43.1: ${companion} winkt groß`, { tag: '@layout' }, async ({ page }) => {
       await startRound(page, companion);
       await closeRound(page);
       await expect(view(page, 'end').locator('header.app-header h1')).toHaveText('Mimi & Mots');
@@ -53,23 +53,27 @@ test.describe('B-43 Abschlussansicht', () => {
     });
   }
 
-  test('AT-43.3: Haus-Button führt zum Start mit gemerkter Auswahl', async ({ page }) => {
-    await startRound(page, 'Mots');
-    await closeRound(page);
-    const home = btn(page, 'Zurück');
-    expect(await home.innerText()).toBe('');
-    await expect(home.locator('svg')).toHaveAttribute('data-icon', 'home');
-    await expect(home).toHaveCSS('background-color', 'rgb(106, 76, 156)');
-    const box = (await home.boundingBox())!;
-    expect(box.width).toBeGreaterThanOrEqual(minSize(96));
-    expect(box.height).toBe(box.width);
-    await home.click();
-    await expect(view(page, 'start')).toBeVisible();
-    // Sprache und Modus bleiben; Mots schläft seit B-65, Mimi ist vorausgewählt
-    for (const name of ['Mimi', 'Französisch', 'Sprechen']) {
-      await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'true');
-    }
-  });
+  test(
+    'AT-43.3: Haus-Button führt zum Start mit gemerkter Auswahl',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await startRound(page, 'Mots');
+      await closeRound(page);
+      const home = btn(page, 'Zurück');
+      expect(await home.innerText()).toBe('');
+      await expect(home.locator('svg')).toHaveAttribute('data-icon', 'home');
+      await expect(home).toHaveCSS('background-color', 'rgb(106, 76, 156)');
+      const box = (await home.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(minSize(96));
+      expect(box.height).toBe(box.width);
+      await home.click();
+      await expect(view(page, 'start')).toBeVisible();
+      // Sprache und Modus bleiben; Mots schläft seit B-65, Mimi ist vorausgewählt
+      for (const name of ['Mimi', 'Französisch', 'Sprechen']) {
+        await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'true');
+      }
+    },
+  );
 
   test('AT-43.4: gleicher Abschluss nach Zeitablauf', async ({ page }) => {
     await startRound(page);
@@ -83,7 +87,7 @@ test.describe('B-43 Abschlussansicht', () => {
     await expect(btn(page, 'Zurück')).toBeVisible();
   });
 
-  test('AT-43.5: passt auf den Bildschirm, Screenshot', async ({ page }) => {
+  test('AT-43.5: passt auf den Bildschirm, Screenshot', { tag: '@layout' }, async ({ page }) => {
     await startRound(page);
     await closeRound(page);
     await avatarLoaded(page);
@@ -107,7 +111,5 @@ test.describe('B-43 Abschlussansicht', () => {
         expect(overlap, `${a.n} / ${b.n}`).toBe(false);
       }
     }
-    await page.evaluate(() => document.fonts.ready);
-    await expect(page).toHaveScreenshot('abschluss.png');
   });
 });

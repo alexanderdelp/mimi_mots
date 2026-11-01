@@ -1,9 +1,28 @@
 // B-60/B-61: führt reproduzierbar zu jeder Ansicht und prüft sie im Browser (Überlauf, Kontrast,
 // Farben, Schaltflächen, Bewegung). Zufall und Uhr sind festgelegt.
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { fakeMedia, vocabularyIds } from './helpers';
 
-const KEY = 'mimi-mots:v1';
+export const KEY = 'mimi-mots:v1';
+
+/** Legt einen gespeicherten Stand an, bevor die App lädt – nur beim ersten Laden des Tabs, damit
+ *  Neuladen den Stand der App zeigt (B-91: eine Stelle statt Kopien je Test). */
+export async function storeOnce(page: Page, data: object | string) {
+  const value = typeof data === 'string' ? data : JSON.stringify(data);
+  await page.addInitScript(
+    ([key, v]) => {
+      if (!sessionStorage.getItem('seeded')) {
+        localStorage.setItem(key, v);
+        sessionStorage.setItem('seeded', '1');
+      }
+    },
+    [KEY, value] as const,
+  );
+}
+
+/** Gespeicherter Stand der App (null, wenn nichts gespeichert ist). */
+export const stored = (page: Page) =>
+  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
 export const TODAY = new Date(2026, 9, 30, 10, 0);
 
 export const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
@@ -31,33 +50,24 @@ export async function prepare(page: Page, seed?: Seed) {
     };
   });
   if (!seed) return;
-  await page.addInitScript(
-    ([key, value]) => {
-      if (!sessionStorage.getItem('seeded')) {
-        localStorage.setItem(key, value);
-        sessionStorage.setItem('seeded', '1');
-      }
+  await storeOnce(page, {
+    version: 1,
+    settings: { companion: 'mimi', language: seed.language ?? 'fr', mode: 'speak' },
+    progress: { en: {}, fr: {}, ja: {}, it: {} },
+    enabledLanguages: ['en', 'fr', 'ja', 'it'],
+    ...(seed.tutorial ? { tutorialDone: false } : {}),
+    ...(seed.listenTutorial ? { listenTutorialDone: false } : {}),
+    rest: {
+      sleeping: seed.sleeping ?? [],
+      since: '2026-10-30',
     },
-    [
-      KEY,
-      JSON.stringify({
-        version: 1,
-        settings: { companion: 'mimi', language: seed.language ?? 'fr', mode: 'speak' },
-        progress: { en: {}, fr: {}, ja: {}, it: {} },
-        enabledLanguages: ['en', 'fr', 'ja', 'it'],
-        ...(seed.tutorial ? { tutorialDone: false } : {}),
-        ...(seed.listenTutorial ? { listenTutorialDone: false } : {}),
-        rest: {
-          sleeping: seed.sleeping ?? [],
-          since: '2026-10-30',
-        },
-      }),
-    ] as const,
-  );
+  });
 }
 
-async function hold(page: Page, selector: string, ms = 700) {
-  const box = (await page.locator(selector).boundingBox())!;
+/** Gedrückt halten (Long-Press: [×], App-Icon) – über die Testuhr, `page.clock` muss laufen. */
+export async function hold(page: Page, target: string | Locator, ms = 700) {
+  const locator = typeof target === 'string' ? page.locator(target) : target;
+  const box = (await locator.boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   await page.clock.runFor(ms);

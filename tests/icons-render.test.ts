@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 // @vitest-environment node
 // B-50: npm run icons rendert die PNG-Icons aus den SVG-Quellen.
 import { describe, expect, it } from 'vitest';

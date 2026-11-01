@@ -1,7 +1,7 @@
 import { expect, test, type Page, skipRotationOnPhone } from './fixtures';
 import { fakeMedia } from './helpers';
+import { btn } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const overlay = (page: Page) => page.getByRole('alert');
 
 async function toPortrait(page: Page) {
