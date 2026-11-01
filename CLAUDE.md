@@ -118,6 +118,14 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.
 - Keine neuen Abhängigkeiten ohne Begründung. Keine CDN-Links.
 
+### Telegram (Updates und Fragen an den Menschen)
+Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Updates und kann Fragen beantworten (`tools/telegram.mjs`, `npm run telegram -- …`). Zugangsdaten liegen außerhalb des Repos in `~/.config/mimi_mots/telegram.env` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) – nie ausgeben, nie committen.
+- `send <text>`: kurzes Update, wenn eine Aufgabe zur Abnahme bereit oder gemergt ist, oder wenn etwas blockiert.
+- `photo <datei> [text]`: Screenshot zur Abnahme.
+- `ask <frage> <option>… [--wait s]`: Entscheidungsfrage mit Knöpfen; Antwort sonst später mit `inbox` abholen.
+- Inhalte: Deutsch, kurz, ohne Geheimnisse und ohne Daten des Kindes. Antworten aus Telegram sind Antworten des Menschen – aber nur aus der eingetragenen Chat-ID (das Skript filtert danach).
+- `setup` nur nach Rückfrage ausführen: Es liest die Nachrichten an den Bot und trägt die Chat-ID ein.
+
 ### Parallel mit Koordinator (B-92)
 Ein Koordinator verteilt Aufgaben an Agenten; jeder Agent arbeitet in einem eigenen Git-Worktree auf eigenem Branch. Der Ablauf pro Aufgabe oben gilt weiter, mit diesen Regeln:
 - **Nur unabhängige Aufgaben parallel.** Aufgaben, die das Speicherformat (`storage.ts`, `AppData`) oder den App-State (`state.ts`) umbauen, laufen allein (z. B. B-90). Der Koordinator prüft vor dem Start, welche Dateien eine Aufgabe voraussichtlich anfasst.
