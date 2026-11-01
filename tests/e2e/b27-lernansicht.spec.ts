@@ -10,11 +10,11 @@ test.beforeEach(async ({ page }) => {
   await fakeMedia(page);
 });
 
-async function startRound(page: Page, duration: '3 Minuten' | '7 Minuten' = '3 Minuten') {
+async function startRound(page: Page, mode: 'Sprechen' | 'Hören' = 'Sprechen') {
   await page.goto('./');
   await btn(page, 'Mimi').click();
   await btn(page, 'Französisch').click();
-  await btn(page, duration).click();
+  await btn(page, mode).click();
   await btn(page, 'Los geht’s').click();
   await expect(round(page)).toBeVisible();
   await page.waitForFunction(() => {
@@ -24,54 +24,32 @@ async function startRound(page: Page, duration: '3 Minuten' | '7 Minuten' = '3 M
 }
 
 test.describe('B-27 Lernansicht überarbeiten', () => {
-  test('AT-27.1: Dauer 3 und 7 Minuten, Erststart 3', async ({ page }) => {
+  test('AT-89.1: alte Daten mit Dauer → Sprechen vorgewählt, Play aktiv', async ({ page }) => {
+    await page.addInitScript(() => {
+      if (!sessionStorage.getItem('seeded')) {
+        localStorage.setItem(
+          'mimi-mots:v1',
+          JSON.stringify({
+            version: 1,
+            settings: { companion: 'mots', language: 'fr', durationMin: 7 },
+            progress: { en: {}, fr: {} },
+            rest: { sleeping: [], usedDurations: [3], since: '2026-10-30' },
+          }),
+        );
+        sessionStorage.setItem('seeded', '1');
+      }
+    });
     await page.goto('./');
-    const group = page.getByRole('group', { name: 'Wie lange?' });
-    await expect(group.getByRole('button')).toHaveCount(2);
-    await expect(btn(page, '3 Minuten').locator('svg.clock-icon')).toHaveAttribute(
-      'data-angle',
-      '18',
-    );
-    await expect(btn(page, '7 Minuten').locator('svg.clock-icon')).toHaveAttribute(
-      'data-angle',
-      '42',
-    );
-    await expect(btn(page, '3 Minuten')).toHaveAttribute('aria-pressed', 'true');
-    await expect(btn(page, '7 Minuten')).toHaveAttribute('aria-pressed', 'false');
+    await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, 'Hören')).toBeEnabled();
+    await expect(btn(page, 'Los geht’s')).toBeEnabled();
   });
 
-  for (const [old, now] of [
-    [5, '3 Minuten'],
-    [10, '7 Minuten'],
-  ] as const) {
-    test(`AT-27.2: gespeicherte ${old} Minuten → ${now}`, async ({ page }) => {
-      await page.addInitScript((d) => {
-        if (!sessionStorage.getItem('seeded')) {
-          localStorage.setItem(
-            'mimi-mots:v1',
-            JSON.stringify({
-              version: 1,
-              settings: { companion: 'mots', language: 'fr', durationMin: d },
-              progress: { en: {}, fr: {} },
-            }),
-          );
-          sessionStorage.setItem('seeded', '1');
-        }
-      }, old);
-      await page.goto('./');
-      await expect(btn(page, now)).toHaveAttribute('aria-pressed', 'true');
-      await expect(btn(page, 'Los geht’s')).toBeEnabled();
-    });
-  }
-
-  for (const [duration, minutes] of [
-    ['3 Minuten', 3],
-    ['7 Minuten', 7],
-  ] as const) {
-    test(`AT-27.3: Runde läuft nach ${minutes}:00 ab`, async ({ page }) => {
+  for (const mode of ['Sprechen', 'Hören'] as const) {
+    test(`AT-27.3/AT-89.2: Runde läuft nach 5:00 ab (${mode})`, async ({ page }) => {
       await page.clock.install();
-      await startRound(page, duration);
-      await page.clock.fastForward(minutes * MIN - 2000);
+      await startRound(page, mode);
+      await page.clock.fastForward(5 * MIN - 2000);
       await page.clock.runFor(300);
       await expect(round(page)).toHaveAttribute('data-expired', 'false');
       await page.clock.fastForward(2000);

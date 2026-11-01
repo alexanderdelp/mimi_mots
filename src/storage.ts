@@ -9,17 +9,18 @@ export const STORAGE_KEY = 'mimi-mots:v1';
 export const VERSION = 1;
 
 export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja', 'it'];
-export const DURATIONS = [3, 7] as const;
-export type DurationMin = (typeof DURATIONS)[number];
-/** Frühere Dauern (bis B-27) → heutige Entsprechung, damit die Auswahl erhalten bleibt. */
-const LEGACY_DURATIONS: Record<number, DurationMin> = { 5: 3, 10: 7 };
+/** B-89: jede Runde dauert 5 Minuten (vorher wählbar 3 oder 7). */
+export const ROUND_MIN = 5;
+/** B-89: Lernmodus – Sprechen (Bild → Fremdwort) oder Hören (Fremdwort → Bild). */
+export const MODES = ['speak', 'listen'] as const;
+export type Mode = (typeof MODES)[number];
 
 export const MAX_BOX = 4;
 
 export interface Settings {
   companion: Companion | null;
   language: Language | null;
-  durationMin: DurationMin | null;
+  mode: Mode | null;
 }
 
 export interface WordProgress {
@@ -35,23 +36,27 @@ export type Progress = Record<Language, Record<string, WordProgress>>;
 /** B-88: im Elternbereich ausgeschaltete Wörter je Sprache (Wort-ids). */
 export type DisabledWords = Record<Language, string[]>;
 
-/** B-65: Nach einer Runde schläft der Begleiter und die Dauer ist verbraucht – bis zum
- *  nächsten Tag (`since`: lokales Datum JJJJ-MM-TT des Einschlafens). */
+/** B-65: Nach einer Runde schläft der Begleiter – bis zum nächsten Tag (`since`: lokales Datum
+ *  JJJJ-MM-TT des Einschlafens). Seit B-89 verbraucht sich keine Dauer mehr. */
 export interface Rest {
   sleeping: Companion[];
-  usedDurations: DurationMin[];
   since: string | null;
 }
 
 export interface AppData {
   version: typeof VERSION;
   settings: Settings;
+  /** Lernstand der Sprechrunde. */
   progress: Progress;
+  /** B-89: Lernstand der Hörrunde, getrennt von der Sprechrunde. */
+  listenProgress: Progress;
   rest: Rest;
   /** B-73: im Elternbereich aktivierte Sprachen (mindestens eine). */
   enabledLanguages: Language[];
   /** B-74: Tutorial der Lernrunde schon gesehen (im Elternbereich zurücksetzbar). */
   tutorialDone: boolean;
+  /** B-89: Tutorial der Hörrunde schon gesehen. */
+  listenTutorialDone: boolean;
   /** B-82: keine neuen Wörter, solange viele auf „noch üben“ stehen (Schalter im Elternbereich). */
   brakeNew: boolean;
   /** B-88: ausgeschaltete Wörter – kommen in der Lernrunde nicht vor, ihr Lernstand bleibt. */
@@ -74,15 +79,17 @@ export function withWords(enabled: readonly Language[]): Language[] {
   return [];
 }
 
-/** Erststart: nur die Dauer ist vorbelegt (anforderungen.md §3.1). */
+/** Erststart: nur der Modus ist vorbelegt (anforderungen.md §3.1, seit B-89 statt der Dauer). */
 export function defaults(): AppData {
   return {
     version: VERSION,
-    settings: { companion: null, language: null, durationMin: 3 },
+    settings: { companion: null, language: null, mode: 'speak' },
     progress: { en: {}, fr: {}, ja: {}, it: {} },
-    rest: { sleeping: [], usedDurations: [], since: null },
+    listenProgress: { en: {}, fr: {}, ja: {}, it: {} },
+    rest: { sleeping: [], since: null },
     enabledLanguages: withWords(DEFAULT_ENABLED_LANGUAGES),
     tutorialDone: false,
+    listenTutorialDone: false,
     brakeNew: true,
     disabledWords: { en: [], fr: [], ja: [], it: [] },
   };
@@ -101,11 +108,7 @@ function sanitizeSettings(raw: unknown): Settings {
   return {
     companion: oneOf<Companion | null>([...COMPANIONS, null], raw.companion, d.companion),
     language: oneOf<Language | null>([...LANGUAGES, null], raw.language, d.language),
-    durationMin: oneOf<DurationMin | null>(
-      [...DURATIONS, null],
-      LEGACY_DURATIONS[raw.durationMin as number] ?? raw.durationMin,
-      d.durationMin,
-    ),
+    mode: oneOf<Mode | null>([...MODES, null], raw.mode, d.mode), // früher `durationMin`
   };
 }
 
@@ -125,8 +128,7 @@ function subsetOf<T>(allowed: readonly T[], raw: unknown): T[] {
 function sanitizeRest(raw: unknown): Rest {
   if (!isObject(raw)) return defaults().rest;
   return {
-    sleeping: subsetOf(COMPANIONS, raw.sleeping),
-    usedDurations: subsetOf(DURATIONS, raw.usedDurations),
+    sleeping: subsetOf(COMPANIONS, raw.sleeping), // `usedDurations` (bis B-89) fällt weg
     since: typeof raw.since === 'string' && DAY.test(raw.since) ? raw.since : null,
   };
 }
@@ -177,9 +179,11 @@ export function sanitize(raw: unknown): AppData {
     version: VERSION,
     settings: sanitizeSettings(raw.settings),
     progress: sanitizeProgress(raw.progress),
+    listenProgress: sanitizeProgress(raw.listenProgress),
     rest: sanitizeRest(raw.rest),
     enabledLanguages: sanitizeEnabled(raw.enabledLanguages),
     tutorialDone: raw.tutorialDone === true,
+    listenTutorialDone: raw.listenTutorialDone === true,
     brakeNew: raw.brakeNew !== false, // fehlt bei älteren Daten → an
     disabledWords: sanitizeDisabled(raw.disabledWords), // fehlt bei älteren Daten → alle an
   };

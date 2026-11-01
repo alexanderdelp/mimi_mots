@@ -11,7 +11,7 @@ PWA für ein quergelegtes iPad, mit der eine Erstklässlerin spielerisch ein paa
 ```bash
 npm install
 npx playwright install webkit   # einmalig, für die E2E-Tests
-npm run dev                     # http://localhost:5173/mimi_mots/ (auch im WLAN, z. B. iPad)
+npm run dev                     # http://localhost:5181/mimi_mots/ (auch im WLAN, z. B. iPad)
 npm test                        # Unit-Tests (Vitest)
 npm run test:e2e                # Akzeptanztests (Playwright, WebKit, iPad quer)
 npm run lint
@@ -92,7 +92,7 @@ npm run test:audio                  # Tests des Skripts (inkl. echter Erzeugung 
 
 - Stimmen: Englisch Piper `en_US-ljspeech-high` (amerikanisch), Französisch Kokoro `ff_siwis`, Japanisch VOICEVOX 冥鳴ひまり (Stil-ID 14), Italienisch Kokoro `if_sara` – jeweils sofern in `audio-choices.json` nichts anderes gewählt ist.
 - Nachbearbeitung mit ffmpeg: Stille vorn/hinten entfernt, 150 ms Vorlauf, Lautheit −16 LUFS, MP3 mono 64 kbit/s.
-- **Stimmwahl je Wort (B-78, „keins“ seit B-85):** `npm run audio -- --candidates --lang en` (bzw. `--lang fr`, `--lang it` oder `--lang ja`) erzeugt für jedes Wort alle Stimmoptionen als „Wort“ und „Wort.“ in `tools/stimmwahl/` (nicht eingecheckt). Auf `http://localhost:5173/mimi_mots/tools/stimmwahl.html` (`?lang=fr`, `?lang=ja`, `?lang=it`; nur `npm run dev`) anhören und auswählen: Die gehörte Datei wird sofort nach `public/audio/` kopiert, die Wahl in `audio-choices.json` gespeichert und das Wort in `audio-check.md` abgehakt. Taugt keine Aufnahme, „keins“ wählen: Das Wort fehlt dann in dieser Sprache in der App (B-84) – **in der App kommen überhaupt nur Wörter mit gewählter Aufnahme vor**. `npm run audio` erzeugt danach mit der gewählten Stimme (und für „keins“ nichts). Achtung: Piper klingt bei jedem Lauf minimal anders – `--force` ersetzt also auch ausgewählte Aufnahmen durch eine neue Version.
+- **Stimmwahl je Wort (B-78, „keins“ seit B-85):** `npm run audio -- --candidates --lang en` (bzw. `--lang fr`, `--lang it` oder `--lang ja`) erzeugt für jedes Wort alle Stimmoptionen als „Wort“ und „Wort.“ in `tools/stimmwahl/` (nicht eingecheckt). Auf `http://localhost:5181/mimi_mots/tools/stimmwahl.html` (`?lang=fr`, `?lang=ja`, `?lang=it`; nur `npm run dev`) anhören und auswählen: Die gehörte Datei wird sofort nach `public/audio/` kopiert, die Wahl in `audio-choices.json` gespeichert und das Wort in `audio-check.md` abgehakt. Taugt keine Aufnahme, „keins“ wählen: Das Wort fehlt dann in dieser Sprache in der App (B-84) – **in der App kommen überhaupt nur Wörter mit gewählter Aufnahme vor**. `npm run audio` erzeugt danach mit der gewählten Stimme (und für „keins“ nichts). Achtung: Piper klingt bei jedem Lauf minimal anders – `--force` ersetzt also auch ausgewählte Aufnahmen durch eine neue Version.
 - **Eigene Aufnahmen:** Klingt ein Wort schlecht, eine Aufnahme als `audio-overrides/<lang>/<id>.mp3` (oder `.wav`, `.m4a`) ablegen und `npm run audio` erneut ausführen – sie hat Vorrang und wird genauso nachbearbeitet.
 
 ### Lizenzen

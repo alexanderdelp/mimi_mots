@@ -2,6 +2,8 @@
 // Lautsprecher zum Aufdecken und Vorlesen (Flagge daneben nur zur Anzeige), danach
 // Selbsteinschätzung; oben rechts das Timer-Zifferblatt. In der allerersten Runde erklärt
 // der Begleiter vorher an einem Probewort, was es hier gibt (Tutorial, B-74/B-87).
+// Hörrunde (B-89): Fremdwort steht sofort da und wird abgespielt; Bild und deutsches Wort
+// deckt das Kind mit dem Auge-Button auf. Eigenes Tutorial, eigener Lernstand.
 import { createAudioPlayer } from '../audio';
 import { createAppHeader } from '../components/app-header';
 import { createAvatar, type Pose } from '../components/avatar';
@@ -12,7 +14,8 @@ import { createTimerDial } from '../components/timer-dial';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { getWord, type Language, type Word } from '../data/words';
 import { pickNext, type Rating } from '../scheduler';
-import { activeWords, type AppState, type Store } from '../state';
+import { activeWords, progressKey, tutorialSeen, type AppState, type Store } from '../state';
+import { ROUND_MIN } from '../storage';
 import { createSessionTimer } from '../timer';
 import type { ViewHandle } from './view';
 
@@ -31,11 +34,13 @@ export function tutorialWord(words: readonly Word[]): Word {
   return words.find((w) => w.id === TUTORIAL_WORD) ?? words[0];
 }
 
-export type TutorialTarget = 'card' | 'flag' | 'speaker' | 'known' | 'practice' | 'timer';
+export type TutorialTarget =
+  'card' | 'answer' | 'flag' | 'speaker' | 'reveal' | 'known' | 'practice' | 'timer';
 
 /** Unscharf (B-87): alles außer Kopfleiste und Begleiter, oder nur die Übersetzungskarte (samt
- *  Bewertung). Die Kopfleiste bleibt immer scharf. */
-export type TutorialBlur = 'all' | 'answer';
+ *  Bewertung), in der Hörrunde (B-89) nur die Bildkarte (samt Bewertung). Die Kopfleiste bleibt
+ *  immer scharf. */
+export type TutorialBlur = 'all' | 'answer' | 'word';
 
 export interface TutorialStep {
   text: string;
@@ -68,8 +73,29 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
   { text: 'Los geht’s!', pose: 'winkt', target: null, blur: 'all' },
 ];
 
-/** Die Uhr erscheint erst, wenn sie erklärt wird (B-87). */
-const TIMER_STEP = TUTORIAL_STEPS.findIndex((step) => step.target === 'timer');
+/** B-89: Tutorial der Hörrunde – gleicher Aufbau, eigene Schritte. */
+export const LISTEN_TUTORIAL_STEPS: readonly TutorialStep[] = [
+  { text: 'Hallo! Jetzt spitzen wir die Ohren.', pose: 'winkt', target: null, blur: 'all' },
+  {
+    text: 'Lass uns mal sehen, wie das Zuhören geht.',
+    pose: 'freut',
+    target: null,
+    blur: 'all',
+  },
+  { text: 'Hör gut zu: Hier ist das Wort.', pose: 'zeigt', target: 'answer', blur: 'word' },
+  { text: 'Tippe hier, um es noch mal zu hören.', pose: 'zeigt', target: 'speaker', blur: 'word' },
+  { text: 'Was bedeutet es? Tippe hier, dann siehst du es.', pose: 'zeigt', target: 'reveal' },
+  { text: 'Hast du es gewusst? Dann tippe hier.', pose: 'ruhig', target: 'known' },
+  { text: 'Wusstest du es noch nicht? Dann tippe hier.', pose: 'ruhig', target: 'practice' },
+  { text: 'Das Wort kommt dann später wieder.', pose: 'ruhig', target: 'practice' },
+  {
+    text: 'Nach einiger Zeit werde ich müde und möchte mich hinlegen.',
+    pose: 'zeigt',
+    target: 'timer',
+    blur: 'all',
+  },
+  { text: 'Los geht’s!', pose: 'winkt', target: null, blur: 'all' },
+];
 
 /**
  * Von Hand eingekreist (B-87): eine leicht unregelmäßige Schleife mit gut einer Umdrehung, die
@@ -115,7 +141,8 @@ export function showNextWord(store: Store, rng?: () => number): void {
   if (!round || !language) return;
   // nur Wörter mit gewählter Aufnahme (B-84), ohne ausgeschaltete (B-88)
   const ids = activeWords(data, language).map((w) => w.id);
-  const next = pickNext(ids, data.progress[language], round.session, rng, data.brakeNew);
+  const progress = data[progressKey(data.settings.mode ?? 'speak')][language]; // B-89: je Modus
+  const next = pickNext(ids, progress, round.session, rng, data.brakeNew);
   store.dispatch({ type: 'word', id: next.id, session: next.session });
 }
 
@@ -123,9 +150,11 @@ export function renderRound(store: Store): ViewHandle {
   const { settings } = store.getState().data;
   const language: Language = settings.language ?? 'en';
   const words = activeWords(store.getState().data, language); // B-88: ohne ausgeschaltete
+  const listen = settings.mode === 'listen'; // B-89: Hörrunde
 
   const view = el('main', 'view view--round');
   view.dataset.view = 'round';
+  view.dataset.mode = listen ? 'listen' : 'speak';
 
   // In der Kopfleiste: [×] links, Timer rechts
   const close = el('button', 'close-button');
@@ -146,7 +175,10 @@ export function renderRound(store: Store): ViewHandle {
 
   // Avatar links unten, damit die Zeigegeste nach rechts zu den Karten geht; nur Bildtausch.
   // Das Tutorial erklärt der gewählte Begleiter selbst (B-87) – er legt sich später auch hin.
-  let tutorialStep = store.getState().data.tutorialDone ? -1 : 0;
+  let tutorialStep = tutorialSeen(store.getState().data) ? -1 : 0;
+  const steps = listen ? LISTEN_TUTORIAL_STEPS : TUTORIAL_STEPS;
+  /** Die Uhr erscheint erst, wenn sie erklärt wird (B-87). */
+  const timerStep = steps.findIndex((step) => step.target === 'timer');
   const avatarSlot = el('div', 'round__avatar');
   const avatar = createAvatar(settings.companion ?? 'mimi', 'zeigt');
   const bubble = el('p', 'tutorial-bubble');
@@ -154,12 +186,20 @@ export function renderRound(store: Store): ViewHandle {
   bubble.hidden = true;
   avatarSlot.append(bubble, avatar.el);
 
-  // Zwei gleich große Karten: links das deutsche Wort, rechts Flagge, Fremdwort, Lautsprecher
+  // Zwei gleich große Karten: links das deutsche Wort, rechts Flagge, Fremdwort, Lautsprecher.
+  // Hörrunde (B-89): umgekehrt – erst das Fremdwort, rechts Bild und deutsches Wort, die das
+  // Kind mit dem Auge-Button aufdeckt.
   const card = el('section', 'round-card word-card');
   const emoji = el('div', 'word-card__emoji');
   emoji.setAttribute('role', 'img');
   const german = el('p', 'word-card__de');
   card.append(emoji, german);
+  const reveal = roundButton('Zeig mir das deutsche Wort', 'eye', 'reveal-button');
+  if (listen) card.append(reveal);
+  reveal.addEventListener('click', () => {
+    if (tutorialStep >= 0) return; // im Tutorial fängt onTutorialTap jeden Tipp ab
+    if (store.getState().round?.wordId) store.dispatch({ type: 'reveal' });
+  });
 
   const answer = el('section', 'round-card round__answer');
   const flag = el('img', 'round__flag');
@@ -175,18 +215,19 @@ export function renderRound(store: Store): ViewHandle {
   foreign.lang = language;
   answer.append(flag, foreign, speaker);
 
-  // Tipp auf den Lautsprecher: aufdecken und (erneut, von vorn) vorlesen
+  // Tipp auf den Lautsprecher: aufdecken (nur Sprechrunde) und (erneut, von vorn) vorlesen
   speaker.addEventListener('click', () => {
     if (tutorialStep >= 0) return; // im Tutorial fängt onTutorialTap jeden Tipp ab
     const id = store.getState().round?.wordId;
     const word = id ? getWord(id) : undefined;
     if (!word) return;
-    store.dispatch({ type: 'reveal' });
+    if (!listen) store.dispatch({ type: 'reveal' });
     player.play(word, language);
   });
 
   const cards = el('div', 'round__cards');
-  cards.append(card, answer);
+  if (listen) cards.append(answer, card);
+  else cards.append(card, answer);
 
   // Selbsteinschätzung: zwei gleichwertige runde Buttons nur mit Symbol, erst nach dem
   // Aufdecken sichtbar. Kein Feedback – der Tipp speichert und holt das nächste Wort.
@@ -213,11 +254,19 @@ export function renderRound(store: Store): ViewHandle {
   body.append(avatarSlot, cards, rating);
   view.append(createAppHeader({ start: close, end: timerSlot }), body);
 
+  // Hörrunde: jedes neue Wort einmal abspielen (der Tipp davor war eine Nutzer-Geste). Gezählt
+  // wird am Verlauf der Session – der Store meldet dasselbe Wort beim Start sonst zweimal.
+  let played = 0;
   const showWord = (state: AppState) => {
     const word = state.round?.wordId ? getWord(state.round.wordId) : undefined;
     if (!word) return;
     renderWord(word);
     showForeign(state);
+    const shown = state.round!.session.history.length;
+    if (listen && shown > played) {
+      played = shown;
+      player.play(word, language);
+    }
   };
 
   const renderWord = (word: Word) => {
@@ -248,8 +297,10 @@ export function renderRound(store: Store): ViewHandle {
     // neues Wort: zeigt auf die Aufgabe; aufgedeckt: freut sich, „spricht mit“
     const pose: Pose = revealed ? 'freut' : 'zeigt';
     if (avatar.pose !== pose) avatar.setPose(pose);
-    foreign.textContent = revealed && word ? word[language] : '';
-    if (revealed) fitText(foreign, FOREIGN_MAX_PX, FOREIGN_MIN_PX, FOREIGN_BREAK_BELOW_PX);
+    // Hörrunde: das Fremdwort steht sofort da, aufgedeckt wird die Bildkarte (per CSS)
+    const shown = (revealed || listen) && word;
+    foreign.textContent = shown ? word[language] : '';
+    if (shown) fitText(foreign, FOREIGN_MAX_PX, FOREIGN_MIN_PX, FOREIGN_BREAK_BELOW_PX);
   };
 
   const unsubscribe = store.subscribe((state, previous) => {
@@ -270,7 +321,7 @@ export function renderRound(store: Store): ViewHandle {
   // Session-Timer: läuft ab dem ersten Wort, pausiert im Hintergrund und im Hochformat.
   // Der Ablauf ändert an der Runde nichts Sichtbares (§3.4); Abschluss erst nach Bewertung (B-42).
   view.dataset.expired = 'false';
-  const durationMs = (settings.durationMin ?? 3) * 60_000;
+  const durationMs = ROUND_MIN * 60_000; // B-89: immer 5 Minuten
   const timer = createSessionTimer({
     durationMs,
     onTick: (remaining) => dial.setFraction(remaining / durationMs),
@@ -288,8 +339,10 @@ export function renderRound(store: Store): ViewHandle {
   // Tutorial (B-74/B-87): ein Tipp irgendwohin geht weiter; das Probewort zählt nicht
   const targets: Record<TutorialTarget, Element> = {
     card,
+    answer,
     flag,
     speaker,
+    reveal,
     known: rating.children[0],
     practice: rating.children[1],
     timer: timerSlot,
@@ -321,15 +374,22 @@ export function renderRound(store: Store): ViewHandle {
   };
   window.addEventListener('resize', placeMark);
   const showTutorialStep = () => {
-    const step = TUTORIAL_STEPS[tutorialStep];
-    const previous = TUTORIAL_STEPS[tutorialStep - 1];
+    const step = steps[tutorialStep];
+    const previous = steps[tutorialStep - 1];
     view.dataset.tutorial = String(tutorialStep + 1);
     view.dataset.tutorialBlur = step.blur ?? 'none';
-    view.dataset.tutorialTimer = String(tutorialStep >= TIMER_STEP);
+    view.dataset.tutorialTimer = String(tutorialStep >= timerStep);
     bubble.textContent = step.text;
     bubble.hidden = false;
-    // nach dem Lautsprecher ist das Probewort aufgedeckt, damit die Bewertung Sinn ergibt
-    if (previous?.target === 'speaker') renderForeign(tutorialWord(words), true);
+    // nach dem Lautsprecher (Hörrunde: dem Auge) ist das Probewort aufgedeckt, damit die
+    // Bewertung Sinn ergibt
+    if (previous?.target === (listen ? 'reveal' : 'speaker')) {
+      renderForeign(tutorialWord(words), true);
+    }
+    // Hörrunde: beim Zeigen auf das Wort wird es einmal abgespielt
+    if (listen && step.target === 'answer' && previous?.target !== 'answer') {
+      player.play(tutorialWord(words), language);
+    }
     if (avatar.pose !== step.pose) avatar.setPose(step.pose);
     for (const [name, node] of Object.entries(targets)) {
       node.classList.toggle('tutorial-target', name === step.target);
@@ -350,7 +410,7 @@ export function renderRound(store: Store): ViewHandle {
   };
   const nextTutorialStep = () => {
     tutorialStep++;
-    if (tutorialStep < TUTORIAL_STEPS.length) return showTutorialStep();
+    if (tutorialStep < steps.length) return showTutorialStep();
     finishTutorial();
   };
   // Jeder Tipp geht weiter – vor den Buttons abgefangen, damit sie im Tutorial nichts tun.
@@ -359,7 +419,7 @@ export function renderRound(store: Store): ViewHandle {
     if (tutorialStep < 0) return;
     event.stopPropagation();
     event.preventDefault();
-    const step = TUTORIAL_STEPS[tutorialStep];
+    const step = steps[tutorialStep];
     if (step.target === 'speaker' && speaker.contains(event.target as Node)) {
       player.play(tutorialWord(words), language);
     } else {
@@ -388,7 +448,7 @@ export function renderRound(store: Store): ViewHandle {
 
   if (tutorialStep >= 0) {
     renderWord(tutorialWord(words));
-    renderForeign(undefined, false);
+    renderForeign(listen ? tutorialWord(words) : undefined, false);
     showTutorialStep();
   } else {
     if (store.getState().round?.wordId) showWord(store.getState());

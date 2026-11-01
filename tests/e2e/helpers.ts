@@ -23,7 +23,7 @@ export async function enableLanguages(page: Page, enabled: string[]) {
       key,
       JSON.stringify({
         version: 1,
-        settings: { companion: null, language: null, durationMin: 3 },
+        settings: { companion: null, language: null, mode: 'speak' },
         progress: { en: {}, fr: {}, ja: {}, it: {} },
         enabledLanguages,
       }),

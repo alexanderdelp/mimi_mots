@@ -10,11 +10,11 @@ test.beforeEach(async ({ page }) => {
   await page.clock.install();
 });
 
-async function startRound(page: Page, duration: '3 Minuten' | '7 Minuten' = '3 Minuten') {
+async function startRound(page: Page, mode: 'Sprechen' | 'Hören' = 'Sprechen') {
   await page.goto('./');
   await btn(page, 'Mimi').click();
   await btn(page, 'Französisch').click();
-  await btn(page, duration).click();
+  await btn(page, mode).click();
   await btn(page, 'Los geht’s').click();
   await expect(round(page)).toBeVisible();
 }
@@ -36,17 +36,17 @@ async function setHidden(page: Page, hidden: boolean) {
 }
 
 test.describe('B-40 Timer-Logik', () => {
-  test('AT-40.1: 3 Minuten ab dem ersten Wort (seit B-27)', async ({ page }) => {
+  test('AT-40.1/AT-89.2: 5 Minuten ab dem ersten Wort (seit B-89)', async ({ page }) => {
     await startRound(page);
-    await advance(page, 3 * MIN - 2000);
+    await advance(page, 5 * MIN - 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'false');
     await advance(page, 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
   });
 
-  test('AT-40.2: 7 Minuten (seit B-27)', async ({ page }) => {
-    await startRound(page, '7 Minuten');
-    await advance(page, 7 * MIN - 2000);
+  test('AT-40.2/AT-89.2: Hörrunde ebenfalls 5 Minuten', async ({ page }) => {
+    await startRound(page, 'Hören');
+    await advance(page, 5 * MIN - 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'false');
     await advance(page, 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
@@ -58,7 +58,7 @@ test.describe('B-40 Timer-Logik', () => {
     await btn(page, 'Französisch').click();
     await advance(page, 4 * MIN);
     await btn(page, 'Los geht’s').click();
-    await advance(page, 2 * MIN);
+    await advance(page, 4 * MIN);
     await expect(round(page)).toHaveAttribute('data-expired', 'false');
     await advance(page, 1 * MIN + 500);
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
@@ -71,7 +71,7 @@ test.describe('B-40 Timer-Logik', () => {
     await advance(page, 30 * MIN);
     await setHidden(page, false);
     await expect(round(page)).toHaveAttribute('data-expired', 'false');
-    await advance(page, 2 * MIN - 2000);
+    await advance(page, 4 * MIN - 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'false');
     await advance(page, 2000);
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
@@ -88,7 +88,7 @@ test.describe('B-40 Timer-Logik', () => {
     await page.setViewportSize(landscape);
     await expect(page.getByRole('alert')).toBeHidden();
     await expect(round(page)).toHaveAttribute('data-expired', 'false');
-    await advance(page, 2 * MIN + 500);
+    await advance(page, 4 * MIN + 500);
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
   });
 
@@ -96,7 +96,7 @@ test.describe('B-40 Timer-Logik', () => {
     await startRound(page);
     const word = await page.locator('.word-card').getAttribute('data-word-id');
     const text = await round(page).innerText();
-    await advance(page, 3 * MIN + 1000);
+    await advance(page, 5 * MIN + 1000);
     await expect(round(page)).toHaveAttribute('data-expired', 'true');
     await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', word!);
     expect(await round(page).innerText()).toBe(text);

@@ -24,9 +24,9 @@ test.describe('B-11 Startansicht', () => {
     await expect(page.getByRole('heading', { level: 2 })).toHaveText([
       'Wer soll dich begleiten?',
       'In welcher Sprache?',
-      'Wie lange?',
+      'Bei was?',
     ]);
-    for (const name of ['Wer soll dich begleiten?', 'In welcher Sprache?', 'Wie lange?']) {
+    for (const name of ['Wer soll dich begleiten?', 'In welcher Sprache?', 'Bei was?']) {
       await expect(page.getByRole('group', { name })).toBeVisible();
     }
   });
@@ -39,17 +39,21 @@ test.describe('B-11 Startansicht', () => {
     for (const name of ['Englisch', 'Französisch']) {
       expect(await btn(page, name).innerText()).toBe(''); // nur Flagge, kein Text
     }
-    // seit B-26: nur Uhr-Symbol, kein Text
-    const dauer = btn(page, '3 Minuten');
-    await expect(dauer.locator('svg.clock-icon')).toBeVisible();
-    expect(await dauer.innerText()).toBe('');
+    // seit B-89: Modus statt Dauer, nur Symbol, kein Text
+    for (const [name, symbol] of [
+      ['Sprechen', 'speak'],
+      ['Hören', 'listen'],
+    ]) {
+      await expect(btn(page, name).locator(`svg[data-icon="${symbol}"]`)).toBeVisible();
+      expect(await btn(page, name).innerText()).toBe('');
+    }
   });
 
-  test('AT-11.3: Erststart – nur Dauer gewählt, Play deaktiviert', async ({ page }) => {
+  test('AT-11.3: Erststart – nur Modus gewählt, Play deaktiviert', async ({ page }) => {
     for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch']) {
       await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');
     }
-    await expect(btn(page, '3 Minuten')).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'true');
     const play = btn(page, 'Los geht’s');
     await expect(play).toBeDisabled();
     await play.click({ force: true });
@@ -98,7 +102,7 @@ test.describe('B-11 Startansicht', () => {
       expect(t.h).toBeGreaterThanOrEqual(88);
       expect(t.w).toBeCloseTo(tiles[0].w, 1); // alle Kacheln gleich breit
     }
-    // seit B-26: Begleiter hoch, Sprache/Dauer flach – jeweils innerhalb der Gruppe gleich
+    // seit B-26: Begleiter hoch, Sprache/Modus flach – jeweils innerhalb der Gruppe gleich
     const [mimi, mots, ...small] = tiles;
     expect(mots.h).toBeCloseTo(mimi.h, 1);
     for (const t of small) expect(t.h).toBeCloseTo(small[0].h, 1);

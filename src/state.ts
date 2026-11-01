@@ -4,7 +4,7 @@ import { COMPANIONS } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
 import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
-import { DURATIONS, LANGUAGES, localDay, type AppData, type Settings } from './storage';
+import { LANGUAGES, localDay, type AppData, type Mode, type Settings } from './storage';
 
 export type ViewName = 'start' | 'round' | 'end' | 'sleep' | 'admin';
 
@@ -15,11 +15,11 @@ export type AppEvent =
   | { type: 'admin' } // Start/Schlafseite → Elternbereich (verstecktes Halten des Icons, B-69)
   | { type: 'leave' } // Elternbereich → Start bzw. Schlafseite
   | { type: 'wake' } // Elternbereich: alle wach und alle Dauern frei (B-65/B-69)
-  | { type: 'resetProgress'; language: Language } // Elternbereich: Lernstand einer Sprache leeren
+  | { type: 'resetProgress'; language: Language; mode: Mode } // Elternbereich: Lernstand leeren
   | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
   | { type: 'toggleWord'; language: Language; id: string } // Elternbereich: Wort an/aus (B-88)
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
-  | { type: 'resetTutorial' } // Elternbereich: Tutorial kommt in der nächsten Runde wieder
+  | { type: 'resetTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus kommt wieder
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
   | { type: 'select'; settings: Partial<Settings> } // Auswahl auf der Startansicht
@@ -29,17 +29,29 @@ export type AppEvent =
   | { type: 'expire' } // Session-Timer abgelaufen (Runde läuft bis zur nächsten Bewertung weiter)
   | { type: 'orientation'; portrait: boolean };
 
-/** Begleiter, Sprache und Dauer sind gewählt. */
+/** Begleiter, Sprache und Modus sind gewählt. */
 export function isComplete(settings: Settings): boolean {
-  return settings.companion !== null && settings.language !== null && settings.durationMin !== null;
+  return settings.companion !== null && settings.language !== null && settings.mode !== null;
 }
 
-/** Schlafseite statt Start: kein Begleiter wach oder keine Dauer mehr frei (B-65). */
+/** Schlafseite statt Start: kein Begleiter mehr wach (B-65; Modi verbrauchen sich nicht, B-89). */
 export function allAsleep(data: AppData): boolean {
-  return (
-    data.rest.sleeping.length === COMPANIONS.length ||
-    data.rest.usedDurations.length === DURATIONS.length
-  );
+  return data.rest.sleeping.length === COMPANIONS.length;
+}
+
+/** B-89: Lernstand je Modus – Sprechen wie bisher in `progress`, Hören in `listenProgress`. */
+export function progressKey(mode: Mode): 'progress' | 'listenProgress' {
+  return mode === 'listen' ? 'listenProgress' : 'progress';
+}
+
+/** B-89: Tutorial je Modus. */
+export function tutorialKey(mode: Mode): 'tutorialDone' | 'listenTutorialDone' {
+  return mode === 'listen' ? 'listenTutorialDone' : 'tutorialDone';
+}
+
+/** Tutorial des gewählten Modus schon gesehen. */
+export function tutorialSeen(data: AppData): boolean {
+  return data[tutorialKey(data.settings.mode ?? 'speak')];
 }
 
 /** Auf der Startseite wählbar: eingeschaltet (B-73) und mit Wortschatz (B-84). */
@@ -78,27 +90,20 @@ export function withRestSettings(data: AppData): AppData {
   };
   const { settings, rest } = data;
   const companion = pick(COMPANIONS, rest.sleeping, settings.companion);
-  const durationMin = pick(DURATIONS, rest.usedDurations, settings.durationMin);
   const playable = playableLanguages(data);
   const off = LANGUAGES.filter((l) => !playable.includes(l));
   // ohne spielbare Sprache keine Auswahl merken – sonst wäre Play aktiv (B-86)
   const language = playable.length > 0 ? pick(LANGUAGES, off, settings.language) : null;
-  if (
-    companion === settings.companion &&
-    durationMin === settings.durationMin &&
-    language === settings.language
-  ) {
-    return data;
-  }
-  return { ...data, settings: { ...settings, companion, durationMin, language } };
+  if (companion === settings.companion && language === settings.language) return data;
+  return { ...data, settings: { ...settings, companion, language } };
 }
 
-const AWAKE = { sleeping: [], usedDurations: [], since: null };
+const AWAKE = { sleeping: [], since: null };
 
 /** Eingeschlafen an einem früheren Tag (oder ohne Datum) – dann wachen alle auf. */
 function isStale(data: AppData, today: string): boolean {
-  const { sleeping, usedDurations, since } = data.rest;
-  return (sleeping.length > 0 || usedDurations.length > 0) && (since === null || since < today);
+  const { sleeping, since } = data.rest;
+  return sleeping.length > 0 && (since === null || since < today);
 }
 
 /** An einem neuen Tag sind alle wach und alle Dauern frei. */
@@ -106,28 +111,25 @@ function wakeIfNewDay(data: AppData, today: string): AppData {
   return isStale(data, today) ? { ...data, rest: AWAKE } : data;
 }
 
-/** Am Ende einer Runde schläft der Begleiter ein, die Dauer ist verbraucht (B-65). */
+/** Am Ende einer Runde schläft der Begleiter ein (B-65). */
 function consume(data: AppData, today: string): AppData {
-  const { companion, durationMin } = data.settings;
-  const { sleeping, usedDurations } = wakeIfNewDay(data, today).rest;
+  const { companion } = data.settings;
+  const { sleeping } = wakeIfNewDay(data, today).rest;
   return {
     ...data,
     rest: {
       sleeping: COMPANIONS.filter((c) => sleeping.includes(c) || c === companion),
-      usedDurations: DURATIONS.filter((d) => usedDurations.includes(d) || d === durationMin),
       since: today,
     },
   };
 }
 
-/** Gewählter Begleiter wach und gewählte Dauer frei. */
+/** Auswahl vollständig, Sprache spielbar und gewählter Begleiter wach. */
 function isAvailable(data: AppData): boolean {
-  const { companion, durationMin } = data.settings;
   return (
     isComplete(data.settings) &&
     playableLanguages(data).includes(data.settings.language!) &&
-    !data.rest.sleeping.includes(companion!) &&
-    !data.rest.usedDurations.includes(durationMin!)
+    !data.rest.sleeping.includes(data.settings.companion!)
   );
 }
 
@@ -184,9 +186,8 @@ function step(state: AppState, event: AppEvent): AppState {
   }
   if (event.type === 'select') {
     if (state.view !== 'start') return state;
-    const { companion, durationMin } = event.settings;
+    const { companion } = event.settings;
     if (companion && state.data.rest.sleeping.includes(companion)) return state;
-    if (durationMin && state.data.rest.usedDurations.includes(durationMin)) return state;
     const { language } = event.settings;
     if (language && !playableLanguages(state.data).includes(language)) return state;
     const settings = { ...state.data.settings, ...event.settings };
@@ -212,14 +213,15 @@ function step(state: AppState, event: AppEvent): AppState {
   }
   if (event.type === 'rate') {
     // Nur für ein aufgedecktes Wort; danach ist es wieder verdeckt, bis das nächste kommt.
-    const language = state.data.settings.language;
+    const { language, mode } = state.data.settings;
     if (state.view !== 'round' || !state.round?.wordId || !state.round.revealed || !language) {
       return state;
     }
+    const key = progressKey(mode ?? 'speak'); // B-89: Lernstand des Modus
     const progress = {
-      ...state.data.progress,
+      ...state.data[key],
       [language]: applyRating(
-        state.data.progress[language],
+        state.data[key][language],
         state.round.wordId,
         event.rating,
         new Date(event.at),
@@ -229,13 +231,13 @@ function step(state: AppState, event: AppEvent): AppState {
     return {
       ...state,
       view: state.round.expired ? 'end' : state.view,
-      data: { ...state.data, progress },
+      data: { ...state.data, [key]: progress },
       round: { ...state.round, revealed: false },
     };
   }
   if (event.type === 'play' && !isAvailable(state.data)) return state;
   // B-87: Abbruch im Tutorial – zurück zur Auswahl, niemand schläft ein, Tutorial bleibt offen
-  if (event.type === 'finish' && state.view === 'round' && !state.data.tutorialDone) {
+  if (event.type === 'finish' && state.view === 'round' && !tutorialSeen(state.data)) {
     return { ...state, view: 'start', round: null };
   }
   if (event.type === 'home' && state.view === 'end') {
@@ -249,11 +251,13 @@ function step(state: AppState, event: AppEvent): AppState {
     const data = withRestSettings(state.data);
     return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
   }
-  if (event.type === 'tutorialDone' && state.view === 'round' && !state.data.tutorialDone) {
-    return { ...state, data: { ...state.data, tutorialDone: true } };
+  if (event.type === 'tutorialDone' && state.view === 'round' && !tutorialSeen(state.data)) {
+    const key = tutorialKey(state.data.settings.mode ?? 'speak');
+    return { ...state, data: { ...state.data, [key]: true } };
   }
-  if (event.type === 'resetTutorial' && state.view === 'admin' && state.data.tutorialDone) {
-    return { ...state, data: { ...state.data, tutorialDone: false } };
+  if (event.type === 'resetTutorial' && state.view === 'admin') {
+    const key = tutorialKey(event.mode); // B-89: je Modus getrennt
+    return state.data[key] ? { ...state, data: { ...state.data, [key]: false } } : state;
   }
   if (event.type === 'toggleBrake' && state.view === 'admin') {
     return { ...state, data: { ...state.data, brakeNew: !state.data.brakeNew } };
@@ -279,8 +283,9 @@ function step(state: AppState, event: AppEvent): AppState {
     return { ...state, data: { ...state.data, disabledWords } };
   }
   if (event.type === 'resetProgress' && state.view === 'admin') {
-    const progress = { ...state.data.progress, [event.language]: {} };
-    return { ...state, data: { ...state.data, progress } };
+    const key = progressKey(event.mode);
+    const progress = { ...state.data[key], [event.language]: {} };
+    return { ...state, data: { ...state.data, [key]: progress } };
   }
   const view = nextView(state.view, event);
   if (view === state.view) return state;

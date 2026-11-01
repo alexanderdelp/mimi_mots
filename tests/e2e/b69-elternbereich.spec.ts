@@ -11,10 +11,7 @@ test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: TODAY });
 });
 
-async function seed(
-  page: Page,
-  data: { sleeping?: string[]; usedDurations?: number[]; fr?: object },
-) {
+async function seed(page: Page, data: { sleeping?: string[]; fr?: object }) {
   await page.addInitScript(
     ([key, value]) => {
       if (!sessionStorage.getItem('seeded')) {
@@ -26,11 +23,10 @@ async function seed(
       KEY,
       JSON.stringify({
         version: 1,
-        settings: { companion: 'mimi', language: 'fr', durationMin: 3 },
+        settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
         progress: { en: { apfel: entry(2) }, fr: data.fr ?? {}, ja: {} },
         rest: {
           sleeping: data.sleeping ?? [],
-          usedDurations: data.usedDurations ?? [],
           since: '2026-10-30',
         },
       }),
@@ -81,7 +77,7 @@ test.describe('B-69 Elternbereich', () => {
   test('AT-69.1: auf der Schlafseite öffnet Halten den Elternbereich statt aufzuwecken', async ({
     page,
   }) => {
-    await seed(page, { sleeping: ['mimi', 'mots'], usedDurations: [3, 7] });
+    await seed(page, { sleeping: ['mimi', 'mots'] });
     await page.goto('./');
     await hold(page, ICON, 700);
     await expect(view(page, 'admin')).toBeVisible();
@@ -90,7 +86,7 @@ test.describe('B-69 Elternbereich', () => {
   });
 
   test('AT-69.2/69.3: Kopfleiste, keine Avatare, aufwecken, zurück', async ({ page }) => {
-    await seed(page, { sleeping: ['mimi', 'mots'], usedDurations: [3, 7] });
+    await seed(page, { sleeping: ['mimi', 'mots'] });
     await page.goto('./');
     await hold(page, ICON, 700);
     const admin = view(page, 'admin');
@@ -104,7 +100,7 @@ test.describe('B-69 Elternbereich', () => {
     await btn(page, 'Tiere aufwecken').click();
     await expect(btn(page, 'Tiere aufwecken')).toBeDisabled();
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
-    expect(stored.rest).toMatchObject({ sleeping: [], usedDurations: [] });
+    expect(stored.rest).toMatchObject({ sleeping: [] });
     await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
     await expect(btn(page, 'Mots')).toBeEnabled();
@@ -140,7 +136,7 @@ test.describe('B-69 Elternbereich', () => {
     await btn(page, 'Französisch').click();
     await btn(page, 'Lernstand zurücksetzen').click();
     await expect(page.locator('.admin__question')).toHaveText(
-      'Französisch: Wirklich zurücksetzen?',
+      'Französisch, Sprechen: Wirklich zurücksetzen?', // seit B-89 mit Modus
     );
     await btn(page, 'Abbrechen').click();
     await expect(level(page, '4')).toHaveCount(1);

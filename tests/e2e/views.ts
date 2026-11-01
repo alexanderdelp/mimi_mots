@@ -11,9 +11,10 @@ export const btn = (page: Page, name: string) => page.getByRole('button', { name
 interface Seed {
   language?: 'en' | 'fr' | 'ja' | 'it';
   sleeping?: string[];
-  usedDurations?: number[];
   /** Tutorial noch nicht gesehen (B-74); sonst gilt es als gesehen. */
   tutorial?: boolean;
+  /** Tutorial der Hörrunde noch nicht gesehen (B-89). */
+  listenTutorial?: boolean;
 }
 
 /** Uhr, Zufall, Audio-Attrappe und gespeicherter Stand – vor dem ersten Laden. */
@@ -41,13 +42,13 @@ export async function prepare(page: Page, seed?: Seed) {
       KEY,
       JSON.stringify({
         version: 1,
-        settings: { companion: 'mimi', language: seed.language ?? 'fr', durationMin: 3 },
+        settings: { companion: 'mimi', language: seed.language ?? 'fr', mode: 'speak' },
         progress: { en: {}, fr: {}, ja: {}, it: {} },
         enabledLanguages: ['en', 'fr', 'ja', 'it'],
         ...(seed.tutorial ? { tutorialDone: false } : {}),
+        ...(seed.listenTutorial ? { listenTutorialDone: false } : {}),
         rest: {
           sleeping: seed.sleeping ?? [],
-          usedDurations: seed.usedDurations ?? [],
           since: '2026-10-30',
         },
       }),
@@ -99,6 +100,21 @@ export async function revealedView(page: Page, language: Lang = 'fr') {
   await expect(page.locator('.round__foreign')).not.toHaveText('');
 }
 
+/** B-89: Hörrunde – Fremdwort steht da, Bildkarte verdeckt. */
+export async function listenView(page: Page, language: Lang = 'fr') {
+  await startView(page);
+  await btn(page, LANGUAGE_NAME[language]).click();
+  await btn(page, 'Hören').click();
+  await btn(page, 'Los geht’s').click();
+  await expect(page.locator('[data-view="round"][data-mode="listen"]')).toBeVisible();
+}
+
+export async function listenRevealedView(page: Page, language: Lang = 'fr') {
+  await listenView(page, language);
+  await btn(page, 'Zeig mir das deutsche Wort').click();
+  await expect(page.locator('[data-view="round"]')).toHaveAttribute('data-revealed', 'true');
+}
+
 export async function endView(page: Page) {
   await roundView(page);
   await hold(page, '.close-button');
@@ -119,7 +135,7 @@ export async function adminView(page: Page) {
 /** Ansichten für die Prüfungen: Name, Vorbereitung, Weg dorthin. */
 export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<void> }[] = [
   { name: 'start-erststart', open: startView },
-  { name: 'start-schlafend', seed: { sleeping: ['mimi'], usedDurations: [3] }, open: startView },
+  { name: 'start-schlafend', seed: { sleeping: ['mimi'] }, open: startView },
   { name: 'tutorial', seed: { tutorial: true }, open: (p) => roundView(p) },
   { name: 'runde-verdeckt', seed: {}, open: (p) => roundView(p) },
   { name: 'runde-en', seed: {}, open: (p) => revealedView(p, 'en') },
@@ -127,10 +143,13 @@ export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<v
   ...(['ja', 'it'] as const)
     .filter((l) => vocabularyIds(l).length > 0) // B-84: nur Sprachen mit Wörtern
     .map((l) => ({ name: `runde-${l}`, seed: {}, open: (p: Page) => revealedView(p, l) })),
+  { name: 'hoerrunde-verdeckt', seed: {}, open: (p) => listenView(p) },
+  { name: 'hoerrunde-aufgedeckt', seed: {}, open: (p) => listenRevealedView(p) },
+  { name: 'tutorial-hoeren', seed: { listenTutorial: true }, open: (p) => listenView(p) },
   { name: 'abschluss', seed: {}, open: endView },
   {
     name: 'schlafseite',
-    seed: { sleeping: ['mimi', 'mots'], usedDurations: [3, 7] },
+    seed: { sleeping: ['mimi', 'mots'] },
     open: sleepView,
   },
   { name: 'elternbereich', seed: {}, open: adminView },

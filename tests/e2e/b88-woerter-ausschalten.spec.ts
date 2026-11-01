@@ -23,7 +23,7 @@ async function seed(page: Page, disabled: string[] = [], tutorialDone = true) {
       KEY,
       JSON.stringify({
         version: 1,
-        settings: { companion: 'mimi', language: 'fr', durationMin: 3 },
+        settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
         progress: { en: {}, fr: { hund: entry } },
         tutorialDone,
         disabledWords: { fr: disabled },
