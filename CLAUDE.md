@@ -65,7 +65,8 @@ src/
   views/sleep.ts     Schlafseite (beide Begleiter schlafen, B-65)
   views/admin.ts     Elternbereich (verstecktes Halten des Icons, B-69; Reiter Sprachen/Sonstiges, B-83)
   components/        timer-dial.ts, choice-tile.ts, avatar.ts
-  styles/            tokens.css, base.css, views.css
+  styles/            tokens.css, base.css, components.css, je Ansicht start/round/end/sleep/
+                     admin/portrait.css (B-92)
 scripts/generate_audio.py
 tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –
                      dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true });

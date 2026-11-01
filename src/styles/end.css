@@ -1,0 +1,48 @@
+/* Abschluss (B-43). */
+
+/* Abschluss (B-43): Kopfleiste, Begleiter winkt groß, Satz, Haus-Button */
+.view--end {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.end__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2.5dvh, 28px);
+  padding: 16px 24px clamp(24px, 4dvh, 40px);
+}
+
+.end__body .avatar {
+  --avatar-h: min(440px, 52dvh);
+}
+
+.end__text {
+  font-size: clamp(32px, 5dvh, 44px);
+  font-weight: 800;
+  text-align: center;
+}
+
+/* iPhone quer (B-76): niedrige Bildschirme bekommen ein kompaktes Layout – gleiche Anordnung,
+   kleinere Maße. Schaltflächen mindestens 44 px (Apple-Mindestmaß); die 88 px gelten fürs iPad. */
+@media (max-height: 500px) {
+  /* Abschluss, Schlafseite, Hochformat-Hinweis */
+  .end__body {
+    gap: 8px;
+    padding: 8px 16px;
+  }
+
+  .end__body .avatar {
+    --avatar-h: calc(100dvh - 56px - 64px - 80px);
+  }
+
+  .end__text {
+    font-size: 22px;
+  }
+}

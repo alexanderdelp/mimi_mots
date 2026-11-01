@@ -1,0 +1,123 @@
+/* Startansicht (B-11, B-26, B-89). */
+
+/* Startansicht (B-11, B-26): Header oben, drei Gruppen in einer Reihe, Play unten mittig.
+   Begleiter-Kacheln hoch; Sprach- und Dauer-Kacheln halb so hoch (inkl. Abstand), damit
+   zwei untereinander passen. Innerhalb einer Gruppe sind alle Kacheln gleich groß. */
+.view--start {
+  --start-tile-w: clamp(150px, 15vw, 220px);
+  --start-tile-h: clamp(210px, 36dvh, 340px);
+  --start-tile-gap: 16px;
+  --start-tile-small-h: calc((var(--start-tile-h) - var(--start-tile-gap)) / 2);
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.start__groups {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(32px, 4vw, 64px);
+  padding: 16px 24px;
+}
+
+.view--start .choice-tile {
+  --tile-w: var(--start-tile-w);
+  --tile-h: var(--start-tile-h);
+  padding: 10px;
+}
+
+.start__group--language .choice-tile,
+.start__group--mode .choice-tile {
+  --tile-h: var(--start-tile-small-h);
+}
+
+/* Sprachen im Raster mit höchstens zwei Spalten (nur eingeschaltete, B-81), Modi untereinander */
+.start__group--language .choice-group__tiles {
+  display: grid;
+  grid-template-columns: repeat(var(--language-columns, 2), var(--start-tile-w));
+  /* immer zwei Zeilen hoch, damit die Überschrift auf einer Linie mit den anderen bleibt */
+  grid-template-rows: repeat(2, var(--start-tile-small-h));
+  gap: var(--start-tile-gap) 24px;
+}
+
+.start__group--mode .choice-group__tiles {
+  flex-direction: column;
+  gap: var(--start-tile-gap);
+}
+
+.start__avatar {
+  height: calc(var(--tile-h) - 96px);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Schlafbild liegt quer (B-77): volle Kachelbreite, unten auf der Grundlinie der Sitzbilder */
+.start__avatar--sleeping {
+  width: 100%;
+  object-position: center bottom;
+}
+
+.start__name {
+  font-size: clamp(22px, 3dvh, 28px);
+}
+
+.start__flag {
+  width: 72%;
+  max-height: 80%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--lila-200);
+}
+
+/* B-89: Symbol des Modus (Sprechen/Hören), lila auf der Kachel */
+.mode-icon {
+  height: 74%;
+  width: auto;
+  color: var(--lila-700);
+}
+
+.start__footer {
+  display: flex;
+  justify-content: center;
+  padding: 0 24px clamp(24px, 4dvh, 40px);
+}
+
+/* iPhone quer (B-76): niedrige Bildschirme bekommen ein kompaktes Layout – gleiche Anordnung,
+   kleinere Maße. Schaltflächen mindestens 44 px (Apple-Mindestmaß); die 88 px gelten fürs iPad. */
+@media (max-height: 500px) {
+  /* Startseite */
+  .view--start {
+    --start-tile-w: clamp(96px, 13vw, 130px);
+    --start-tile-h: calc(100dvh - 56px - 72px - 60px);
+    --start-tile-gap: 8px;
+  }
+
+  .start__groups {
+    gap: 24px;
+    padding: 6px 16px;
+  }
+
+  .start__group--language .choice-group__tiles {
+    gap: var(--start-tile-gap) 12px;
+  }
+
+  .view--start .choice-tile {
+    padding: 6px;
+  }
+
+  .start__avatar {
+    height: calc(var(--tile-h) - 44px);
+  }
+
+  .start__name {
+    font-size: 16px;
+  }
+
+  .start__footer {
+    padding: 0 16px 8px;
+  }
+}

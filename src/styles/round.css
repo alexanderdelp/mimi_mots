@@ -1,0 +1,404 @@
+/* Lernrunde und Hörrunde mit Tutorial (B-21 … B-89). */
+
+/* Runde lila Buttons nur mit Symbol: Play, Lautsprecher, Bewertung (Abschluss in B-43). */
+.round-button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: var(--lila-700);
+  color: var(--white);
+  font-size: 48px;
+  box-shadow: var(--shadow);
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.round-button svg {
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+}
+
+.round-button:active:not(:disabled) {
+  background: var(--lila-900);
+}
+
+/* Lernrunde (B-21, B-26, B-27): Kopfleiste mit [×] links und Timer rechts; darunter ein
+   Raster: links unten der Begleiter, rechts daneben zwei gleich große Karten und darunter
+   die Bewertung. Alle Plätze sind fest reserviert, nichts springt. */
+.view--round {
+  --card-w: clamp(280px, 30vw, 420px);
+  --card-h: clamp(380px, 52dvh, 520px);
+  --avatar-col: calc(min(42dvh, 440px) * 384 / 440);
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.round__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: var(--avatar-col) 1fr;
+  grid-template-rows: 1fr auto;
+  column-gap: 24px;
+  row-gap: 16px;
+  padding: 16px 24px 24px;
+}
+
+.view--round .close-button {
+  position: relative;
+  top: auto;
+  left: auto;
+  touch-action: none;
+}
+
+.round__timer {
+  width: 88px;
+  height: 88px;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
+.round__avatar {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Begleiter groß links unten (max. 440 px), Höhe folgt aus dem Seitenverhältnis */
+.round__avatar .avatar {
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+}
+
+.round__cards {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  gap: clamp(24px, 3vw, 40px);
+}
+
+/* Beide Karten exakt gleich groß, damit deutsches Wort und Fremdwort gleich gewichtet sind */
+.round-card {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--card-w);
+  height: var(--card-h);
+  padding: 20px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.word-card {
+  justify-content: center;
+  gap: 8px;
+  container-type: inline-size;
+}
+
+.word-card__emoji {
+  font-size: 32dvh;
+  line-height: 1.15;
+  height: 37dvh;
+}
+
+/* Höchstens 48 px; in schmalen Karten (1024 × 768) kleiner, damit auch „Schmetterling“
+   (≈ 6,6 em breit) in eine Zeile passt. */
+.word-card__de {
+  font-size: min(48px, 14cqi);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Silbenfarben (B-66): ungerade Silben in Schriftfarbe, gerade in Beere */
+.word-card__syllable--a {
+  color: var(--lila-900);
+}
+
+.word-card__syllable--b {
+  color: var(--beere-600);
+}
+
+/* Rechte Karte: Flagge oben, Fremdwort in der Mitte, Lautsprecher unten */
+.round__answer {
+  justify-content: space-between;
+}
+
+.round__flag {
+  display: block;
+  width: auto;
+  height: clamp(72px, 12dvh, 120px);
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--lila-200);
+  pointer-events: none;
+}
+
+.round__answer .speak-button {
+  width: 104px;
+  height: 104px;
+}
+
+/* Fester Bereich für bis zu zwei Zeilen à 56 px, damit das Aufdecken nichts verschiebt;
+   lange Wörter werden per fitText() kleiner gesetzt. */
+.round__foreign {
+  width: 100%;
+  height: 136px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+/* Rückfallstufe für sehr lange Einzelwörter (fitText): Silbentrennung statt Abschneiden */
+.round__foreign.fit-text--break {
+  overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.word-card--enter {
+  animation: word-card-enter 150ms ease-out;
+}
+
+@keyframes word-card-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Selbsteinschätzung (B-23, B-26): zwei identische runde lila Buttons nur mit Symbol.
+   Vor dem Aufdecken unsichtbar, der Platz bleibt reserviert. */
+.round__rating {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  justify-content: center;
+  gap: clamp(48px, 8vw, 96px);
+  height: 112px;
+}
+
+.view--round[data-revealed='false'] .round__rating {
+  visibility: hidden;
+}
+
+/* Hörrunde (B-89): Bild und deutsches Wort bleiben verdeckt, bis das Kind den Auge-Button
+   antippt; der Button sitzt mittig in der Karte und verschwindet danach. */
+.word-card {
+  position: relative;
+}
+
+.reveal-button {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 104px;
+  height: 104px;
+}
+
+.view--round[data-mode='listen'][data-revealed='false'] .word-card__emoji,
+.view--round[data-mode='listen'][data-revealed='false'] .word-card__de,
+.view--round[data-revealed='true'] .reveal-button {
+  visibility: hidden;
+}
+
+/* Tutorial (B-74/B-87): der Begleiter erklärt in einer Sprechblase über sich; das Gemeinte wird
+   eingekreist. Zu Beginn ist alles außer Kopfleiste und Begleiter unscharf. */
+.round__cards > *,
+.round__rating {
+  transition: filter var(--transition);
+}
+
+/* B-87: „all“ – Karten und Bewertung; „answer“ – nur Übersetzungskarte (und Bewertung);
+   „word“ (Hörrunde, B-89) – nur Bildkarte (und Bewertung).
+   Kopfleiste und Begleiter bleiben immer scharf. */
+.view--round[data-tutorial-blur='all'] .round__cards > *,
+.view--round[data-tutorial-blur='all'] .round__rating,
+.view--round[data-tutorial-blur='answer'] .round__answer,
+.view--round[data-tutorial-blur='answer'] .round__rating,
+.view--round[data-tutorial-blur='word'] .word-card,
+.view--round[data-tutorial-blur='word'] .round__rating {
+  filter: blur(8px);
+}
+
+/* Die Uhr erscheint erst, wenn sie erklärt wird; ihr Platz bleibt, damit nichts springt */
+.view--round[data-tutorial-timer='false'] .round__timer {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.tutorial-bubble {
+  align-self: stretch;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: var(--radius-m);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: clamp(18px, 2.6dvh, 24px);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.tutorial-bubble[hidden] {
+  display: none;
+}
+
+.tutorial-bubble::after {
+  content: '';
+  position: absolute;
+  left: 40%;
+  bottom: -14px;
+  border: 14px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--white);
+}
+
+/* wie mit dem Stift eingekreist: Beere (zweite Silbenfarbe), Strich so kräftig wie die Schrift
+   des deutschen Worts. Eigene Ebene über der Ansicht, Lage und Größe setzt round.ts (oval:
+   breiter als das Ziel, damit es nach Einkreisen aussieht); fängt keine Tipps ab. */
+.view--round {
+  position: relative;
+}
+
+.tutorial-mark {
+  position: absolute;
+  z-index: 2;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.tutorial-mark path {
+  fill: none;
+  stroke: var(--beere-600);
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* B-87: wird wie mit dem Stift gezogen (Ausnahme von der 200-ms-Regel wie der Haltering, §11) */
+.tutorial-mark--draw path {
+  stroke-dasharray: 100;
+  animation: tutorial-draw 700ms ease-out both;
+}
+
+@keyframes tutorial-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-mark--draw path {
+    animation: none;
+  }
+}
+
+/* iPhone quer (B-76): niedrige Bildschirme bekommen ein kompaktes Layout – gleiche Anordnung,
+   kleinere Maße. Schaltflächen mindestens 44 px (Apple-Mindestmaß); die 88 px gelten fürs iPad. */
+@media (max-height: 500px) {
+  .round-button {
+    width: 64px;
+    height: 64px;
+  }
+
+  .round-button svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .close-button,
+  .round__timer {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Lernrunde */
+  .view--round {
+    --card-w: clamp(180px, 26vw, 240px);
+    --card-h: calc(100dvh - 56px - 64px - 36px);
+    --avatar-col: calc((100dvh - 80px) * 0.6 * 384 / 440);
+  }
+
+  .round__body {
+    column-gap: 16px;
+    row-gap: 8px;
+    padding: 8px 16px 8px;
+  }
+
+  .round__cards {
+    gap: 16px;
+  }
+
+  .round-card {
+    padding: 10px;
+  }
+
+  .word-card__emoji {
+    font-size: calc(var(--card-h) * 0.5);
+    height: calc(var(--card-h) * 0.62);
+  }
+
+  .word-card__de {
+    font-size: min(30px, 14cqi);
+  }
+
+  .round__foreign {
+    height: 84px;
+  }
+
+  .round__answer .speak-button {
+    width: 64px;
+    height: 64px;
+  }
+
+  .round__rating {
+    height: 64px;
+    gap: 64px;
+  }
+
+  .round__avatar {
+    gap: 8px;
+  }
+
+  .tutorial-bubble {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .tutorial-mark path {
+    stroke-width: 3px;
+  }
+
+  .round__flag {
+    height: 56px;
+  }
+}
