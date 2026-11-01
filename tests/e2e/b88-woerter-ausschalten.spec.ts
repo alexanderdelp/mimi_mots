@@ -1,10 +1,7 @@
 import { expect, isPhone, test, type Page } from './fixtures';
 import { vocabularyIds } from './helpers';
-import { btn, prepare } from './views';
+import { btn, hold, prepare, stored, storeOnce } from './views';
 
-const KEY = 'mimi-mots:v1';
-const stored = (page: Page) =>
-  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
 const entry = { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' };
 const word = (page: Page, id: string) => page.locator(`.admin__word[data-word-id="${id}"]`);
 const FR = vocabularyIds('fr');
@@ -12,32 +9,13 @@ const FR = vocabularyIds('fr');
 /** Französisch, Hund mit Lernstand; `disabled`: ausgeschaltete Wörter, `tutorialDone` wie angegeben. */
 async function seed(page: Page, disabled: string[] = [], tutorialDone = true) {
   await prepare(page);
-  await page.addInitScript(
-    ([key, value]) => {
-      if (!sessionStorage.getItem('seeded')) {
-        localStorage.setItem(key, value);
-        sessionStorage.setItem('seeded', '1');
-      }
-    },
-    [
-      KEY,
-      JSON.stringify({
-        version: 1,
-        settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
-        progress: { en: {}, fr: { hund: entry } },
-        tutorialDone,
-        disabledWords: { fr: disabled },
-      }),
-    ] as const,
-  );
-}
-
-async function hold(page: Page, selector: string, ms = 700) {
-  const box = (await page.locator(selector).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.clock.runFor(ms);
-  await page.mouse.up();
+  await storeOnce(page, {
+    version: 1,
+    settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
+    progress: { en: {}, fr: { hund: entry } },
+    tutorialDone,
+    disabledWords: { fr: disabled },
+  });
 }
 
 async function openAdmin(page: Page) {
@@ -135,27 +113,29 @@ test.describe('B-88 Wörter ein-/ausschalten', () => {
     await expect(word(page, last)).toBeEnabled();
   });
 
-  test('AT-88.6: Wort-Buttons auf dem iPad ≥ 44 px, alles passt auf den Bildschirm', async ({
-    page,
-  }) => {
-    await seed(page, FR.slice(0, 20));
-    await openAdmin(page);
-    const sizes = await page
-      .locator('.admin__word')
-      .evaluateAll((els) =>
-        els.map((e) => e.getBoundingClientRect()).map((r) => [r.width, r.height]),
+  test(
+    'AT-88.6: Wort-Buttons auf dem iPad ≥ 44 px, alles passt auf den Bildschirm',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await seed(page, FR.slice(0, 20));
+      await openAdmin(page);
+      const sizes = await page
+        .locator('.admin__word')
+        .evaluateAll((els) =>
+          els.map((e) => e.getBoundingClientRect()).map((r) => [r.width, r.height]),
+        );
+      expect(sizes.length).toBe(FR.length);
+      const min = isPhone() ? 28 : 44;
+      for (const [w, h] of sizes) {
+        expect(w).toBeGreaterThanOrEqual(min - 0.5);
+        expect(h).toBeGreaterThanOrEqual(min - 0.5);
+      }
+      const fits = await page.evaluate(
+        () =>
+          document.documentElement.scrollHeight <= innerHeight &&
+          document.documentElement.scrollWidth <= innerWidth,
       );
-    expect(sizes.length).toBe(FR.length);
-    const min = isPhone() ? 28 : 44;
-    for (const [w, h] of sizes) {
-      expect(w).toBeGreaterThanOrEqual(min - 0.5);
-      expect(h).toBeGreaterThanOrEqual(min - 0.5);
-    }
-    const fits = await page.evaluate(
-      () =>
-        document.documentElement.scrollHeight <= innerHeight &&
-        document.documentElement.scrollWidth <= innerWidth,
-    );
-    expect(fits).toBe(true);
-  });
+      expect(fits).toBe(true);
+    },
+  );
 });

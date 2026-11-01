@@ -1,9 +1,9 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { enableJapanese, fakeMedia, mediaCalls, vocabularyIds } from './helpers';
+import { btn } from './views';
 
 const KEY = 'mimi-mots:v1';
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const speaker = (page: Page) => btn(page, 'Auf Japanisch anhören');
 
 async function startRound(page: Page) {
@@ -37,31 +37,35 @@ test.describe('B-67 Japanisch', () => {
     expect(stored.settings.language).toBe('ja');
   });
 
-  test('AT-67.5: Lernrunde spielt die japanische MP3 und deckt das Wort auf', async ({ page }) => {
-    await fakeMedia(page);
-    await startRound(page);
-    await expect(page.locator('.round__flag')).toHaveAttribute('src', /flag_jp\.svg$/);
-    for (let i = 0; i < 5; i++) {
-      const word = await currentWord(page);
-      await speaker(page).click();
-      const foreign = page.locator('.round__foreign');
-      await expect(foreign).toHaveText(word.ja);
-      await expect(foreign).toHaveAttribute('lang', 'ja');
-      const fits = await foreign.evaluate(
-        (el) => el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight,
-      );
-      expect(fits).toBe(true);
-      const plays = (await mediaCalls(page)).filter((c) => c.op === 'play');
-      expect(plays.at(-1)).toEqual({
-        op: 'play',
-        src: `/mimi_mots/audio/ja/${word.id}.mp3`,
-        time: 0,
-      });
-      await btn(page, 'Noch üben').click();
-      await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', word.id);
-    }
-    expect((await mediaCalls(page)).filter((c) => c.op === 'speak')).toEqual([]);
-  });
+  test(
+    'AT-67.5: Lernrunde spielt die japanische MP3 und deckt das Wort auf',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await fakeMedia(page);
+      await startRound(page);
+      await expect(page.locator('.round__flag')).toHaveAttribute('src', /flag_jp\.svg$/);
+      for (let i = 0; i < 5; i++) {
+        const word = await currentWord(page);
+        await speaker(page).click();
+        const foreign = page.locator('.round__foreign');
+        await expect(foreign).toHaveText(word.ja);
+        await expect(foreign).toHaveAttribute('lang', 'ja');
+        const fits = await foreign.evaluate(
+          (el) => el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight,
+        );
+        expect(fits).toBe(true);
+        const plays = (await mediaCalls(page)).filter((c) => c.op === 'play');
+        expect(plays.at(-1)).toEqual({
+          op: 'play',
+          src: `/mimi_mots/audio/ja/${word.id}.mp3`,
+          time: 0,
+        });
+        await btn(page, 'Noch üben').click();
+        await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', word.id);
+      }
+      expect((await mediaCalls(page)).filter((c) => c.op === 'speak')).toEqual([]);
+    },
+  );
 
   test('AT-67.5: nur japanische Dateien werden vorgeladen', async ({ page }) => {
     await fakeMedia(page);

@@ -1,9 +1,9 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
+import { btn, hold, storeOnce } from './views';
 
 const KEY = 'mimi-mots:v1';
 const TODAY = new Date(2026, 9, 30, 10, 0);
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 const entry = (box: number) => ({ box, seen: 3, lastSeenAt: '2026-10-29T10:00:00.000Z' });
 
@@ -12,34 +12,15 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function seed(page: Page, data: { sleeping?: string[]; fr?: object }) {
-  await page.addInitScript(
-    ([key, value]) => {
-      if (!sessionStorage.getItem('seeded')) {
-        localStorage.setItem(key, value);
-        sessionStorage.setItem('seeded', '1');
-      }
+  await storeOnce(page, {
+    version: 1,
+    settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
+    progress: { en: { apfel: entry(2) }, fr: data.fr ?? {}, ja: {} },
+    rest: {
+      sleeping: data.sleeping ?? [],
+      since: '2026-10-30',
     },
-    [
-      KEY,
-      JSON.stringify({
-        version: 1,
-        settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
-        progress: { en: { apfel: entry(2) }, fr: data.fr ?? {}, ja: {} },
-        rest: {
-          sleeping: data.sleeping ?? [],
-          since: '2026-10-30',
-        },
-      }),
-    ] as const,
-  );
-}
-
-async function hold(page: Page, selector: string, ms: number) {
-  const box = (await page.locator(selector).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.clock.runFor(ms);
-  await page.mouse.up();
+  });
 }
 
 const ICON = '.app-header__icon';
@@ -148,21 +129,5 @@ test.describe('B-69 Elternbereich', () => {
     const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
     expect(stored.progress.fr).toEqual({});
     expect(stored.progress.en).toEqual({ apfel: entry(2) });
-  });
-
-  test('AT-69.6: passt auf den Bildschirm, auch wenn alle Wörter in einer Zeile stehen', async ({
-    page,
-  }) => {
-    await seed(page, {});
-    await page.goto('./');
-    await hold(page, ICON, 700);
-    await expect(view(page, 'admin')).toBeVisible();
-    const fits = await page.evaluate(
-      () =>
-        document.documentElement.scrollHeight <= innerHeight &&
-        document.documentElement.scrollWidth <= innerWidth,
-    );
-    expect(fits).toBe(true);
-    await expect(page).toHaveScreenshot('elternbereich.png');
   });
 });

@@ -1,6 +1,5 @@
 import { expect, test, type Page, minSize } from './fixtures';
-
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
+import { btn } from './views';
 
 async function imagesLoaded(page: Page) {
   await page.waitForFunction(() =>
@@ -70,53 +69,49 @@ test.describe('B-11 Startansicht', () => {
     await expect(page.locator('[data-view="round"]')).toBeVisible();
   });
 
-  test('AT-11.5: alles im Bildschirm, keine Überlappung, Mindestgrößen', async ({ page }) => {
-    const vp = page.viewportSize()!;
-    const boxes = await page
-      .locator('header.app-header, .choice-group__title, .choice-tile, .play-button')
-      .evaluateAll((els) =>
-        els.map((el) => {
-          const r = el.getBoundingClientRect();
-          return { name: el.className, x: r.x, y: r.y, w: r.width, h: r.height };
-        }),
-      );
-    for (const b of boxes) {
-      expect(b.x, b.name).toBeGreaterThanOrEqual(0);
-      expect(b.y, b.name).toBeGreaterThanOrEqual(0);
-      expect(b.x + b.w, b.name).toBeLessThanOrEqual(vp.width);
-      expect(b.y + b.h, b.name).toBeLessThanOrEqual(vp.height);
-    }
-    // keine zwei Elemente überlappen sich
-    for (let i = 0; i < boxes.length; i++) {
-      for (let j = i + 1; j < boxes.length; j++) {
-        const [a, b] = [boxes[i], boxes[j]];
-        const overlap = a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-        expect(overlap, `${a.name} / ${b.name}`).toBe(false);
+  test(
+    'AT-11.5: alles im Bildschirm, keine Überlappung, Mindestgrößen',
+    { tag: '@layout' },
+    async ({ page }) => {
+      const vp = page.viewportSize()!;
+      const boxes = await page
+        .locator('header.app-header, .choice-group__title, .choice-tile, .play-button')
+        .evaluateAll((els) =>
+          els.map((el) => {
+            const r = el.getBoundingClientRect();
+            return { name: el.className, x: r.x, y: r.y, w: r.width, h: r.height };
+          }),
+        );
+      for (const b of boxes) {
+        expect(b.x, b.name).toBeGreaterThanOrEqual(0);
+        expect(b.y, b.name).toBeGreaterThanOrEqual(0);
+        expect(b.x + b.w, b.name).toBeLessThanOrEqual(vp.width);
+        expect(b.y + b.h, b.name).toBeLessThanOrEqual(vp.height);
       }
-    }
-    // Auswahlkacheln der drei Gruppen: 2 Begleiter, 2 eingeschaltete Sprachen (B-81), 2 Dauern
-    const tiles = boxes.filter((b) => b.name.includes('choice-tile'));
-    expect(tiles).toHaveLength(6);
-    for (const t of tiles) {
-      expect(t.w).toBeGreaterThanOrEqual(88);
-      expect(t.h).toBeGreaterThanOrEqual(88);
-      expect(t.w).toBeCloseTo(tiles[0].w, 1); // alle Kacheln gleich breit
-    }
-    // seit B-26: Begleiter hoch, Sprache/Modus flach – jeweils innerhalb der Gruppe gleich
-    const [mimi, mots, ...small] = tiles;
-    expect(mots.h).toBeCloseTo(mimi.h, 1);
-    for (const t of small) expect(t.h).toBeCloseTo(small[0].h, 1);
-    const play = boxes.find((b) => b.name.includes('play-button'))!;
-    expect(play.w).toBeGreaterThanOrEqual(minSize(96));
-    expect(play.h).toBe(play.w);
-    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(vp.height);
-  });
-
-  test('AT-11.6: Screenshot Erststart und vollständige Auswahl', async ({ page }) => {
-    await expect(page).toHaveScreenshot('start-erststart.png');
-    await btn(page, 'Mimi').click();
-    await btn(page, 'Französisch').click();
-    await page.waitForTimeout(250);
-    await expect(page).toHaveScreenshot('start-auswahl.png');
-  });
+      // keine zwei Elemente überlappen sich
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+          const [a, b] = [boxes[i], boxes[j]];
+          const overlap = a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+          expect(overlap, `${a.name} / ${b.name}`).toBe(false);
+        }
+      }
+      // Auswahlkacheln der drei Gruppen: 2 Begleiter, 2 eingeschaltete Sprachen (B-81), 2 Dauern
+      const tiles = boxes.filter((b) => b.name.includes('choice-tile'));
+      expect(tiles).toHaveLength(6);
+      for (const t of tiles) {
+        expect(t.w).toBeGreaterThanOrEqual(88);
+        expect(t.h).toBeGreaterThanOrEqual(88);
+        expect(t.w).toBeCloseTo(tiles[0].w, 1); // alle Kacheln gleich breit
+      }
+      // seit B-26: Begleiter hoch, Sprache/Modus flach – jeweils innerhalb der Gruppe gleich
+      const [mimi, mots, ...small] = tiles;
+      expect(mots.h).toBeCloseTo(mimi.h, 1);
+      for (const t of small) expect(t.h).toBeCloseTo(small[0].h, 1);
+      const play = boxes.find((b) => b.name.includes('play-button'))!;
+      expect(play.w).toBeGreaterThanOrEqual(minSize(96));
+      expect(play.h).toBe(play.w);
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(vp.height);
+    },
+  );
 });

@@ -1,8 +1,8 @@
 import { expect, test, type Locator, type Page, isPhone } from './fixtures';
 import { mediaCalls } from './helpers';
+import { btn } from './views';
 
 const KEY = 'mimi-mots:v1';
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const box = async (l: Locator) => (await l.boundingBox())!;
 
 type SpeechCall = { op: 'cancel' } | { op: 'speak'; text: string };
@@ -48,19 +48,21 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     await page.goto('./');
   });
 
-  test('AT-26.1/AT-89.1: zwei Modi nur als Symbol, untereinander (seit B-89 statt Dauer)', async ({
-    page,
-  }) => {
-    const group = page.getByRole('group', { name: 'Bei was?' });
-    await expect(group.getByRole('button')).toHaveCount(2);
-    const speak = btn(page, 'Sprechen');
-    const listen = btn(page, 'Hören');
-    for (const tile of [speak, listen]) expect(await tile.innerText()).toBe('');
-    await expect(page.locator('svg.clock-icon')).toHaveCount(0);
-    const [a, b] = [await box(speak), await box(listen)];
-    expect(b.y).toBeGreaterThan(a.y + a.height - 1); // untereinander
-    expect(b.x).toBeCloseTo(a.x, 0);
-  });
+  test(
+    'AT-26.1/AT-89.1: zwei Modi nur als Symbol, untereinander (seit B-89 statt Dauer)',
+    { tag: '@layout' },
+    async ({ page }) => {
+      const group = page.getByRole('group', { name: 'Bei was?' });
+      await expect(group.getByRole('button')).toHaveCount(2);
+      const speak = btn(page, 'Sprechen');
+      const listen = btn(page, 'Hören');
+      for (const tile of [speak, listen]) expect(await tile.innerText()).toBe('');
+      await expect(page.locator('svg.clock-icon')).toHaveCount(0);
+      const [a, b] = [await box(speak), await box(listen)];
+      expect(b.y).toBeGreaterThan(a.y + a.height - 1); // untereinander
+      expect(b.x).toBeCloseTo(a.x, 0);
+    },
+  );
 
   test('AT-26.2/AT-89.1: Hören wählen und merken', async ({ page }) => {
     await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'true');
@@ -73,40 +75,44 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
     expect(stored.settings.mode).toBe('listen');
   });
 
-  test('AT-26.3/AT-81.1: Erststart – nur Englisch und Französisch, nebeneinander', async ({
-    page,
-  }) => {
-    const group = page.getByRole('group', { name: 'In welcher Sprache?' });
-    await expect(group.getByRole('button')).toHaveCount(2);
-    const [en, fr] = [btn(page, 'Englisch'), btn(page, 'Französisch')];
-    await expect(en.locator('img')).toHaveAttribute('src', /flag_gb\.svg$/);
-    await expect(fr.locator('img')).toHaveAttribute('src', /flag_fr\.svg$/);
-    const [bEn, bFr] = [await box(en), await box(fr)];
-    expect(bFr.y).toBeCloseTo(bEn.y, 0); // eine Zeile: EN | FR
-    expect(bFr.x).toBeGreaterThan(bEn.x);
-  });
+  test(
+    'AT-26.3/AT-81.1: Erststart – nur Englisch und Französisch, nebeneinander',
+    { tag: '@layout' },
+    async ({ page }) => {
+      const group = page.getByRole('group', { name: 'In welcher Sprache?' });
+      await expect(group.getByRole('button')).toHaveCount(2);
+      const [en, fr] = [btn(page, 'Englisch'), btn(page, 'Französisch')];
+      await expect(en.locator('img')).toHaveAttribute('src', /flag_gb\.svg$/);
+      await expect(fr.locator('img')).toHaveAttribute('src', /flag_fr\.svg$/);
+      const [bEn, bFr] = [await box(en), await box(fr)];
+      expect(bFr.y).toBeCloseTo(bEn.y, 0); // eine Zeile: EN | FR
+      expect(bFr.x).toBeGreaterThan(bEn.x);
+    },
+  );
 
-  test('AT-81.3: eingeschaltete Sprachen im Raster mit zwei Spalten (EN | FR / IT)', async ({
-    page,
-  }) => {
-    await page.evaluate((k) => {
-      const data = JSON.parse(localStorage.getItem(k) ?? '{"version":1}');
-      localStorage.setItem(k, JSON.stringify({ ...data, enabledLanguages: ['en', 'fr', 'it'] }));
-    }, KEY);
-    await page.reload();
-    const it = btn(page, 'Italienisch');
-    await expect(it.locator('img')).toHaveAttribute('src', /flag_it\.svg$/);
-    const [bEn, bFr, bIt] = [
-      await box(btn(page, 'Englisch')),
-      await box(btn(page, 'Französisch')),
-      await box(it),
-    ];
-    expect(bFr.y).toBeCloseTo(bEn.y, 0);
-    expect(bIt.x).toBeCloseTo(bEn.x, 0); // zweite Zeile links
-    expect(bIt.y).toBeGreaterThan(bEn.y + bEn.height - 1);
-  });
+  test(
+    'AT-81.3: eingeschaltete Sprachen im Raster mit zwei Spalten (EN | FR / IT)',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await page.evaluate((k) => {
+        const data = JSON.parse(localStorage.getItem(k) ?? '{"version":1}');
+        localStorage.setItem(k, JSON.stringify({ ...data, enabledLanguages: ['en', 'fr', 'it'] }));
+      }, KEY);
+      await page.reload();
+      const it = btn(page, 'Italienisch');
+      await expect(it.locator('img')).toHaveAttribute('src', /flag_it\.svg$/);
+      const [bEn, bFr, bIt] = [
+        await box(btn(page, 'Englisch')),
+        await box(btn(page, 'Französisch')),
+        await box(it),
+      ];
+      expect(bFr.y).toBeCloseTo(bEn.y, 0);
+      expect(bIt.x).toBeCloseTo(bEn.x, 0); // zweite Zeile links
+      expect(bIt.y).toBeGreaterThan(bEn.y + bEn.height - 1);
+    },
+  );
 
-  test('AT-26.4: Kachelgrößen', async ({ page }) => {
+  test('AT-26.4: Kachelgrößen', { tag: '@layout' }, async ({ page }) => {
     const vp = page.viewportSize()!;
     const big = await box(btn(page, 'Mimi'));
     const small = await Promise.all(
@@ -126,7 +132,7 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
 });
 
 test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
-  test('AT-26.5: Kopfleiste wie auf der Startseite', async ({ page }) => {
+  test('AT-26.5: Kopfleiste wie auf der Startseite', { tag: '@layout' }, async ({ page }) => {
     await page.goto('./');
     const startHeader = await box(page.locator('header.app-header'));
     await startRound(page);
@@ -208,7 +214,7 @@ test.describe('B-26 UI-Überarbeitung – Lernseite', () => {
   });
 });
 
-test('AT-26.9: lange Fremdwörter passen vollständig', async ({ page }) => {
+test('AT-26.9: lange Fremdwörter passen vollständig', { tag: '@layout' }, async ({ page }) => {
   await startRound(page);
   await btn(page, 'Auf Englisch anhören').click();
   // gleiche Logik wie die App (fitText mit Trennstufe), angewendet auf das echte Feld

@@ -404,6 +404,15 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
   - AT-89.6: Eigenes Tutorial der Hörrunde (zehn Schritte, Sprechblase ≤ 12 Wörter), kommt beim ersten Mal in der Hörrunde, unabhängig vom Tutorial der Sprechrunde; Abbruch wie AT-87.1; im Elternbereich (Reiter „Sonstiges“) je Modus zurücksetzbar: „Tutorial Sprechen“ und „Tutorial Hören“ mit den Buttons „Sprechen zurücksetzen“ und „Hören zurücksetzen“, ausgegraut, solange das Tutorial noch offen ist.
   - AT-89.7: Elternbereich: Wahl Sprechen | Hören (gleiche Symbole) vor den Flaggen; die Stufen zeigen den Stand des Modus; „Lernstand zurücksetzen“ fragt nach „Französisch, Hören: Wirklich zurücksetzen?“ bzw. „Sprechen“ und leert nur diesen Modus. Ausgeschaltete Wörter gelten in beiden Modi.
   - AT-89.8: Alle Ansichten (Startseite, Hörrunde verdeckt/aufgedeckt, Tutorial, Elternbereich) passen auf alle Viewports, Leitprinzipien wie überall (B-60/B-61).
+- [x] **B-91 Tests aufräumen** (vor B-90): schnellere, stabilere und leichter änderbare Testsuite bei gleicher Abdeckung.
+  - Verhalten läuft nur noch auf dem Referenz-Viewport 1180 × 820; Tests zu Größe, Lage, Überlauf und Screenshots tragen `@layout` und laufen weiter auf allen vier Viewports (900 → 475 Läufe).
+  - Screenshots an einer Stelle (b60, je Ansicht ein Bild, neu auch die Hörrunde); Hochformat-Screenshots nur einmal (setzen ihre Größe selbst). Gestrichen, weil anderswo abgedeckt: AT-11.6 (Screenshot → b60 start-erststart), AT-65.8 Schlafseite und AT-69.6 (Passt/Screenshot → b60 schlafseite/elternbereich), AT-89.8 (Leiste passt → Überlauf-Prüfung b60 elternbereich); aus AT-65.8 bleibt AT-77.2 (Schlafbild), aus AT-43.5 die Überlappungsprüfung.
+  - Feste Wartezeiten durch die Testuhr ersetzt (Halten von [×] und App-Icon) bzw. durch „Bewegung reduzieren“ und Warten auf den Zustand; übrig sind nur zwei bewusste Negativ-Wartezeiten (kein Zoom nach Doppeltipp, kein Vorlesen ohne Tipp) und eine im Offline-Test.
+  - Gemeinsame Hilfen in `tests/e2e/views.ts`: `btn`, `hold` (Selektor oder Locator, über die Testuhr), `storeOnce`, `stored`, `KEY` – statt Kopien in bis zu 23 Dateien.
+  - Vitest: Standardumgebung Node, nur Tests mit DOM wählen jsdom per `@vitest-environment jsdom`.
+  - AT-91.1: Alle bisherigen Akzeptanztests sind grün oder nachweislich an anderer Stelle abgedeckt (Liste oben).
+  - AT-91.2: Auf 1024 × 768, 1366 × 1024 und dem iPhone laufen nur `@layout`-Tests; auf 1180 × 820 alle.
+  - AT-91.3: Keine kopierten `btn`/`hold`/Seed-Hilfen mehr in den Spec-Dateien.
 - [ ] **B-90 Mehrere Kinder** (nach B-89): Titelbildschirm zur Wahl des Kindes. Beim ersten Start wird das erste Kind angelegt, mit Namen (tippt ggf. ein Elternteil – ist keine Vokabel); weitere Kinder nur über den Elternbereich (sonst legt man sich 30 Kinder an). Je Kind eigene Auswahl, eigener Lernstand, Schlafzustand, Tutorial und ausgeschaltete Wörter; Elternbereich zeigt den Lernstand je Kind, dort auch Umbenennen und Löschen (mit Sicherheitsabfrage). Gespeicherte Daten werden zum ersten Kind.
 
 ## Später

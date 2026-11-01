@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 // Akzeptanztests B-20: simulieren ganze Sessions mit dem echten Scheduler.
 import { describe, expect, it } from 'vitest';
 import { WORDS } from '../src/data/words';

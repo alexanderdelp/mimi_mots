@@ -1,7 +1,7 @@
 import { expect, test, type Page } from './fixtures';
 import { fakeMedia, mediaCalls } from './helpers';
+import { btn } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 const speaker = (page: Page) => btn(page, 'Auf Französisch anhören');
 const MIN = 60_000;

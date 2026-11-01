@@ -1,16 +1,12 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { fakeMedia, mediaCalls } from './helpers';
+import { btn, hold } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
-
-async function hold(page: Page, name: string, ms = 700) {
-  const box = (await btn(page, name).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(ms);
-  await page.mouse.up();
-}
+// B-91: Halten über die Testuhr statt echter Wartezeit
+test.beforeEach(async ({ page }) => {
+  await page.clock.install();
+});
 
 async function startRound(page: Page, language: 'Englisch' | 'Französisch' = 'Französisch') {
   await page.goto('./');
@@ -109,7 +105,7 @@ test.describe('B-31 Audio-Modul', () => {
 
     await speaker(page).click();
     before = (await mediaCalls(page)).length;
-    await hold(page, 'Beenden');
+    await hold(page, btn(page, 'Beenden'));
     await expect(page.locator('[data-view="end"]')).toBeVisible();
     expect((await mediaCalls(page)).slice(before).map((c) => c.op)).toContain('pause');
   });

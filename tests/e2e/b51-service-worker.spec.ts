@@ -2,8 +2,8 @@ import { expect, test, type Page } from './fixtures';
 import { readdirSync } from 'node:fs';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { fakeMedia, mediaCalls } from './helpers';
+import { btn } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 
 /** Lädt die App und wartet, bis der Service Worker aktiv ist und die Seite kontrolliert. */
@@ -70,7 +70,7 @@ test.describe('B-51 Service Worker', () => {
     expect(paths.some((p) => p.includes('/tools/'))).toBe(false);
   });
 
-  test('AT-51.3: offline vollständig nutzbar', async ({ page, context }) => {
+  test('AT-51.3: offline vollständig nutzbar', { tag: '@layout' }, async ({ page, context }) => {
     await installAndControl(page);
     const failed: string[] = [];
     page.on('requestfailed', (r) => failed.push(r.url()));

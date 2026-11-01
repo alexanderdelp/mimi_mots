@@ -1,21 +1,12 @@
 import { expect, test, type Page } from './fixtures';
+import { btn, hold, stored } from './views';
 
-/** Hält einen Button gedrückt (Long-Press, z. B. [×] seit B-25). */
-async function hold(page: Page, name: string, ms = 700) {
-  const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(ms);
-  await page.mouse.up();
-}
+// B-91: Halten über die Testuhr statt echter Wartezeit
+test.beforeEach(async ({ page }) => {
+  await page.clock.install();
+});
 
 const KEY = 'mimi-mots:v1';
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
-const stored = (page: Page) =>
-  page.evaluate((k) => {
-    const v = localStorage.getItem(k);
-    return v ? JSON.parse(v) : null;
-  }, KEY);
 
 async function expectSelection(page: Page, selected: string[]) {
   for (const name of ['Mimi', 'Mots', 'Englisch', 'Französisch', 'Sprechen', 'Hören']) {
@@ -67,7 +58,7 @@ test.describe('B-12 Auswahl merken', () => {
     await btn(page, 'Mimi').click();
     await btn(page, 'Französisch').click();
     await btn(page, 'Los geht’s').click();
-    await hold(page, 'Beenden');
+    await hold(page, btn(page, 'Beenden'));
     await btn(page, 'Zurück').click();
     // Sprache und Modus bleiben; Mimi schläft seit B-65, Mots ist vorausgewählt
     await expectSelection(page, ['Mots', 'Französisch', 'Sprechen']);

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import { BREAK_CLASS, fitText } from '../src/components/fit-text';
 

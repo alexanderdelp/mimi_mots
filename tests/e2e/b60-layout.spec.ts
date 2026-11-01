@@ -3,17 +3,32 @@ import { VIEWS, lowContrast, overflow, prepare, settle } from './views';
 
 test.describe('B-60 Layout-Prüfung', () => {
   for (const view of VIEWS) {
-    test(`AT-60.1/60.2: ${view.name} passt und ist kontrastreich genug`, async ({ page }) => {
-      await prepare(page, view.seed);
-      await view.open(page);
-      await settle(page);
-      expect(await overflow(page)).toEqual([]);
-      expect(await lowContrast(page)).toEqual([]);
-    });
+    test(
+      `AT-60.1/60.2: ${view.name} passt und ist kontrastreich genug`,
+      { tag: '@layout' },
+      async ({ page }) => {
+        await prepare(page, view.seed);
+        await view.open(page);
+        await settle(page);
+        expect(await overflow(page)).toEqual([]);
+        expect(await lowContrast(page)).toEqual([]);
+      },
+    );
   }
 
-  for (const name of ['runde-verdeckt', 'runde-fr']) {
-    test(`AT-60.3: Screenshot ${name}`, async ({ page }) => {
+  // B-91: alle Screenshots an einer Stelle – je Ansicht ein Bild (früher auch in B-11, B-43,
+  // B-65, B-69). Nach UI-Änderungen: npx playwright test b60 --update-snapshots
+  for (const name of [
+    'start-erststart',
+    'start-schlafend',
+    'runde-verdeckt',
+    'runde-fr',
+    'hoerrunde-aufgedeckt',
+    'abschluss',
+    'schlafseite',
+    'elternbereich',
+  ]) {
+    test(`AT-60.3: Screenshot ${name}`, { tag: '@layout' }, async ({ page }) => {
       const view = VIEWS.find((v) => v.name === name)!;
       await prepare(page, view.seed);
       await view.open(page);

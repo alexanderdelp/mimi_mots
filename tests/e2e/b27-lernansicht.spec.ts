@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page, minSize } from './fixtures';
 import { fakeMedia } from './helpers';
+import { btn } from './views';
 
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const round = (page: Page) => page.locator('[data-view="round"]');
 const box = async (l: Locator) => (await l.boundingBox())!;
 const MIN = 60_000;
@@ -58,30 +58,34 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
     });
   }
 
-  test('AT-27.4: [×] und Timer in der Kopfleiste, gleiche Höhe überall', async ({ page }) => {
-    await page.goto('./');
-    const startHeader = await box(page.locator('header.app-header'));
-    await startRound(page);
-    const header = await box(page.locator('header.app-header'));
-    expect(header).toEqual(startHeader);
-    const close = await box(btn(page, 'Beenden'));
-    const timer = await box(page.locator('.round__timer'));
-    const brand = await box(page.locator('.app-header__brand'));
-    const vp = page.viewportSize()!;
-    for (const b of [close, timer]) {
-      expect(b.width).toBeGreaterThanOrEqual(minSize(88));
-      expect(b.height).toBeGreaterThanOrEqual(minSize(88));
-      expect(b.y).toBeGreaterThanOrEqual(header.y);
-      expect(b.y + b.height).toBeLessThanOrEqual(header.y + header.height);
-      // vertikal mittig
-      expect(Math.abs(b.y + b.height / 2 - (header.y + header.height / 2))).toBeLessThan(2);
-    }
-    expect(close.x).toBeLessThan(vp.width * 0.1);
-    expect(timer.x + timer.width).toBeGreaterThan(vp.width * 0.9);
-    expect(Math.abs(brand.x + brand.width / 2 - vp.width / 2)).toBeLessThan(2);
-  });
+  test(
+    'AT-27.4: [×] und Timer in der Kopfleiste, gleiche Höhe überall',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await page.goto('./');
+      const startHeader = await box(page.locator('header.app-header'));
+      await startRound(page);
+      const header = await box(page.locator('header.app-header'));
+      expect(header).toEqual(startHeader);
+      const close = await box(btn(page, 'Beenden'));
+      const timer = await box(page.locator('.round__timer'));
+      const brand = await box(page.locator('.app-header__brand'));
+      const vp = page.viewportSize()!;
+      for (const b of [close, timer]) {
+        expect(b.width).toBeGreaterThanOrEqual(minSize(88));
+        expect(b.height).toBeGreaterThanOrEqual(minSize(88));
+        expect(b.y).toBeGreaterThanOrEqual(header.y);
+        expect(b.y + b.height).toBeLessThanOrEqual(header.y + header.height);
+        // vertikal mittig
+        expect(Math.abs(b.y + b.height / 2 - (header.y + header.height / 2))).toBeLessThan(2);
+      }
+      expect(close.x).toBeLessThan(vp.width * 0.1);
+      expect(timer.x + timer.width).toBeGreaterThan(vp.width * 0.9);
+      expect(Math.abs(brand.x + brand.width / 2 - vp.width / 2)).toBeLessThan(2);
+    },
+  );
 
-  test('AT-27.5: zwei gleich große Karten nebeneinander', async ({ page }) => {
+  test('AT-27.5: zwei gleich große Karten nebeneinander', { tag: '@layout' }, async ({ page }) => {
     await startRound(page);
     const left = await box(page.locator('.word-card'));
     const right = await box(page.locator('.round__answer'));
@@ -106,7 +110,7 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
     expect(await box(page.locator('.word-card'))).toEqual(left);
   });
 
-  test('AT-27.6: Begleiter groß links unten', async ({ page }) => {
+  test('AT-27.6: Begleiter groß links unten', { tag: '@layout' }, async ({ page }) => {
     await startRound(page);
     const vh = page.viewportSize()!.height;
     const avatar = await box(page.locator('.round__avatar .avatar'));
@@ -119,7 +123,7 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
     expect(avatar.x + avatar.width).toBeLessThanOrEqual(left.x);
   });
 
-  test('AT-27.7: Bewertung mittig unter den Karten', async ({ page }) => {
+  test('AT-27.7: Bewertung mittig unter den Karten', { tag: '@layout' }, async ({ page }) => {
     await startRound(page);
     await btn(page, 'Auf Französisch anhören').click();
     const left = await box(page.locator('.word-card'));
@@ -132,7 +136,7 @@ test.describe('B-27 Lernansicht überarbeiten', () => {
     expect(known.y).toBeGreaterThanOrEqual(left.y + left.height);
   });
 
-  test('AT-27.8: alles im Bildschirm, keine Überlappung', async ({ page }) => {
+  test('AT-27.8: alles im Bildschirm, keine Überlappung', { tag: '@layout' }, async ({ page }) => {
     await startRound(page);
     await btn(page, 'Auf Französisch anhören').click();
     const vp = page.viewportSize()!;

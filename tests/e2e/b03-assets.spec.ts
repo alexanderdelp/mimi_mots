@@ -1,4 +1,5 @@
 import { expect, test, type Page } from './fixtures';
+import { btn } from './views';
 
 const AVATARS = ['cat', 'pony'].flatMap((a) =>
   ['sitting', 'pointing', 'idle', 'waving'].map((p) => `avatars/${a}_${p}.png`),
@@ -12,8 +13,6 @@ const ICONS = [
   'icons/icon-maskable.svg',
   'icons/icon-maskable-512.png',
 ];
-
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -67,34 +66,42 @@ test.describe('B-03 Assets einbinden', () => {
   });
 
   for (const companion of ['Mimi', 'Mots'] as const) {
-    test(`AT-03.2: Posenwechsel verschiebt nichts (${companion})`, async ({ page }) => {
-      await startRound(page, companion);
-      const zeigt = await avatarBox(page);
-      await page.getByRole('button', { name: 'Auf Englisch anhören' }).click();
-      await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'freut');
-      await avatarLoaded(page);
-      expect(await avatarBox(page)).toEqual(zeigt);
-      await page.getByRole('button', { name: /Wusste ich/ }).click();
-      await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'zeigt');
-      expect(await avatarBox(page)).toEqual(zeigt);
-    });
+    test(
+      `AT-03.2: Posenwechsel verschiebt nichts (${companion})`,
+      { tag: '@layout' },
+      async ({ page }) => {
+        await startRound(page, companion);
+        const zeigt = await avatarBox(page);
+        await page.getByRole('button', { name: 'Auf Englisch anhören' }).click();
+        await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'freut');
+        await avatarLoaded(page);
+        expect(await avatarBox(page)).toEqual(zeigt);
+        await page.getByRole('button', { name: /Wusste ich/ }).click();
+        await expect(page.locator('.round__avatar .avatar')).toHaveAttribute('data-pose', 'zeigt');
+        expect(await avatarBox(page)).toEqual(zeigt);
+      },
+    );
   }
 
-  test('AT-03.4: höchstens 440 px hoch, unten ausgerichtet, nicht verzerrt', async ({ page }) => {
-    await startRound(page, 'Mimi');
-    const s = await page.locator('.round__avatar .avatar').evaluate((el) => {
-      const img = getComputedStyle(el.querySelector('img')!);
-      const r = el.getBoundingClientRect();
-      return {
-        height: r.height,
-        ratio: r.width / r.height,
-        fit: img.objectFit,
-        position: img.objectPosition,
-      };
-    });
-    expect(s.height).toBeLessThanOrEqual(440);
-    expect(s.ratio).toBeCloseTo(384 / 440, 2);
-    expect(s.fit).toBe('contain');
-    expect(s.position).toMatch(/100%$/);
-  });
+  test(
+    'AT-03.4: höchstens 440 px hoch, unten ausgerichtet, nicht verzerrt',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await startRound(page, 'Mimi');
+      const s = await page.locator('.round__avatar .avatar').evaluate((el) => {
+        const img = getComputedStyle(el.querySelector('img')!);
+        const r = el.getBoundingClientRect();
+        return {
+          height: r.height,
+          ratio: r.width / r.height,
+          fit: img.objectFit,
+          position: img.objectPosition,
+        };
+      });
+      expect(s.height).toBeLessThanOrEqual(440);
+      expect(s.ratio).toBeCloseTo(384 / 440, 2);
+      expect(s.fit).toBe('contain');
+      expect(s.position).toMatch(/100%$/);
+    },
+  );
 });

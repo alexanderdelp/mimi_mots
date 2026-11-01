@@ -1,8 +1,8 @@
 import { expect, test, type Page } from './fixtures';
 import { fakeMedia } from './helpers';
+import { btn, hold, storeOnce } from './views';
 
 const KEY = 'mimi-mots:v1';
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
 
 /** Feste lokale Uhrzeit: 30.10.2026, 10 Uhr. */
@@ -15,23 +15,12 @@ test.beforeEach(async ({ page }) => {
 
 /** Speichert einen Stand, bevor die App lädt. */
 async function seed(page: Page, sleeping: string[], since = '2026-10-30') {
-  await page.addInitScript(
-    ([key, value]) => {
-      if (!sessionStorage.getItem('seeded')) {
-        localStorage.setItem(key, value);
-        sessionStorage.setItem('seeded', '1');
-      }
-    },
-    [
-      KEY,
-      JSON.stringify({
-        version: 1,
-        settings: { companion: 'mots', language: 'fr', mode: 'listen' },
-        progress: { en: {}, fr: {} },
-        rest: { sleeping, since },
-      }),
-    ] as const,
-  );
+  await storeOnce(page, {
+    version: 1,
+    settings: { companion: 'mots', language: 'fr', mode: 'listen' },
+    progress: { en: {}, fr: {} },
+    rest: { sleeping, since },
+  });
 }
 
 async function startRound(page: Page, companion: 'Mimi' | 'Mots', mode: 'Sprechen' | 'Hören') {
@@ -40,14 +29,6 @@ async function startRound(page: Page, companion: 'Mimi' | 'Mots', mode: 'Spreche
   await btn(page, mode).click();
   await btn(page, 'Los geht’s').click();
   await expect(view(page, 'round')).toBeVisible();
-}
-
-async function hold(page: Page, selector: string, ms: number) {
-  const box = (await page.locator(selector).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.clock.runFor(ms);
-  await page.mouse.up();
 }
 
 async function closeRound(page: Page) {
@@ -173,43 +154,23 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await expect(btn(page, 'Mimi')).toBeEnabled();
   });
 
-  test('AT-65.8: Schlafseite passt auf den Bildschirm, Screenshot', async ({ page }) => {
-    await seed(page, ['mimi', 'mots']);
-    await page.goto('./');
-    await page.waitForFunction(() => {
-      const img = document.querySelector<HTMLImageElement>('.sleep__picture');
-      return !!img && img.complete && img.naturalWidth > 0;
-    });
-    const fits = await page.evaluate(
-      () =>
-        document.documentElement.scrollHeight <= innerHeight &&
-        document.documentElement.scrollWidth <= innerWidth,
-    );
-    expect(fits).toBe(true);
-    await expect(page).toHaveScreenshot('schlafseite.png');
-  });
-
-  test('AT-65.8: Startseite mit schlafendem Begleiter passt, Screenshot', async ({ page }) => {
-    await seed(page, ['mimi']);
-    await page.goto('./');
-    await page.waitForFunction(() =>
-      [...document.querySelectorAll<HTMLImageElement>('.start__avatar')].every(
-        (img) => img.complete && img.naturalWidth > 0,
-      ),
-    );
-    const fits = await page.evaluate(
-      () =>
-        document.documentElement.scrollHeight <= innerHeight &&
-        document.documentElement.scrollWidth <= innerWidth,
-    );
-    expect(fits).toBe(true);
-    // AT-77.2: Schlafbild so breit wie die Kachel und unten ausgerichtet
-    const [tile, img] = await btn(page, 'Mimi').evaluate((t) => {
-      const i = t.querySelector('img')!;
-      return [t.getBoundingClientRect().width, i.getBoundingClientRect().width];
-    });
-    expect(img).toBeGreaterThan(tile * 0.8);
-    await expect(btn(page, 'Mimi').locator('img')).toHaveCSS('object-position', '50% 100%');
-    await expect(page).toHaveScreenshot('start-schlafend.png');
-  });
+  test(
+    'AT-77.2: Schlafbild so breit wie die Kachel und unten ausgerichtet',
+    { tag: '@layout' },
+    async ({ page }) => {
+      await seed(page, ['mimi']);
+      await page.goto('./');
+      await page.waitForFunction(() =>
+        [...document.querySelectorAll<HTMLImageElement>('.start__avatar')].every(
+          (img) => img.complete && img.naturalWidth > 0,
+        ),
+      );
+      const [tile, img] = await btn(page, 'Mimi').evaluate((t) => {
+        const i = t.querySelector('img')!;
+        return [t.getBoundingClientRect().width, i.getBoundingClientRect().width];
+      });
+      expect(img).toBeGreaterThan(tile * 0.8);
+      await expect(btn(page, 'Mimi').locator('img')).toHaveCSS('object-position', '50% 100%');
+    },
+  );
 });

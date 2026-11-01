@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LONG_PRESS_MS, onLongPress } from '../src/components/long-press';
 

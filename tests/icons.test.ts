@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import { icon, roundButton } from '../src/components/icons';
 import { createAppHeader } from '../src/components/app-header';

@@ -1,9 +1,9 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
 import { enableLanguages, fakeMedia, mediaCalls, vocabularyIds } from './helpers';
+import { btn } from './views';
 
 const KEY = 'mimi-mots:v1';
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 const speaker = (page: Page) => btn(page, 'Auf Italienisch anhören');
 
 async function startRound(page: Page) {

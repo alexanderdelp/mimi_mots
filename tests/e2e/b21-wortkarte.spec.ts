@@ -1,7 +1,6 @@
 import { expect, test, type Page, minSize, skipRotationOnPhone } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
-
-const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
+import { btn } from './views';
 
 async function startRound(page: Page, language: 'Englisch' | 'Französisch' = 'Englisch') {
   await page.goto('./');
@@ -21,7 +20,7 @@ test.describe('B-21 Wortkarte', () => {
     await expect(page.locator('.word-card__de')).toHaveText(word.de);
   });
 
-  test('AT-21.2: Emoji groß, deutsches Wort darunter', async ({ page }) => {
+  test('AT-21.2: Emoji groß, deutsches Wort darunter', { tag: '@layout' }, async ({ page }) => {
     await startRound(page);
     const vh = page.viewportSize()!.height;
     const emoji = (await page.locator('.word-card__emoji').boundingBox())!;
@@ -46,7 +45,7 @@ test.describe('B-21 Wortkarte', () => {
       await expect(page.getByRole('button', { name: /Wusste ich|Noch üben/ })).toHaveCount(0);
     });
 
-    test(`AT-21.4: Flaggen-Button für ${language}`, async ({ page }) => {
+    test(`AT-21.4: Flaggen-Button für ${language}`, { tag: '@layout' }, async ({ page }) => {
       await startRound(page, language);
       // seit B-26: Flagge nur zur Anzeige, daneben der runde Lautsprecher-Button
       const flag = page.locator('.round__flag');
@@ -68,8 +67,6 @@ test.describe('B-21 Wortkarte', () => {
     await expect(page.getByRole('alert')).toBeVisible();
     await page.setViewportSize(vp);
     await expect(page.getByRole('alert')).toBeHidden();
-    await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', word.id);
-    await page.waitForTimeout(300);
     await expect(page.locator('.word-card')).toHaveAttribute('data-word-id', word.id);
   });
 });
