@@ -86,6 +86,8 @@ tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e
                      dort gilt das Tutorial als gesehen, außer mit test.use({ tutorial: true });
                      das Kind heißt „Lina“ und die Begrüßung wird gleich verlassen, außer mit
                      test.use({ childName: null }) bzw. test.use({ greeting: true }) (B-97);
+                     Audio ist dort still und lädt nichts, mitschreiben mit fakeMedia – echtes
+                     Audio blockiert WebKit unter Windows je Wort rund 2 s;
                      Hilfen aus e2e/views.ts: btn, hold, storeOnce, stored; Layout-Tests mit
                      { tag: '@layout' } – nur sie laufen auf allen Viewports, alles andere auf
                      1180 × 820; Screenshots nur in b60-layout.spec.ts)
