@@ -510,3 +510,7 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-109.3: Der letzte freigegebene Samen lässt sich nicht ausschalten.
   - AT-109.4: Die Blumenbilder liegen als 18 transparente Bilder vor (gleiche Größe, Ecken durchsichtig) und sind im Precache; `blumen.png` ist nicht mehr im Build.
   - AT-109.5: „Sonstiges“ passt weiterhin ohne Scrollen auf alle Viewports, Kacheln ≥ 88 px (iPhone ≥ 44 px) hoch.
+- [x] **B-110 Samen mittig auf den Kacheln**: Im Elternbereich saßen die Samen klein unten in der Kachel, weil alle 18 Blumenbilder dieselbe, unten ausgerichtete Leinwand hatten. Die Samen bekommen jetzt eine eigene quadratische Leinwand und sitzen mittig (gleicher Maßstab, nicht hochskaliert); die Wachstumsstufen bleiben unverändert (Nutzerwunsch 2026-11-08).
+  - AT-110.1: Der sichtbare Samen ist in jedem Samenbild waagrecht und senkrecht mittig (höchstens 2 px Abweichung); die drei Samenbilder sind gleich groß und quadratisch.
+  - AT-110.2: Im Reiter „Sonstiges“ steht das Samenbild mittig auf seiner Kachel (alle Viewports).
+  - AT-109.4 angepasst: Die 15 Wachstumsstufen haben dieselbe Größe, die Samen eine eigene.
