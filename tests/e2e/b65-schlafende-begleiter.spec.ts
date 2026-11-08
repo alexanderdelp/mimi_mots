@@ -53,6 +53,10 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await expect(view(page, 'end').locator('.avatar')).toHaveAttribute('data-pose', 'winkt');
     await expect(view(page, 'end').locator('.avatar img')).toHaveAttribute('src', /cat_waving/);
     await btn(page, 'Zurück').click();
+    // B-112: erste abgeschlossene Lernreise ohne Samen → erst Samen wählen
+    await expect(view(page, 'seed')).toBeVisible();
+    await btn(page, 'Sonnenblume').click();
+    await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
     await expectAsleep(page, 'Mimi', 'cat');
     await expect(btn(page, 'Mots')).toBeEnabled();

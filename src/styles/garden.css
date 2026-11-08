@@ -1,0 +1,50 @@
+/* Garten des Kinds (B-112): alle Pflanzen nebeneinander auf einem Beet, unten ausgerichtet.
+   Keine Texte, keine Zahlen. Größe der Pflanzen per --plant-h (views/garden.ts passt sie ein). */
+.view--garden {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.garden__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(12px, 2dvh, 24px) 24px;
+}
+
+.garden__bed {
+  --plant-h: 240px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px 16px;
+  padding: 8px 20px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.garden__plant {
+  height: var(--plant-h);
+  width: auto;
+  aspect-ratio: 220 / 240;
+  object-fit: contain;
+}
+
+@media (max-height: 500px) {
+  .garden__body {
+    padding: 8px 16px;
+  }
+
+  .garden__bed {
+    padding: 4px 12px;
+  }
+}

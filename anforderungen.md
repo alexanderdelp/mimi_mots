@@ -93,7 +93,7 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 ### 3.6 Abschluss und Schlaf
 - **Abschluss:** Begleiter groß in der Pose „winkt“, Text „Bis zum nächsten Mal!“, runder Haus-Button („Zurück“). Keine Zusammenfassung, keine Anzahl Wörter. Gleich, ob die Runde per Zeitablauf oder [×] endet.
 - Mit dem Erreichen des Abschlusses schläft der Begleiter bis zum nächsten Tag (lokales Datum). Modi verbrauchen sich nicht.
-- **Schlafseite:** Schlafen beide, führt der Haus-Button (und jedes Öffnen der App) zur Schlafseite: Kopfleiste, Bild beider Begleiter schlafend, „Gute Nacht und bis morgen!“, nur der Buch-Button zu „Meine Wörter“ (§3.9). Aufwecken nur im Elternbereich.
+- **Schlafseite:** Schlafen beide, führt der Haus-Button (und jedes Öffnen der App) zur Schlafseite: Kopfleiste, Bild beider Begleiter schlafend, „Gute Nacht und bis morgen!“, nur der Buch-Button zu „Meine Wörter“ (§3.9) und – mit Pflanze – der Garten-Button (§3.10). Aufwecken nur im Elternbereich.
 - An einem späteren Tag wachen alle von selbst auf – beim Öffnen und beim Zurückholen aus dem Hintergrund; von der Schlafseite geht es dann zur Begrüßung.
 
 ### 3.7 Elternbereich
@@ -109,6 +109,12 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 - Runder Buch-Button links in der Kopfleiste von Start- und Schlafseite („Meine Wörter“ nur für Screenreader); der Haus-Button führt zurück zur Startseite bzw., wenn beide Begleiter schlafen, zur Schlafseite (B-107).
 - Oben Modus (Sprechen | Hören) und die eingeschalteten Sprachen mit Wörtern; vorausgewählt wie auf der Startseite. Die Wahl gilt nur hier und wird nicht gespeichert.
 - Darunter fünf Zeilen, oben Stufe 0, unten Stufe 4, je mit 1–5 lila Punkten statt Beschriftung. Darin die eingeschalteten Wörter mit Lernstand im gewählten Modus als Emoji; neue und ausgeschaltete Wörter fehlen. Die Emoji werden kleiner, wenn viele Wörter in einer Zeile stehen. Nichts ist einstellbar, kein Weg in den Elternbereich.
+
+### 3.10 Garten (B-112)
+- **Abgeschlossen** ist eine Lernreise, wenn die Zeit abläuft und das Kind das letzte Wort bewertet; ein Abbruch per [×] zählt nie.
+- **Samen wählen:** Hat das Kind noch keinen Samen oder blüht seine letzte Blume, führt der Haus-Button des Abschlusses nach einer abgeschlossenen Lernreise zur Seite „Such dir einen Samen aus!“: Begleiter zeigt auf die im Elternbereich freigegebenen Samen (gleich große Kacheln, nur Bild). Ein Tipp pflanzt den Samen ein; die Seite zeigt groß das Bild „eingepflanzt“ und den Haus-Button zum Start. Vorher gibt es keinen Weg weiter.
+- **Wachsen:** Alle 3–6 abgeschlossenen Lernreisen (zufällig je Stufe) wächst die zuletzt gepflanzte Blume eine Stufe (eingepflanzt, Keimling, Pflanze, Knospe, Blüte). Dann zeigt der Abschluss die neue Stufe neben dem winkenden Begleiter (nur Bild); sonst keine Blume. Nach der Blüte kommt mit der nächsten abgeschlossenen Lernreise wieder die Samenwahl.
+- **Garten:** Sobald eine Pflanze da ist, steht rechts neben dem Buch-Button (Start- und Schlafseite) ein Blumen-Button („Mein Garten“ nur für Screenreader). Der Garten zeigt alle Pflanzen in der Reihenfolge des Einpflanzens in ihrer Stufe, ohne Text und Zahlen; sie werden kleiner, wenn viele da sind. Haus-Button zurück.
 
 ## 4. Avatare
 | Pose | Mimi | Mots | Einsatz |
@@ -158,8 +164,11 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
     "listenProgress": { "fr": {}, "en": {} },
     "rest": { "sleeping": ["mimi"], "since": "2026-10-30" },
     "enabledLanguages": ["en", "fr"], "tutorialDone": true, "listenTutorialDone": false,
-    "brakeNew": true, "disabledWords": { "en": [] }, "roundMin": 5 }] }
+    "brakeNew": true, "disabledWords": { "en": [] }, "roundMin": 5,
+    "enabledFlowers": ["sunflower", "peony", "clematis"],
+    "garden": { "plants": [{ "flower": "peony", "stage": 2 }], "rounds": 1, "need": 4 } }] }
 ```
+- `garden` (B-112): Pflanzen in der Reihenfolge des Einpflanzens (`stage` 1 = eingepflanzt … 5 = Blüte), `rounds` = abgeschlossene Lernreisen seit der letzten Stufe, `need` = nötige Runden für die nächste (3–6). Fehlt er (ältere Daten), ist er leer – kein Datenverlust.
 - `progress` = Sprechen, `listenProgress` = Hören. Standard: Englisch und Französisch eingeschaltet, Bremse an, 5 Minuten.
 - Beschädigte, unbrauchbare oder fremde Daten → Defaults bzw. Erststart, kein Absturz. Ältere Daten (`mimi-mots:v1`) werden nicht übernommen (§11).
 - Hinweis: Als Home-Bildschirm-App ist der Speicher unter iOS stabil; im Safari-Tab kann er nach längerer Nichtnutzung gelöscht werden.
@@ -332,6 +341,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Leitprinzip 4 (≤ 200 ms): Der Ring beim Halten von [×] füllt sich über 600 ms (= Long-Press-Dauer) – Rückmeldung auf eine Bedienung, keine Deko (B-25). Der Stiftkreis im Tutorial zieht sich in 700 ms (B-87). Bei „Bewegung reduzieren“ beides sofort.
 - Leitprinzip 3 (88 px): Auf dem iPhone gelten 44 px (Apple-Mindestmaß) (B-76). Die Wort-Buttons im Elternbereich sind auch auf dem iPad nur 44 px – bei 61 Wörtern passen größere nicht auf einen Bildschirm, und der Bereich richtet sich an Erwachsene (B-88). Der Kopier-Button neben der Version ist ebenfalls 44 px (B-99), ebenso der Griff des Schiebereglers für die Rundendauer (iPhone 32 px bei mindestens 44 px Bedienhöhe) (B-100, Nutzerentscheidung).
 - Leitprinzip 3 (wenig Text): bis zu 12 Wörter je Tutorial-Sprechblase (B-87); sonst höchstens 14 Wörter je Kind-Ansicht außer den Lernwörtern (B-61, B-75). Die 14 bleibt, obwohl die Kachel aus B-75 entfallen ist: Die Auswahl kommt mit Name in der Kopfleiste und „Bei was?“ selbst auf etwa 14 Wörter (Nutzerentscheidung 2026-11-01).
+- Leitprinzip 1 und der Garten (B-112, Nutzerentscheidung 2026-11-08): Blumen wachsen durch abgeschlossene Lernreisen – eine bewusste Ausnahme von „keine Belohnung“. Es zählt nur das Abschließen, nie „Wusste ich“ oder „Noch üben“; keine Zahlen, kein Fortschrittsbalken, kein Text zum Wachstum.
 - Leitprinzip 1 und „Meine Wörter“ (B-107, Nutzerentscheidung 2026-11-08): Das Kind sieht seinen Lernstand, aber ohne Bewertung – keine Wörter wie „Stufe“, „sicher“, „noch üben“, keine Anzahl, keine Prozente, keine Zeile „Neu“; die Zeilen kennzeichnen gleich gefärbte lila Punkte (1–5). Erreichbar über einen Buch-Button auf Start- und Schlafseite.
 - Das Leitprinzipien-Review (B-61, 2026-10-30) ergab keine Abweichung; die Prüfungen laufen automatisch in `b60-layout.spec.ts` und `b61-leitprinzipien.spec.ts` (Momentaufnahme mit Textliste im Archiv).
 - Leitprinzip 6 bleibt unberührt vom Telegram-Bot (nur Entwicklung) und gilt bis zur Datenbank (siehe `backlog.md` → „Später“).
