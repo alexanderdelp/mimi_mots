@@ -6,6 +6,9 @@ import { defineConfig, devices } from '@playwright/test';
 // anderen Projekt oder Worktree – dann lieber eine Fehlermeldung als fremden Code testen.
 const PORT = Number(process.env.PREVIEW_PORT ?? 4181);
 export const APP_URL = `http://localhost:${PORT}/mimi_mots/`;
+// B-104: Seiten aus tools/ sind nicht im Build; sie laufen in einem eigenen Dev-Server.
+const TOOLS_PORT = PORT + 10;
+export const TOOLS_URL = `http://localhost:${TOOLS_PORT}/mimi_mots/`;
 
 const ipad = devices['iPad Pro 11 landscape'];
 /** Projektname des iPhones – Tests mit iPad-Maßen fragen danach (B-76). */
@@ -45,10 +48,19 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: 'npm run build && npx vite preview',
-    url: APP_URL,
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'npm run build && npx vite preview',
+      url: APP_URL,
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command: 'npx vite',
+      url: `${TOOLS_URL}tools/api-test.html`,
+      env: { DEV_PORT: String(TOOLS_PORT) },
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+  ],
 });

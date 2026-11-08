@@ -1,4 +1,4 @@
-/* Elternbereich (B-69 … B-89). */
+/* Elternbereich (B-69 … B-89). Zurück-Button mit Haus wie in „Meine Wörter“ (B-111). */
 
 .view--admin .admin__home {
   width: 88px;
@@ -6,8 +6,8 @@
 }
 
 .view--admin .admin__home svg {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
 }
 
 .admin__body {
@@ -175,9 +175,34 @@
   outline-offset: -3px;
 }
 
-/* das letzte eingeschaltete Wort: nicht ausschaltbar, sieht aber aus wie die anderen */
-.admin__word:disabled {
+/* das letzte eingeschaltete Wort: nicht ausschaltbar, sieht aber aus wie die anderen; ziehbar (B-106) */
+.admin__word[aria-disabled='true'] {
   cursor: default;
+}
+
+/* B-106: Ziehen in eine andere Stufe – der Finger zieht, die Seite bewegt sich nicht */
+.admin__word {
+  touch-action: none;
+}
+
+.admin__word[data-dragging='true'] {
+  opacity: 0.25;
+}
+
+.admin__level[data-drop-target='true'] {
+  border-radius: 12px;
+  background: var(--lila-100);
+  box-shadow: inset 0 0 0 3px var(--lila-700);
+}
+
+/* Kopie des Emojis unter dem Finger (hängt an <body>) */
+.drag-ghost {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transition: none;
 }
 
 /* B-73: ausgeschaltete Sprache im Elternbereich – wählbar, aber blass */
@@ -328,7 +353,7 @@
   font-weight: 800;
 }
 
-/* B-94: Tiere einzeln – zwei gleich breite Kacheln wie „Bremsen“ */
+/* B-94: Tiere einzeln – zwei gleich breite Kacheln wie „Bremsen“; seit B-109 auch die Tutorials */
 .admin__sleep {
   display: flex;
   gap: 16px;
@@ -337,6 +362,24 @@
 .admin__sleeper {
   flex: 1 1 0;
   height: 88px;
+}
+
+/* B-109: Samen – drei gleich breite Kacheln mit dem Samenbild */
+.admin__seeds {
+  display: flex;
+  gap: 16px;
+}
+
+.admin__flower {
+  flex: 1 1 0;
+  height: 88px;
+  padding: 8px;
+}
+
+.admin__seed {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* B-100: Rundendauer als Schieberegler – Spur --lila-200, links vom Griff --lila-700, runder
@@ -473,8 +516,8 @@
   }
 
   .view--admin .admin__home svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .admin__body {
@@ -606,6 +649,16 @@
     height: 44px;
     min-height: 44px;
     padding: 4px;
+  }
+
+  .admin__seeds {
+    gap: 12px;
+  }
+
+  .admin__flower {
+    height: 44px;
+    min-height: 44px;
+    padding: 2px;
   }
 
   .admin__slider {

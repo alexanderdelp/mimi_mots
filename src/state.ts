@@ -2,10 +2,13 @@
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
 import { COMPANIONS, type Companion } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
+import { FLOWERS, type Flower } from './data/flowers';
+import { canPlant, completeRound, plant, type Harvest } from './garden';
 import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
 import {
   LANGUAGES,
+  MAX_BOX,
   cleanName,
   isRoundMin,
   localDay,
@@ -14,22 +17,37 @@ import {
   type Settings,
 } from './storage';
 
-export type ViewName = 'welcome' | 'start' | 'round' | 'end' | 'sleep' | 'admin';
+export type ViewName =
+  | 'welcome'
+  | 'start'
+  | 'round'
+  | 'end'
+  | 'sleep'
+  | 'admin'
+  | 'words'
+  | 'seed' // B-112: Samen wählen nach einer abgeschlossenen Lernreise
+  | 'garden'; // B-112: Garten des Kinds
 
 export type AppEvent =
   | { type: 'name'; name: string } // Begrüßung: Name des Kinds eingeben (B-97)
   | { type: 'enter' } // Begrüßung → Start (nur mit Namen, B-97)
   | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
-  | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
+  | { type: 'home' } // Abschluss bzw. „Meine Wörter“ → Start (bzw. Schlafseite, wenn beide schlafen)
+  | { type: 'words' } // Start/Schlafseite → „Meine Wörter“: Lernstand fürs Kind (B-107)
+  | { type: 'garden' } // Start/Schlafseite → Garten (B-112, erst mit einer Pflanze)
+  | { type: 'plant'; flower: Flower; at: string } // Samenwahl: Samen einpflanzen (B-112)
   | { type: 'admin' } // Begrüßung/Start/Schlafseite → Elternbereich (Halten des Icons, B-69/B-97)
   | { type: 'leave' } // Elternbereich → zurück (Begrüßung oder Start) bzw. Schlafseite
   | { type: 'toggleSleep'; companion: Companion } // Elternbereich: Tier wecken/hinlegen (B-94)
   | { type: 'resetProgress'; language: Language; mode: Mode } // Elternbereich: Lernstand leeren
   | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
   | { type: 'toggleWord'; language: Language; id: string } // Elternbereich: Wort an/aus (B-88)
+  // Elternbereich: Wort per Ziehen in eine Stufe legen, null = „Neu“ (B-106); `at` als ISO-Zeitpunkt
+  | { type: 'moveWord'; language: Language; mode: Mode; id: string; box: number | null; at: string }
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
-  | { type: 'resetTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus kommt wieder
+  | { type: 'toggleTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus an/aus (B-108)
+  | { type: 'toggleFlower'; flower: Flower } // Elternbereich: Samen an/aus (B-109)
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
   | { type: 'roundMin'; minutes: number } // Elternbereich: Dauer einer Runde (B-93)
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
@@ -88,6 +106,12 @@ export function canToggleWord(data: ChildData, language: Language, id: string): 
   if (!vocabulary(language).some((w) => w.id === id)) return false;
   if (data.disabledWords[language].includes(id)) return true;
   return activeWords(data, language).some((w) => w.id !== id);
+}
+
+/** B-109: Einschalten geht immer; Ausschalten nur, wenn danach noch ein Samen an ist. */
+export function canToggleFlower(data: ChildData, flower: Flower): boolean {
+  const on = data.enabledFlowers;
+  return !on.includes(flower) || on.length > 1;
 }
 
 /** Auswahl passend zu Schlaf und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
@@ -171,16 +195,21 @@ export interface AppState {
   round: RoundState | null;
   /** B-99: von wo der Elternbereich geöffnet wurde – dorthin geht es zurück. */
   adminFrom?: 'welcome' | 'start' | 'sleep';
+  /** B-112: was die gerade abgeschlossene Lernreise im Garten bewirkt hat (bis zurück zum Start). */
+  harvest?: Harvest;
 }
 
 /** Erlaubte Ansichtswechsel; alles andere wird ignoriert. */
 const TRANSITIONS: Record<ViewName, Partial<Record<AppEvent['type'], ViewName>>> = {
   welcome: { enter: 'start', admin: 'admin' },
-  start: { play: 'round', admin: 'admin' },
+  start: { play: 'round', admin: 'admin', words: 'words', garden: 'garden' },
   round: { finish: 'end' },
   end: { home: 'start' },
-  sleep: { admin: 'admin' },
+  sleep: { admin: 'admin', words: 'words', garden: 'garden' },
   admin: {},
+  words: {},
+  seed: {},
+  garden: {},
 };
 
 export function nextView(view: ViewName, event: AppEvent): ViewName {
@@ -196,7 +225,12 @@ export function reduce(
   let next = step(state, event, today);
   // Wer die Abschlussseite erreicht, hat begleitet – egal ob per Zeitablauf oder [×].
   if (state.view === 'round' && next.view === 'end') {
-    return { ...next, data: consume(next.data, today) };
+    const data = consume(next.data, today);
+    // B-112: Nur eine abgeschlossene Lernreise (Zeit abgelaufen, letzte Bewertung) zählt für den
+    // Garten – ein Abbruch per [×] nie.
+    if (event.type !== 'rate') return { ...next, data, harvest: null };
+    const { garden, harvest } = completeRound(data.garden, event.at);
+    return { ...next, data: { ...data, garden }, harvest };
   }
   // Auf Begrüßung, Start- und Schlafseite: an einem neuen Tag sind alle wieder wach. Von der
   // Schlafseite geht es dann zur Begrüßung wie bei einem neuen Öffnen am Morgen (B-97).
@@ -277,10 +311,30 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
   if (event.type === 'finish' && state.view === 'round' && !tutorialSeen(state.data)) {
     return { ...state, view: 'start', round: null };
   }
-  if (event.type === 'home' && state.view === 'end') {
-    const data = withRestSettings(state.data);
-    return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data };
+  // B-107/B-112: aus „Meine Wörter“ und dem Garten zurück zur Start- bzw. Schlafseite
+  if (event.type === 'home' && (state.view === 'words' || state.view === 'garden')) {
+    return { ...state, view: allAsleep(state.data) ? 'sleep' : 'start' };
   }
+  if (event.type === 'home' && state.view === 'end') {
+    // B-112: Nach einer abgeschlossenen Lernreise ohne wachsende Pflanze kommt die Samenwahl
+    if (state.harvest === 'choose' && canPlant(state.data.garden)) {
+      return { ...state, view: 'seed' };
+    }
+    const data = withRestSettings(state.data);
+    return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data, harvest: null };
+  }
+  if (event.type === 'plant' && state.view === 'seed') {
+    if (!state.data.enabledFlowers.includes(event.flower)) return state;
+    const garden = plant(state.data.garden, event.flower, event.at);
+    return garden === state.data.garden ? state : { ...state, data: { ...state.data, garden } };
+  }
+  // Erst nach dem Einpflanzen geht es weiter (die Seite zeigt vorher keinen Haus-Button)
+  if (event.type === 'home' && state.view === 'seed') {
+    if (canPlant(state.data.garden)) return state;
+    const data = withRestSettings(state.data);
+    return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data, harvest: null };
+  }
+  if (event.type === 'garden' && state.data.garden.plants.length === 0) return state;
   if (event.type === 'toggleSleep' && state.view === 'admin') {
     // Auswahl erst beim Verlassen anpassen (leave) – so bleibt sie über mehrere Tipps erhalten
     return { ...state, data: toggleSleep(state.data, event.companion, today) };
@@ -295,9 +349,16 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
     const key = tutorialKey(state.data.settings.mode ?? 'speak');
     return { ...state, data: { ...state.data, [key]: true } };
   }
-  if (event.type === 'resetTutorial' && state.view === 'admin') {
-    const key = tutorialKey(event.mode); // B-89: je Modus getrennt
-    return state.data[key] ? { ...state, data: { ...state.data, [key]: false } } : state;
+  if (event.type === 'toggleTutorial' && state.view === 'admin') {
+    const key = tutorialKey(event.mode); // B-89: je Modus getrennt; B-108: an und wieder aus
+    return { ...state, data: { ...state.data, [key]: !state.data[key] } };
+  }
+  if (event.type === 'toggleFlower' && state.view === 'admin') {
+    const { flower } = event;
+    if (!canToggleFlower(state.data, flower)) return state;
+    const on = state.data.enabledFlowers;
+    const enabledFlowers = FLOWERS.filter((f) => (f === flower ? !on.includes(f) : on.includes(f)));
+    return { ...state, data: { ...state.data, enabledFlowers } };
   }
   if (event.type === 'toggleBrake' && state.view === 'admin') {
     return { ...state, data: { ...state.data, brakeNew: !state.data.brakeNew } };
@@ -326,6 +387,20 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
           .filter((w) => off.includes(w) || w === id);
     const disabledWords = { ...state.data.disabledWords, [language]: next };
     return { ...state, data: { ...state.data, disabledWords } };
+  }
+  if (event.type === 'moveWord' && state.view === 'admin') {
+    const { language, mode, id, box } = event;
+    if (!vocabulary(language).some((w) => w.id === id)) return state;
+    if (box !== null && (!Number.isInteger(box) || box < 0 || box > MAX_BOX)) return state;
+    const key = progressKey(mode);
+    const entries = state.data[key][language];
+    const current = entries[id];
+    if ((current?.box ?? null) === box) return state; // gleiche Zeile: nichts zu tun
+    const next = { ...entries };
+    if (box === null) delete next[id];
+    else next[id] = current ? { ...current, box } : { box, seen: 0, lastSeenAt: event.at };
+    const progress = { ...state.data[key], [language]: next };
+    return { ...state, data: { ...state.data, [key]: progress } };
   }
   if (event.type === 'resetProgress' && state.view === 'admin') {
     const key = progressKey(event.mode);

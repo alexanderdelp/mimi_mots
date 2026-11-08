@@ -64,7 +64,7 @@ export default defineConfig({
       injectRegister: 'script-defer',
       manifest: false, // eigenes public/manifest.webmanifest (B-50)
       workbox: {
-        globPatterns: ['**/*.{html,js,css,woff2,svg,png,mp3,webmanifest}'],
+        globPatterns: ['**/*.{html,js,css,woff2,svg,png,webp,mp3,webmanifest}'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
       },

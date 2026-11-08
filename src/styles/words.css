@@ -1,0 +1,197 @@
+/* „Meine Wörter“ (B-107): Lernstand fürs Kind – nur ansehen. Kopfleiste mit Haus-Button, darunter
+   Modus und Sprache, dann fünf Zeilen mit Emoji. Keine Texte, keine Zahlen, nur lila Punkte. */
+
+/* Buch-Button auf Start- und Schlafseite, links in der Kopfleiste */
+.words-button,
+.view--words .words__home,
+.view--garden .garden__home {
+  width: 88px;
+  height: 88px;
+}
+
+.words-button svg,
+.view--words .words__home svg,
+.view--garden .garden__home svg {
+  width: 48px;
+  height: 48px;
+}
+
+.view--words {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.words__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2dvh, 20px);
+  padding: clamp(12px, 2dvh, 24px) 24px;
+}
+
+.words__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+
+.words__modes,
+.words__languages {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* Gruppennamen nur für Screenreader – kein Text fürs Kind */
+.words__modes .choice-group__title,
+.words__languages .choice-group__title {
+  display: none;
+}
+
+.words__modes .choice-group__tiles,
+.words__languages .choice-group__tiles {
+  gap: 12px;
+}
+
+.words__modes .choice-tile {
+  width: 88px;
+  height: 88px;
+  padding: 10px;
+}
+
+.words__languages .choice-tile {
+  width: 112px;
+  height: 88px;
+  padding: 12px;
+}
+
+.words__flag {
+  width: 80px;
+  height: 54px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.words__shelf {
+  --word-size: 72px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.words__row {
+  flex: 1 0 auto;
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+  gap: 16px;
+  min-height: calc(var(--word-size) + 8px);
+}
+
+.words__row + .words__row {
+  border-top: 2px solid var(--lila-100);
+}
+
+/* 1–5 gleich große lila Punkte: kennzeichnen die Zeile, ohne zu bewerten */
+.words__dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.words__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--lila-500);
+}
+
+.words__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 4px 0;
+}
+
+.words__word {
+  font-size: calc(var(--word-size) * 0.8);
+  line-height: var(--word-size);
+  width: var(--word-size);
+  text-align: center;
+}
+
+/* iPhone quer (B-76): gleiche Anordnung, kleinere Maße, Schaltflächen ≥ 44 px */
+@media (max-height: 500px) {
+  .words-button,
+  .view--words .words__home,
+  .view--garden .garden__home {
+    width: 44px;
+    height: 44px;
+  }
+
+  .words-button svg,
+  .view--words .words__home svg,
+  .view--garden .garden__home svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .words__body {
+    gap: 8px;
+    padding: 8px 16px;
+  }
+
+  .words__toolbar {
+    gap: 24px;
+  }
+
+  .words__modes .choice-group__tiles,
+  .words__languages .choice-group__tiles {
+    gap: 8px;
+  }
+
+  .words__modes .choice-tile {
+    width: 44px;
+    height: 44px;
+    padding: 4px;
+  }
+
+  .words__languages .choice-tile {
+    width: 64px;
+    height: 44px;
+    padding: 4px;
+  }
+
+  .words__flag {
+    width: 40px;
+    height: 28px;
+  }
+
+  .words__shelf {
+    padding: 4px 12px;
+  }
+
+  .words__row {
+    grid-template-columns: 56px 1fr;
+    gap: 8px;
+  }
+
+  .words__dots {
+    gap: 3px;
+  }
+
+  .words__dot {
+    width: 8px;
+    height: 8px;
+  }
+}
