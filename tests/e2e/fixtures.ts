@@ -84,7 +84,9 @@ async function silentMedia(page: Page) {
     Object.defineProperty(proto, 'src', {
       configurable: true,
       get(this: HTMLMediaElement) {
-        return sources.get(this) ?? '';
+        // `new Audio(url)` setzt das Attribut, nicht die Eigenschaft
+        const attr = this.getAttribute('src');
+        return sources.get(this) ?? (attr ? new URL(attr, location.href).href : '');
       },
       set(this: HTMLMediaElement, url: string) {
         sources.set(this, new URL(url, location.href).href);
