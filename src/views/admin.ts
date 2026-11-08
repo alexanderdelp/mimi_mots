@@ -129,7 +129,7 @@ export function renderAdmin(store: Store): ViewHandle {
   view.dataset.view = 'admin';
 
   // B-86: Zurück-Pfeil statt Haus – zurück zur Start- bzw. Schlafseite
-  const home = roundButton('Zurück', 'back', 'home-button admin__home');
+  const home = roundButton('Zurück', 'home', 'home-button admin__home');
   home.addEventListener('click', () => store.dispatch({ type: 'leave' }));
 
   // B-89: Lernstand je Modus – gleiche Symbole wie auf der Startseite

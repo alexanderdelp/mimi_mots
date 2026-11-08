@@ -7,6 +7,9 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 Erledigte Aufgaben samt Akzeptanztests stehen im Archiv `docs/archiv/backlog-erledigt.md` (nur bei Bedarf lesen).
 
 ## Offen
+- [ ] **B-111 Haus statt Pfeil im Elternbereich**: Der Zurück-Button im Elternbereich zeigt statt des Pfeils das Haus – wie in „Meine Wörter“ (gleiche Symbolgröße). Das Pfeil-Symbol „Zurück“ entfällt (Nutzerwunsch 2026-11-08).
+  - AT-111.1: Im Elternbereich zeigt der Button oben links („Zurück“) das Haus-Symbol, kein Pfeil; Button und Symbol so groß wie in „Meine Wörter“ (alle Viewports).
+  - AT-111.2: Tipp auf das Haus führt wie bisher zur Startseite.
 - [ ] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten.
 - [ ] **B-90 Mehrere Kinder** (nach B-97, baut auf dem Kind-Profil auf): Seit B-97 gehören alle Daten zu einem Kind in `children`; B-90 erlaubt weitere. Auf der Begrüßung wählt man das Kind (je Kind eine große Kachel mit Namen, danach gilt `activeChildId`); mit nur einem Kind bleibt es bei „Hallo Lina!“. Weitere Kinder nur im Elternbereich anlegen (sonst legt man sich 30 Kinder an), dort auch Umbenennen und Löschen (mit Sicherheitsabfrage) und der Lernstand je Kind. Je Kind eigene Auswahl, eigener Lernstand, Schlafzustand, Tutorials und ausgeschaltete Wörter (steckt seit B-97 schon im Kind). Vorher klären: Gelten Sprachen, Bremse, Rundendauer und der Schlaf der Tiere je Kind (so seit B-97) oder für das ganze Gerät?
   - Entschieden (2026-11-01): Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind (wie seit B-97) – dynamischer, und bei einem Kind ohne Unterschied.
