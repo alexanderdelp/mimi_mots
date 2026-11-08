@@ -524,3 +524,7 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-112.4: Hat die Pflanze so viele abgeschlossene Runden erlebt wie nötig (3–6), wächst sie eine Stufe; der Abschluss zeigt die neue Stufe neben dem Begleiter. Ohne Wachstum zeigt der Abschluss keine Blume.
   - AT-112.5: Blüht die letzte Pflanze, darf das Kind nach der nächsten abgeschlossenen Runde einen neuen Samen wählen; die blühende bleibt im Garten.
   - AT-112.6: Samenwahl, Abschluss mit Blume und Garten (auch mit vielen Pflanzen) passen ohne Scrollen auf alle Viewports.
+- [x] **B-105 App startet im Dev-Server nicht** (Fehler aus B-98): `src/version.ts` lud `versionLabel` aus `tools/build-info.ts`, und die Datei importiert `node:child_process`. Im Produktionsbuild fällt das weg, unter `npm run dev` bleibt `#app` leer. `versionLabel` liegt jetzt in `src/version.ts`; `tools/build-info.ts` nutzt nur noch `vite.config.ts`.
+  - AT-105.1: Im Dev-Server startet die App ohne Konsolenfehler und zeigt ihre Ansicht.
+  - AT-105.2: Im Dev-Server zeigt der Elternbereich unter „Sonstiges“ die Versionszeile (Version · Commit · Datum).
+  - AT-105.3: Aus `src/main.ts` erreichbarer Code lädt nichts aus `node:*` (Unit-Test).

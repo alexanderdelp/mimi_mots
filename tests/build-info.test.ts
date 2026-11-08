@@ -1,13 +1,8 @@
 // B-98: Version, Commit und Datum des Builds (AT-98.2, AT-98.4).
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import {
-  UNKNOWN,
-  formatBuildDate,
-  resolveCommit,
-  shortCommit,
-  versionLabel,
-} from '../tools/build-info';
+import { UNKNOWN, formatBuildDate, resolveCommit, shortCommit } from '../tools/build-info';
+import { versionLabel } from '../src/version';
 
 describe('formatBuildDate (AT-98.2)', () => {
   it('schreibt TT.MM.JJJJ zweistellig', () => {
