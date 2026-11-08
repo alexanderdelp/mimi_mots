@@ -15,14 +15,15 @@ import {
   type Settings,
 } from './storage';
 
-export type ViewName = 'welcome' | 'start' | 'round' | 'end' | 'sleep' | 'admin';
+export type ViewName = 'welcome' | 'start' | 'round' | 'end' | 'sleep' | 'admin' | 'words';
 
 export type AppEvent =
   | { type: 'name'; name: string } // Begrüßung: Name des Kinds eingeben (B-97)
   | { type: 'enter' } // Begrüßung → Start (nur mit Namen, B-97)
   | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
-  | { type: 'home' } // Abschluss → Start (bzw. Schlafseite, wenn beide Begleiter schlafen)
+  | { type: 'home' } // Abschluss bzw. „Meine Wörter“ → Start (bzw. Schlafseite, wenn beide schlafen)
+  | { type: 'words' } // Start/Schlafseite → „Meine Wörter“: Lernstand fürs Kind (B-107)
   | { type: 'admin' } // Begrüßung/Start/Schlafseite → Elternbereich (Halten des Icons, B-69/B-97)
   | { type: 'leave' } // Elternbereich → zurück (Begrüßung oder Start) bzw. Schlafseite
   | { type: 'toggleSleep'; companion: Companion } // Elternbereich: Tier wecken/hinlegen (B-94)
@@ -179,11 +180,12 @@ export interface AppState {
 /** Erlaubte Ansichtswechsel; alles andere wird ignoriert. */
 const TRANSITIONS: Record<ViewName, Partial<Record<AppEvent['type'], ViewName>>> = {
   welcome: { enter: 'start', admin: 'admin' },
-  start: { play: 'round', admin: 'admin' },
+  start: { play: 'round', admin: 'admin', words: 'words' },
   round: { finish: 'end' },
   end: { home: 'start' },
-  sleep: { admin: 'admin' },
+  sleep: { admin: 'admin', words: 'words' },
   admin: {},
+  words: {},
 };
 
 export function nextView(view: ViewName, event: AppEvent): ViewName {
@@ -279,6 +281,10 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
   // B-87: Abbruch im Tutorial – zurück zur Auswahl, niemand schläft ein, Tutorial bleibt offen
   if (event.type === 'finish' && state.view === 'round' && !tutorialSeen(state.data)) {
     return { ...state, view: 'start', round: null };
+  }
+  // B-107: aus „Meine Wörter“ zurück zur Start- bzw. Schlafseite (nur ansehen, nichts ändert sich)
+  if (event.type === 'home' && state.view === 'words') {
+    return { ...state, view: allAsleep(state.data) ? 'sleep' : 'start' };
   }
   if (event.type === 'home' && state.view === 'end') {
     const data = withRestSettings(state.data);

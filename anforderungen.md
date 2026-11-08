@@ -93,7 +93,7 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 ### 3.6 Abschluss und Schlaf
 - **Abschluss:** Begleiter groß in der Pose „winkt“, Text „Bis zum nächsten Mal!“, runder Haus-Button („Zurück“). Keine Zusammenfassung, keine Anzahl Wörter. Gleich, ob die Runde per Zeitablauf oder [×] endet.
 - Mit dem Erreichen des Abschlusses schläft der Begleiter bis zum nächsten Tag (lokales Datum). Modi verbrauchen sich nicht.
-- **Schlafseite:** Schlafen beide, führt der Haus-Button (und jedes Öffnen der App) zur Schlafseite: Kopfleiste, Bild beider Begleiter schlafend, „Gute Nacht und bis morgen!“, keine Schaltfläche. Aufwecken nur im Elternbereich.
+- **Schlafseite:** Schlafen beide, führt der Haus-Button (und jedes Öffnen der App) zur Schlafseite: Kopfleiste, Bild beider Begleiter schlafend, „Gute Nacht und bis morgen!“, nur der Buch-Button zu „Meine Wörter“ (§3.9). Aufwecken nur im Elternbereich.
 - An einem späteren Tag wachen alle von selbst auf – beim Öffnen und beim Zurückholen aus dem Hintergrund; von der Schlafseite geht es dann zur Begrüßung.
 
 ### 3.7 Elternbereich
@@ -104,6 +104,11 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 
 ### 3.8 Hochformat
 - Overlay über jeder Ansicht mit dem gewählten Begleiter (ohne Wahl Mimi) beim Radschlagen und Dreh-Symbol, ohne Text („iPad drehen“ nur für Screenreader); App-State bleibt erhalten, Timer pausiert.
+
+### 3.9 Meine Wörter
+- Runder Buch-Button links in der Kopfleiste von Start- und Schlafseite („Meine Wörter“ nur für Screenreader); der Haus-Button führt zurück zur Startseite bzw., wenn beide Begleiter schlafen, zur Schlafseite (B-107).
+- Oben Modus (Sprechen | Hören) und die eingeschalteten Sprachen mit Wörtern; vorausgewählt wie auf der Startseite. Die Wahl gilt nur hier und wird nicht gespeichert.
+- Darunter fünf Zeilen, oben Stufe 0, unten Stufe 4, je mit 1–5 lila Punkten statt Beschriftung. Darin die eingeschalteten Wörter mit Lernstand im gewählten Modus als Emoji; neue und ausgeschaltete Wörter fehlen. Die Emoji werden kleiner, wenn viele Wörter in einer Zeile stehen. Nichts ist einstellbar, kein Weg in den Elternbereich.
 
 ## 4. Avatare
 | Pose | Mimi | Mots | Einsatz |
@@ -300,6 +305,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Zwei Reiter rechts in der Kopfleiste, beim Öffnen „Sprachen“; jede Einstellung mit kurzer Erklärung. Sprachkacheln dort 100 px breit, damit vier Flaggen auf 1024 px passen. Modi stehen vor den Flaggen; Gruppennamen nur für Screenreader, sonst passt die Leiste nicht auf 1024 px; die Sicherheitsabfrage nimmt die ganze Leiste ein (B-83, B-89).
 - Schalter als Auswahlkacheln wie bei der Tierauswahl („Bremsen“, „Mimi“, „Mots“; markiert = an bzw. schläft), nur Text, keine Avatare. Hingelegt wird wie nach einer Runde (bis morgen); schlafen Tiere noch vom Vortag, gilt beim Umschalten erst der neue Tag. Die Auswahl der Startseite wird erst beim Verlassen angepasst (B-86, B-94).
 - Kein Hinweis auf die Stimmwahl in der App, nur „Noch keine Wörter vorhanden“ (B-86).
+- Wörter per Ziehen in eine Stufe legen (B-106): eine Ansicht für Tippen (an/aus) und Ziehen (ab 8 px Bewegung) statt Umschalter „Auswählen | Verschieben“; „Neu“ ist ein normales Ziel. Das letzte eingeschaltete Wort trägt seitdem `aria-disabled` statt `disabled`, damit es ziehbar bleibt (2026-11-08).
 - Version „Version · Commit · Build-Datum“ im Reiter „Sonstiges“, beim Bauen per Vite `define` eingesetzt (Commit aus `git rev-parse`, sonst `GITHUB_SHA`, sonst „unbekannt“ – der Build bricht nie ab). Jeder Build ändert den Bundle-Hash und damit den Precache; das stille Update ist gewollt. Daneben ein schlichter Kopier-Button (weiß mit Rahmen, zwei Rechtecke, danach kurz ein Haken) (B-98, B-99).
 - „Sonstiges“: Alle Bedienelemente stehen rechts in einer festen Spalte (iPad 320 px, iPhone 260 px) und füllen sie aus; die Breite hängt nicht vom Text ab. Rundendauer als nativer Schieberegler (3–10 Min., rastet je Minute ein, gespeichert beim Loslassen als `roundMin`) mit lila Füllung bis zur Griffmitte, weißem Griff (44 px, iPhone 32 px) und acht Strichen; ersetzt „−“/„+“. Im Screenshot-Test ist der Versionstext unsichtbar, weil Commit und Datum sich je Build ändern (B-100).
 
@@ -324,6 +330,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Leitprinzip 4 (≤ 200 ms): Der Ring beim Halten von [×] füllt sich über 600 ms (= Long-Press-Dauer) – Rückmeldung auf eine Bedienung, keine Deko (B-25). Der Stiftkreis im Tutorial zieht sich in 700 ms (B-87). Bei „Bewegung reduzieren“ beides sofort.
 - Leitprinzip 3 (88 px): Auf dem iPhone gelten 44 px (Apple-Mindestmaß) (B-76). Die Wort-Buttons im Elternbereich sind auch auf dem iPad nur 44 px – bei 61 Wörtern passen größere nicht auf einen Bildschirm, und der Bereich richtet sich an Erwachsene (B-88). Der Kopier-Button neben der Version ist ebenfalls 44 px (B-99), ebenso der Griff des Schiebereglers für die Rundendauer (iPhone 32 px bei mindestens 44 px Bedienhöhe) (B-100, Nutzerentscheidung).
 - Leitprinzip 3 (wenig Text): bis zu 12 Wörter je Tutorial-Sprechblase (B-87); sonst höchstens 14 Wörter je Kind-Ansicht außer den Lernwörtern (B-61, B-75). Die 14 bleibt, obwohl die Kachel aus B-75 entfallen ist: Die Auswahl kommt mit Name in der Kopfleiste und „Bei was?“ selbst auf etwa 14 Wörter (Nutzerentscheidung 2026-11-01).
+- Leitprinzip 1 und „Meine Wörter“ (B-107, Nutzerentscheidung 2026-11-08): Das Kind sieht seinen Lernstand, aber ohne Bewertung – keine Wörter wie „Stufe“, „sicher“, „noch üben“, keine Anzahl, keine Prozente, keine Zeile „Neu“; die Zeilen kennzeichnen gleich gefärbte lila Punkte (1–5). Erreichbar über einen Buch-Button auf Start- und Schlafseite.
 - Das Leitprinzipien-Review (B-61, 2026-10-30) ergab keine Abweichung; die Prüfungen laufen automatisch in `b60-layout.spec.ts` und `b61-leitprinzipien.spec.ts` (Momentaufnahme mit Textliste im Archiv).
 - Leitprinzip 6 bleibt unberührt vom Telegram-Bot (nur Entwicklung) und gilt bis zur Datenbank (siehe `backlog.md` → „Später“).
 
@@ -337,7 +344,6 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Eigene Ports: Dev-Server 5181, Vorschau und E2E 4181, jeweils `strictPort`; je Worktree per `DEV_PORT`/`PREVIEW_PORT`. Playwright startet immer einen eigenen Server – sonst testete es womöglich ein fremdes Projekt (2026-11-01, B-92).
 - Versionierung nach SemVer (Nutzerentscheidung): MINOR je neue Funktion, PATCH je Korrektur oder kleine Anpassung, keine neue Version für Doku/Tests/Werkzeuge; 1.0.0, sobald der Lernstand in Supabase liegt. Erhöht wird im Abnahme-Commit beim Merge, danach Git-Tag `vX.Y.Z`; keine GitHub-Releases (2026-11-01).
 - API-Testseite `tools/api-test.html` (B-104): nur Dev-Server, deshalb bleibt Leitprinzip 6 unberührt; ihre E2E-Tests laufen mit Attrappen gegen einen eigenen Dev-Server (Port Vorschau + 10). Geprüft 2026-11-06: Datamuse kann kein Französisch, die Free Dictionary API (dictionaryapi.dev) auch nicht, LibreTranslate.com verlangt einen Schlüssel, Web Speech kann Lautschrift nur per SSML versuchen.
-- Wörter per Ziehen in eine Stufe legen (B-106): eine Ansicht für Tippen (an/aus) und Ziehen (ab 8 px Bewegung) statt Umschalter „Auswählen | Verschieben“; „Neu“ ist ein normales Ziel. Das letzte eingeschaltete Wort trägt seitdem `aria-disabled` statt `disabled`, damit es ziehbar bleibt (2026-11-08).
 - Telegram-Bot für Updates und Fragen an den Menschen (`tools/telegram.mjs`): eigener Bot, weil Telegram je Bot nur eine Warteschlange hat; Zugangsdaten nur in `~/.config/mimi_mots/telegram.env` (2026-11-01).
 
 ## 12. Später

@@ -8,7 +8,7 @@ import {
   sleepingAvatarUrl,
   type Companion,
 } from '../components/avatar';
-import { createAppHeader, onIconHold } from '../components/app-header';
+import { createAppHeader, onIconHold, wordsButton } from '../components/app-header';
 import { createChoiceGroup } from '../components/choice-tile';
 import { icon } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
@@ -116,7 +116,8 @@ export function renderStart(store: Store): ViewHandle {
   const view = document.createElement('main');
   view.className = 'view view--start';
   view.dataset.view = 'start';
-  const header = createAppHeader({ name: data.name });
+  const words = wordsButton(() => store.dispatch({ type: 'words' })); // B-107
+  const header = createAppHeader({ start: words, name: data.name });
   const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
   view.append(header, groups, footer);
   return { el: view, dispose: release };
