@@ -1019,3 +1019,65 @@ describe('Begrüßung (B-97)', () => {
     expect(reduce(at('welcome', unnamed()), { type: 'admin' }).view).toBe('admin');
   });
 });
+
+describe('Wörter per Ziehen in eine Stufe legen (B-106)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+  const AT = '2026-11-08T09:00:00.000Z';
+  const entry = { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' };
+  const move = (
+    state: AppState,
+    id: string,
+    box: number | null,
+    mode: 'speak' | 'listen' = 'speak',
+    language: 'en' | 'fr' = 'en',
+  ) => reduce(state, { type: 'moveWord', language, mode, id, box, at: AT });
+  const withHund = () => {
+    const data = complete();
+    data.progress.en = { hund: entry };
+    data.listenProgress.en = { hund: entry };
+    data.progress.fr = { hund: entry };
+    return data;
+  };
+
+  it('AT-106.1: Stufe wechselt, seen und lastSeenAt bleiben', () => {
+    const next = move(at('admin', withHund()), 'hund', 1);
+    expect(next.data.progress.en.hund).toEqual({ ...entry, box: 1 });
+    expect(next.data.listenProgress.en.hund).toEqual(entry);
+    expect(next.data.progress.fr.hund).toEqual(entry);
+  });
+
+  it('AT-106.2: neues Wort bekommt einen Eintrag mit seen 0 und dem Zeitpunkt', () => {
+    const next = move(at('admin'), 'katze', 2);
+    expect(next.data.progress.en.katze).toEqual({ box: 2, seen: 0, lastSeenAt: AT });
+  });
+
+  it('AT-106.3: „Neu“ löscht den Lernstand nur in diesem Modus und dieser Sprache', () => {
+    const next = move(at('admin', withHund()), 'hund', null, 'listen');
+    expect(next.data.listenProgress.en).toEqual({});
+    expect(next.data.progress.en.hund).toEqual(entry);
+    expect(next.data.progress.fr.hund).toEqual(entry);
+  });
+
+  it('AT-106.4: ein ausgeschaltetes Wort bleibt beim Verschieben aus', () => {
+    const data = withHund();
+    data.disabledWords.en = ['hund'];
+    const next = move(at('admin', data), 'hund', 0);
+    expect(next.data.progress.en.hund.box).toBe(0);
+    expect(next.data.disabledWords.en).toEqual(['hund']);
+  });
+
+  it('AT-106.5: gleiche Zeile, falsche Stufe, fremdes Wort oder andere Ansicht ändern nichts', () => {
+    const admin = at('admin', withHund());
+    expect(move(admin, 'hund', 3)).toBe(admin);
+    expect(move(admin, 'katze', null)).toBe(admin);
+    for (const bad of [-1, 5, 1.5]) expect(move(admin, 'hund', bad)).toBe(admin);
+    expect(move(admin, 'gibtsnicht', 1)).toBe(admin);
+    const start = at('start', withHund());
+    expect(move(start, 'hund', 1)).toBe(start);
+  });
+});

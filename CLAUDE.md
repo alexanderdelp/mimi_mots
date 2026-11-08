@@ -74,7 +74,7 @@ src/
   views/view.ts      Typ ViewHandle
   version.ts         Versionszeile für den Elternbereich (B-98)
   components/        app-header.ts, avatar.ts, choice-tile.ts, copy-text.ts, fit-text.ts,
-                     icons.ts, long-press.ts, timer-dial.ts
+                     drag-move.ts, icons.ts, long-press.ts, timer-dial.ts
   styles/            tokens.css, base.css, components.css, je Ansicht welcome/start/round/end/
                      sleep/admin/portrait.css (B-92)
 scripts/             generate_audio.py (+ melo_synth.py, test_generate_audio.py), render-icons.mjs,

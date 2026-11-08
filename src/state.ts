@@ -6,6 +6,7 @@ import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
 import {
   LANGUAGES,
+  MAX_BOX,
   cleanName,
   isRoundMin,
   localDay,
@@ -28,6 +29,8 @@ export type AppEvent =
   | { type: 'resetProgress'; language: Language; mode: Mode } // Elternbereich: Lernstand leeren
   | { type: 'toggleLanguage'; language: Language } // Elternbereich: Sprache an/aus (B-73)
   | { type: 'toggleWord'; language: Language; id: string } // Elternbereich: Wort an/aus (B-88)
+  // Elternbereich: Wort per Ziehen in eine Stufe legen, null = „Neu“ (B-106); `at` als ISO-Zeitpunkt
+  | { type: 'moveWord'; language: Language; mode: Mode; id: string; box: number | null; at: string }
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
   | { type: 'resetTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus kommt wieder
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
@@ -326,6 +329,20 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
           .filter((w) => off.includes(w) || w === id);
     const disabledWords = { ...state.data.disabledWords, [language]: next };
     return { ...state, data: { ...state.data, disabledWords } };
+  }
+  if (event.type === 'moveWord' && state.view === 'admin') {
+    const { language, mode, id, box } = event;
+    if (!vocabulary(language).some((w) => w.id === id)) return state;
+    if (box !== null && (!Number.isInteger(box) || box < 0 || box > MAX_BOX)) return state;
+    const key = progressKey(mode);
+    const entries = state.data[key][language];
+    const current = entries[id];
+    if ((current?.box ?? null) === box) return state; // gleiche Zeile: nichts zu tun
+    const next = { ...entries };
+    if (box === null) delete next[id];
+    else next[id] = current ? { ...current, box } : { box, seen: 0, lastSeenAt: event.at };
+    const progress = { ...state.data[key], [language]: next };
+    return { ...state, data: { ...state.data, [key]: progress } };
   }
   if (event.type === 'resetProgress' && state.view === 'admin') {
     const key = progressKey(event.mode);

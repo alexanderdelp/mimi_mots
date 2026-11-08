@@ -1,6 +1,7 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
-// zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorial zurücksetzen,
+// zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88)
+// und per Ziehen in eine andere Stufe legen (B-106); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorial zurücksetzen,
 // Bremse für neue Wörter (B-82), Rundendauer (B-93, seit B-100 als Schieberegler), Version (B-98).
 // Keine Avatare; sonst dieselben Bausteine wie überall. B-100: alle Bedienelemente von
 // „Sonstiges“ stehen rechts in einer festen Spalte (Flucht).
@@ -23,6 +24,7 @@ import {
   type Progress,
 } from '../storage';
 import { copyText } from '../components/copy-text';
+import { enableDragMove } from '../components/drag-move';
 import { VERSION_LABEL } from '../version';
 import type { ViewHandle } from './view';
 
@@ -359,7 +361,8 @@ export function renderAdmin(store: Store): ViewHandle {
           chip.title = `${w.de} · ${w[language]}`;
           chip.setAttribute('aria-label', chip.title);
           chip.setAttribute('aria-pressed', String(!data.disabledWords[language].includes(w.id)));
-          chip.disabled = !canToggleWord(data, language, w.id); // das letzte Wort bleibt an
+          // das letzte Wort bleibt an; aria-disabled statt disabled, damit es ziehbar bleibt (B-106)
+          if (!canToggleWord(data, language, w.id)) chip.setAttribute('aria-disabled', 'true');
           chip.addEventListener('click', () =>
             store.dispatch({ type: 'toggleWord', language, id: w.id }),
           );
@@ -375,6 +378,21 @@ export function renderAdmin(store: Store): ViewHandle {
   const toolbar = el('div', 'admin__toolbar');
   toolbar.append(modes.el, languages.el, actions);
 
+  // B-106: Tippen schaltet (oben), Ziehen legt das Wort in eine andere Zeile; „Neu“ löscht den
+  // Lernstand des Worts in diesem Modus
+  const stopDrag = enableDragMove(levels, {
+    items: '.admin__word',
+    targets: '.admin__level',
+    onDrop: (item, target) => {
+      const id = item.dataset.wordId;
+      const level = target.dataset.level;
+      if (!id || level === undefined) return;
+      const box = level === 'neu' ? null : Number(level);
+      const at = new Date().toISOString();
+      store.dispatch({ type: 'moveWord', language, mode, id, box, at });
+    },
+  });
+
   languagesPanel.append(toolbar, levels);
   otherPanel.append(other);
   const body = el('div', 'admin__body');
@@ -385,5 +403,11 @@ export function renderAdmin(store: Store): ViewHandle {
   const unsubscribe = store.subscribe((state, previous) => {
     if (state.view === 'admin' && state.data !== previous.data) render();
   });
-  return { el: view, dispose: unsubscribe };
+  return {
+    el: view,
+    dispose: () => {
+      unsubscribe();
+      stopDrag();
+    },
+  };
 }

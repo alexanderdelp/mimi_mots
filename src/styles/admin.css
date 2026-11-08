@@ -175,9 +175,34 @@
   outline-offset: -3px;
 }
 
-/* das letzte eingeschaltete Wort: nicht ausschaltbar, sieht aber aus wie die anderen */
-.admin__word:disabled {
+/* das letzte eingeschaltete Wort: nicht ausschaltbar, sieht aber aus wie die anderen; ziehbar (B-106) */
+.admin__word[aria-disabled='true'] {
   cursor: default;
+}
+
+/* B-106: Ziehen in eine andere Stufe – der Finger zieht, die Seite bewegt sich nicht */
+.admin__word {
+  touch-action: none;
+}
+
+.admin__word[data-dragging='true'] {
+  opacity: 0.25;
+}
+
+.admin__level[data-drop-target='true'] {
+  border-radius: 12px;
+  background: var(--lila-100);
+  box-shadow: inset 0 0 0 3px var(--lila-700);
+}
+
+/* Kopie des Emojis unter dem Finger (hängt an <body>) */
+.drag-ghost {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transition: none;
 }
 
 /* B-73: ausgeschaltete Sprache im Elternbereich – wählbar, aber blass */
