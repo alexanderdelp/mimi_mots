@@ -57,6 +57,12 @@ const ICONS = {
     '<rect x="34" y="32" width="46" height="54" rx="8" />' +
     '<path d="M24 66 H22 A6 6 0 0 1 16 60 V20 A6 6 0 0 1 22 14 H58 A6 6 0 0 1 64 20 V22" /></g>',
   // B-107 „Meine Wörter“: aufgeschlagenes Buch
+  // Blume mit Stiel und Blatt: Garten des Kinds (B-112)
+  flower:
+    '<g fill="currentColor"><circle cx="50" cy="16" r="11" /><circle cx="64" cy="27" r="11" />' +
+    '<circle cx="59" cy="43" r="11" /><circle cx="41" cy="43" r="11" /><circle cx="36" cy="27" r="11" /></g>' +
+    '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M50 50 V88" /><path d="M50 76 C42 64 30 62 22 66 C28 76 40 80 50 76 Z" /></g>',
   book:
     '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round">' +
     '<path d="M50 28 C40 20 26 18 12 22 V80 C26 76 40 78 50 86 C60 78 74 76 88 80 V22 C74 18 60 20 50 28 Z" />' +

@@ -3,13 +3,15 @@
 
 /* Buch-Button auf Start- und Schlafseite, links in der Kopfleiste */
 .words-button,
-.view--words .words__home {
+.view--words .words__home,
+.view--garden .garden__home {
   width: 88px;
   height: 88px;
 }
 
 .words-button svg,
-.view--words .words__home svg {
+.view--words .words__home svg,
+.view--garden .garden__home svg {
   width: 48px;
   height: 48px;
 }
@@ -131,13 +133,15 @@
 /* iPhone quer (B-76): gleiche Anordnung, kleinere Maße, Schaltflächen ≥ 44 px */
 @media (max-height: 500px) {
   .words-button,
-  .view--words .words__home {
+  .view--words .words__home,
+  .view--garden .garden__home {
     width: 44px;
     height: 44px;
   }
 
   .words-button svg,
-  .view--words .words__home svg {
+  .view--words .words__home svg,
+  .view--garden .garden__home svg {
     width: 26px;
     height: 26px;
   }

@@ -3,6 +3,7 @@
 // B-97: Alle Daten gehören zu einem Kind (`children`, Platz für weitere – B-90); ids und
 // Zeitstempel so, dass die Kinder später 1 : 1 als Zeilen in Supabase passen. Daten älterer
 // Versionen (`mimi-mots:v1`) werden nicht übernommen – eine neue Version darf sie verwerfen.
+import { emptyGarden, sanitizeGarden, type Garden } from './garden';
 import { COMPANIONS, type Companion } from './components/avatar';
 import { FLOWERS, type Flower } from './data/flowers';
 import { hasVocabulary, vocabularyIds } from './data/vocabulary';
@@ -76,6 +77,8 @@ export interface ChildData {
   roundMin: number;
   /** B-109: im Elternbereich freigegebene Samen (mindestens einer). */
   enabledFlowers: Flower[];
+  /** B-112: Garten des Kinds – Pflanzen und Runden bis zur nächsten Stufe. */
+  garden: Garden;
 }
 
 /** Ein Kind mit id (UUID) und Zeitstempeln (ISO) – später eine Zeile in Supabase. */
@@ -123,6 +126,7 @@ export function childDefaults(): ChildData {
     disabledWords: { en: [], fr: [], ja: [], it: [] },
     roundMin: ROUND_MIN,
     enabledFlowers: [...FLOWERS],
+    garden: emptyGarden(),
   };
 }
 
@@ -284,6 +288,7 @@ export function sanitizeChild(raw: unknown): ChildData {
     disabledWords: sanitizeDisabled(raw.disabledWords), // fehlt bei älteren Daten → alle an
     roundMin: isRoundMin(raw.roundMin) ? raw.roundMin : ROUND_MIN, // fehlt bei älteren Daten → 5
     enabledFlowers: sanitizeFlowers(raw.enabledFlowers), // fehlt bei älteren Daten → alle
+    garden: sanitizeGarden(raw.garden), // fehlt bei älteren Daten → leer
   };
 }
 

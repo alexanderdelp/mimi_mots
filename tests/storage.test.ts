@@ -55,6 +55,7 @@ const valid = (): ChildData => ({
   disabledWords: { en: ['hund'], fr: [], ja: [], it: [] },
   roundMin: 7,
   enabledFlowers: ['peony', 'clematis'],
+  garden: { plants: [{ flower: 'peony' as const, stage: 3 }], rounds: 2, need: 5 },
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -99,6 +100,7 @@ describe('defaults', () => {
       disabledWords: { en: [], fr: [], ja: [], it: [] },
       roundMin: 5,
       enabledFlowers: ['sunflower', 'peony', 'clematis'],
+      garden: { plants: [], rounds: 0, need: 3 },
     });
   });
 
@@ -624,5 +626,50 @@ describe('Samen (B-109)', () => {
     }
     const mixed = sanitizeChild({ ...valid(), enabledFlowers: ['clematis', 'rose', 'sunflower'] });
     expect(mixed.enabledFlowers).toEqual(['sunflower', 'clematis']);
+  });
+});
+
+describe('Garten (B-112)', () => {
+  it('fehlt bei älteren Daten → leer, kein Datenverlust', () => {
+    const old: Partial<ChildData> = valid();
+    delete old.garden;
+    const child = sanitizeChild(old);
+    expect(child.garden).toEqual({ plants: [], rounds: 0, need: 3 });
+    expect(child.progress).toEqual(valid().progress);
+  });
+
+  it('gültiger Garten bleibt erhalten', () => {
+    expect(sanitizeChild(valid()).garden).toEqual(valid().garden);
+  });
+
+  it('Ungültiges fällt einzeln weg', () => {
+    const garden = {
+      plants: [
+        { flower: 'sunflower', stage: 5 },
+        { flower: 'rose', stage: 2 },
+        { flower: 'peony', stage: 0 },
+        { flower: 'peony', stage: 6 },
+        { flower: 'clematis', stage: 2.5 },
+        'peony',
+        { flower: 'clematis', stage: 1 },
+      ],
+      rounds: -1,
+      need: 9,
+    };
+    expect(sanitizeChild({ ...valid(), garden }).garden).toEqual({
+      plants: [
+        { flower: 'sunflower', stage: 5 },
+        { flower: 'clematis', stage: 1 },
+      ],
+      rounds: 0,
+      need: 3,
+    });
+    for (const bad of [null, 'x', 42, []]) {
+      expect(sanitizeChild({ ...valid(), garden: bad }).garden).toEqual({
+        plants: [],
+        rounds: 0,
+        need: 3,
+      });
+    }
   });
 });

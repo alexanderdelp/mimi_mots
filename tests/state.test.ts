@@ -18,6 +18,7 @@ import {
 } from '../src/state';
 import { createStore as createRealStore } from '../src/state';
 import { createStore, createStore as createStoreAt } from './test-store';
+import { createSession } from '../src/scheduler';
 
 /** Daten mit vollständiger Auswahl, damit Play erlaubt ist. */
 const complete = () => {
@@ -1112,5 +1113,82 @@ describe('Samen freigeben (B-109)', () => {
   it('nur im Elternbereich', () => {
     const start = at('start');
     expect(toggle(start, 'peony')).toBe(start);
+  });
+});
+
+describe('Garten (B-112)', () => {
+  const AT = '2026-11-08T10:00:00.000Z';
+  const roundAt = (data = complete(), expired = true): AppState => ({
+    view: 'round',
+    portrait: false,
+    data,
+    round: { session: createSession(), wordId: 'dog', revealed: true, expired },
+  });
+  const rate = (state: AppState) =>
+    reduce(state, { type: 'rate', rating: 'known', at: AT }, '2026-11-08');
+  const growing = (rounds: number, need: number) => {
+    const data = complete();
+    data.garden = { plants: [{ flower: 'peony', stage: 1 }], rounds, need };
+    return data;
+  };
+
+  it('AT-112.1: abgeschlossen ohne Samen → Abschluss, dann Samenwahl; Einpflanzen, dann Start', () => {
+    const end = rate(roundAt());
+    expect(end.view).toBe('end');
+    expect(end.harvest).toBe('choose');
+    const seed = reduce(end, { type: 'home' });
+    expect(seed.view).toBe('seed');
+    expect(reduce(seed, { type: 'home' })).toBe(seed); // erst einpflanzen
+    const planted = reduce(seed, { type: 'plant', flower: 'clematis', at: AT });
+    expect(planted.data.garden.plants).toEqual([{ flower: 'clematis', stage: 1 }]);
+    expect(reduce(planted, { type: 'plant', flower: 'peony', at: AT })).toBe(planted);
+    const home = reduce(planted, { type: 'home' });
+    expect(home.view).toBe('start');
+    expect(home.harvest).toBeNull();
+  });
+
+  it('AT-112.1: nur freigegebene Samen lassen sich pflanzen', () => {
+    const data = complete();
+    data.enabledFlowers = ['sunflower'];
+    const seed: AppState = { view: 'seed', portrait: false, data, round: null, harvest: 'choose' };
+    expect(reduce(seed, { type: 'plant', flower: 'peony', at: AT })).toBe(seed);
+  });
+
+  it('AT-112.2: Abbruch per [×] zählt nicht und führt nicht zur Samenwahl', () => {
+    const aborted = reduce(roundAt(complete(), false), { type: 'finish' }, '2026-11-08');
+    expect(aborted.view).toBe('end');
+    expect(aborted.harvest).toBeNull();
+    expect(reduce(aborted, { type: 'home' }).view).toBe('start');
+    const growingAborted = reduce(roundAt(growing(2, 3), true), { type: 'finish' }, '2026-11-08');
+    expect(growingAborted.data.garden.rounds).toBe(2);
+  });
+
+  it('AT-112.4: zählt abgeschlossene Runden und wächst bei `need`', () => {
+    const counted = rate(roundAt(growing(1, 3)));
+    expect(counted.harvest).toBeNull();
+    expect(counted.data.garden.rounds).toBe(2);
+    expect(reduce(counted, { type: 'home' }).view).toBe('start');
+    const grew = rate(roundAt(growing(2, 3)));
+    expect(grew.harvest).toBe('grew');
+    expect(grew.data.garden.plants[0].stage).toBe(2);
+    expect(reduce(grew, { type: 'home' }).view).toBe('start');
+  });
+
+  it('AT-112.3: Garten nur mit Pflanze, zurück zur Start- bzw. Schlafseite', () => {
+    const start: AppState = { view: 'start', portrait: false, data: complete(), round: null };
+    expect(reduce(start, { type: 'garden' })).toBe(start);
+    const withPlant = { ...start, data: growing(0, 3) };
+    const garden = reduce(withPlant, { type: 'garden' });
+    expect(garden.view).toBe('garden');
+    expect(reduce(garden, { type: 'home' }).view).toBe('start');
+    const sleeping = growing(0, 3);
+    sleeping.rest = { sleeping: ['mimi', 'mots'], since: '2026-11-08' };
+    const fromSleep = reduce(
+      { view: 'sleep', portrait: false, data: sleeping, round: null },
+      { type: 'garden' },
+      '2026-11-08',
+    );
+    expect(fromSleep.view).toBe('garden');
+    expect(reduce(fromSleep, { type: 'home' }, '2026-11-08').view).toBe('sleep');
   });
 });

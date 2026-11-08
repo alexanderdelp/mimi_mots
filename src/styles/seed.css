@@ -1,0 +1,101 @@
+/* Samen wählen (B-112): Begleiter zeigt auf die Samen; nach dem Einpflanzen das Bild
+   „eingepflanzt“ und der Haus-Button. */
+.view--seed {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+}
+
+.seed__body {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 5dvw, 64px);
+  padding: 16px 24px clamp(24px, 4dvh, 40px);
+}
+
+.seed__body .avatar {
+  --avatar-h: min(440px, 60dvh);
+  flex: none;
+}
+
+.seed__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 3dvh, 32px);
+  min-width: 0;
+}
+
+.seed__text {
+  font-size: clamp(28px, 4.5dvh, 40px);
+  font-weight: 800;
+  text-align: center;
+}
+
+.seed__tiles {
+  display: flex;
+  gap: clamp(16px, 2.5dvw, 28px);
+}
+
+/* Samen-Kacheln: alle gleich groß, gleich gestaltet – keine Auswahl ist besser als die andere */
+.seed__tile {
+  width: clamp(120px, 20dvh, 180px);
+  height: clamp(120px, 20dvh, 180px);
+  padding: 16px;
+  border: var(--border-default);
+  border-radius: var(--radius-l);
+  background: var(--lila-100);
+  box-shadow: var(--shadow);
+}
+
+.seed__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.seed__planted {
+  height: min(320px, 42dvh);
+  width: auto;
+  aspect-ratio: 220 / 240;
+  object-fit: contain;
+}
+
+/* iPhone quer (B-76): kompakt, Schaltflächen ≥ 44 px */
+@media (max-height: 500px) {
+  .seed__body {
+    gap: 24px;
+    padding: 8px 16px;
+  }
+
+  .seed__body .avatar {
+    --avatar-h: calc(100dvh - 56px - 32px);
+  }
+
+  .seed__stage {
+    gap: 12px;
+  }
+
+  .seed__text {
+    font-size: 22px;
+  }
+
+  .seed__tiles {
+    gap: 12px;
+  }
+
+  .seed__tile {
+    width: 88px;
+    height: 88px;
+    padding: 8px;
+  }
+
+  .seed__planted {
+    height: calc(100dvh - 56px - 64px - 60px);
+  }
+}
