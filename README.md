@@ -4,6 +4,7 @@ PWA für ein quergelegtes iPad (auch iPhone quer), mit der eine Erstklässlerin 
 
 - Kurze Runden (Standard 5 Minuten) im Modus **Sprechen** (Bild → Fremdwort) oder **Hören** (Fremdwort → Bild), mit Tutorial beim ersten Mal; danach schläft der Begleiter bis morgen.
 - Neutrale Selbsteinschätzung („Wusste ich“ / „Noch üben“), Wortauswahl nach Leitner – keine Punkte, kein Lob.
+- „Meine Wörter“ (Buch-Button): Das Kind sieht seine Wörter nach Stufe – ohne Zahlen, ohne Bewertung.
 - Versteckter Elternbereich (App-Icon gedrückt halten): Lernstand, Sprachen und Wörter ein-/ausschalten, Rundendauer, Tiere wecken.
 - Offline nach dem ersten Laden, keine Server, kein Tracking.
 

@@ -1,7 +1,8 @@
 // Schlafseite (B-65): Beide Begleiter schlafen. Kopfleiste wie überall, Bild und ein Satz.
 // Aufwecken nur im Elternbereich; der öffnet sich durch verstecktes Halten des Icons (B-69).
+// B-107: links der Buch-Button zu „Meine Wörter“.
 import { bothSleepingUrl } from '../components/avatar';
-import { createAppHeader, onIconHold } from '../components/app-header';
+import { createAppHeader, onIconHold, wordsButton } from '../components/app-header';
 import type { Store } from '../state';
 import type { ViewHandle } from './view';
 
@@ -12,7 +13,8 @@ export function renderSleep(store: Store): ViewHandle {
   view.className = 'view view--sleep';
   view.dataset.view = 'sleep';
 
-  const header = createAppHeader({ name: store.getState().data.name });
+  const words = wordsButton(() => store.dispatch({ type: 'words' })); // B-107
+  const header = createAppHeader({ start: words, name: store.getState().data.name });
   const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
 
   const picture = document.createElement('img');

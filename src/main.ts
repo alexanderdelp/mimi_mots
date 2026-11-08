@@ -9,6 +9,7 @@ import './styles/round.css';
 import './styles/end.css';
 import './styles/sleep.css';
 import './styles/admin.css';
+import './styles/words.css';
 import { COMPANION_NAMES, cartwheelAvatarUrl } from './components/avatar';
 import { icon } from './components/icons';
 import { activeChild, childData, load, persistOnChange } from './storage';
@@ -20,6 +21,7 @@ import { renderRound } from './views/round';
 import { renderEnd } from './views/end';
 import { renderSleep } from './views/sleep';
 import { renderAdmin } from './views/admin';
+import { renderWords } from './views/words';
 
 const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
   welcome: renderWelcome,
@@ -28,6 +30,7 @@ const VIEWS: Record<ViewName, (store: Store) => ViewHandle> = {
   end: renderEnd,
   sleep: renderSleep,
   admin: renderAdmin,
+  words: renderWords,
 };
 
 const PORTRAIT_QUERY = '(orientation: portrait)';

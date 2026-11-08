@@ -70,13 +70,14 @@ src/
   views/tutorial.ts  Tutorial der Lernrunde (B-102)
   views/end.ts       Abschluss
   views/sleep.ts     Schlafseite (beide Begleiter schlafen, B-65)
+  views/words.ts     „Meine Wörter“: Lernstand fürs Kind, nur ansehen (B-107)
   views/admin.ts     Elternbereich (verstecktes Halten des Icons, B-69; Reiter Sprachen/Sonstiges, B-83)
   views/view.ts      Typ ViewHandle
   version.ts         Versionszeile für den Elternbereich (B-98)
   components/        app-header.ts, avatar.ts, choice-tile.ts, copy-text.ts, fit-text.ts,
                      drag-move.ts, icons.ts, long-press.ts, timer-dial.ts
   styles/            tokens.css, base.css, components.css, je Ansicht welcome/start/round/end/
-                     sleep/admin/portrait.css (B-92)
+                     sleep/admin/words/portrait.css (B-92)
 scripts/             generate_audio.py (+ melo_synth.py, test_generate_audio.py), render-icons.mjs,
                      run-python.mjs
 tools/               hoerpruefung.html, stimmwahl.html, api-test.html (nur Dev-Server, B-104), telegram.mjs

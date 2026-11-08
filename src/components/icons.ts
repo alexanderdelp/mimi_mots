@@ -56,6 +56,11 @@ const ICONS = {
     '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round">' +
     '<rect x="34" y="32" width="46" height="54" rx="8" />' +
     '<path d="M24 66 H22 A6 6 0 0 1 16 60 V20 A6 6 0 0 1 22 14 H58 A6 6 0 0 1 64 20 V22" /></g>',
+  // B-107 „Meine Wörter“: aufgeschlagenes Buch
+  book:
+    '<g fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round">' +
+    '<path d="M50 28 C40 20 26 18 12 22 V80 C26 76 40 78 50 86 C60 78 74 76 88 80 V22 C74 18 60 20 50 28 Z" />' +
+    '<path d="M50 28 V86" /></g>',
 } as const;
 
 export type IconName = keyof typeof ICONS;
