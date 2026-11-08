@@ -229,10 +229,15 @@ test.describe('B-89 Tutorial der Hörrunde', () => {
         'Tutorial Sprechen',
         'Tutorial Hören',
       ]);
-      await btn(page, 'Hören zurücksetzen').click();
-      await expect(btn(page, 'Hören zurücksetzen')).toBeDisabled();
-      await expect(btn(page, 'Sprechen zurücksetzen')).toBeEnabled();
+      // B-108: Schalter statt Button – markiert = kommt beim nächsten Mal
+      await expect(btn(page, 'Tutorial hören')).toHaveAttribute('aria-pressed', 'false');
+      await btn(page, 'Tutorial hören').click();
+      await expect(btn(page, 'Tutorial hören')).toHaveAttribute('aria-pressed', 'true');
+      await expect(btn(page, 'Tutorial sprechen')).toHaveAttribute('aria-pressed', 'false');
       expect(await stored(page)).toMatchObject({ tutorialDone: true, listenTutorialDone: false });
+      await btn(page, 'Tutorial hören').click(); // AT-108.2: wieder aus
+      await expect(btn(page, 'Tutorial hören')).toHaveAttribute('aria-pressed', 'false');
+      expect(await stored(page)).toMatchObject({ tutorialDone: true, listenTutorialDone: true });
       const fits = await page.evaluate(
         () =>
           document.documentElement.scrollHeight <= innerHeight &&

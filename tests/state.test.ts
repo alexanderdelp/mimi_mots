@@ -772,15 +772,16 @@ describe('Tutorial abbrechen (B-87)', () => {
     expect(store.getState().data).toMatchObject({ tutorialDone: true, listenTutorialDone: true });
   });
 
-  it('AT-89.6: resetTutorial setzt nur das Tutorial des Modus zurück', () => {
+  it('AT-89.6/AT-108.2: toggleTutorial schaltet nur das Tutorial des Modus an und wieder aus', () => {
     const data = complete();
     data.listenTutorialDone = true;
     const admin: AppState = { view: 'admin', portrait: false, data, round: null };
-    const listen = reduce(admin, { type: 'resetTutorial', mode: 'listen' });
+    const listen = reduce(admin, { type: 'toggleTutorial', mode: 'listen' });
     expect(listen.data).toMatchObject({ tutorialDone: true, listenTutorialDone: false });
-    const speak = reduce(admin, { type: 'resetTutorial', mode: 'speak' });
+    const speak = reduce(admin, { type: 'toggleTutorial', mode: 'speak' });
     expect(speak.data).toMatchObject({ tutorialDone: false, listenTutorialDone: true });
-    expect(reduce(listen, { type: 'resetTutorial', mode: 'listen' })).toBe(listen);
+    const back = reduce(listen, { type: 'toggleTutorial', mode: 'listen' });
+    expect(back.data).toMatchObject({ tutorialDone: true, listenTutorialDone: true });
   });
 });
 
@@ -815,15 +816,15 @@ describe('Tutorial (B-74)', () => {
     return { view, portrait: false, data, round: null };
   };
 
-  it('tutorialDone nur in der Runde, resetTutorial nur im Elternbereich', () => {
+  it('tutorialDone nur in der Runde, toggleTutorial nur im Elternbereich', () => {
     expect(reduce(at('round', false), { type: 'tutorialDone' }).data.tutorialDone).toBe(true);
     const start = at('start', false);
     expect(reduce(start, { type: 'tutorialDone' })).toBe(start);
     expect(
-      reduce(at('admin', true), { type: 'resetTutorial', mode: 'speak' }).data.tutorialDone,
+      reduce(at('admin', true), { type: 'toggleTutorial', mode: 'speak' }).data.tutorialDone,
     ).toBe(false);
     const round = at('round', true);
-    expect(reduce(round, { type: 'resetTutorial', mode: 'speak' })).toBe(round);
+    expect(reduce(round, { type: 'toggleTutorial', mode: 'speak' })).toBe(round);
   });
 });
 

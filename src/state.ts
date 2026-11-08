@@ -33,7 +33,7 @@ export type AppEvent =
   // Elternbereich: Wort per Ziehen in eine Stufe legen, null = „Neu“ (B-106); `at` als ISO-Zeitpunkt
   | { type: 'moveWord'; language: Language; mode: Mode; id: string; box: number | null; at: string }
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
-  | { type: 'resetTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus kommt wieder
+  | { type: 'toggleTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus an/aus (B-108)
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
   | { type: 'roundMin'; minutes: number } // Elternbereich: Dauer einer Runde (B-93)
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
@@ -304,9 +304,9 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
     const key = tutorialKey(state.data.settings.mode ?? 'speak');
     return { ...state, data: { ...state.data, [key]: true } };
   }
-  if (event.type === 'resetTutorial' && state.view === 'admin') {
-    const key = tutorialKey(event.mode); // B-89: je Modus getrennt
-    return state.data[key] ? { ...state, data: { ...state.data, [key]: false } } : state;
+  if (event.type === 'toggleTutorial' && state.view === 'admin') {
+    const key = tutorialKey(event.mode); // B-89: je Modus getrennt; B-108: an und wieder aus
+    return { ...state, data: { ...state.data, [key]: !state.data[key] } };
   }
   if (event.type === 'toggleBrake' && state.view === 'admin') {
     return { ...state, data: { ...state.data, brakeNew: !state.data.brakeNew } };
