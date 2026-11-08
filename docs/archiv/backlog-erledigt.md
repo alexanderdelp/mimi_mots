@@ -499,3 +499,8 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-107.4: Nichts ist einstellbar: Die Emoji sind keine Schaltflächen, Tippen ändert nichts Gespeichertes; kein Gedrückthalten des Icons öffnet von hier den Elternbereich.
   - AT-107.5: Leitprinzip 1: kein Text wie „Stufe“, „sicher“, „noch üben“, keine Zahlen oder Prozente; die Zeilen kennzeichnet eine neutrale lila Grafik (1–5 Punkte), keine Rot-/Grün-Töne.
   - AT-107.6: Alles passt ohne Scrollen auf alle Viewports, auch mit allen Wörtern in einer Zeile (Emoji werden kleiner, bleiben sichtbar).
+- [x] **B-108 Tutorials als An-/Aus-Schalter**: Im Elternbereich („Sonstiges“) werden „Sprechen zurücksetzen“ und „Hören zurücksetzen“ zu Auswahlkacheln wie „Bremsen“: „Tutorial sprechen“ und „Tutorial hören“. Markiert = das Tutorial kommt beim nächsten Mal; Tippen schaltet um, auch wieder aus (Tutorial gilt als gesehen).
+  - AT-108.1: Im Reiter „Sonstiges“ stehen statt der Textbuttons die Kacheln „Tutorial sprechen“ und „Tutorial hören“ (gleiche Größe wie „Bremsen“, in derselben Spalte); markiert, solange das Tutorial des Modus noch offen ist.
+  - AT-108.2: Tipp schaltet das Tutorial des Modus an (kommt in der nächsten Runde) und wieder aus (gilt als gesehen); der andere Modus bleibt unberührt; gespeichert in `tutorialDone` bzw. `listenTutorialDone`.
+  - AT-108.3: Angeschaltet zeigt die nächste Runde des Modus das Tutorial (wie bisher nach dem Zurücksetzen).
+  - Hinweis: umgesetzt in den bestehenden Tests AT-100.1/100.5 (Spalte, Größe), AT-89.6 (an/aus je Modus) und AT-87 (Tutorial kommt wieder).

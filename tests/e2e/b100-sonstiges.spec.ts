@@ -26,8 +26,8 @@ async function edges(page: Page) {
     (await btn(page, 'Mimi').boundingBox())!,
     (await btn(page, 'Mots').boundingBox())!,
   );
-  out.sprechen = span((await btn(page, 'Sprechen zurücksetzen').boundingBox())!);
-  out.hoeren = span((await btn(page, 'Hören zurücksetzen').boundingBox())!);
+  out.sprechen = span((await btn(page, 'Tutorial sprechen').boundingBox())!);
+  out.hoeren = span((await btn(page, 'Tutorial hören').boundingBox())!);
   out.bremsen = span((await btn(page, 'Bremsen').boundingBox())!);
   out.version = span(await box(page, '.admin__version-text'), await box(page, '.admin__copy'));
   return out;
@@ -126,7 +126,7 @@ test.describe('B-100 Sonstiges: Flucht und Schieberegler', () => {
       else expect(width).toBeGreaterThanOrEqual(300);
       expect(await overflow(page)).toEqual([]);
 
-      // 10 Min., 3 Min., ausgegraute Buttons: dieselbe Spalte
+      // 10 Min., 3 Min., markierte Kacheln (B-108): dieselbe Spalte
       await slider(page).focus();
       await page.keyboard.press('End');
       await expect(minutes(page)).toHaveText('10 Min.');
@@ -134,11 +134,11 @@ test.describe('B-100 Sonstiges: Flucht und Schieberegler', () => {
       await page.keyboard.press('Home');
       await expect(minutes(page)).toHaveText('3 Min.');
       expectAligned(await edges(page), column);
-      await btn(page, 'Sprechen zurücksetzen').click();
-      await btn(page, 'Hören zurücksetzen').click();
+      await btn(page, 'Tutorial sprechen').click();
+      await btn(page, 'Tutorial hören').click();
       await btn(page, 'Bremsen').click();
-      await expect(btn(page, 'Sprechen zurücksetzen')).toBeDisabled();
-      await expect(btn(page, 'Hören zurücksetzen')).toBeDisabled();
+      await expect(btn(page, 'Tutorial sprechen')).toHaveAttribute('aria-pressed', 'true');
+      await expect(btn(page, 'Tutorial hören')).toHaveAttribute('aria-pressed', 'true');
       expectAligned(await edges(page), column);
       expect(await overflow(page)).toEqual([]);
     },
@@ -302,13 +302,7 @@ test.describe('B-100 Sonstiges: Flucht und Schieberegler', () => {
       await prepare(page, {});
       await openOther(page);
       expect((await slider(page).boundingBox())!.height).toBeGreaterThanOrEqual(44);
-      for (const name of [
-        'Mimi',
-        'Mots',
-        'Sprechen zurücksetzen',
-        'Hören zurücksetzen',
-        'Bremsen',
-      ]) {
+      for (const name of ['Mimi', 'Mots', 'Tutorial sprechen', 'Tutorial hören', 'Bremsen']) {
         const b = (await btn(page, name).boundingBox())!;
         expect(b.width, name).toBeGreaterThanOrEqual(minSize(88));
         expect(b.height, name).toBeGreaterThanOrEqual(minSize(88));

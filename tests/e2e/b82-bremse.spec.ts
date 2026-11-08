@@ -55,8 +55,8 @@ test.describe('B-82 Bremse für neue Wörter / B-83 Reiter im Elternbereich', ()
       await expect(btn(page, 'Lernstand zurücksetzen')).toBeHidden();
       await expect(btn(page, 'Mimi')).toBeVisible();
       await expect(btn(page, 'Mots')).toBeVisible();
-      await expect(btn(page, 'Sprechen zurücksetzen')).toBeVisible();
-      await expect(btn(page, 'Hören zurücksetzen')).toBeVisible(); // B-89: je Modus
+      await expect(btn(page, 'Tutorial sprechen')).toBeVisible();
+      await expect(btn(page, 'Tutorial hören')).toBeVisible(); // B-89: je Modus
       // B-86: Auswahlkachel „Bremsen“ wie bei den Begleitern – an = lila gerahmt
       const brake = btn(page, 'Bremsen');
       await expect(brake).toHaveAttribute('aria-pressed', 'true'); // Standard: an

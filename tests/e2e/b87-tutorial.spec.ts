@@ -182,8 +182,8 @@ test.describe('B-87 Tutorial', () => {
     // Schlafseite → Elternbereich: Tutorial zurücksetzen, aufwecken, nächste Runde zeigt es
     await hold(page, '.app-header__icon');
     await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
-    await btn(page, 'Sprechen zurücksetzen').click();
-    await expect(btn(page, 'Sprechen zurücksetzen')).toBeDisabled();
+    await btn(page, 'Tutorial sprechen').click(); // B-108: Schalter, markiert = kommt wieder
+    await expect(btn(page, 'Tutorial sprechen')).toHaveAttribute('aria-pressed', 'true');
     await btn(page, 'Mimi').click(); // B-94: einzeln wecken
     await btn(page, 'Mots').click();
     await btn(page, 'Zurück').click();

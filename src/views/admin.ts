@@ -1,13 +1,13 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
 // zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88)
-// und per Ziehen in eine andere Stufe legen (B-106); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorial zurücksetzen,
+// und per Ziehen in eine andere Stufe legen (B-106); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorials an/aus (B-108),
 // Bremse für neue Wörter (B-82), Rundendauer (B-93, seit B-100 als Schieberegler), Version (B-98).
 // Keine Avatare; sonst dieselben Bausteine wie überall. B-100: alle Bedienelemente von
 // „Sonstiges“ stehen rechts in einer festen Spalte (Flucht).
 import { createAppHeader } from '../components/app-header';
 import { COMPANIONS, COMPANION_NAMES } from '../components/avatar';
-import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
+import { createChoiceGroup, createChoiceTile, type ChoiceTile } from '../components/choice-tile';
 import { icon, roundButton } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { MODE_INFO } from '../data/modes';
@@ -196,15 +196,18 @@ export function renderAdmin(store: Store): ViewHandle {
   );
   const sleep = el('div', 'admin__sleep');
   sleep.append(...[...sleepers.values()].map((tile) => tile.el));
-  // B-74: Tutorial kommt in der nächsten Runde wieder – je Modus getrennt (B-89)
+  // B-74/B-89: Tutorial je Modus; B-108: Schalter wie „Bremsen“ – markiert = kommt beim nächsten Mal
   const tutorials = Object.fromEntries(
     MODES.map((m) => {
-      const button = textButton(`${MODE_INFO[m].name} zurücksetzen`);
-      button.classList.add('admin__tutorial');
-      button.addEventListener('click', () => store.dispatch({ type: 'resetTutorial', mode: m }));
-      return [m, button];
+      const label = `Tutorial ${MODE_INFO[m].name.toLowerCase()}`;
+      const tile = createChoiceTile({
+        content: [el('span', 'admin__brake-label', label)],
+        onSelect: () => store.dispatch({ type: 'toggleTutorial', mode: m }),
+      });
+      tile.el.classList.add('admin__brake', 'admin__tutorial');
+      return [m, tile];
     }),
-  ) as Record<Mode, HTMLButtonElement>;
+  ) as Record<Mode, ChoiceTile>;
   // B-82/B-86: Schalter als Auswahlkachel wie bei Begleiter und Sprache – an = lila gerahmt
   const brake = createChoiceTile({
     content: [el('span', 'admin__brake-label', 'Bremsen')],
@@ -245,8 +248,8 @@ export function renderAdmin(store: Store): ViewHandle {
   other.append(
     settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration),
     settingRow('Schlafen', 'Markiert = schläft bis morgen. Tippen schaltet um.', sleep),
-    settingRow('Tutorial Sprechen', 'Kommt beim nächsten Sprechen wieder.', tutorials.speak),
-    settingRow('Tutorial Hören', 'Kommt beim nächsten Hören wieder.', tutorials.listen),
+    settingRow('Tutorial Sprechen', 'Markiert = kommt beim nächsten Sprechen.', tutorials.speak.el),
+    settingRow('Tutorial Hören', 'Markiert = kommt beim nächsten Hören.', tutorials.listen.el),
     settingRow(
       'Neue Wörter bremsen',
       'Stehen 6 oder mehr Wörter auf „noch üben“, kommen keine neuen dazu.',
@@ -275,8 +278,8 @@ export function renderAdmin(store: Store): ViewHandle {
     otherPanel.hidden = tab !== 'sonstiges';
 
     sleepers.forEach((tile, c) => tile.setSelected(data.rest.sleeping.includes(c)));
-    tutorials.speak.disabled = !data.tutorialDone;
-    tutorials.listen.disabled = !data.listenTutorialDone;
+    tutorials.speak.setSelected(!data.tutorialDone);
+    tutorials.listen.setSelected(!data.listenTutorialDone);
     brake.setSelected(data.brakeNew);
     if (!sliding) {
       if (range.value !== String(data.roundMin)) range.value = String(data.roundMin);
