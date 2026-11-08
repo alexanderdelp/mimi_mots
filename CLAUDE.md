@@ -143,6 +143,8 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 
 ### Telegram (Updates und Fragen an den Menschen)
 Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Updates und kann Fragen beantworten (`tools/telegram.mjs`, `npm run telegram -- …`). Zugangsdaten liegen außerhalb des Repos in `~/.config/mimi_mots/telegram.env` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) – nie ausgeben, nie committen.
+- **Pflicht (Nutzerentscheidung 2026-11-08):** Jedes Update und jede Frage an den Menschen geht zusätzlich zum Chat auch per Telegram raus – Start und Abschluss einer Aufgabe, Übergabe zur Abnahme (mit Screenshots), Merge, Blockaden und Entscheidungsfragen (`ask`). Antworten per `inbox` abholen; eine Antwort im Chat gilt genauso.
+- Fehlt `telegram.env` auf dem Rechner, einmal im Chat darauf hinweisen (der Mensch legt die Datei selbst an, Token nie in den Chat) und bis dahin nur im Chat berichten.
 - `send <text>`: kurzes Update, wenn eine Aufgabe zur Abnahme bereit oder gemergt ist, oder wenn etwas blockiert.
 - `photo <datei> [text]`: Screenshot zur Abnahme.
 - Bei sichtbaren Änderungen immer Bilder mitschicken (`photo <datei> [text]`): je Änderung ein Screenshot, mindestens iPad 1180 × 820; bei Layout-Änderungen zusätzlich das iPhone. Bilder nur aus Testdaten (Testname, keine Daten des Kindes).
