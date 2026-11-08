@@ -10,10 +10,6 @@ Erledigte Aufgaben samt Akzeptanztests stehen im Archiv `docs/archiv/backlog-erl
 - [ ] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten.
 - [ ] **B-90 Mehrere Kinder** (nach B-97, baut auf dem Kind-Profil auf): Seit B-97 gehören alle Daten zu einem Kind in `children`; B-90 erlaubt weitere. Auf der Begrüßung wählt man das Kind (je Kind eine große Kachel mit Namen, danach gilt `activeChildId`); mit nur einem Kind bleibt es bei „Hallo Lina!“. Weitere Kinder nur im Elternbereich anlegen (sonst legt man sich 30 Kinder an), dort auch Umbenennen und Löschen (mit Sicherheitsabfrage) und der Lernstand je Kind. Je Kind eigene Auswahl, eigener Lernstand, Schlafzustand, Tutorials und ausgeschaltete Wörter (steckt seit B-97 schon im Kind). Vorher klären: Gelten Sprachen, Bremse, Rundendauer und der Schlaf der Tiere je Kind (so seit B-97) oder für das ganze Gerät?
   - Entschieden (2026-11-01): Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind (wie seit B-97) – dynamischer, und bei einem Kind ohne Unterschied.
-- [ ] **B-105 App startet im Dev-Server nicht** (Fehler aus B-98): `src/version.ts` lud `versionLabel` aus `tools/build-info.ts`, und die Datei importiert `node:child_process`. Im Produktionsbuild fällt das weg, unter `npm run dev` bleibt `#app` leer. `versionLabel` liegt jetzt in `src/version.ts`; `tools/build-info.ts` nutzt nur noch `vite.config.ts`.
-  - AT-105.1: Im Dev-Server startet die App ohne Konsolenfehler und zeigt ihre Ansicht.
-  - AT-105.2: Im Dev-Server zeigt der Elternbereich unter „Sonstiges“ die Versionszeile (Version · Commit · Datum).
-  - AT-105.3: Aus `src/main.ts` erreichbarer Code lädt nichts aus `node:*` (Unit-Test).
 
 ## Später
 - Themenwahl (Tiere, Essen …) · Eigene Illustrationen statt Emoji
