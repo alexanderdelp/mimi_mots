@@ -27,7 +27,7 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 ```
 - Beim Öffnen der App kommt zuerst die Begrüßung; schlafen beide Begleiter, stattdessen die Schlafseite. Nach dem Abschluss, nach Abbruch im Tutorial und nach dem Elternbereich geht es zur Auswahl (bzw. Schlafseite), nicht zur Begrüßung – außer der Elternbereich wurde auf der Begrüßung geöffnet.
 - Ohne Namen ist die Auswahl nicht erreichbar: Es kommt erst die Namensfrage.
-- **Kopfleiste** auf allen Seiten gleich hoch: App-Icon + „Mimi & Mots“ mittig; der Name des Kinds klein oben rechts (nicht auf der Begrüßung und nicht im Elternbereich). Halten des Icons (600 ms) öffnet auf Begrüßung, Start und Schlafseite den Elternbereich – ohne Hinweis, keine Schaltfläche.
+- **Kopfleiste** auf allen Seiten gleich hoch: App-Icon + „Mimi & Mots“ mittig; der Name des Kinds klein oben rechts (nicht auf der Begrüßung und nicht im Elternbereich). Halten des Icons (1 s, B-113) öffnet auf Begrüßung, Start und Schlafseite den Elternbereich – ohne Hinweis, keine Schaltfläche.
 
 ### 3.0 Begrüßung
 - Beide Begleiter links und rechts: wache winken, schlafende zeigen ihr Schlafbild (nur Bildtausch).
@@ -97,7 +97,7 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 - An einem späteren Tag wachen alle von selbst auf – beim Öffnen und beim Zurückholen aus dem Hintergrund; von der Schlafseite geht es dann zur Begrüßung.
 
 ### 3.7 Elternbereich
-- Erreichbar nur durch verstecktes Halten (600 ms) des App-Icons auf Begrüßung, Start und Schlafseite. „Zurück“ (runder Haus-Button links in der Kopfleiste, B-111) führt dorthin, wo er geöffnet wurde; schlafen beide Begleiter, zur Schlafseite; ohne Namen zur Namensfrage.
+- Erreichbar nur durch verstecktes Halten (1 s, B-113; vorher 600 ms) des App-Icons auf Begrüßung, Start und Schlafseite. „Zurück“ (runder Haus-Button links in der Kopfleiste, B-111) führt dorthin, wo er geöffnet wurde; schlafen beide Begleiter, zur Schlafseite; ohne Namen zur Namensfrage.
 - Rechts in der Kopfleiste zwei Reiter; beim Öffnen ist „Sprachen“ gewählt. Keine Avatare, sonst Design wie überall; Textbuttons weiß mit Rahmen.
 - **Reiter „Sprachen“:** Modus (Sprechen | Hören) und Sprache (alle vier Flaggen, ausgeschaltete blass) wählen. Die Wörter des Wortschatzes stehen als Emoji in Zeilen „Neu“, „Stufe 0“ (noch üben) … „Stufe 4“ (sicher), je mit Anzahl. Ein Tipp auf ein Emoji schaltet das Wort aus (blass, bleibt an seinem Platz) bzw. wieder ein; das letzte Wort einer Sprache bleibt an. Ziehen legt ein Wort in eine andere Zeile des gezeigten Modus (B-106): Stufe wechselt, „Neu“ löscht seinen Lernstand; ein neues Wort bekommt `seen: 0`. „Lernstand zurücksetzen“ (ausgegraut ohne Lernstand) fragt erst nach („Französisch, Hören: Wirklich zurücksetzen?“ – „Ja, zurücksetzen“ / „Abbrechen“) und leert nur diesen Modus dieser Sprache. „Sprache ausschalten/einschalten“: ohne Wörter nicht einschaltbar, die letzte spielbare Sprache nicht ausschaltbar. Ohne Wörter steht „Noch keine Wörter vorhanden“.
 - **Reiter „Sonstiges“** (je Zeile Titel, kurze Erklärung, Bedienelement): Rundendauer (3 bis 10 Minuten, Standard 5; gilt für Sprechen und Hören), Schlafen (Kacheln „Mimi“ und „Mots“, markiert = schläft bis morgen), Samen (drei Kacheln mit Samenbild: Sonnenblume, Pfingstrose, Stern-Clematis; markiert = steht zur Wahl, der letzte bleibt an, B-109), Tutorial (Kacheln „Sprechen“ und „Hören“, markiert = kommt beim nächsten Mal; Tippen schaltet an und wieder aus, B-108/B-109), Neue Wörter bremsen (Kachel „Bremsen“), Version („Version · Commit · Build-Datum“ mit Kopier-Button).
@@ -309,7 +309,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Silben des deutschen Worts von Hand in `words.json` (`syllables`), weil automatische Trennung bei Grundschul-Silben (z. B. „E-le-fant“) unzuverlässig ist (B-66).
 
 ### Elternbereich
-- Erreichbar nur durch verstecktes Halten (600 ms) des App-Icons auf Begrüßung, Start und Schlafseite – ohne Hinweis, keine Schaltfläche. Auf der Begrüßung, weil sie nach dem Öffnen der erste Bildschirm ist (B-69, B-97).
+- Erreichbar nur durch verstecktes Halten (1 s, B-113; vorher 600 ms) des App-Icons auf Begrüßung, Start und Schlafseite – ohne Hinweis, keine Schaltfläche. Auf der Begrüßung, weil sie nach dem Öffnen der erste Bildschirm ist (B-69, B-97).
 - „Zurück“ als Pfeil statt Haus (es geht zurück, nicht „nach Hause“) und dorthin, wo er geöffnet wurde (B-86, B-99).
 - Zwei Reiter rechts in der Kopfleiste, beim Öffnen „Sprachen“; jede Einstellung mit kurzer Erklärung. Sprachkacheln dort 100 px breit, damit vier Flaggen auf 1024 px passen. Modi stehen vor den Flaggen; Gruppennamen nur für Screenreader, sonst passt die Leiste nicht auf 1024 px; die Sicherheitsabfrage nimmt die ganze Leiste ein (B-83, B-89).
 - Schalter als Auswahlkacheln wie bei der Tierauswahl („Bremsen“, „Mimi“, „Mots“; markiert = an bzw. schläft), nur Text, keine Avatare. Hingelegt wird wie nach einer Runde (bis morgen); schlafen Tiere noch vom Vortag, gilt beim Umschalten erst der neue Tag. Die Auswahl der Startseite wird erst beim Verlassen angepasst (B-86, B-94).

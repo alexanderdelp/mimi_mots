@@ -119,7 +119,7 @@ test.describe('B-65 Schlafende Begleiter', () => {
   test('AT-65.7 (seit B-69): Aufwecken über den Elternbereich', async ({ page }) => {
     await seed(page, ['mimi', 'mots']);
     await page.goto('./');
-    await hold(page, '[data-view="sleep"] .app-header__icon', 700);
+    await hold(page, '[data-view="sleep"] .app-header__icon', 1100);
     await expect(view(page, 'admin')).toBeVisible();
     await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
     await btn(page, 'Mimi').click(); // B-94: einzeln
