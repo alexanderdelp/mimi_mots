@@ -3,7 +3,9 @@
 // - das Tutorial (B-74, seit B-89 je Modus) als gesehen – abschalten mit test.use({ tutorial: true });
 // - das Kind heißt „Lina“ (B-97) – ohne Namen mit test.use({ childName: null });
 // - die Begrüßung (B-97) wird gleich mit „Weiter“ verlassen – sie bleibt stehen mit
-//   test.use({ greeting: true }) oder per Seed `greeting: true` (views.ts).
+//   test.use({ greeting: true }) oder per Seed `greeting: true` (views.ts);
+// - Audio bleibt still und lädt nichts (silentMedia, unten) – Tests mit Blick auf die Aufrufe
+//   schreiben sie mit fakeMedia (helpers.ts) mit.
 // Tutorial und Name wirken nur beim ersten Lesen des Speichers durch die App – gespeichert wird
 // dadurch nichts; Seeds und Prüfungen der Tests sehen den echten Speicher.
 import { test as base, type Page } from '@playwright/test';
@@ -22,6 +24,7 @@ export const test = base.extend<{
   childName: ['Lina', { option: true }],
   greeting: [false, { option: true }],
   page: async ({ page, tutorial, childName, greeting }, use) => {
+    await silentMedia(page);
     if (!tutorial || childName !== null) {
       await page.addInitScript(
         ({ seen, name, id }) => {
@@ -70,6 +73,29 @@ export const test = base.extend<{
     await use(page);
   },
 });
+
+/** Kein echtes Audio in den Tests: Sie prüfen, was die App aufruft, nicht den Medien-Stack des
+ *  Browsers. Der blockiert in WebKit unter Windows den Hauptthread: Beim Pausieren oder beim
+ *  Wechsel von `src` hängt die Seite rund 2 s, zwölf Wörter sprengen so das Test-Timeout. */
+async function silentMedia(page: Page) {
+  await page.addInitScript(() => {
+    const proto = HTMLMediaElement.prototype;
+    const sources = new WeakMap<HTMLMediaElement, string>();
+    Object.defineProperty(proto, 'src', {
+      configurable: true,
+      get(this: HTMLMediaElement) {
+        // `new Audio(url)` setzt das Attribut, nicht die Eigenschaft
+        const attr = this.getAttribute('src');
+        return sources.get(this) ?? (attr ? new URL(attr, location.href).href : '');
+      },
+      set(this: HTMLMediaElement, url: string) {
+        sources.set(this, new URL(url, location.href).href);
+      },
+    });
+    proto.play = () => Promise.resolve();
+    proto.pause = () => {};
+  });
+}
 
 /** Verlässt die Begrüßung (B-97) bei jedem Laden gleich mit „Weiter“ – wie ein Kind, das sofort
  *  weitertippt. Bleibt stehen, wenn `window.__keepGreeting` gesetzt ist (Seed `greeting`); die

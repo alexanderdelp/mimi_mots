@@ -72,6 +72,7 @@ test.describe('B-51 Service Worker', () => {
   });
 
   test('AT-51.3: offline vollständig nutzbar', { tag: '@layout' }, async ({ page, context }) => {
+    test.slow(); // lädt den ganzen Precache; in der vollen Suite rund 20 s, Limit sonst 30 s
     await installAndControl(page);
     const failed: string[] = [];
     page.on('requestfailed', (r) => failed.push(r.url()));
