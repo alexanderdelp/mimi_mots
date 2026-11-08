@@ -474,3 +474,14 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-103.1: Beschreibung in `package.json` und Manifest: „Spielerisch erste Wörter in anderen Sprachen lernen – mit Mimi und Mots.“
   - AT-103.2: In `public/audio/<Sprache>/` liegt genau für jedes Wort mit gewählter Aufnahme (`audio-choices.json`) eine Datei, keine weitere (Unit-Test); der Precache enthält keine überzähligen Aufnahmen.
   - AT-103.3: Fehlt auf Japanisch eine Datei, liest die Ersatz-Sprachausgabe die Kana-Lesung (`jaKana`), nicht die Schreibweise mit Kanji.
+- [x] **B-104 API-Testseite für freie Vokabeln**: Vorbereitung des Umbaus von festen Emoji-Wörtern auf frei eingegebene Vokabeln (zunächst Englisch und Französisch). Entwicklerseite `tools/api-test.html` (nur Dev-Server, wie die Stimmwahl): deutsches Wort eingeben, je Sprache Übersetzungsvorschläge mehrerer APIs vergleichen, eigenes Wort eingeben oder Vorschlag wählen, dazu Metadaten, Lautschrift und Sprachausgabe über die Gerätestimme. Die App selbst ändert sich nicht (Leitprinzip 6 gilt weiter).
+  - AT-104.1: Die Seite gibt es nur im Dev-Server; im Produktionsbuild ist sie nicht enthalten.
+  - AT-104.2: Deutsches Wort eingeben und „Vorschläge holen“ → je Sprache zeigt jede Quelle ihre Vorschläge, mit Name der Quelle, Status und Laufzeit; Französisch mit Genus, soweit geliefert.
+  - AT-104.3: Tipp auf einen Vorschlag übernimmt ihn ins Feld der Sprache; ein eigenes Wort lässt sich ebenso eintippen und prüfen.
+  - AT-104.4: Beim Tippen ins Fremdwort-Feld erscheinen Wortvorschläge (Englisch: Datamuse und Wiktionary, Französisch: Wiktionary).
+  - AT-104.5: Fällt eine Quelle aus (Fehlerstatus, CORS/Netz, leere Antwort), steht das in ihrer Zeile; die übrigen Quellen liefern trotzdem.
+  - AT-104.6: LibreTranslate ohne Schlüssel: Hinweis, kein Request. Mit Schlüssel (oder eigener Instanz) kommt ein POST mit `api_key`, die Vorschläge erscheinen.
+  - AT-104.7: Zum gewählten Wort zeigt jede Quelle Lautschrift und Metadaten (Wortart, Bedeutung, Synonyme, Formen); Quellen ohne diese Sprache sind als solche gekennzeichnet.
+  - AT-104.8: „Vorlesen“ spricht das Wort mit der Gerätestimme in der richtigen Sprache (en-GB bzw. fr-FR, Stimme wählbar); „Lautschrift“ übergibt die Lautschrift als SSML; „Aufnahme“ spielt die gelieferte Datei.
+  - AT-104.9: Die Rohantwort jeder Quelle lässt sich aufklappen; Daten der APIs werden als Text dargestellt (kein HTML).
+  - Hinweis: Die Tests ersetzen alle APIs durch Attrappen (`page.route`); sie laufen gegen einen eigenen Dev-Server, weil die Seite nicht im Build ist. Die Parser testet Vitest mit gekürzten echten Antworten.

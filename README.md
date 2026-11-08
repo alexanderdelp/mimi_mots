@@ -26,6 +26,8 @@ npm run lint
 
 Andere Ports (z. B. für parallele Worktrees): `DEV_PORT=5182 PREVIEW_PORT=4182 npm run …` – die E2E-Tests nutzen `PREVIEW_PORT`.
 
+**API-Testseite für freie Vokabeln (B-104):** `http://localhost:5181/mimi_mots/tools/api-test.html` (nur `npm run dev`, nicht im Build). Vergleicht Übersetzungs-, Wörterbuch- und Aussprache-APIs für Englisch und Französisch. LibreTranslate braucht einen eigenen Schlüssel oder eine eigene Instanz.
+
 ## Veröffentlichung (GitHub Pages)
 
 Jeder Push auf `main` baut die App und veröffentlicht sie unter **https://alexanderdelp.github.io/mimi_mots/** (Workflow `.github/workflows/deploy.yml`: Lint → Unit-Tests → Build → Deploy). Von Hand: im Repo unter *Actions → Deploy GitHub Pages → Run workflow*.
