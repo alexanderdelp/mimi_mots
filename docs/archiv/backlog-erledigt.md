@@ -514,3 +514,6 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-110.1: Der sichtbare Samen ist in jedem Samenbild waagrecht und senkrecht mittig (höchstens 2 px Abweichung); die drei Samenbilder sind gleich groß und quadratisch.
   - AT-110.2: Im Reiter „Sonstiges“ steht das Samenbild mittig auf seiner Kachel (alle Viewports).
   - AT-109.4 angepasst: Die 15 Wachstumsstufen haben dieselbe Größe, die Samen eine eigene.
+- [x] **B-111 Haus statt Pfeil im Elternbereich**: Der Zurück-Button im Elternbereich zeigt statt des Pfeils das Haus – wie in „Meine Wörter“ (gleiche Symbolgröße). Das Pfeil-Symbol „Zurück“ entfällt (Nutzerwunsch 2026-11-08).
+  - AT-111.1: Im Elternbereich zeigt der Button oben links („Zurück“) das Haus-Symbol, kein Pfeil; Button und Symbol so groß wie in „Meine Wörter“ (alle Viewports).
+  - AT-111.2: Tipp auf das Haus führt wie bisher zur Startseite.

@@ -1,4 +1,4 @@
-/* Elternbereich (B-69 … B-89). */
+/* Elternbereich (B-69 … B-89). Zurück-Button mit Haus wie in „Meine Wörter“ (B-111). */
 
 .view--admin .admin__home {
   width: 88px;
@@ -6,8 +6,8 @@
 }
 
 .view--admin .admin__home svg {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
 }
 
 .admin__body {
@@ -516,8 +516,8 @@
   }
 
   .view--admin .admin__home svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .admin__body {

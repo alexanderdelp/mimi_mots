@@ -10,7 +10,6 @@ describe('icon', () => {
     'repeat',
     'speaker',
     'home',
-    'back',
     'rotate',
     'speak',
     'listen',
