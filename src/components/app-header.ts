@@ -71,6 +71,10 @@ export function childButtons(
   return fragment;
 }
 
+/** B-113: so lange (ms) muss das App-Icon gehalten werden – länger als [×], damit Kinder den
+ *  Elternbereich nicht zufällig öffnen. */
+export const ADMIN_HOLD_MS = 1000;
+
 /**
  * Verstecktes Gedrückthalten des App-Icons (B-69): öffnet den Elternbereich. Bewusst ohne
  * Hinweis – keine Schaltfläche, keine sichtbare Rückmeldung. Gibt eine Aufräumfunktion zurück.
@@ -78,5 +82,5 @@ export function childButtons(
 export function onIconHold(header: HTMLElement, action: () => void): () => void {
   const logo = header.querySelector<HTMLElement>('.app-header__icon')!;
   logo.classList.add('app-header__icon--hold');
-  return onLongPress(logo, action);
+  return onLongPress(logo, action, ADMIN_HOLD_MS);
 }

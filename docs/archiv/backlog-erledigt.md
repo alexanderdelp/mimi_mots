@@ -528,3 +528,7 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-105.1: Im Dev-Server startet die App ohne Konsolenfehler und zeigt ihre Ansicht.
   - AT-105.2: Im Dev-Server zeigt der Elternbereich unter „Sonstiges“ die Versionszeile (Version · Commit · Datum).
   - AT-105.3: Aus `src/main.ts` erreichbarer Code lädt nichts aus `node:*` (Unit-Test).
+- [x] **B-113 Elternbereich erst nach 1 s Halten**: Das versteckte Halten des App-Icons öffnet den Elternbereich erst nach 1 s statt 0,6 s, damit Kinder ihn nicht zufällig öffnen. [×] in der Lernrunde bleibt bei 600 ms (Nutzerwunsch 2026-11-08).
+  - AT-113.1: 0,9 s Halten des App-Icons öffnet den Elternbereich nicht (Start- und Schlafseite, Begrüßung).
+  - AT-113.2: 1 s Halten öffnet ihn.
+  - AT-113.3: [×] in der Lernrunde beendet weiterhin nach 600 ms.
