@@ -35,6 +35,7 @@ npm run test         # Vitest
 npm run test:e2e     # Playwright (WebKit, iPad quer + iPhone 852 × 393)
 npm run lint         # ESLint + Prettier-Check (npm run format behebt Formatfehler)
 npm run icons        # App-Icons (PNG) aus public/icons/*.svg neu rendern
+npm run flowers      # Blumenbilder (public/flowers/) aus assets/blumen.png zerschneiden (B-109)
 npm run audio        # scripts/generate_audio.py – erzeugt fehlende MP3s (lokal, Python)
 npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.html (B-78; auch fr, it, ja)
 npm run test:audio   # Tests des Audio-Skripts (Python)
@@ -49,6 +50,8 @@ public/
              cat_cartwheel.png, pony_cartwheel.png (B-72/B-77)
              (Originaldateien, transparente PNGs; Posen 384 × 440 unverändert übernehmen,
              Schlaf- und Radschlagbilder verkleinert, B-77)
+  flowers/   <sunflower|peony|clematis>_<seed|planted|sprout|plant|bud|bloom>.webp (B-109,
+             aus assets/blumen.png per npm run flowers)
   flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg, flag_it.svg (scharfe Vektorflaggen)
   audio/     en/<wortId>.mp3, fr/<wortId>.mp3, ja/<wortId>.mp3, it/<wortId>.mp3
   icons/     icon.svg (Quelle), icon-180.png, icon-192.png, icon-512.png,
@@ -63,6 +66,7 @@ src/
   audio.ts           Laden/Abspielen, Fallback Web Speech
   data/words.ts      Wortliste (id, emoji, de, syllables, en, fr, it, ja, jaKana) aus data/words.json
   data/languages.ts  Name und Flagge je Lernsprache; data/modes.ts: Modi mit Symbol
+  data/flowers.ts    Blumen und Wachstumsstufen (B-109)
   data/vocabulary.ts Wortschatz je Sprache: nur Wörter mit gewählter Aufnahme (audio-choices.json, B-84)
   views/welcome.ts   Begrüßung: Namensfrage bzw. „Hallo Lina!“ (B-97)
   views/start.ts     Auswahl Begleiter, Sprache, Modus (Sprechen/Hören)
@@ -78,7 +82,9 @@ src/
                      drag-move.ts, icons.ts, long-press.ts, timer-dial.ts
   styles/            tokens.css, base.css, components.css, je Ansicht welcome/start/round/end/
                      sleep/admin/words/portrait.css (B-92)
+assets/              Quellbilder, die nicht ausgeliefert werden (blumen.png)
 scripts/             generate_audio.py (+ melo_synth.py, test_generate_audio.py), render-icons.mjs,
+                     split-flowers.mjs,
                      run-python.mjs
 tools/               hoerpruefung.html, stimmwahl.html, api-test.html (nur Dev-Server, B-104), telegram.mjs
 audio-choices.json   Stimmwahl je Wort (B-78); audio-check.md: Hörprüfliste

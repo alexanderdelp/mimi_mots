@@ -5,6 +5,7 @@ import { LANGUAGES, childDefaults, type ChildData } from '../src/storage';
 import { vocabularyIds } from '../src/data/vocabulary';
 import {
   activeWords,
+  canToggleFlower,
   canToggleWord,
   isComplete,
   canToggleLanguage,
@@ -1080,5 +1081,36 @@ describe('Wörter per Ziehen in eine Stufe legen (B-106)', () => {
     expect(move(admin, 'gibtsnicht', 1)).toBe(admin);
     const start = at('start', withHund());
     expect(move(start, 'hund', 1)).toBe(start);
+  });
+});
+
+describe('Samen freigeben (B-109)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+  const toggle = (state: AppState, flower: 'sunflower' | 'peony' | 'clematis') =>
+    reduce(state, { type: 'toggleFlower', flower });
+
+  it('AT-109.2: schaltet im Elternbereich aus und wieder an, Reihenfolge bleibt', () => {
+    const off = toggle(at('admin'), 'peony');
+    expect(off.data.enabledFlowers).toEqual(['sunflower', 'clematis']);
+    expect(toggle(off, 'peony').data.enabledFlowers).toEqual(['sunflower', 'peony', 'clematis']);
+  });
+
+  it('AT-109.3: der letzte bleibt an', () => {
+    const data = complete();
+    data.enabledFlowers = ['clematis'];
+    const admin = at('admin', data);
+    expect(canToggleFlower(data, 'clematis')).toBe(false);
+    expect(canToggleFlower(data, 'peony')).toBe(true);
+    expect(toggle(admin, 'clematis')).toBe(admin);
+  });
+
+  it('nur im Elternbereich', () => {
+    const start = at('start');
+    expect(toggle(start, 'peony')).toBe(start);
   });
 });

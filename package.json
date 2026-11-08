@@ -1,7 +1,7 @@
 {
   "name": "mimi-mots",
   "private": true,
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Spielerisch erste Wörter in anderen Sprachen lernen – mit Mimi und Mots.",
   "type": "module",
   "scripts": {
@@ -16,7 +16,8 @@
     "telegram": "node tools/telegram.mjs",
     "audio": "node scripts/run-python.mjs scripts/generate_audio.py",
     "test:audio": "node scripts/run-python.mjs scripts/test_generate_audio.py",
-    "icons": "node scripts/render-icons.mjs"
+    "icons": "node scripts/render-icons.mjs",
+    "flowers": "node scripts/split-flowers.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

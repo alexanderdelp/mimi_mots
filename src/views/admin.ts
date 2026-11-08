@@ -9,11 +9,18 @@ import { createAppHeader } from '../components/app-header';
 import { COMPANIONS, COMPANION_NAMES } from '../components/avatar';
 import { createChoiceGroup, createChoiceTile, type ChoiceTile } from '../components/choice-tile';
 import { icon, roundButton } from '../components/icons';
+import { FLOWERS, FLOWER_NAMES, flowerUrl, type Flower } from '../data/flowers';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { MODE_INFO } from '../data/modes';
 import { vocabulary } from '../data/vocabulary';
 import type { Language } from '../data/words';
-import { canToggleLanguage, canToggleWord, progressKey, type Store } from '../state';
+import {
+  canToggleFlower,
+  canToggleLanguage,
+  canToggleWord,
+  progressKey,
+  type Store,
+} from '../state';
 import {
   LANGUAGES,
   MAX_BOX,
@@ -196,18 +203,42 @@ export function renderAdmin(store: Store): ViewHandle {
   );
   const sleep = el('div', 'admin__sleep');
   sleep.append(...[...sleepers.values()].map((tile) => tile.el));
-  // B-74/B-89: Tutorial je Modus; B-108: Schalter wie „Bremsen“ – markiert = kommt beim nächsten Mal
+  // B-74/B-89: Tutorial je Modus; B-108: Schalter wie „Bremsen“ – markiert = kommt beim nächsten Mal.
+  // B-109: beide in einer Zeile („Sprechen“, „Hören“ wie „Mimi“, „Mots“), damit „Samen“ Platz hat
   const tutorials = Object.fromEntries(
     MODES.map((m) => {
-      const label = `Tutorial ${MODE_INFO[m].name.toLowerCase()}`;
+      const name = MODE_INFO[m].name;
       const tile = createChoiceTile({
-        content: [el('span', 'admin__brake-label', label)],
+        content: [el('span', 'admin__brake-label', name)],
+        label: `Tutorial ${name.toLowerCase()}`,
         onSelect: () => store.dispatch({ type: 'toggleTutorial', mode: m }),
       });
-      tile.el.classList.add('admin__brake', 'admin__tutorial');
+      tile.el.classList.add('admin__sleeper', 'admin__tutorial');
       return [m, tile];
     }),
   ) as Record<Mode, ChoiceTile>;
+  const tutorialPair = el('div', 'admin__sleep');
+  tutorialPair.append(tutorials.speak.el, tutorials.listen.el);
+  // B-109: Samen, die zur Verfügung stehen – Kacheln mit dem Samenbild, markiert = freigegeben;
+  // der letzte bleibt an. Den Namen hört nur der Screenreader.
+  const flowerTiles = new Map(
+    FLOWERS.map((f) => {
+      const seed = Object.assign(el('img', 'admin__seed'), {
+        src: flowerUrl(f, 'seed'),
+        alt: '',
+        draggable: false,
+      });
+      const tile = createChoiceTile({
+        content: [seed],
+        label: FLOWER_NAMES[f],
+        onSelect: () => store.dispatch({ type: 'toggleFlower', flower: f }),
+      });
+      tile.el.classList.add('admin__flower');
+      return [f, tile] as const;
+    }),
+  );
+  const seeds = el('div', 'admin__seeds');
+  seeds.append(...[...flowerTiles.values()].map((tile) => tile.el));
   // B-82/B-86: Schalter als Auswahlkachel wie bei Begleiter und Sprache – an = lila gerahmt
   const brake = createChoiceTile({
     content: [el('span', 'admin__brake-label', 'Bremsen')],
@@ -248,8 +279,8 @@ export function renderAdmin(store: Store): ViewHandle {
   other.append(
     settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration),
     settingRow('Schlafen', 'Markiert = schläft bis morgen. Tippen schaltet um.', sleep),
-    settingRow('Tutorial Sprechen', 'Markiert = kommt beim nächsten Sprechen.', tutorials.speak.el),
-    settingRow('Tutorial Hören', 'Markiert = kommt beim nächsten Hören.', tutorials.listen.el),
+    settingRow('Samen', 'Markiert = steht zur Wahl. Tippen schaltet um.', seeds),
+    settingRow('Tutorial', 'Markiert = kommt beim nächsten Mal. Tippen schaltet um.', tutorialPair),
     settingRow(
       'Neue Wörter bremsen',
       'Stehen 6 oder mehr Wörter auf „noch üben“, kommen keine neuen dazu.',
@@ -281,6 +312,12 @@ export function renderAdmin(store: Store): ViewHandle {
     tutorials.speak.setSelected(!data.tutorialDone);
     tutorials.listen.setSelected(!data.listenTutorialDone);
     brake.setSelected(data.brakeNew);
+    flowerTiles.forEach((tile, f: Flower) => {
+      tile.setSelected(data.enabledFlowers.includes(f));
+      // der letzte freigegebene bleibt an
+      if (canToggleFlower(data, f)) tile.el.removeAttribute('aria-disabled');
+      else tile.el.setAttribute('aria-disabled', 'true');
+    });
     if (!sliding) {
       if (range.value !== String(data.roundMin)) range.value = String(data.roundMin);
       showMinutes(data.roundMin);

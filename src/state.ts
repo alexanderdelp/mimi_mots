@@ -2,6 +2,7 @@
 // und ob das Gerät gerade im Hochformat ist (Overlay, Timer-Pause ab B-40/B-52).
 import { COMPANIONS, type Companion } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
+import { FLOWERS, type Flower } from './data/flowers';
 import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
 import {
@@ -34,6 +35,7 @@ export type AppEvent =
   | { type: 'moveWord'; language: Language; mode: Mode; id: string; box: number | null; at: string }
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
   | { type: 'toggleTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus an/aus (B-108)
+  | { type: 'toggleFlower'; flower: Flower } // Elternbereich: Samen an/aus (B-109)
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
   | { type: 'roundMin'; minutes: number } // Elternbereich: Dauer einer Runde (B-93)
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
@@ -92,6 +94,12 @@ export function canToggleWord(data: ChildData, language: Language, id: string): 
   if (!vocabulary(language).some((w) => w.id === id)) return false;
   if (data.disabledWords[language].includes(id)) return true;
   return activeWords(data, language).some((w) => w.id !== id);
+}
+
+/** B-109: Einschalten geht immer; Ausschalten nur, wenn danach noch ein Samen an ist. */
+export function canToggleFlower(data: ChildData, flower: Flower): boolean {
+  const on = data.enabledFlowers;
+  return !on.includes(flower) || on.length > 1;
 }
 
 /** Auswahl passend zu Schlaf und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
@@ -307,6 +315,13 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
   if (event.type === 'toggleTutorial' && state.view === 'admin') {
     const key = tutorialKey(event.mode); // B-89: je Modus getrennt; B-108: an und wieder aus
     return { ...state, data: { ...state.data, [key]: !state.data[key] } };
+  }
+  if (event.type === 'toggleFlower' && state.view === 'admin') {
+    const { flower } = event;
+    if (!canToggleFlower(state.data, flower)) return state;
+    const on = state.data.enabledFlowers;
+    const enabledFlowers = FLOWERS.filter((f) => (f === flower ? !on.includes(f) : on.includes(f)));
+    return { ...state, data: { ...state.data, enabledFlowers } };
   }
   if (event.type === 'toggleBrake' && state.view === 'admin') {
     return { ...state, data: { ...state.data, brakeNew: !state.data.brakeNew } };
