@@ -14,6 +14,7 @@ Erledigte Aufgaben samt Akzeptanztests stehen im Archiv `docs/archiv/backlog-erl
 ## Später
 - Themenwahl (Tiere, Essen …) · Eigene Illustrationen statt Emoji
 - **Weitere Sprachen** – das 2 × 2-Raster der Startseite ist mit Englisch, Französisch, Japanisch und Italienisch voll.
+- **Blumen für das Kind** (nach B-109): Das Kind wählt aus den freigegebenen Samen eine Blume (gemerkt je Kind); wo sie wächst (z. B. „Meine Wörter“, Stufen 0–4 = eingepflanzt … Blüte), noch offen.
 - **Tiere im Elternbereich aktivieren/deaktivieren** – Grundlage dafür, später aus mehreren Tieren auszuwählen.
 - **Lernstand in einer Datenbank sichern** (Supabase, nach B-90): Lernstand je Kind (B-97/B-90) sichern und über mehrere Geräte abgleichen. `localStorage` bleibt die Hauptquelle, die App läuft offline vollständig; abgeglichen wird im Hintergrund, Anmeldung und Abgleich nur im Elternbereich (das Kind sieht davon nichts). Weicht von Leitprinzip 6 ab (keine Server-Datenhaltung, keine externen Requests) – vor der Umsetzung in `anforderungen.md` → „Entscheidungen“ festhalten; nur das Nötige speichern (Lernstand je Wort, Name des Kindes), keine Geräte- oder Nutzungsdaten.
   - Projekt (angelegt 2026-11-01, Free Tier, Region `eu-west-1` = Irland, EU): Name `mimi_mots`, Projekt-ID `itfoodhenchgedwjtdkw`, API-URL `https://itfoodhenchgedwjtdkw.supabase.co`. URL und anon-Key sind öffentlich (stehen im ausgelieferten Code) und dürfen ins Repo; der service_role-Key nie. Die ID ist zufällig vergeben und im Free Tier nicht änderbar.

@@ -226,8 +226,7 @@ test.describe('B-89 Tutorial der Hörrunde', () => {
       await hold(page, '.app-header__icon');
       await page.getByRole('tab', { name: 'Sonstiges' }).click();
       await expect(page.locator('.admin__title')).toContainText([
-        'Tutorial Sprechen',
-        'Tutorial Hören',
+        'Tutorial', // seit B-109 eine Zeile für beide Modi
       ]);
       // B-108: Schalter statt Button – markiert = kommt beim nächsten Mal
       await expect(btn(page, 'Tutorial hören')).toHaveAttribute('aria-pressed', 'false');

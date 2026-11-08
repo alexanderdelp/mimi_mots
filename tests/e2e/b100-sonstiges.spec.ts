@@ -26,8 +26,14 @@ async function edges(page: Page) {
     (await btn(page, 'Mimi').boundingBox())!,
     (await btn(page, 'Mots').boundingBox())!,
   );
-  out.sprechen = span((await btn(page, 'Tutorial sprechen').boundingBox())!);
-  out.hoeren = span((await btn(page, 'Tutorial hören').boundingBox())!);
+  out.samen = span(
+    (await btn(page, 'Sonnenblume').boundingBox())!,
+    (await btn(page, 'Stern-Clematis').boundingBox())!,
+  ); // B-109
+  out.tutorial = span(
+    (await btn(page, 'Tutorial sprechen').boundingBox())!,
+    (await btn(page, 'Tutorial hören').boundingBox())!,
+  ); // seit B-109 in einer Zeile
   out.bremsen = span((await btn(page, 'Bremsen').boundingBox())!);
   out.version = span(await box(page, '.admin__version-text'), await box(page, '.admin__copy'));
   return out;
@@ -302,7 +308,16 @@ test.describe('B-100 Sonstiges: Flucht und Schieberegler', () => {
       await prepare(page, {});
       await openOther(page);
       expect((await slider(page).boundingBox())!.height).toBeGreaterThanOrEqual(44);
-      for (const name of ['Mimi', 'Mots', 'Tutorial sprechen', 'Tutorial hören', 'Bremsen']) {
+      for (const name of [
+        'Mimi',
+        'Mots',
+        'Sonnenblume', // B-109
+        'Pfingstrose',
+        'Stern-Clematis',
+        'Tutorial sprechen',
+        'Tutorial hören',
+        'Bremsen',
+      ]) {
         const b = (await btn(page, name).boundingBox())!;
         expect(b.width, name).toBeGreaterThanOrEqual(minSize(88));
         expect(b.height, name).toBeGreaterThanOrEqual(minSize(88));

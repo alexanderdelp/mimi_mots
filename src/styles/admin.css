@@ -353,7 +353,7 @@
   font-weight: 800;
 }
 
-/* B-94: Tiere einzeln – zwei gleich breite Kacheln wie „Bremsen“ */
+/* B-94: Tiere einzeln – zwei gleich breite Kacheln wie „Bremsen“; seit B-109 auch die Tutorials */
 .admin__sleep {
   display: flex;
   gap: 16px;
@@ -362,6 +362,24 @@
 .admin__sleeper {
   flex: 1 1 0;
   height: 88px;
+}
+
+/* B-109: Samen – drei gleich breite Kacheln mit dem Samenbild */
+.admin__seeds {
+  display: flex;
+  gap: 16px;
+}
+
+.admin__flower {
+  flex: 1 1 0;
+  height: 88px;
+  padding: 8px;
+}
+
+.admin__seed {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* B-100: Rundendauer als Schieberegler – Spur --lila-200, links vom Griff --lila-700, runder
@@ -631,6 +649,16 @@
     height: 44px;
     min-height: 44px;
     padding: 4px;
+  }
+
+  .admin__seeds {
+    gap: 12px;
+  }
+
+  .admin__flower {
+    height: 44px;
+    min-height: 44px;
+    padding: 2px;
   }
 
   .admin__slider {

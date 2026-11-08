@@ -54,6 +54,7 @@ const valid = (): ChildData => ({
   brakeNew: false,
   disabledWords: { en: ['hund'], fr: [], ja: [], it: [] },
   roundMin: 7,
+  enabledFlowers: ['peony', 'clematis'],
 });
 
 /** Storage, dessen Zugriffe immer werfen (z. B. voller Speicher, privater Modus). */
@@ -97,6 +98,7 @@ describe('defaults', () => {
       brakeNew: true,
       disabledWords: { en: [], fr: [], ja: [], it: [] },
       roundMin: 5,
+      enabledFlowers: ['sunflower', 'peony', 'clematis'],
     });
   });
 
@@ -607,5 +609,20 @@ describe('Rundendauer (B-93)', () => {
     }
     for (const ok of [3, 5, 10])
       expect(sanitizeChild({ ...valid(), roundMin: ok }).roundMin).toBe(ok);
+  });
+});
+
+describe('Samen (B-109)', () => {
+  it('AT-109.2: fehlend, leer oder ungültig → alle; sonst bekannte in fester Reihenfolge', () => {
+    const all = ['sunflower', 'peony', 'clematis'];
+    const old: Partial<ChildData> = valid();
+    delete old.enabledFlowers;
+    expect(sanitizeChild(old).enabledFlowers).toEqual(all);
+    expect(sanitizeChild(valid()).enabledFlowers).toEqual(['peony', 'clematis']);
+    for (const bad of [[], ['rose'], 'peony', null, 42]) {
+      expect(sanitizeChild({ ...valid(), enabledFlowers: bad }).enabledFlowers).toEqual(all);
+    }
+    const mixed = sanitizeChild({ ...valid(), enabledFlowers: ['clematis', 'rose', 'sunflower'] });
+    expect(mixed.enabledFlowers).toEqual(['sunflower', 'clematis']);
   });
 });
