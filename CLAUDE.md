@@ -79,7 +79,7 @@ src/
                      sleep/admin/portrait.css (B-92)
 scripts/             generate_audio.py (+ melo_synth.py, test_generate_audio.py), render-icons.mjs,
                      run-python.mjs
-tools/               hoerpruefung.html, stimmwahl.html (nur Dev-Server), telegram.mjs
+tools/               hoerpruefung.html, stimmwahl.html, api-test.html (nur Dev-Server, B-104), telegram.mjs
 audio-choices.json   Stimmwahl je Wort (B-78); audio-check.md: Hörprüfliste
 docs/archiv/         erledigte Aufgaben, Chronik der Entscheidungen (nur bei Bedarf lesen)
 tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –

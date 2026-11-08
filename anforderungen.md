@@ -336,6 +336,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Für die Tests gilt Tutorial und Begrüßung als durchgetippt und der Name „Lina“ als gesetzt, außer mit `test.use({ tutorial: true })`, `test.use({ greeting: true })` bzw. `test.use({ childName: null })` (B-97).
 - Eigene Ports: Dev-Server 5181, Vorschau und E2E 4181, jeweils `strictPort`; je Worktree per `DEV_PORT`/`PREVIEW_PORT`. Playwright startet immer einen eigenen Server – sonst testete es womöglich ein fremdes Projekt (2026-11-01, B-92).
 - Versionierung nach SemVer (Nutzerentscheidung): MINOR je neue Funktion, PATCH je Korrektur oder kleine Anpassung, keine neue Version für Doku/Tests/Werkzeuge; 1.0.0, sobald der Lernstand in Supabase liegt. Erhöht wird im Abnahme-Commit beim Merge, danach Git-Tag `vX.Y.Z`; keine GitHub-Releases (2026-11-01).
+- API-Testseite `tools/api-test.html` (B-104): nur Dev-Server, deshalb bleibt Leitprinzip 6 unberührt; ihre E2E-Tests laufen mit Attrappen gegen einen eigenen Dev-Server (Port Vorschau + 10). Geprüft 2026-11-06: Datamuse kann kein Französisch, die Free Dictionary API (dictionaryapi.dev) auch nicht, LibreTranslate.com verlangt einen Schlüssel, Web Speech kann Lautschrift nur per SSML versuchen.
 - Telegram-Bot für Updates und Fragen an den Menschen (`tools/telegram.mjs`): eigener Bot, weil Telegram je Bot nur eine Warteschlange hat; Zugangsdaten nur in `~/.config/mimi_mots/telegram.env` (2026-11-01).
 
 ## 12. Später

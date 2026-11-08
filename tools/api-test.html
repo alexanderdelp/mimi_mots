@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API-Test – Mimi &amp; Mots</title>
+    <link rel="stylesheet" href="../src/styles/tokens.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: ui-rounded, system-ui, sans-serif;
+        font-size: 17px;
+        background: var(--lila-50);
+        color: var(--lila-900);
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 4px;
+      }
+      h2 {
+        margin: 0 0 8px;
+      }
+      h3 {
+        font-size: 17px;
+        margin: 20px 0 8px;
+      }
+      p {
+        margin: 4px 0;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin: 16px 0 4px;
+      }
+      input,
+      select {
+        min-height: 44px;
+        padding: 0 12px;
+        font: inherit;
+        color: inherit;
+        background: var(--white);
+        border: var(--border-default);
+        border-radius: 12px;
+      }
+      input[type='text'],
+      input[type='password'],
+      input[type='url'] {
+        flex: 1;
+        min-width: 0;
+      }
+      select {
+        flex: 1;
+        min-width: 0;
+      }
+      button {
+        min-height: 44px;
+        padding: 0 16px;
+        border: none;
+        border-radius: 22px;
+        background: var(--lila-700);
+        color: var(--white);
+        font: inherit;
+        cursor: pointer;
+      }
+      button.small {
+        min-height: 36px;
+        padding: 0 12px;
+        font-size: 15px;
+      }
+      button.chip {
+        background: var(--white);
+        color: var(--lila-900);
+        border: var(--border-default);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 100%;
+      }
+      button.chip small {
+        color: var(--grau-700);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      form,
+      section,
+      details.settings {
+        background: var(--white);
+        border-radius: var(--radius-m);
+        box-shadow: var(--shadow);
+        padding: 16px;
+      }
+      form {
+        margin-top: 16px;
+      }
+      form label {
+        margin-top: 0;
+      }
+      .line {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      details.settings {
+        margin-top: 16px;
+      }
+      details.settings summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+      #panels {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .rows {
+        display: grid;
+        gap: 8px;
+      }
+      .row {
+        min-width: 0;
+        padding: 8px 12px;
+        background: var(--lila-50);
+        border-radius: 12px;
+      }
+      .head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .status {
+        font-size: 15px;
+        color: var(--grau-700);
+        white-space: nowrap;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .pron {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .pron code {
+        font-family: inherit;
+        font-size: 19px;
+      }
+      .pron small,
+      .message {
+        color: var(--grau-700);
+      }
+      .fact {
+        margin-top: 8px;
+        overflow-wrap: anywhere;
+      }
+      details {
+        margin-top: 8px;
+      }
+      summary {
+        font-size: 15px;
+        cursor: pointer;
+      }
+      pre {
+        max-height: 240px;
+        margin: 8px 0 0;
+        padding: 8px;
+        overflow: auto;
+        font-size: 13px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: var(--white);
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>API-Test für freie Vokabeln (nur im Dev-Server)</h1>
+    <p>Deutsches Wort eingeben, Vorschläge vergleichen, Wort wählen oder selbst eintippen.</p>
+
+    <form id="search">
+      <label for="word-de">Deutsches Wort</label>
+      <div class="line">
+        <input id="word-de" type="text" autocomplete="off" autocapitalize="off" />
+        <button type="submit">Vorschläge holen</button>
+      </div>
+    </form>
+
+    <details class="settings">
+      <summary>LibreTranslate einrichten</summary>
+      <p>
+        libretranslate.com verlangt einen Schlüssel. Er bleibt in diesem Browser. Eine eigene
+        Instanz braucht meist keinen.
+      </p>
+      <label for="libre-url">Adresse</label>
+      <input id="libre-url" type="url" autocomplete="off" />
+      <label for="libre-key">API-Schlüssel</label>
+      <input id="libre-key" type="password" autocomplete="off" />
+    </details>
+
+    <div id="panels"></div>
+
+    <script type="module" src="./api-test.ts"></script>
+  </body>
+</html>
