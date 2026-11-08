@@ -1,8 +1,10 @@
 // B-109: Zerschneidet das Sprite der Blumen (assets/blumen.png, 3 Blumen × 6 Bilder: Samen,
 // eingepflanzt, Keimling, Pflanze, Knospe, Blüte) in einzelne transparente WebP-Bilder unter
 // public/flowers/. Der weiße Hintergrund wird per Flutfüllung vom Rand entfernt – Weiß im
-// Inneren (Glanzlichter, Punkte) bleibt. Alle Bilder bekommen dieselbe Leinwand, unten mittig
-// ausgerichtet, damit der Bildtausch nicht springt. Aufruf: npm run flowers
+// Inneren (Glanzlichter, Punkte) bleibt. Die Wachstumsstufen bekommen dieselbe Leinwand, unten
+// mittig ausgerichtet, damit der Bildtausch nicht springt. Die Samen stehen für sich (Kacheln im
+// Elternbereich) und bekommen eine eigene quadratische Leinwand, mittig (B-110); gleicher
+// Maßstab, damit sie nicht hochskaliert werden. Aufruf: npm run flowers
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -126,8 +128,15 @@ export async function splitFlowers(src, outDir) {
       return { left: l, top: t, width: r - l, height: b - t };
     }),
   );
-  const canvasW = Math.max(...cells.map((c) => c.width));
-  const canvasH = Math.max(...cells.map((c) => c.height));
+  // Wachstumsstufen: gemeinsame Leinwand = größte Zelle, unten ausgerichtet;
+  // Samen: eigene quadratische Leinwand = größter Samen, mittig (B-110)
+  const isSeed = (index) => STAGES[index % STAGES.length] === 'seed';
+  const growing = cells.filter((_, i) => !isSeed(i));
+  const canvasW = Math.max(...growing.map((c) => c.width));
+  const canvasH = Math.max(...growing.map((c) => c.height));
+  const seedSide = Math.max(
+    ...cells.filter((_, i) => isSeed(i)).flatMap((c) => [c.width, c.height]),
+  );
   const scale = SIZE / Math.max(canvasW, canvasH);
   const full = sharp(rgba, { raw: { width, height, channels: 4 } });
 
@@ -137,13 +146,15 @@ export async function splitFlowers(src, outDir) {
     const flower = FLOWERS[Math.floor(index / STAGES.length)];
     const stage = STAGES[index % STAGES.length];
     const piece = await full.clone().extract(cell).png().toBuffer();
-    const left = Math.round((canvasW - cell.width) / 2);
-    const top = canvasH - cell.height; // unten ausgerichtet
+    const seed = isSeed(index);
+    const [w, h] = seed ? [seedSide, seedSide] : [canvasW, canvasH];
+    const left = Math.round((w - cell.width) / 2);
+    const top = seed ? Math.round((h - cell.height) / 2) : h - cell.height;
     const file = join(outDir, `${flower}_${stage}.webp`);
     await sharp({
       create: {
-        width: canvasW,
-        height: canvasH,
+        width: w,
+        height: h,
         channels: 4,
         background: { r: 0, g: 0, b: 0, alpha: 0 },
       },
@@ -153,7 +164,7 @@ export async function splitFlowers(src, outDir) {
       .toBuffer()
       .then((buffer) =>
         sharp(buffer)
-          .resize(Math.round(canvasW * scale), Math.round(canvasH * scale))
+          .resize(Math.round(w * scale), Math.round(h * scale))
           .webp({ quality: 88, alphaQuality: 90 })
           .toFile(file),
       );
