@@ -35,6 +35,7 @@ npm run test         # Vitest
 npm run test:e2e     # Playwright (WebKit, iPad quer + iPhone 852 × 393)
 npm run lint         # ESLint + Prettier-Check (npm run format behebt Formatfehler)
 npm run icons        # App-Icons (PNG) aus public/icons/*.svg neu rendern
+npm run flowers      # Blumenbilder (public/flowers/) aus assets/blumen.png zerschneiden (B-109)
 npm run audio        # scripts/generate_audio.py – erzeugt fehlende MP3s (lokal, Python)
 npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.html (B-78; auch fr, it, ja)
 npm run test:audio   # Tests des Audio-Skripts (Python)
@@ -49,6 +50,8 @@ public/
              cat_cartwheel.png, pony_cartwheel.png (B-72/B-77)
              (Originaldateien, transparente PNGs; Posen 384 × 440 unverändert übernehmen,
              Schlaf- und Radschlagbilder verkleinert, B-77)
+  flowers/   <sunflower|peony|clematis>_<seed|planted|sprout|plant|bud|bloom>.webp (B-109,
+             aus assets/blumen.png per npm run flowers)
   flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg, flag_it.svg (scharfe Vektorflaggen)
   audio/     en/<wortId>.mp3, fr/<wortId>.mp3, ja/<wortId>.mp3, it/<wortId>.mp3
   icons/     icon.svg (Quelle), icon-180.png, icon-192.png, icon-512.png,
@@ -63,6 +66,7 @@ src/
   audio.ts           Laden/Abspielen, Fallback Web Speech
   data/words.ts      Wortliste (id, emoji, de, syllables, en, fr, it, ja, jaKana) aus data/words.json
   data/languages.ts  Name und Flagge je Lernsprache; data/modes.ts: Modi mit Symbol
+  data/flowers.ts    Blumen und Wachstumsstufen (B-109)
   data/vocabulary.ts Wortschatz je Sprache: nur Wörter mit gewählter Aufnahme (audio-choices.json, B-84)
   views/welcome.ts   Begrüßung: Namensfrage bzw. „Hallo Lina!“ (B-97)
   views/start.ts     Auswahl Begleiter, Sprache, Modus (Sprechen/Hören)
@@ -70,16 +74,21 @@ src/
   views/tutorial.ts  Tutorial der Lernrunde (B-102)
   views/end.ts       Abschluss
   views/sleep.ts     Schlafseite (beide Begleiter schlafen, B-65)
+  views/words.ts     „Meine Wörter“: Lernstand fürs Kind, nur ansehen (B-107)
+  views/seed.ts      Samen wählen nach einer abgeschlossenen Lernreise (B-112)
+  views/garden.ts    Garten des Kinds (B-112); Logik in garden.ts (Wachstum, Samenwahl)
   views/admin.ts     Elternbereich (verstecktes Halten des Icons, B-69; Reiter Sprachen/Sonstiges, B-83)
   views/view.ts      Typ ViewHandle
   version.ts         Versionszeile für den Elternbereich (B-98)
   components/        app-header.ts, avatar.ts, choice-tile.ts, copy-text.ts, fit-text.ts,
-                     icons.ts, long-press.ts, timer-dial.ts
+                     drag-move.ts, icons.ts, long-press.ts, timer-dial.ts
   styles/            tokens.css, base.css, components.css, je Ansicht welcome/start/round/end/
-                     sleep/admin/portrait.css (B-92)
+                     sleep/admin/words/seed/garden/portrait.css (B-92)
+assets/              Quellbilder, die nicht ausgeliefert werden (blumen.png)
 scripts/             generate_audio.py (+ melo_synth.py, test_generate_audio.py), render-icons.mjs,
+                     split-flowers.mjs,
                      run-python.mjs
-tools/               hoerpruefung.html, stimmwahl.html (nur Dev-Server), telegram.mjs
+tools/               hoerpruefung.html, stimmwahl.html, api-test.html (nur Dev-Server, B-104), telegram.mjs
 audio-choices.json   Stimmwahl je Wort (B-78); audio-check.md: Hörprüfliste
 docs/archiv/         erledigte Aufgaben, Chronik der Entscheidungen (nur bei Bedarf lesen)
 tests/               *.test.ts (Vitest), e2e/*.spec.ts (Playwright; Import aus e2e/fixtures.ts –
@@ -145,6 +154,8 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 
 ### Telegram (Updates und Fragen an den Menschen)
 Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Updates und kann Fragen beantworten (`tools/telegram.mjs`, `npm run telegram -- …`). Zugangsdaten liegen außerhalb des Repos in `~/.config/mimi_mots/telegram.env` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) – nie ausgeben, nie committen.
+- **Pflicht (Nutzerentscheidung 2026-11-08):** Jedes Update und jede Frage an den Menschen geht zusätzlich zum Chat auch per Telegram raus – Start und Abschluss einer Aufgabe, Übergabe zur Abnahme (mit Screenshots), Merge, Blockaden und Entscheidungsfragen (`ask`). Antworten per `inbox` abholen; eine Antwort im Chat gilt genauso.
+- Fehlt `telegram.env` auf dem Rechner, einmal im Chat darauf hinweisen (der Mensch legt die Datei selbst an, Token nie in den Chat) und bis dahin nur im Chat berichten.
 - `send <text>`: kurzes Update, wenn eine Aufgabe zur Abnahme bereit oder gemergt ist, oder wenn etwas blockiert.
 - `photo <datei> [text]`: Screenshot zur Abnahme.
 - Bei sichtbaren Änderungen immer Bilder mitschicken (`photo <datei> [text]`): je Änderung ein Screenshot, mindestens iPad 1180 × 820; bei Layout-Änderungen zusätzlich das iPhone. Bilder nur aus Testdaten (Testname, keine Daten des Kindes).

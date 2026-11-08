@@ -53,6 +53,10 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await expect(view(page, 'end').locator('.avatar')).toHaveAttribute('data-pose', 'winkt');
     await expect(view(page, 'end').locator('.avatar img')).toHaveAttribute('src', /cat_waving/);
     await btn(page, 'Zurück').click();
+    // B-112: erste abgeschlossene Lernreise ohne Samen → erst Samen wählen
+    await expect(view(page, 'seed')).toBeVisible();
+    await btn(page, 'Sonnenblume').click();
+    await btn(page, 'Zurück').click();
     await expect(view(page, 'start')).toBeVisible();
     await expectAsleep(page, 'Mimi', 'cat');
     await expect(btn(page, 'Mots')).toBeEnabled();
@@ -100,7 +104,9 @@ test.describe('B-65 Schlafende Begleiter', () => {
     await expect(sleep.locator('header.app-header h1')).toHaveText('Mimi & Mots');
     await expect(sleep.locator('.sleep__picture')).toHaveAttribute('src', /both_sleeping\.png$/);
     await expect(sleep.locator('.sleep__text')).toHaveText('Gute Nacht und bis morgen!');
-    await expect(sleep.getByRole('button')).toHaveCount(0);
+    // seit B-107 nur der Buch-Button zu „Meine Wörter“
+    await expect(sleep.getByRole('button')).toHaveCount(1);
+    await expect(sleep.getByRole('button', { name: 'Meine Wörter' })).toBeVisible();
   });
 
   test('AT-65.6: schlafen beide, startet die App mit der Schlafseite', async ({ page }) => {

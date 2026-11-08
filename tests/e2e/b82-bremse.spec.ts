@@ -14,20 +14,6 @@ async function seed(page: Page, brakeNew?: boolean) {
   });
 }
 
-/** Zwölf Wörter mit „Noch üben“ durchspielen; liefert die gezeigten ids. */
-async function playWords(page: Page): Promise<string[]> {
-  await btn(page, 'Los geht’s').click();
-  const ids: string[] = [];
-  for (let i = 0; i < 12; i++) {
-    const id = (await page.locator('.word-card').getAttribute('data-word-id'))!;
-    ids.push(id);
-    await btn(page, 'Auf Französisch anhören').click();
-    await btn(page, 'Noch üben').click();
-    await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', id);
-  }
-  return ids;
-}
-
 const tab = (page: Page, name: string) => page.getByRole('tab', { name });
 
 test.describe('B-82 Bremse für neue Wörter / B-83 Reiter im Elternbereich', () => {
@@ -55,8 +41,8 @@ test.describe('B-82 Bremse für neue Wörter / B-83 Reiter im Elternbereich', ()
       await expect(btn(page, 'Lernstand zurücksetzen')).toBeHidden();
       await expect(btn(page, 'Mimi')).toBeVisible();
       await expect(btn(page, 'Mots')).toBeVisible();
-      await expect(btn(page, 'Sprechen zurücksetzen')).toBeVisible();
-      await expect(btn(page, 'Hören zurücksetzen')).toBeVisible(); // B-89: je Modus
+      await expect(btn(page, 'Tutorial sprechen')).toBeVisible();
+      await expect(btn(page, 'Tutorial hören')).toBeVisible(); // B-89: je Modus
       // B-86: Auswahlkachel „Bremsen“ wie bei den Begleitern – an = lila gerahmt
       const brake = btn(page, 'Bremsen');
       await expect(brake).toHaveAttribute('aria-pressed', 'true'); // Standard: an
@@ -73,21 +59,6 @@ test.describe('B-82 Bremse für neue Wörter / B-83 Reiter im Elternbereich', ()
     },
   );
 
-  test('AT-82.3: Bremse an – bei 6+ Wörtern auf „noch üben“ kommen keine neuen', async ({
-    page,
-  }) => {
-    await prepare(page);
-    await seed(page);
-    await page.goto('./');
-    const ids = await playWords(page);
-    for (const id of ids) expect(SEEN).toContain(id);
-  });
-
-  test('AT-82.3: Bremse aus – neue Wörter kommen wie bisher', async ({ page }) => {
-    await prepare(page);
-    await seed(page, false);
-    await page.goto('./');
-    const ids = await playWords(page);
-    expect(ids.some((id) => !SEEN.includes(id))).toBe(true);
-  });
+  // AT-82.3 (Bremse in der Runde) prüft seit 2026-11-08 ein Unit-Test in tests/round.test.ts –
+  // zwölf Wörter durch die Oberfläche waren wegen Audio in WebKit unter Windows unzuverlässig.
 });

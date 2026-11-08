@@ -23,6 +23,22 @@
   --avatar-h: min(440px, 52dvh);
 }
 
+/* B-112: Begleiter und (falls gewachsen) die neue Stufe der Pflanze nebeneinander, unten bündig */
+.end__scene {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(16px, 4dvw, 48px);
+  min-height: 0;
+}
+
+.end__plant {
+  height: min(320px, 38dvh);
+  width: auto;
+  aspect-ratio: 220 / 240;
+  object-fit: contain;
+}
+
 .end__text {
   font-size: clamp(32px, 5dvh, 44px);
   font-weight: 800;
@@ -40,6 +56,10 @@
 
   .end__body .avatar {
     --avatar-h: calc(100dvh - 56px - 64px - 80px);
+  }
+
+  .end__plant {
+    height: calc((100dvh - 56px - 64px - 80px) * 0.75);
   }
 
   .end__text {

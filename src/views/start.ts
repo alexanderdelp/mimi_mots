@@ -8,7 +8,7 @@ import {
   sleepingAvatarUrl,
   type Companion,
 } from '../components/avatar';
-import { createAppHeader, onIconHold } from '../components/app-header';
+import { childButtons, createAppHeader, onIconHold } from '../components/app-header';
 import { createChoiceGroup } from '../components/choice-tile';
 import { icon } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
@@ -116,7 +116,13 @@ export function renderStart(store: Store): ViewHandle {
   const view = document.createElement('main');
   view.className = 'view view--start';
   view.dataset.view = 'start';
-  const header = createAppHeader({ name: data.name });
+  // B-107: Buch zu „Meine Wörter“; B-112: daneben der Garten, sobald eine Pflanze da ist
+  const buttons = childButtons(
+    data.garden.plants.length > 0,
+    () => store.dispatch({ type: 'words' }),
+    () => store.dispatch({ type: 'garden' }),
+  );
+  const header = createAppHeader({ start: buttons, name: data.name });
   const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
   view.append(header, groups, footer);
   return { el: view, dispose: release };

@@ -78,6 +78,47 @@ describe('showNextWord', () => {
     expect(run([ids[0]]).length).toBeGreaterThan(0);
   });
 
+  // AT-82.3 (früher per Playwright mit 12 Wörtern durch die Oberfläche): Die Runde gibt die
+  // Bremse aus dem Elternbereich an den Scheduler weiter. Wie dort: Französisch, 7 Wörter auf
+  // Stufe 0, zwölf Wörter mit „Noch üben“.
+  describe('AT-82.3: Bremse in der Runde', () => {
+    const SEEN = ['apfel', 'banane', 'erdbeere', 'birne', 'kirsche', 'zitrone', 'karotte'];
+    const play = (brakeNew: boolean, seed: number) => {
+      const data = childDefaults();
+      data.settings = { companion: 'mimi', language: 'fr', mode: 'speak' };
+      data.tutorialDone = true;
+      data.brakeNew = brakeNew;
+      const entry = { box: 0, seen: 1, lastSeenAt: '2026-10-30T08:00:00.000Z' };
+      data.progress.fr = Object.fromEntries(SEEN.map((id) => [id, entry]));
+      const store = createStore(data);
+      store.dispatch({ type: 'play' });
+      const rng = seededRng(seed);
+      const shown: string[] = [];
+      for (let i = 0; i < 12; i++) {
+        showNextWord(store, rng);
+        shown.push(store.getState().round!.wordId!);
+        store.dispatch({ type: 'reveal' });
+        store.dispatch({ type: 'rate', rating: 'practice', at: '2026-10-30T10:00:00.000Z' });
+      }
+      return shown;
+    };
+
+    it('Bremse an: bei 6+ Wörtern auf „noch üben“ kommen keine neuen', () => {
+      for (const seed of [1, 2, 3, 4, 5]) {
+        for (const id of play(true, seed)) expect(SEEN, `Seed ${seed}`).toContain(id);
+      }
+    });
+
+    it('Bremse aus: neue Wörter kommen wie bisher', () => {
+      for (const seed of [1, 2, 3, 4, 5]) {
+        expect(
+          play(false, seed).some((id) => !SEEN.includes(id)),
+          `Seed ${seed}`,
+        ).toBe(true);
+      }
+    });
+  });
+
   it('macht außerhalb der Lernrunde nichts', () => {
     const store = createStore(childDefaults());
     const before = store.getState();

@@ -60,7 +60,7 @@ test.describe('B-51 Service Worker', () => {
     for (const path of expected) expect(paths, path).toContain(path);
     // AT-61.5: jedes Bild und jede Audiodatei aus public/ (alle Sprachen, Schlafbilder, Flaggen)
     const media = readdirSync('public', { recursive: true, encoding: 'utf8' })
-      .filter((f) => /\.(png|svg|mp3)$/.test(f))
+      .filter((f) => /\.(png|svg|webp|mp3)$/.test(f)) // B-109: Blumen als WebP
       .map((f) => `/mimi_mots/${f.replaceAll('\\', '/')}`);
     // seit B-103 nur gewählte Aufnahmen: mindestens zwei volle Sprachen (EN, FR) plus Bilder
     expect(media.length).toBeGreaterThan(2 * words.length);

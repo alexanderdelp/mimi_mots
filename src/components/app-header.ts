@@ -2,6 +2,7 @@
 // Plätze, z. B. für [×] und den Timer in der Lernrunde; Icon und Titel bleiben immer mittig.
 // B-97: Name des Kinds klein in der Kopfleiste – nur Text, keine Schaltfläche; seit B-99 immer
 // rechts, damit er auf allen Seiten an derselben Stelle steht.
+import { roundButton } from './icons';
 import { onLongPress } from './long-press';
 
 export interface AppHeaderSlots {
@@ -42,6 +43,32 @@ export function createAppHeader(slots: AppHeaderSlots = {}): HTMLElement {
   }
   el.append(slot('start', slots.start), brand, end);
   return el;
+}
+
+/** B-107: Button „Meine Wörter“ (Buch) für Start- und Schlafseite, links in der Kopfleiste. */
+export function wordsButton(onClick: () => void): HTMLButtonElement {
+  const button = roundButton('Meine Wörter', 'book', 'words-button');
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+/** B-112: Button „Mein Garten“ (Blume), rechts neben dem Buch – erst, wenn eine Pflanze da ist. */
+export function gardenButton(onClick: () => void): HTMLButtonElement {
+  const button = roundButton('Mein Garten', 'flower', 'words-button garden-button');
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+/** Start- und Schlafseite: Buch und (mit Pflanze) Garten links in der Kopfleiste. */
+export function childButtons(
+  hasGarden: boolean,
+  onWords: () => void,
+  onGarden: () => void,
+): DocumentFragment {
+  const fragment = document.createDocumentFragment();
+  fragment.append(wordsButton(onWords));
+  if (hasGarden) fragment.append(gardenButton(onGarden));
+  return fragment;
 }
 
 /**

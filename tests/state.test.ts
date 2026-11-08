@@ -5,6 +5,7 @@ import { LANGUAGES, childDefaults, type ChildData } from '../src/storage';
 import { vocabularyIds } from '../src/data/vocabulary';
 import {
   activeWords,
+  canToggleFlower,
   canToggleWord,
   isComplete,
   canToggleLanguage,
@@ -17,6 +18,7 @@ import {
 } from '../src/state';
 import { createStore as createRealStore } from '../src/state';
 import { createStore, createStore as createStoreAt } from './test-store';
+import { createSession } from '../src/scheduler';
 
 /** Daten mit vollständiger Auswahl, damit Play erlaubt ist. */
 const complete = () => {
@@ -772,15 +774,16 @@ describe('Tutorial abbrechen (B-87)', () => {
     expect(store.getState().data).toMatchObject({ tutorialDone: true, listenTutorialDone: true });
   });
 
-  it('AT-89.6: resetTutorial setzt nur das Tutorial des Modus zurück', () => {
+  it('AT-89.6/AT-108.2: toggleTutorial schaltet nur das Tutorial des Modus an und wieder aus', () => {
     const data = complete();
     data.listenTutorialDone = true;
     const admin: AppState = { view: 'admin', portrait: false, data, round: null };
-    const listen = reduce(admin, { type: 'resetTutorial', mode: 'listen' });
+    const listen = reduce(admin, { type: 'toggleTutorial', mode: 'listen' });
     expect(listen.data).toMatchObject({ tutorialDone: true, listenTutorialDone: false });
-    const speak = reduce(admin, { type: 'resetTutorial', mode: 'speak' });
+    const speak = reduce(admin, { type: 'toggleTutorial', mode: 'speak' });
     expect(speak.data).toMatchObject({ tutorialDone: false, listenTutorialDone: true });
-    expect(reduce(listen, { type: 'resetTutorial', mode: 'listen' })).toBe(listen);
+    const back = reduce(listen, { type: 'toggleTutorial', mode: 'listen' });
+    expect(back.data).toMatchObject({ tutorialDone: true, listenTutorialDone: true });
   });
 });
 
@@ -815,15 +818,15 @@ describe('Tutorial (B-74)', () => {
     return { view, portrait: false, data, round: null };
   };
 
-  it('tutorialDone nur in der Runde, resetTutorial nur im Elternbereich', () => {
+  it('tutorialDone nur in der Runde, toggleTutorial nur im Elternbereich', () => {
     expect(reduce(at('round', false), { type: 'tutorialDone' }).data.tutorialDone).toBe(true);
     const start = at('start', false);
     expect(reduce(start, { type: 'tutorialDone' })).toBe(start);
     expect(
-      reduce(at('admin', true), { type: 'resetTutorial', mode: 'speak' }).data.tutorialDone,
+      reduce(at('admin', true), { type: 'toggleTutorial', mode: 'speak' }).data.tutorialDone,
     ).toBe(false);
     const round = at('round', true);
-    expect(reduce(round, { type: 'resetTutorial', mode: 'speak' })).toBe(round);
+    expect(reduce(round, { type: 'toggleTutorial', mode: 'speak' })).toBe(round);
   });
 });
 
@@ -1017,5 +1020,175 @@ describe('Begrüßung (B-97)', () => {
   it('AT-97.8: Elternbereich auch von der Begrüßung', () => {
     expect(reduce(at('welcome'), { type: 'admin' }).view).toBe('admin');
     expect(reduce(at('welcome', unnamed()), { type: 'admin' }).view).toBe('admin');
+  });
+});
+
+describe('Wörter per Ziehen in eine Stufe legen (B-106)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+  const AT = '2026-11-08T09:00:00.000Z';
+  const entry = { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' };
+  const move = (
+    state: AppState,
+    id: string,
+    box: number | null,
+    mode: 'speak' | 'listen' = 'speak',
+    language: 'en' | 'fr' = 'en',
+  ) => reduce(state, { type: 'moveWord', language, mode, id, box, at: AT });
+  const withHund = () => {
+    const data = complete();
+    data.progress.en = { hund: entry };
+    data.listenProgress.en = { hund: entry };
+    data.progress.fr = { hund: entry };
+    return data;
+  };
+
+  it('AT-106.1: Stufe wechselt, seen und lastSeenAt bleiben', () => {
+    const next = move(at('admin', withHund()), 'hund', 1);
+    expect(next.data.progress.en.hund).toEqual({ ...entry, box: 1 });
+    expect(next.data.listenProgress.en.hund).toEqual(entry);
+    expect(next.data.progress.fr.hund).toEqual(entry);
+  });
+
+  it('AT-106.2: neues Wort bekommt einen Eintrag mit seen 0 und dem Zeitpunkt', () => {
+    const next = move(at('admin'), 'katze', 2);
+    expect(next.data.progress.en.katze).toEqual({ box: 2, seen: 0, lastSeenAt: AT });
+  });
+
+  it('AT-106.3: „Neu“ löscht den Lernstand nur in diesem Modus und dieser Sprache', () => {
+    const next = move(at('admin', withHund()), 'hund', null, 'listen');
+    expect(next.data.listenProgress.en).toEqual({});
+    expect(next.data.progress.en.hund).toEqual(entry);
+    expect(next.data.progress.fr.hund).toEqual(entry);
+  });
+
+  it('AT-106.4: ein ausgeschaltetes Wort bleibt beim Verschieben aus', () => {
+    const data = withHund();
+    data.disabledWords.en = ['hund'];
+    const next = move(at('admin', data), 'hund', 0);
+    expect(next.data.progress.en.hund.box).toBe(0);
+    expect(next.data.disabledWords.en).toEqual(['hund']);
+  });
+
+  it('AT-106.5: gleiche Zeile, falsche Stufe, fremdes Wort oder andere Ansicht ändern nichts', () => {
+    const admin = at('admin', withHund());
+    expect(move(admin, 'hund', 3)).toBe(admin);
+    expect(move(admin, 'katze', null)).toBe(admin);
+    for (const bad of [-1, 5, 1.5]) expect(move(admin, 'hund', bad)).toBe(admin);
+    expect(move(admin, 'gibtsnicht', 1)).toBe(admin);
+    const start = at('start', withHund());
+    expect(move(start, 'hund', 1)).toBe(start);
+  });
+});
+
+describe('Samen freigeben (B-109)', () => {
+  const at = (view: ViewName, data = complete()): AppState => ({
+    view,
+    portrait: false,
+    data,
+    round: null,
+  });
+  const toggle = (state: AppState, flower: 'sunflower' | 'peony' | 'clematis') =>
+    reduce(state, { type: 'toggleFlower', flower });
+
+  it('AT-109.2: schaltet im Elternbereich aus und wieder an, Reihenfolge bleibt', () => {
+    const off = toggle(at('admin'), 'peony');
+    expect(off.data.enabledFlowers).toEqual(['sunflower', 'clematis']);
+    expect(toggle(off, 'peony').data.enabledFlowers).toEqual(['sunflower', 'peony', 'clematis']);
+  });
+
+  it('AT-109.3: der letzte bleibt an', () => {
+    const data = complete();
+    data.enabledFlowers = ['clematis'];
+    const admin = at('admin', data);
+    expect(canToggleFlower(data, 'clematis')).toBe(false);
+    expect(canToggleFlower(data, 'peony')).toBe(true);
+    expect(toggle(admin, 'clematis')).toBe(admin);
+  });
+
+  it('nur im Elternbereich', () => {
+    const start = at('start');
+    expect(toggle(start, 'peony')).toBe(start);
+  });
+});
+
+describe('Garten (B-112)', () => {
+  const AT = '2026-11-08T10:00:00.000Z';
+  const roundAt = (data = complete(), expired = true): AppState => ({
+    view: 'round',
+    portrait: false,
+    data,
+    round: { session: createSession(), wordId: 'dog', revealed: true, expired },
+  });
+  const rate = (state: AppState) =>
+    reduce(state, { type: 'rate', rating: 'known', at: AT }, '2026-11-08');
+  const growing = (rounds: number, need: number) => {
+    const data = complete();
+    data.garden = { plants: [{ flower: 'peony', stage: 1 }], rounds, need };
+    return data;
+  };
+
+  it('AT-112.1: abgeschlossen ohne Samen → Abschluss, dann Samenwahl; Einpflanzen, dann Start', () => {
+    const end = rate(roundAt());
+    expect(end.view).toBe('end');
+    expect(end.harvest).toBe('choose');
+    const seed = reduce(end, { type: 'home' });
+    expect(seed.view).toBe('seed');
+    expect(reduce(seed, { type: 'home' })).toBe(seed); // erst einpflanzen
+    const planted = reduce(seed, { type: 'plant', flower: 'clematis', at: AT });
+    expect(planted.data.garden.plants).toEqual([{ flower: 'clematis', stage: 1 }]);
+    expect(reduce(planted, { type: 'plant', flower: 'peony', at: AT })).toBe(planted);
+    const home = reduce(planted, { type: 'home' });
+    expect(home.view).toBe('start');
+    expect(home.harvest).toBeNull();
+  });
+
+  it('AT-112.1: nur freigegebene Samen lassen sich pflanzen', () => {
+    const data = complete();
+    data.enabledFlowers = ['sunflower'];
+    const seed: AppState = { view: 'seed', portrait: false, data, round: null, harvest: 'choose' };
+    expect(reduce(seed, { type: 'plant', flower: 'peony', at: AT })).toBe(seed);
+  });
+
+  it('AT-112.2: Abbruch per [×] zählt nicht und führt nicht zur Samenwahl', () => {
+    const aborted = reduce(roundAt(complete(), false), { type: 'finish' }, '2026-11-08');
+    expect(aborted.view).toBe('end');
+    expect(aborted.harvest).toBeNull();
+    expect(reduce(aborted, { type: 'home' }).view).toBe('start');
+    const growingAborted = reduce(roundAt(growing(2, 3), true), { type: 'finish' }, '2026-11-08');
+    expect(growingAborted.data.garden.rounds).toBe(2);
+  });
+
+  it('AT-112.4: zählt abgeschlossene Runden und wächst bei `need`', () => {
+    const counted = rate(roundAt(growing(1, 3)));
+    expect(counted.harvest).toBeNull();
+    expect(counted.data.garden.rounds).toBe(2);
+    expect(reduce(counted, { type: 'home' }).view).toBe('start');
+    const grew = rate(roundAt(growing(2, 3)));
+    expect(grew.harvest).toBe('grew');
+    expect(grew.data.garden.plants[0].stage).toBe(2);
+    expect(reduce(grew, { type: 'home' }).view).toBe('start');
+  });
+
+  it('AT-112.3: Garten nur mit Pflanze, zurück zur Start- bzw. Schlafseite', () => {
+    const start: AppState = { view: 'start', portrait: false, data: complete(), round: null };
+    expect(reduce(start, { type: 'garden' })).toBe(start);
+    const withPlant = { ...start, data: growing(0, 3) };
+    const garden = reduce(withPlant, { type: 'garden' });
+    expect(garden.view).toBe('garden');
+    expect(reduce(garden, { type: 'home' }).view).toBe('start');
+    const sleeping = growing(0, 3);
+    sleeping.rest = { sleeping: ['mimi', 'mots'], since: '2026-11-08' };
+    const fromSleep = reduce(
+      { view: 'sleep', portrait: false, data: sleeping, round: null },
+      { type: 'garden' },
+      '2026-11-08',
+    );
+    expect(fromSleep.view).toBe('garden');
+    expect(reduce(fromSleep, { type: 'home' }, '2026-11-08').view).toBe('sleep');
   });
 });
