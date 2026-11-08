@@ -115,13 +115,25 @@ test.describe('B-25 Fortschrittsring', () => {
   test('AT-25.7: Ring füllt sich beim Halten, verschwindet beim Loslassen', async ({ page }) => {
     expect((await ring(page)).opacity).toBe(0);
     await pressOnClose(page);
-    // der Ring ist ein CSS-Übergang (echte Zeit): irgendwann mittendrin gesehen
-    await expect
-      .poll(async () => {
-        const { offset, opacity } = await ring(page);
-        return opacity === 1 && offset > 15 && offset < 85;
-      })
-      .toBe(true);
+    // Der CSS-Übergang läuft nicht verlässlich mit der Uhr des Tests mit. Statt einen
+    // Zwischenstand abzupassen (unter Last unsicher), wird der laufende Übergang angehalten und
+    // auf die Hälfte gestellt: Er dauert 600 ms und läuft gleichmäßig, also ist der Ring halb voll.
+    const half = () =>
+      page.locator('.close-button__ring circle').evaluate((c) => {
+        const transition = c
+          .getAnimations()
+          .find((a) => (a as CSSTransition).transitionProperty === 'stroke-dashoffset');
+        if (!transition) return null;
+        transition.pause();
+        transition.currentTime = 300;
+        const s = getComputedStyle(c);
+        return {
+          duration: transition.effect?.getTiming().duration,
+          offset: Math.round(parseFloat(s.strokeDashoffset)),
+          opacity: parseFloat(s.opacity),
+        };
+      });
+    await expect.poll(half).toEqual({ duration: 600, offset: 50, opacity: 1 });
     await page.mouse.up();
     expect(await ring(page)).toEqual({ offset: 100, opacity: 0 });
     await expect(page.locator('[data-view="round"]')).toBeVisible();
