@@ -1,4 +1,4 @@
-// B-97: ids für Kinder als UUID (Version 4), damit sie später als Primärschlüssel in Supabase
+// B-97: ids für Kinder als UUID (Version 4), damit sie später als Primärschlüssel in der Datenbank
 // passen. `crypto.randomUUID` gibt es nur in sicheren Kontexten (https, localhost) – über den
 // Dev-Server im WLAN (http://192.168…) fehlt es, `crypto.getRandomValues` aber nicht.
 

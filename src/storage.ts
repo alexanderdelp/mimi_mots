@@ -1,7 +1,7 @@
 // Persistenz in localStorage (anforderungen.md §7): ein Schlüssel, versioniert.
 // Kaputte oder fehlende Daten führen nie zum Absturz, sondern zu Defaults.
 // B-97: Alle Daten gehören zu einem Kind (`children`, Platz für weitere – B-90); ids und
-// Zeitstempel so, dass die Kinder später 1 : 1 als Zeilen in Supabase passen. Daten älterer
+// Zeitstempel so, dass die Kinder später 1 : 1 als Zeilen in der Datenbank passen. Daten älterer
 // Versionen (`mimi-mots:v1`) werden nicht übernommen – eine neue Version darf sie verwerfen.
 import { COMPANIONS, type Companion } from './components/avatar';
 import { hasVocabulary, vocabularyIds } from './data/vocabulary';
@@ -75,7 +75,7 @@ export interface ChildData {
   roundMin: number;
 }
 
-/** Ein Kind mit id (UUID) und Zeitstempeln (ISO) – später eine Zeile in Supabase. */
+/** Ein Kind mit id (UUID) und Zeitstempeln (ISO) – später eine Zeile in der Datenbank. */
 export interface Child extends ChildData {
   id: string;
   createdAt: string;
