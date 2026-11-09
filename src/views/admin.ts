@@ -1,18 +1,26 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
 // Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
-// zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorial zurücksetzen,
+// zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88)
+// und per Ziehen in eine andere Stufe legen (B-106); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorials an/aus (B-108),
 // Bremse für neue Wörter (B-82), Rundendauer (B-93, seit B-100 als Schieberegler), Version (B-98).
 // Keine Avatare; sonst dieselben Bausteine wie überall. B-100: alle Bedienelemente von
 // „Sonstiges“ stehen rechts in einer festen Spalte (Flucht).
 import { createAppHeader } from '../components/app-header';
 import { COMPANIONS, COMPANION_NAMES } from '../components/avatar';
-import { createChoiceGroup, createChoiceTile } from '../components/choice-tile';
+import { createChoiceGroup, createChoiceTile, type ChoiceTile } from '../components/choice-tile';
 import { icon, roundButton } from '../components/icons';
+import { FLOWERS, FLOWER_NAMES, flowerUrl, type Flower } from '../data/flowers';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { MODE_INFO } from '../data/modes';
 import { vocabulary } from '../data/vocabulary';
 import type { Language } from '../data/words';
-import { canToggleLanguage, canToggleWord, progressKey, type Store } from '../state';
+import {
+  canToggleFlower,
+  canToggleLanguage,
+  canToggleWord,
+  progressKey,
+  type Store,
+} from '../state';
 import {
   LANGUAGES,
   MAX_BOX,
@@ -23,6 +31,7 @@ import {
   type Progress,
 } from '../storage';
 import { copyText } from '../components/copy-text';
+import { enableDragMove } from '../components/drag-move';
 import { VERSION_LABEL } from '../version';
 import type { ViewHandle } from './view';
 
@@ -120,7 +129,7 @@ export function renderAdmin(store: Store): ViewHandle {
   view.dataset.view = 'admin';
 
   // B-86: Zurück-Pfeil statt Haus – zurück zur Start- bzw. Schlafseite
-  const home = roundButton('Zurück', 'back', 'home-button admin__home');
+  const home = roundButton('Zurück', 'home', 'home-button admin__home');
   home.addEventListener('click', () => store.dispatch({ type: 'leave' }));
 
   // B-89: Lernstand je Modus – gleiche Symbole wie auf der Startseite
@@ -194,15 +203,42 @@ export function renderAdmin(store: Store): ViewHandle {
   );
   const sleep = el('div', 'admin__sleep');
   sleep.append(...[...sleepers.values()].map((tile) => tile.el));
-  // B-74: Tutorial kommt in der nächsten Runde wieder – je Modus getrennt (B-89)
+  // B-74/B-89: Tutorial je Modus; B-108: Schalter wie „Bremsen“ – markiert = kommt beim nächsten Mal.
+  // B-109: beide in einer Zeile („Sprechen“, „Hören“ wie „Mimi“, „Mots“), damit „Samen“ Platz hat
   const tutorials = Object.fromEntries(
     MODES.map((m) => {
-      const button = textButton(`${MODE_INFO[m].name} zurücksetzen`);
-      button.classList.add('admin__tutorial');
-      button.addEventListener('click', () => store.dispatch({ type: 'resetTutorial', mode: m }));
-      return [m, button];
+      const name = MODE_INFO[m].name;
+      const tile = createChoiceTile({
+        content: [el('span', 'admin__brake-label', name)],
+        label: `Tutorial ${name.toLowerCase()}`,
+        onSelect: () => store.dispatch({ type: 'toggleTutorial', mode: m }),
+      });
+      tile.el.classList.add('admin__sleeper', 'admin__tutorial');
+      return [m, tile];
     }),
-  ) as Record<Mode, HTMLButtonElement>;
+  ) as Record<Mode, ChoiceTile>;
+  const tutorialPair = el('div', 'admin__sleep');
+  tutorialPair.append(tutorials.speak.el, tutorials.listen.el);
+  // B-109: Samen, die zur Verfügung stehen – Kacheln mit dem Samenbild, markiert = freigegeben;
+  // der letzte bleibt an. Den Namen hört nur der Screenreader.
+  const flowerTiles = new Map(
+    FLOWERS.map((f) => {
+      const seed = Object.assign(el('img', 'admin__seed'), {
+        src: flowerUrl(f, 'seed'),
+        alt: '',
+        draggable: false,
+      });
+      const tile = createChoiceTile({
+        content: [seed],
+        label: FLOWER_NAMES[f],
+        onSelect: () => store.dispatch({ type: 'toggleFlower', flower: f }),
+      });
+      tile.el.classList.add('admin__flower');
+      return [f, tile] as const;
+    }),
+  );
+  const seeds = el('div', 'admin__seeds');
+  seeds.append(...[...flowerTiles.values()].map((tile) => tile.el));
   // B-82/B-86: Schalter als Auswahlkachel wie bei Begleiter und Sprache – an = lila gerahmt
   const brake = createChoiceTile({
     content: [el('span', 'admin__brake-label', 'Bremsen')],
@@ -243,8 +279,8 @@ export function renderAdmin(store: Store): ViewHandle {
   other.append(
     settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration),
     settingRow('Schlafen', 'Markiert = schläft bis morgen. Tippen schaltet um.', sleep),
-    settingRow('Tutorial Sprechen', 'Kommt beim nächsten Sprechen wieder.', tutorials.speak),
-    settingRow('Tutorial Hören', 'Kommt beim nächsten Hören wieder.', tutorials.listen),
+    settingRow('Samen', 'Markiert = steht zur Wahl. Tippen schaltet um.', seeds),
+    settingRow('Tutorial', 'Markiert = kommt beim nächsten Mal. Tippen schaltet um.', tutorialPair),
     settingRow(
       'Neue Wörter bremsen',
       'Stehen 6 oder mehr Wörter auf „noch üben“, kommen keine neuen dazu.',
@@ -273,9 +309,15 @@ export function renderAdmin(store: Store): ViewHandle {
     otherPanel.hidden = tab !== 'sonstiges';
 
     sleepers.forEach((tile, c) => tile.setSelected(data.rest.sleeping.includes(c)));
-    tutorials.speak.disabled = !data.tutorialDone;
-    tutorials.listen.disabled = !data.listenTutorialDone;
+    tutorials.speak.setSelected(!data.tutorialDone);
+    tutorials.listen.setSelected(!data.listenTutorialDone);
     brake.setSelected(data.brakeNew);
+    flowerTiles.forEach((tile, f: Flower) => {
+      tile.setSelected(data.enabledFlowers.includes(f));
+      // der letzte freigegebene bleibt an
+      if (canToggleFlower(data, f)) tile.el.removeAttribute('aria-disabled');
+      else tile.el.setAttribute('aria-disabled', 'true');
+    });
     if (!sliding) {
       if (range.value !== String(data.roundMin)) range.value = String(data.roundMin);
       showMinutes(data.roundMin);
@@ -359,7 +401,8 @@ export function renderAdmin(store: Store): ViewHandle {
           chip.title = `${w.de} · ${w[language]}`;
           chip.setAttribute('aria-label', chip.title);
           chip.setAttribute('aria-pressed', String(!data.disabledWords[language].includes(w.id)));
-          chip.disabled = !canToggleWord(data, language, w.id); // das letzte Wort bleibt an
+          // das letzte Wort bleibt an; aria-disabled statt disabled, damit es ziehbar bleibt (B-106)
+          if (!canToggleWord(data, language, w.id)) chip.setAttribute('aria-disabled', 'true');
           chip.addEventListener('click', () =>
             store.dispatch({ type: 'toggleWord', language, id: w.id }),
           );
@@ -375,6 +418,21 @@ export function renderAdmin(store: Store): ViewHandle {
   const toolbar = el('div', 'admin__toolbar');
   toolbar.append(modes.el, languages.el, actions);
 
+  // B-106: Tippen schaltet (oben), Ziehen legt das Wort in eine andere Zeile; „Neu“ löscht den
+  // Lernstand des Worts in diesem Modus
+  const stopDrag = enableDragMove(levels, {
+    items: '.admin__word',
+    targets: '.admin__level',
+    onDrop: (item, target) => {
+      const id = item.dataset.wordId;
+      const level = target.dataset.level;
+      if (!id || level === undefined) return;
+      const box = level === 'neu' ? null : Number(level);
+      const at = new Date().toISOString();
+      store.dispatch({ type: 'moveWord', language, mode, id, box, at });
+    },
+  });
+
   languagesPanel.append(toolbar, levels);
   otherPanel.append(other);
   const body = el('div', 'admin__body');
@@ -385,5 +443,11 @@ export function renderAdmin(store: Store): ViewHandle {
   const unsubscribe = store.subscribe((state, previous) => {
     if (state.view === 'admin' && state.data !== previous.data) render();
   });
-  return { el: view, dispose: unsubscribe };
+  return {
+    el: view,
+    dispose: () => {
+      unsubscribe();
+      stopDrag();
+    },
+  };
 }

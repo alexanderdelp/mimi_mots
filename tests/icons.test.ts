@@ -10,11 +10,11 @@ describe('icon', () => {
     'repeat',
     'speaker',
     'home',
-    'back',
     'rotate',
     'speak',
     'listen',
     'eye',
+    'flower',
   ] as const)('%s ist ein dekoratives SVG', (n) => {
     const svg = icon(n);
     expect(svg.tagName.toLowerCase()).toBe('svg');

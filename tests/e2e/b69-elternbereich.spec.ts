@@ -48,7 +48,7 @@ test.describe('B-69 Elternbereich', () => {
     await page.mouse.down();
     await page.clock.runFor(300);
     expect(await look()).toBe(before);
-    await page.clock.runFor(400);
+    await page.clock.runFor(800); // B-113: 1 s halten
     await page.mouse.up();
     await expect(view(page, 'admin')).toBeVisible();
   });
@@ -58,7 +58,7 @@ test.describe('B-69 Elternbereich', () => {
   }) => {
     await seed(page, { sleeping: ['mimi', 'mots'] });
     await page.goto('./');
-    await hold(page, ICON, 700);
+    await hold(page, ICON, 1100);
     await expect(view(page, 'admin')).toBeVisible();
     expect((await stored(page)).rest.sleeping).toEqual(['mimi', 'mots']);
     await btn(page, 'Zurück').click();
@@ -68,14 +68,14 @@ test.describe('B-69 Elternbereich', () => {
   test('AT-69.2/69.3: Kopfleiste, keine Avatare, aufwecken, zurück', async ({ page }) => {
     await seed(page, { sleeping: ['mimi', 'mots'] });
     await page.goto('./');
-    await hold(page, ICON, 700);
+    await hold(page, ICON, 1100);
     const admin = view(page, 'admin');
     await expect(admin.locator('header.app-header h1')).toHaveText('Mimi & Mots');
     await expect(admin.locator('.avatar, .start__avatar')).toHaveCount(0);
     await btn(page, 'Zurück').click();
     await expect(view(page, 'sleep')).toBeVisible();
 
-    await hold(page, ICON, 700);
+    await hold(page, ICON, 1100);
     await page.getByRole('tab', { name: 'Sonstiges' }).click(); // B-83
     // B-94: jedes Tier einzeln wecken
     for (const name of ['Mimi', 'Mots']) {
@@ -93,7 +93,7 @@ test.describe('B-69 Elternbereich', () => {
   test('AT-69.4: Wörter je Sprache nach Stufe', async ({ page }) => {
     await seed(page, { fr: { apfel: entry(0), hund: entry(4), katze: entry(4), maus: entry(2) } });
     await page.goto('./');
-    await hold(page, ICON, 700);
+    await hold(page, ICON, 1100);
     await expect(btn(page, 'Französisch')).toHaveAttribute('aria-pressed', 'true');
     await expect(level(page, '0')).toHaveCount(1);
     await expect(level(page, '0').first()).toHaveAttribute('aria-label', 'Apfel · la pomme');
@@ -114,7 +114,7 @@ test.describe('B-69 Elternbereich', () => {
   test('AT-69.5: Zurücksetzen nur nach Sicherheitsabfrage, nur diese Sprache', async ({ page }) => {
     await seed(page, { fr: { apfel: entry(0), hund: entry(4) } });
     await page.goto('./');
-    await hold(page, ICON, 700);
+    await hold(page, ICON, 1100);
     await btn(page, 'Japanisch').click(); // ohne Lernstand: nichts zurückzusetzen
     await expect(btn(page, 'Lernstand zurücksetzen')).toBeDisabled();
     await btn(page, 'Französisch').click();

@@ -3,7 +3,9 @@
 // B-97: Alle Daten gehören zu einem Kind (`children`, Platz für weitere – B-90); ids und
 // Zeitstempel so, dass die Kinder später 1 : 1 als Zeilen in der Datenbank passen. Daten älterer
 // Versionen (`mimi-mots:v1`) werden nicht übernommen – eine neue Version darf sie verwerfen.
+import { emptyGarden, sanitizeGarden, type Garden } from './garden';
 import { COMPANIONS, type Companion } from './components/avatar';
+import { FLOWERS, type Flower } from './data/flowers';
 import { hasVocabulary, vocabularyIds } from './data/vocabulary';
 import type { Language } from './data/words';
 import type { Store } from './state';
@@ -73,6 +75,10 @@ export interface ChildData {
   disabledWords: DisabledWords;
   /** B-93: Dauer einer Runde in Minuten (3 bis 10), gilt für beide Modi. */
   roundMin: number;
+  /** B-109: im Elternbereich freigegebene Samen (mindestens einer). */
+  enabledFlowers: Flower[];
+  /** B-112: Garten des Kinds – Pflanzen und Runden bis zur nächsten Stufe. */
+  garden: Garden;
 }
 
 /** Ein Kind mit id (UUID) und Zeitstempeln (ISO) – später eine Zeile in der Datenbank. */
@@ -119,6 +125,8 @@ export function childDefaults(): ChildData {
     brakeNew: true,
     disabledWords: { en: [], fr: [], ja: [], it: [] },
     roundMin: ROUND_MIN,
+    enabledFlowers: [...FLOWERS],
+    garden: emptyGarden(),
   };
 }
 
@@ -223,6 +231,12 @@ function sanitizeEnabled(raw: unknown): Language[] {
   return withWords(subsetOf(LANGUAGES, raw));
 }
 
+/** B-109: bekannte Samen in fester Reihenfolge; keiner (oder fehlt) → alle. */
+function sanitizeFlowers(raw: unknown): Flower[] {
+  const flowers = subsetOf(FLOWERS, raw);
+  return flowers.length > 0 ? flowers : [...FLOWERS];
+}
+
 /** Nur Wörter des Wortschatzes (B-84); sind alle einer Sprache aus, sind alle wieder an. */
 function sanitizeDisabled(raw: unknown): DisabledWords {
   const disabled = childDefaults().disabledWords;
@@ -273,6 +287,8 @@ export function sanitizeChild(raw: unknown): ChildData {
     brakeNew: raw.brakeNew !== false, // fehlt bei älteren Daten → an
     disabledWords: sanitizeDisabled(raw.disabledWords), // fehlt bei älteren Daten → alle an
     roundMin: isRoundMin(raw.roundMin) ? raw.roundMin : ROUND_MIN, // fehlt bei älteren Daten → 5
+    enabledFlowers: sanitizeFlowers(raw.enabledFlowers), // fehlt bei älteren Daten → alle
+    garden: sanitizeGarden(raw.garden), // fehlt bei älteren Daten → leer
   };
 }
 

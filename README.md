@@ -4,6 +4,7 @@ PWA für ein quergelegtes iPad (auch iPhone quer), mit der eine Erstklässlerin 
 
 - Kurze Runden (Standard 5 Minuten) im Modus **Sprechen** (Bild → Fremdwort) oder **Hören** (Fremdwort → Bild), mit Tutorial beim ersten Mal; danach schläft der Begleiter bis morgen.
 - Neutrale Selbsteinschätzung („Wusste ich“ / „Noch üben“), Wortauswahl nach Leitner – keine Punkte, kein Lob.
+- „Meine Wörter“ (Buch-Button): Das Kind sieht seine Wörter nach Stufe – ohne Zahlen, ohne Bewertung.
 - Versteckter Elternbereich (App-Icon gedrückt halten): Lernstand, Sprachen und Wörter ein-/ausschalten, Rundendauer, Tiere wecken.
 - Offline nach dem ersten Laden, keine Server, kein Tracking.
 
@@ -25,6 +26,8 @@ npm run lint
 ```
 
 Andere Ports (z. B. für parallele Worktrees): `DEV_PORT=5182 PREVIEW_PORT=4182 npm run …` – die E2E-Tests nutzen `PREVIEW_PORT`.
+
+**API-Testseite für freie Vokabeln (B-104):** `http://localhost:5181/mimi_mots/tools/api-test.html` (nur `npm run dev`, nicht im Build). Vergleicht Übersetzungs-, Wörterbuch- und Aussprache-APIs für Englisch und Französisch. LibreTranslate braucht einen eigenen Schlüssel oder eine eigene Instanz.
 
 ## Veröffentlichung (GitHub Pages)
 

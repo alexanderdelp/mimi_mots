@@ -1,5 +1,7 @@
 // B-98: Version, Commit und Datum des Builds für den Elternbereich. Läuft nur beim Bauen
 // (vite.config.ts, Vite `define`); alles ist klein und ohne Nebenwirkungen testbar.
+// Nur für Node: Code aus src/ darf diese Datei nicht laden (B-105), sonst bleibt die App im
+// Dev-Server leer.
 import { execFileSync } from 'node:child_process';
 
 export const UNKNOWN = 'unbekannt';
@@ -35,9 +37,4 @@ export function resolveCommit(
     // kein Git oder kein Repository → Fallback
   }
   return shortCommit(env.GITHUB_SHA);
-}
-
-/** Text der Zeile „Version“: „0.1.0 · 8f48636 · 01.11.2026“. */
-export function versionLabel(version: string, commit: string, date: string): string {
-  return [version, commit, date].join(' · ');
 }

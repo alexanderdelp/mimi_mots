@@ -111,8 +111,9 @@ export async function welcomeView(page: Page) {
   await expect(page.locator('[data-view="welcome"]')).toBeVisible();
 }
 
-/** Gedrückt halten (Long-Press: [×], App-Icon) – über die Testuhr, `page.clock` muss laufen. */
-export async function hold(page: Page, target: string | Locator, ms = 700) {
+/** Gedrückt halten (Long-Press: [×] 600 ms, App-Icon 1 s seit B-113) – über die Testuhr,
+ *  `page.clock` muss laufen. Der Standard reicht für beide. */
+export async function hold(page: Page, target: string | Locator, ms = 1100) {
   const locator = typeof target === 'string' ? page.locator(target) : target;
   const box = (await locator.boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
