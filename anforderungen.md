@@ -321,7 +321,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - „Sonstiges“: Alle Bedienelemente stehen rechts in einer festen Spalte (iPad 320 px, iPhone 260 px) und füllen sie aus; die Breite hängt nicht vom Text ab. Rundendauer als nativer Schieberegler (3–10 Min., rastet je Minute ein, gespeichert beim Loslassen als `roundMin`) mit lila Füllung bis zur Griffmitte, weißem Griff (44 px, iPhone 32 px) und acht Strichen; ersetzt „−“/„+“. Im Screenshot-Test ist der Versionstext unsichtbar, weil Commit und Datum sich je Build ändern (B-100).
 
 ### Speicher und Daten
-- Alle Daten gehören zu einem Kind: `{ version: 2, activeChildId, children: [{ id, name, createdAt, updatedAt, …Daten }] }` unter `mimi-mots:v2`. ids sind UUIDs (`crypto.randomUUID`, ohne sicheren Kontext über `crypto.getRandomValues`), Zeitstempel ISO in UTC – damit die Kinder später 1 : 1 als Zeilen in Supabase passen. Unbrauchbare Daten führen zum Erststart (B-97).
+- Alle Daten gehören zu einem Kind: `{ version: 2, activeChildId, children: [{ id, name, createdAt, updatedAt, …Daten }] }` unter `mimi-mots:v2`. ids sind UUIDs (`crypto.randomUUID`, ohne sicheren Kontext über `crypto.getRandomValues`), Zeitstempel ISO in UTC – damit die Kinder später 1 : 1 als Zeilen in der Datenbank passen. Unbrauchbare Daten führen zum Erststart (B-97).
 - Keine Datenübernahme über Updates (Entscheidung des Menschen): Eine neue Version darf gespeicherte Daten verwerfen; Code, der Daten über Updates erhält, nur nach Rückfrage; vor jeder Änderung am Speicherformat fragen. Deshalb wird `mimi-mots:v1` nicht übernommen (B-97).
 - Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind, nicht für das Gerät (Nutzerentscheidung für B-90).
 - Fehlende oder ungültige Werte → Standard (z. B. `roundMin` → 5, Bremse an) (B-82, B-93).
@@ -345,6 +345,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Leitprinzip 1 und „Meine Wörter“ (B-107, Nutzerentscheidung 2026-11-08): Das Kind sieht seinen Lernstand, aber ohne Bewertung – keine Wörter wie „Stufe“, „sicher“, „noch üben“, keine Anzahl, keine Prozente, keine Zeile „Neu“; die Zeilen kennzeichnen gleich gefärbte lila Punkte (1–5). Erreichbar über einen Buch-Button auf Start- und Schlafseite.
 - Das Leitprinzipien-Review (B-61, 2026-10-30) ergab keine Abweichung; die Prüfungen laufen automatisch in `b60-layout.spec.ts` und `b61-leitprinzipien.spec.ts` (Momentaufnahme mit Textliste im Archiv).
 - Leitprinzip 6 bleibt unberührt vom Telegram-Bot (nur Entwicklung) und gilt bis zur Datenbank (siehe `backlog.md` → „Später“).
+- Datenbank: Neon statt Supabase (Nutzerentscheidung): ein Neon-Projekt je App im Free Plan, Migrationen bleiben in diesem Repo; das Supabase-Free-Tier (zwei Projekte) ist von anderen PWAs belegt (2026-11-09).
 
 ### Entwicklung und Werkzeuge
 - Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme (2026-10-29).
@@ -354,7 +355,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Screenshot-Tests blenden in der Lernrunde nur die Uhr aus (B-99).
 - Für die Tests gilt Tutorial und Begrüßung als durchgetippt und der Name „Lina“ als gesetzt, außer mit `test.use({ tutorial: true })`, `test.use({ greeting: true })` bzw. `test.use({ childName: null })` (B-97).
 - Eigene Ports: Dev-Server 5181, Vorschau und E2E 4181, jeweils `strictPort`; je Worktree per `DEV_PORT`/`PREVIEW_PORT`. Playwright startet immer einen eigenen Server – sonst testete es womöglich ein fremdes Projekt (2026-11-01, B-92).
-- Versionierung nach SemVer (Nutzerentscheidung): MINOR je neue Funktion, PATCH je Korrektur oder kleine Anpassung, keine neue Version für Doku/Tests/Werkzeuge; 1.0.0, sobald der Lernstand in Supabase liegt. Erhöht wird im Abnahme-Commit beim Merge, danach Git-Tag `vX.Y.Z`; keine GitHub-Releases (2026-11-01).
+- Versionierung nach SemVer (Nutzerentscheidung): MINOR je neue Funktion, PATCH je Korrektur oder kleine Anpassung, keine neue Version für Doku/Tests/Werkzeuge; 1.0.0, sobald der Lernstand in der Datenbank liegt. Erhöht wird im Abnahme-Commit beim Merge, danach Git-Tag `vX.Y.Z`; keine GitHub-Releases (2026-11-01).
 - API-Testseite `tools/api-test.html` (B-104): nur Dev-Server, deshalb bleibt Leitprinzip 6 unberührt; ihre E2E-Tests laufen mit Attrappen gegen einen eigenen Dev-Server (Port Vorschau + 10). Geprüft 2026-11-06: Datamuse kann kein Französisch, die Free Dictionary API (dictionaryapi.dev) auch nicht, LibreTranslate.com verlangt einen Schlüssel, Web Speech kann Lautschrift nur per SSML versuchen.
 - Telegram-Bot für Updates und Fragen an den Menschen (`tools/telegram.mjs`): eigener Bot, weil Telegram je Bot nur eine Warteschlange hat; Zugangsdaten nur in `~/.config/mimi_mots/telegram.env` (2026-11-01).
 

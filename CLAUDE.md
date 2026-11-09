@@ -23,7 +23,7 @@ Fachliche Anforderungen (aktueller Stand): `anforderungen.md`. Offene Aufgaben u
 - **Schrift:** `ui-rounded` (SF Pro Rounded auf iPad), Fallback `"Nunito"` selbst gehostet, dann `system-ui`.
 - **Persistenz:** `localStorage` (Einstellungen + Lernstand), ein Schlüssel, versioniert.
 - **Hosting:** GitHub Pages, Deploy per GitHub Action. Vite `base` = `/<repo-name>/`; Manifest `start_url`/`scope` und SW-Pfade relativ dazu.
-- **Datenbank (geplant, noch nicht angebunden):** Supabase-Projekt `mimi_mots` (Region `eu-west-1`, Irland), `https://itfoodhenchgedwjtdkw.supabase.co` – Einstellungen und Vorgehen in `backlog.md` unter „Später“ → „Lernstand in einer Datenbank sichern“. Bis dahin gilt Leitprinzip 6 unverändert.
+- **Datenbank (geplant, noch nicht angebunden):** Neon-Projekt `mimi_mots` (Region Frankfurt; Postgres mit Neon Auth und Data API) – Einstellungen und Vorgehen in `backlog.md` unter „Später“ → „Lernstand in einer Datenbank sichern“. Bis dahin gilt Leitprinzip 6 unverändert.
 
 ## Befehle
 ```bash
@@ -149,7 +149,7 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 ### Versionierung
 `package.json` → `version` nach SemVer `MAJOR.MINOR.PATCH`, sichtbar im Elternbereich (B-98):
 - **MINOR** +1 für jede neue Funktion (`feat:`), **PATCH** +1 für Korrekturen und kleine Anpassungen (`fix:` oder kleine `feat:` wie B-99); reine Doku, Tests oder Werkzeuge (`docs:`, `chore:`) ohne neue Version.
-- **1.0.0**, sobald der Lernstand in Supabase liegt – ab dann dürfen Updates keine Daten mehr verlieren.
+- **1.0.0**, sobald der Lernstand in der Datenbank (Neon) liegt – ab dann dürfen Updates keine Daten mehr verlieren.
 - Erhöht wird erst im Abnahme-Commit beim Merge (nicht auf dem Feature-Branch), damit parallele Branches nicht kollidieren; danach Git-Tag `vX.Y.Z` auf `main`. Keine GitHub-Releases.
 
 ### Telegram (Updates und Fragen an den Menschen)

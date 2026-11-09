@@ -8,3 +8,5 @@ test-results/
 .models/
 tools/vergleich/
 tools/stimmwahl/
+.env
+.env.*
