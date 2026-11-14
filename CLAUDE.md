@@ -164,6 +164,7 @@ Der Mensch ist oft unterwegs; über einen eigenen Telegram-Bot bekommt er Update
 - `setup` nur nach Rückfrage ausführen: Es liest die Nachrichten an den Bot und trägt die Chat-ID ein.
 
 ### Parallel mit Koordinator (B-92)
+Mit `/koordinieren` (Skill in `.claude/skills/koordinieren/`) wird eine Session Koordinator; Rollen, Ablauf und Vorlage für Session-Briefs in `docs/koordination.md`.
 Ein Koordinator verteilt Aufgaben an Agenten; jeder Agent arbeitet in einem eigenen Git-Worktree auf eigenem Branch. Der Ablauf pro Aufgabe oben gilt weiter, mit diesen Regeln:
 - **Nur unabhängige Aufgaben parallel.** Aufgaben, die das Speicherformat (`storage.ts`, `AppData`) oder den App-State (`state.ts`) umbauen, laufen allein (z. B. B-90). Der Koordinator prüft vor dem Start, welche Dateien eine Aufgabe voraussichtlich anfasst.
 - **Ports je Worktree:** Der Koordinator vergibt jedem Agenten eigene Ports, z. B. Agent 1 `DEV_PORT=5182 PREVIEW_PORT=4182`, Agent 2 `5183`/`4183`. Die Agenten setzen sie bei allen `npm run dev/preview/test:e2e`-Aufrufen. Playwright startet immer einen eigenen Server; ist der Port belegt, bricht der Lauf ab, statt fremden Code zu testen.
