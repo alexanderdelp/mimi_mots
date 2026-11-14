@@ -19,8 +19,8 @@ export function shortCommit(raw: string | undefined): string {
 }
 
 /**
- * Commit des Builds: `git rev-parse --short=7 HEAD`, sonst GITHUB_SHA (GitHub Action), sonst
- * „unbekannt“. Wirft nie – ein fehlendes Git darf den Build nicht abbrechen.
+ * Commit des Builds: `git rev-parse --short=7 HEAD`, sonst WORKERS_CI_COMMIT_SHA (Cloudflare
+ * Workers Builds) oder GITHUB_SHA (GitHub Action), sonst „unbekannt“. Wirft nie – ein fehlendes Git darf den Build nicht abbrechen.
  */
 export function resolveCommit(
   git: () => string = () =>
@@ -36,5 +36,43 @@ export function resolveCommit(
   } catch {
     // kein Git oder kein Repository → Fallback
   }
-  return shortCommit(env.GITHUB_SHA);
+  const ci = shortCommit(env.WORKERS_CI_COMMIT_SHA);
+  return ci !== UNKNOWN ? ci : shortCommit(env.GITHUB_SHA);
+}
+
+/** Umgebung des Builds: Produktion (`release`), Integration (`main`), Abnahme (übrige Branches) –
+ *  nur in Cloudflare Workers Builds; jeder Build auf dem eigenen Rechner ist „lokal“. */
+export type Stage = 'produktion' | 'integration' | 'abnahme' | 'lokal';
+
+type Env = Record<string, string | undefined>;
+
+/**
+ * Branch des Builds: `APP_BRANCH` (von Hand, z. B. Playwright), sonst `WORKERS_CI_BRANCH`
+ * (Cloudflare Workers Builds), sonst Git; ohne Git oder bei losgelöstem HEAD „lokal“. Wirft nie.
+ */
+export function resolveBranch(
+  git: () => string = () =>
+    execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }),
+  env: Env = process.env,
+): string {
+  const given = (env.APP_BRANCH || env.WORKERS_CI_BRANCH || '').trim();
+  if (given) return given;
+  try {
+    const branch = git().trim();
+    if (branch && branch !== 'HEAD' && !branch.includes(' ')) return branch;
+  } catch {
+    // kein Git → „lokal“
+  }
+  return 'lokal';
+}
+
+/** Umgebung zum Branch; ohne `APP_BRANCH`/`WORKERS_CI_BRANCH` immer „lokal“. */
+export function resolveStage(branch: string, env: Env = process.env): Stage {
+  if (!env.APP_BRANCH && !env.WORKERS_CI_BRANCH) return 'lokal';
+  if (branch === 'release') return 'produktion';
+  if (branch === 'main') return 'integration';
+  return 'abnahme';
 }

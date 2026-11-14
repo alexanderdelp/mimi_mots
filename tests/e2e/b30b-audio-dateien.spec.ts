@@ -7,9 +7,7 @@ const hasFile = (lang: string, id: string) =>
   (choices as Record<string, Record<string, unknown>>)[lang]?.[id] != null;
 
 test.describe('B-30b Audio erzeugen', () => {
-  test('AT-30b.3: Audiodateien werden unter /mimi_mots/audio/ ausgeliefert', async ({
-    request,
-  }) => {
+  test('AT-30b.3: Audiodateien werden unter /audio/ ausgeliefert', async ({ request }) => {
     for (const lang of ['en', 'fr', 'ja', 'it']) {
       for (const word of words) {
         if (!hasFile(lang, word.id)) continue;
@@ -25,6 +23,8 @@ test.describe('B-30b Audio erzeugen', () => {
       'Hörprüfung Audio',
     );
     expect(await (await request.get('tools/stimmwahl.html')).text()).not.toContain('Stimmwahl');
-    expect((await request.get('/__stimmwahl')).status()).not.toBe(200);
+    // seit B-115 unter der Wurzel: die Vorschau antwortet mit index.html, aber nie mit JSON
+    const api = await request.get('/__stimmwahl');
+    expect(api.headers()['content-type'] ?? '').not.toMatch(/json/);
   });
 });

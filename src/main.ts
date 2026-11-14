@@ -14,6 +14,7 @@ import './styles/seed.css';
 import './styles/garden.css';
 import { COMPANION_NAMES, cartwheelAvatarUrl } from './components/avatar';
 import { icon } from './components/icons';
+import { BUILD, stageBadge } from './env';
 import { activeChild, childData, load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
 import type { ViewHandle } from './views/view';
@@ -89,6 +90,9 @@ function start(app: HTMLElement) {
   viewRoot.className = 'view-root';
   const overlay = createPortraitOverlay(store);
   app.replaceChildren(viewRoot, overlay);
+  // Umgebungs-Abzeichen (nicht in Produktion), über allem, nicht antippbar
+  const badge = stageBadge(BUILD.stage, BUILD.branch);
+  if (badge) app.append(badge);
 
   let current: ViewHandle | null = null;
   const showView = (name: ViewName) => {

@@ -26,13 +26,15 @@ test.describe('B-01 Grundgerüst', () => {
     expect(viewport).toContain('viewport-fit=cover');
   });
 
-  test('AT-01.3: wird unter dem Pages-Pfad /mimi_mots/ ausgeliefert', async ({ page }) => {
+  test('AT-01.3: wird unter der Wurzel / ausgeliefert (Cloudflare, seit 0.7.0)', async ({
+    page,
+  }) => {
     await page.goto('./');
-    expect(new URL(page.url()).pathname).toBe('/mimi_mots/');
+    expect(new URL(page.url()).pathname).toBe('/');
     const scripts = await page
       .locator('script[type="module"]')
       .evaluateAll((els) => els.map((el) => new URL((el as HTMLScriptElement).src).pathname));
     expect(scripts.length).toBeGreaterThan(0);
-    for (const src of scripts) expect(src).toMatch(/^\/mimi_mots\//);
+    for (const src of scripts) expect(src).toMatch(/^\/assets\//);
   });
 });

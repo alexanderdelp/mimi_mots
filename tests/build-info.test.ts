@@ -1,7 +1,14 @@
 // B-98: Version, Commit und Datum des Builds (AT-98.2, AT-98.4).
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { UNKNOWN, formatBuildDate, resolveCommit, shortCommit } from '../tools/build-info';
+import {
+  UNKNOWN,
+  formatBuildDate,
+  resolveBranch,
+  resolveCommit,
+  resolveStage,
+  shortCommit,
+} from '../tools/build-info';
 import { versionLabel } from '../src/version';
 
 describe('formatBuildDate (AT-98.2)', () => {
@@ -49,7 +56,7 @@ describe('GitHub Action (AT-98.4)', () => {
     expect(resolveCommit(() => 'abcdef0', { GITHUB_SHA: '1234567890' })).toBe('abcdef0');
   });
   it('der Workflow holt den Code per actions/checkout (mit .git) vor dem Build', () => {
-    const workflow = readFileSync('.github/workflows/deploy.yml', 'utf8');
+    const workflow = readFileSync('.github/workflows/ci.yml', 'utf8');
     const checkout = workflow.indexOf('uses: actions/checkout@');
     expect(checkout).toBeGreaterThan(-1);
     expect(checkout).toBeLessThan(workflow.indexOf('run: npm run build'));
@@ -61,5 +68,39 @@ describe('GitHub Action (AT-98.4)', () => {
 describe('versionLabel', () => {
   it('trennt mit „ · “', () => {
     expect(versionLabel('0.1.0', '8f48636', '01.11.2026')).toBe('0.1.0 · 8f48636 · 01.11.2026');
+  });
+  it('außerhalb der Produktion steht der Branch vor dem Commit', () => {
+    expect(versionLabel('0.7.0', '8f48636', '14.11.2026', 'main')).toBe(
+      '0.7.0 · main · 8f48636 · 14.11.2026',
+    );
+  });
+});
+
+describe('Cloudflare Workers Builds: Branch und Umgebung', () => {
+  const noGit = () => {
+    throw new Error('kein git');
+  };
+  it('nimmt den Commit aus WORKERS_CI_COMMIT_SHA, wenn Git fehlt', () => {
+    expect(resolveCommit(noGit, { WORKERS_CI_COMMIT_SHA: 'ABCDEF0123456789' })).toBe('abcdef0');
+    // dort kam schon der Branch-Name statt eines Hashes an (KonJugi) → nicht übernehmen
+    expect(resolveCommit(noGit, { WORKERS_CI_COMMIT_SHA: 'main' })).toBe(UNKNOWN);
+  });
+  it('Branch: APP_BRANCH vor WORKERS_CI_BRANCH vor Git, sonst „lokal“', () => {
+    const git = () => 'feat/x\n';
+    expect(resolveBranch(git, { APP_BRANCH: 'release', WORKERS_CI_BRANCH: 'main' })).toBe(
+      'release',
+    );
+    expect(resolveBranch(git, { WORKERS_CI_BRANCH: 'main' })).toBe('main');
+    expect(resolveBranch(git, {})).toBe('feat/x');
+    expect(resolveBranch(() => 'HEAD', {})).toBe('lokal');
+    expect(resolveBranch(noGit, {})).toBe('lokal');
+  });
+  it('Umgebung: release → Produktion, main → Integration, sonst Abnahme; ohne CI lokal', () => {
+    const ci = { WORKERS_CI_BRANCH: 'x' };
+    expect(resolveStage('release', ci)).toBe('produktion');
+    expect(resolveStage('main', ci)).toBe('integration');
+    expect(resolveStage('feat/b-12-timer', ci)).toBe('abnahme');
+    expect(resolveStage('release', { APP_BRANCH: 'release' })).toBe('produktion');
+    expect(resolveStage('main', {})).toBe('lokal');
   });
 });

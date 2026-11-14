@@ -165,9 +165,7 @@ test.describe('B-95 „Weiter“-Button im Tutorial', () => {
     await expect(page.locator('.round__foreign')).toHaveText('');
     await btn(page, SPEAKER).click();
     await btn(page, SPEAKER).click();
-    await expect
-      .poll(() => plays(page))
-      .toEqual(['/mimi_mots/audio/fr/apfel.mp3', '/mimi_mots/audio/fr/apfel.mp3']);
+    await expect.poll(() => plays(page)).toEqual(['/audio/fr/apfel.mp3', '/audio/fr/apfel.mp3']);
     expect(await step(page)).toBe('5');
     await expect(page.locator('.round__foreign')).toHaveText(''); // erst ab dem nächsten Schritt
     await next(page).click();

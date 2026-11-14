@@ -59,7 +59,7 @@ test.describe('B-80 Italienisch', () => {
         const plays = (await mediaCalls(page)).filter((c) => c.op === 'play');
         expect(plays.at(-1)).toEqual({
           op: 'play',
-          src: `/mimi_mots/audio/it/${word.id}.mp3`,
+          src: `/audio/it/${word.id}.mp3`,
           time: 0,
         });
         await btn(page, 'Noch üben').click();

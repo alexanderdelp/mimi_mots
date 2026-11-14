@@ -27,13 +27,24 @@ npm run lint
 
 Andere Ports (z. B. für parallele Worktrees): `DEV_PORT=5182 PREVIEW_PORT=4182 npm run …` – die E2E-Tests nutzen `PREVIEW_PORT`.
 
-**API-Testseite für freie Vokabeln (B-104):** `http://localhost:5181/mimi_mots/tools/api-test.html` (nur `npm run dev`, nicht im Build). Vergleicht Übersetzungs-, Wörterbuch- und Aussprache-APIs für Englisch und Französisch. LibreTranslate braucht einen eigenen Schlüssel oder eine eigene Instanz.
+**API-Testseite für freie Vokabeln (B-104):** `http://localhost:5181/tools/api-test.html` (nur `npm run dev`, nicht im Build). Vergleicht Übersetzungs-, Wörterbuch- und Aussprache-APIs für Englisch und Französisch. LibreTranslate braucht einen eigenen Schlüssel oder eine eigene Instanz.
 
-## Veröffentlichung (GitHub Pages)
+## Veröffentlichung (Cloudflare)
 
-Jeder Push auf `main` baut die App und veröffentlicht sie unter **https://alexanderdelp.github.io/mimi_mots/** (Workflow `.github/workflows/deploy.yml`: Lint → Unit-Tests → Build → Deploy). Von Hand: im Repo unter *Actions → Deploy GitHub Pages → Run workflow*.
+Ausgeliefert wird über **Cloudflare Workers** (statische Assets, `wrangler.jsonc`), verbunden mit dem Repo über **Workers Builds**. Wrangler baut selbst (`npm run build`).
 
-Einmalige Einrichtung im Repo: *Settings → Pages → Build and deployment → Source: „GitHub Actions“*. Die E2E-Tests laufen lokal (`npm run test:e2e`), nicht in der Action.
+| Branch    | Umgebung    | Befehl in Workers Builds | Adresse                                      | Abzeichen          |
+| --------- | ----------- | ------------------------ | -------------------------------------------- | ------------------ |
+| `release` | Produktion  | `npx wrangler deploy`    | https://mimimots.bytekaska.de               | keins              |
+| `main`    | Integration | `npx wrangler preview`   | https://main.mimimots.bytekaska.de          | „Integration“      |
+| `feat/*`  | Abnahme     | `npx wrangler preview`   | `https://<branch>.mimimots.bytekaska.de`    | „Abnahme: branch“  |
+| lokal     | –           | `npm run dev`/`preview`  | `http://localhost:5181/`                     | „Lokal: branch“    |
+
+Im Branch-Namen wird `/` zu `-` (`feat/b-12-timer` → `feat-b-12-timer.mimimots.bytekaska.de`). Das Abzeichen sitzt klein unten links; im Elternbereich steht außerhalb der Produktion zusätzlich der Branch in der Versionszeile. Die Umgebung kommt aus `WORKERS_CI_BRANCH` beim Build (`tools/build-info.ts`).
+
+- **Release:** `release` nie direkt pushen; nur per PR `main` → `release` nach Freigabe (CI-Job `release-source`, lokaler Hook: `git config core.hooksPath scripts/git-hooks`).
+- **CI** (`.github/workflows/ci.yml`): Lint → Unit-Tests → Build bei jedem PR und Push auf `main`/`release`. Die E2E-Tests laufen lokal (`npm run test:e2e`).
+- **GitHub Pages** (bis 0.6.0 unter `https://alexanderdelp.github.io/mimi_mots/`) bleibt mit dem alten Stand stehen und wird nicht mehr gebaut (Workflow entfernt).
 
 ### Auf dem iPad installieren („Zum Home-Bildschirm“)
 

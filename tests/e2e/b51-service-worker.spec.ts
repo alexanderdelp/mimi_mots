@@ -39,29 +39,29 @@ test.describe('B-51 Service Worker', () => {
     const scope = await page.evaluate(
       async () => (await navigator.serviceWorker.getRegistration())?.scope,
     );
-    expect(new URL(scope!).pathname).toBe('/mimi_mots/');
+    expect(new URL(scope!).pathname).toBe('/');
   });
 
   test('AT-51.2: Precache enthält alle Dateien der App', async ({ page }) => {
     await installAndControl(page);
     const paths = await precachedPaths(page);
     const expected = [
-      '/mimi_mots/index.html',
-      '/mimi_mots/manifest.webmanifest',
-      '/mimi_mots/icons/icon.svg',
-      '/mimi_mots/icons/icon-180.png',
-      '/mimi_mots/flags/flag_fr.svg',
-      '/mimi_mots/flags/flag_gb.svg',
+      '/index.html',
+      '/manifest.webmanifest',
+      '/icons/icon.svg',
+      '/icons/icon-180.png',
+      '/flags/flag_fr.svg',
+      '/flags/flag_gb.svg',
       ...['cat', 'pony'].flatMap((a) =>
-        ['sitting', 'pointing', 'idle', 'waving'].map((p) => `/mimi_mots/avatars/${a}_${p}.png`),
+        ['sitting', 'pointing', 'idle', 'waving'].map((p) => `/avatars/${a}_${p}.png`),
       ),
-      ...words.map((w) => `/mimi_mots/audio/fr/${w.id}.mp3`),
+      ...words.map((w) => `/audio/fr/${w.id}.mp3`),
     ];
     for (const path of expected) expect(paths, path).toContain(path);
     // AT-61.5: jedes Bild und jede Audiodatei aus public/ (alle Sprachen, Schlafbilder, Flaggen)
     const media = readdirSync('public', { recursive: true, encoding: 'utf8' })
       .filter((f) => /\.(png|svg|webp|mp3)$/.test(f)) // B-109: Blumen als WebP
-      .map((f) => `/mimi_mots/${f.replaceAll('\\', '/')}`);
+      .map((f) => `/${f.replaceAll('\\', '/')}`);
     // seit B-103 nur gewählte Aufnahmen: mindestens zwei volle Sprachen (EN, FR) plus Bilder
     expect(media.length).toBeGreaterThan(2 * words.length);
     for (const path of media) expect(paths, path).toContain(path);
@@ -88,7 +88,7 @@ test.describe('B-51 Service Worker', () => {
     await btn(page, 'Auf Französisch anhören').click();
     const calls = await mediaCalls(page);
     expect(calls.filter((c) => c.op === 'play')).toEqual([
-      { op: 'play', src: `/mimi_mots/audio/fr/${id}.mp3`, time: 0 },
+      { op: 'play', src: `/audio/fr/${id}.mp3`, time: 0 },
     ]);
     expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
     await btn(page, 'Wusste ich').click();

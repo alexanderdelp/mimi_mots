@@ -1,11 +1,13 @@
 import { defineConfig, type Plugin } from 'vite';
-import { formatBuildDate, resolveCommit } from './tools/build-info';
+import { formatBuildDate, resolveBranch, resolveCommit, resolveStage } from './tools/build-info';
 import { choose, defaultFiles, readState } from './tools/stimmwahl-store';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json';
 
-// GitHub Pages liefert die App unter https://<user>.github.io/<repo>/ aus.
-export const BASE = '/mimi_mots/';
+// Cloudflare Workers liefert die App unter der Wurzel der eigenen Domain aus (mimimots.bytekaska.de,
+// Vorschauen <branch>.mimimots.bytekaska.de). Bis 0.6.0 lag sie auf GitHub Pages unter /mimi_mots/.
+export const BASE = '/';
+const BRANCH = resolveBranch();
 
 /**
  * Stimmwahl (B-78), nur im Dev-Server: GET liefert die gespeicherte Auswahl, POST übernimmt einen
@@ -48,6 +50,9 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version),
     __APP_COMMIT__: JSON.stringify(resolveCommit()),
     __APP_BUILD_DATE__: JSON.stringify(formatBuildDate(new Date())),
+    // Umgebungs-Abzeichen: Branch aus Workers Builds (WORKERS_CI_BRANCH) bzw. Git
+    __APP_BRANCH__: JSON.stringify(BRANCH),
+    __APP_STAGE__: JSON.stringify(resolveStage(BRANCH)),
   },
   // eigene Ports statt der Vite-Standards, damit sich Projekte auf dem Rechner nicht in die Quere
   // kommen; belegt → Fehler statt stillem Ausweichen. B-92: je Worktree per DEV_PORT bzw.

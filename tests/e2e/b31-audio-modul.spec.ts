@@ -27,7 +27,7 @@ test.describe('B-31 Audio-Modul', () => {
     await speaker(page).click();
     const calls = await mediaCalls(page);
     expect(calls.filter((c) => c.op === 'play')).toEqual([
-      { op: 'play', src: `/mimi_mots/audio/fr/${word.id}.mp3`, time: 0 },
+      { op: 'play', src: `/audio/fr/${word.id}.mp3`, time: 0 },
     ]);
     expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
   });
@@ -38,7 +38,7 @@ test.describe('B-31 Audio-Modul', () => {
     await speaker(page).click();
     const calls = await mediaCalls(page);
     expect(calls.filter((c) => c.op === 'play')).toEqual([
-      { op: 'play', src: `/mimi_mots/audio/en/${word.id}.mp3`, time: 0 },
+      { op: 'play', src: `/audio/en/${word.id}.mp3`, time: 0 },
     ]);
     expect(calls.filter((c) => c.op === 'speak')).toEqual([]);
   });

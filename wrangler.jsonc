@@ -1,0 +1,29 @@
+// Cloudflare Workers (statische Assets): liefert den Vite-Build aus dist/ aus (wie KonJugi).
+// Umgebungen (Produktions-Branch in Workers Builds = `release`):
+//   release → Produktion  (npx wrangler deploy)          https://mimimots.bytekaska.de
+//   main    → Integration (npx wrangler preview)         https://main.mimimots.bytekaska.de
+//   feat/*  → Abnahme     (npx wrangler preview je Branch) https://<branch>.mimimots.bytekaska.de
+//             („/“ im Branch-Namen wird „-“)
+// Zusätzlich die workers.dev-Adressen (mimimots.alexanderdelp.workers.dev,
+// <branch>-mimimots.alexanderdelp.workers.dev). GitHub Pages (bis 0.6.0) bleibt eingefroren stehen.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Name muss dem Worker in Cloudflare entsprechen (Unterstrich ist in Hostnamen nicht erlaubt)
+  "name": "mimimots",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "preview_urls": true,
+  // Wrangler baut selbst vor jedem Deploy/Preview – unabhängig vom Build-Feld im Dashboard
+  "build": {
+    "command": "npm run build",
+  },
+  // Pflicht für `npx wrangler preview` (Vorschau-Deployments je Branch); darf leer sein
+  "previews": {},
+  "assets": {
+    "directory": "./dist",
+  },
+  // Eigene Domain; previews_enabled liefert jede Vorschau unter <branch>.mimimots.bytekaska.de aus.
+  "routes": [
+    { "pattern": "mimimots.bytekaska.de", "custom_domain": true, "previews_enabled": true },
+  ],
+}
