@@ -3,7 +3,7 @@
 // B-107: links der Buch-Button zu „Meine Wörter“, B-112: daneben der Garten.
 import { bothSleepingUrl } from '../components/avatar';
 import { childButtons, createAppHeader, onIconHold } from '../components/app-header';
-import type { Store } from '../state';
+import { showGarden, type Store } from '../state';
 import type { ViewHandle } from './view';
 
 const SLEEP_TEXT = 'Gute Nacht und bis morgen!';
@@ -16,7 +16,7 @@ export function renderSleep(store: Store): ViewHandle {
   const { data } = store.getState();
   // B-107: Buch zu „Meine Wörter“; B-112: daneben der Garten, sobald eine Pflanze da ist
   const buttons = childButtons(
-    data.garden.plants.length > 0,
+    showGarden(data), // B-114: nicht, wenn der Garten aus ist
     () => store.dispatch({ type: 'words' }),
     () => store.dispatch({ type: 'garden' }),
   );

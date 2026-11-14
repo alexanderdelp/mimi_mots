@@ -5,9 +5,10 @@ import { LANGUAGES, childDefaults, type ChildData } from '../src/storage';
 import { vocabularyIds } from '../src/data/vocabulary';
 import {
   activeWords,
-  canToggleFlower,
   canToggleWord,
+  gardenOn,
   isComplete,
+  showGarden,
   canToggleLanguage,
   nextView,
   playableLanguages,
@@ -1101,13 +1102,10 @@ describe('Samen freigeben (B-109)', () => {
     expect(toggle(off, 'peony').data.enabledFlowers).toEqual(['sunflower', 'peony', 'clematis']);
   });
 
-  it('AT-109.3: der letzte bleibt an', () => {
+  it('AT-114.5: auch der letzte lässt sich ausschalten (Garten aus)', () => {
     const data = complete();
     data.enabledFlowers = ['clematis'];
-    const admin = at('admin', data);
-    expect(canToggleFlower(data, 'clematis')).toBe(false);
-    expect(canToggleFlower(data, 'peony')).toBe(true);
-    expect(toggle(admin, 'clematis')).toBe(admin);
+    expect(toggle(at('admin', data), 'clematis').data.enabledFlowers).toEqual([]);
   });
 
   it('nur im Elternbereich', () => {
@@ -1190,5 +1188,72 @@ describe('Garten (B-112)', () => {
     );
     expect(fromSleep.view).toBe('garden');
     expect(reduce(fromSleep, { type: 'home' }, '2026-11-08').view).toBe('sleep');
+  });
+});
+
+describe('Reiter „Samen“ (B-114)', () => {
+  const AT = '2026-11-14T10:00:00.000Z';
+  const withGarden = (
+    garden: ChildData['garden'],
+    enabledFlowers?: ChildData['enabledFlowers'],
+  ) => {
+    const data = complete();
+    data.garden = garden;
+    if (enabledFlowers) data.enabledFlowers = enabledFlowers;
+    return data;
+  };
+  const admin = (data: ChildData): AppState => ({
+    view: 'admin',
+    portrait: false,
+    data,
+    round: null,
+  });
+
+  it('AT-114.2–114.4: Samen, Stufe und Runden nur im Elternbereich einstellbar', () => {
+    const empty = admin(withGarden({ plants: [], rounds: 0, need: 3 }));
+    const planted = reduce(empty, { type: 'gardenFlower', flower: 'peony', at: AT });
+    expect(planted.data.garden.plants).toEqual([{ flower: 'peony', stage: 1 }]);
+    const staged = reduce(planted, { type: 'gardenStage', stage: 3 });
+    expect(staged.data.garden.plants[0].stage).toBe(3);
+    const need = staged.data.garden.need;
+    const counted = reduce(staged, { type: 'gardenRounds', rounds: need - 1 });
+    expect(counted.data.garden.rounds).toBe(need - 1);
+    expect(reduce(counted, { type: 'gardenRounds', rounds: need })).toBe(counted);
+    const start: AppState = { ...empty, view: 'start' };
+    expect(reduce(start, { type: 'gardenFlower', flower: 'peony', at: AT })).toBe(start);
+  });
+
+  it('AT-114.5: Garten aus – kein Wachstum, keine Samenwahl, kein Garten-Button, nichts einstellbar', () => {
+    const data = withGarden({ plants: [{ flower: 'peony', stage: 1 }], rounds: 2, need: 3 }, []);
+    expect(gardenOn(data)).toBe(false);
+    expect(showGarden(data)).toBe(false);
+    const round: AppState = {
+      view: 'round',
+      portrait: false,
+      data,
+      round: { session: createSession(), wordId: 'dog', revealed: true, expired: true },
+    };
+    const end = reduce(round, { type: 'rate', rating: 'known', at: AT }, '2026-11-14');
+    expect(end.view).toBe('end');
+    expect(end.harvest).toBeNull();
+    expect(end.data.garden).toEqual(data.garden);
+    const start: AppState = { view: 'start', portrait: false, data, round: null };
+    expect(reduce(start, { type: 'garden' })).toBe(start);
+    const off = admin(data);
+    expect(reduce(off, { type: 'gardenStage', stage: 4 })).toBe(off);
+    const on = reduce(off, { type: 'toggleFlower', flower: 'sunflower' });
+    expect(showGarden(on.data)).toBe(true);
+  });
+
+  it('AT-114.5: ohne Samen keine Samenwahl nach einer abgeschlossenen Runde', () => {
+    const data = withGarden({ plants: [], rounds: 0, need: 3 }, []);
+    const round: AppState = {
+      view: 'round',
+      portrait: false,
+      data,
+      round: { session: createSession(), wordId: 'dog', revealed: true, expired: true },
+    };
+    const end = reduce(round, { type: 'rate', rating: 'known', at: AT }, '2026-11-14');
+    expect(reduce(end, { type: 'home' }).view).toBe('start');
   });
 });

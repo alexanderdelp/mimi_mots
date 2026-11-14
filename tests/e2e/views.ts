@@ -194,7 +194,14 @@ export async function adminView(page: Page) {
 export async function adminOtherView(page: Page) {
   await adminView(page);
   await page.getByRole('tab', { name: 'Sonstiges' }).click();
-  await expect(page.locator('.admin__other')).toBeVisible();
+  await expect(page.locator('.admin__other:not(.admin__garden)')).toBeVisible();
+}
+
+/** B-114: Elternbereich, Reiter „Samen“. */
+export async function adminGardenView(page: Page) {
+  await adminView(page);
+  await page.getByRole('tab', { name: 'Samen' }).click();
+  await expect(page.locator('.admin__garden')).toBeVisible();
 }
 
 /** Ansichten für die Prüfungen: Name, Vorbereitung, Weg dorthin. */
@@ -221,6 +228,7 @@ export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<v
   },
   { name: 'elternbereich', seed: {}, open: adminView },
   { name: 'elternbereich-sonstiges', seed: {}, open: adminOtherView },
+  { name: 'elternbereich-samen', seed: {}, open: adminGardenView }, // B-114
 ];
 
 /** Kein Scrollen, kein sichtbares Element über den Rand (Rundungen auf halbe Pixel). */

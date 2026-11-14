@@ -1,26 +1,22 @@
 // Elternbereich (B-69): erreichbar nur über verstecktes Halten des App-Icons auf Start- und
-// Schlafseite. Zwei Reiter (B-83): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
+// Schlafseite. Reiter (B-83, seit B-114 drei): „Sprachen“ – Lernstand je Modus (B-89) und Sprache nach Stufe ansehen,
 // zurücksetzen, Sprache ein-/ausschalten, Wörter per Tipp auf ihr Emoji ein-/ausschalten (B-88)
 // und per Ziehen in eine andere Stufe legen (B-106); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorials an/aus (B-108),
-// Bremse für neue Wörter (B-82), Rundendauer (B-93, seit B-100 als Schieberegler), Version (B-98).
+// Bremse für neue Wörter (B-82), Rundendauer (B-93, seit B-100 als Schieberegler), Version (B-98);
+// „Samen“ (B-114) – freigegebene Samen (B-109), aktueller Samen, Stufe und Fortschritt.
 // Keine Avatare; sonst dieselben Bausteine wie überall. B-100: alle Bedienelemente von
 // „Sonstiges“ stehen rechts in einer festen Spalte (Flucht).
 import { createAppHeader } from '../components/app-header';
 import { COMPANIONS, COMPANION_NAMES } from '../components/avatar';
 import { createChoiceGroup, createChoiceTile, type ChoiceTile } from '../components/choice-tile';
 import { icon, roundButton } from '../components/icons';
-import { FLOWERS, FLOWER_NAMES, flowerUrl, type Flower } from '../data/flowers';
+import { FLOWERS, FLOWER_NAMES, FLOWER_STAGES, flowerUrl, type Flower } from '../data/flowers';
+import { BLOOM, PLANTED, canPlant, currentPlant } from '../garden';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { MODE_INFO } from '../data/modes';
 import { vocabulary } from '../data/vocabulary';
 import type { Language } from '../data/words';
-import {
-  canToggleFlower,
-  canToggleLanguage,
-  canToggleWord,
-  progressKey,
-  type Store,
-} from '../state';
+import { canToggleLanguage, canToggleWord, gardenOn, progressKey, type Store } from '../state';
 import {
   LANGUAGES,
   MAX_BOX,
@@ -71,11 +67,83 @@ export function wordsByLevel(progress: Progress, language: Language) {
   );
 }
 
-type Tab = 'sprachen' | 'sonstiges';
+type Tab = 'sprachen' | 'sonstiges' | 'samen';
 const TABS: readonly [Tab, string][] = [
   ['sprachen', 'Sprachen'],
   ['sonstiges', 'Sonstiges'],
+  ['samen', 'Samen'], // B-114
 ];
+
+/** B-114: Namen der Stufen – nur für den Screenreader (aria-valuetext). */
+const STAGE_NAMES = ['Samen', 'eingepflanzt', 'Keimling', 'Pflanze', 'Knospe', 'Blüte'];
+
+interface Slider {
+  el: HTMLElement;
+  /** Wert, Grenzen und Sperre setzen – nicht, während gerade gezogen wird. */
+  set(value: number, min: number, max: number, disabled?: boolean): void;
+}
+
+/** B-100/B-114: Schieberegler (natives range, rastet je Schritt ein), rechts der Wert in fester
+ *  Breite – Text oder Bild (`show`). Das Element bleibt bestehen (render setzt nur den Wert), damit
+ *  ein Neu-Rendern das Ziehen nicht unterbricht; gespeichert wird bei `change` (Loslassen, Taste). */
+function createSlider(
+  label: string,
+  valueClass: string,
+  show: (value: number) => { node: Node | string; text: string },
+  onCommit: (value: number) => void,
+): Slider {
+  const range = document.createElement('input');
+  range.type = 'range';
+  range.className = 'admin__range';
+  range.step = '1';
+  range.setAttribute('aria-label', label);
+  const value = el('span', valueClass);
+  const track = el('div', 'admin__track');
+  track.append(range);
+  const slider = el('div', 'admin__slider');
+  slider.append(track, value);
+  let sliding = false; // Wert gezogen, aber noch nicht gespeichert
+  const display = (v: number) => {
+    const min = Number(range.min);
+    const span = Number(range.max) - min;
+    range.style.setProperty('--fill', String(span > 0 ? (v - min) / span : 0));
+    const { node, text } = show(v);
+    range.setAttribute('aria-valuetext', text);
+    value.replaceChildren(node);
+  };
+  range.addEventListener('input', () => {
+    sliding = true;
+    display(Number(range.value));
+  });
+  range.addEventListener('change', () => {
+    sliding = false;
+    onCommit(Number(range.value));
+  });
+  return {
+    el: slider,
+    set(v, min, max, disabled = false) {
+      if (sliding) return;
+      range.min = String(min);
+      range.max = String(max);
+      track.style.setProperty('--steps', String(Math.max(1, max - min)));
+      if (range.value !== String(v)) range.value = String(v);
+      range.disabled = disabled;
+      slider.dataset.disabled = String(disabled);
+      display(v);
+    },
+  };
+}
+
+/** Bild am Ende eines Reglers (Samen, Stufe); je Adresse einmal, damit nichts flackert. */
+const pictures = new Map<string, HTMLImageElement>();
+function picture(src: string): HTMLImageElement {
+  let image = pictures.get(src);
+  if (!image) {
+    image = Object.assign(el('img', 'admin__picture'), { src, alt: '', draggable: false });
+    pictures.set(src, image);
+  }
+  return image;
+}
 
 /** Zeile im Reiter „Sonstiges“: Titel und kurze Erklärung links, Bedienelement rechts in der
  *  festen Spalte (B-100). */
@@ -220,7 +288,7 @@ export function renderAdmin(store: Store): ViewHandle {
   const tutorialPair = el('div', 'admin__sleep');
   tutorialPair.append(tutorials.speak.el, tutorials.listen.el);
   // B-109: Samen, die zur Verfügung stehen – Kacheln mit dem Samenbild, markiert = freigegeben;
-  // der letzte bleibt an. Den Namen hört nur der Screenreader.
+  // seit B-114 im eigenen Reiter, alle aus = Garten aus. Den Namen hört nur der Screenreader.
   const flowerTiles = new Map(
     FLOWERS.map((f) => {
       const seed = Object.assign(el('img', 'admin__seed'), {
@@ -245,41 +313,71 @@ export function renderAdmin(store: Store): ViewHandle {
     onSelect: () => store.dispatch({ type: 'toggleBrake' }),
   });
   brake.el.classList.add('admin__brake');
-  // B-93/B-100: Rundendauer als Schieberegler (natives range, rastet je Minute ein), rechts die
-  // Dauer in fester Breite. Das Element bleibt bestehen (render setzt nur den Wert), damit ein
-  // Neu-Rendern das Ziehen nicht unterbricht; gespeichert wird bei `change` (Loslassen, Taste).
-  const range = document.createElement('input');
-  range.type = 'range';
-  range.className = 'admin__range';
-  range.min = String(ROUND_MIN_LOWEST);
-  range.max = String(ROUND_MIN_HIGHEST);
-  range.step = '1';
-  range.setAttribute('aria-label', 'Rundendauer');
-  const minutes = el('span', 'admin__minutes');
-  let sliding = false; // Wert gezogen, aber noch nicht gespeichert
-  const showMinutes = (value: number) => {
-    const fraction = (value - ROUND_MIN_LOWEST) / (ROUND_MIN_HIGHEST - ROUND_MIN_LOWEST);
-    range.style.setProperty('--fill', String(fraction));
-    range.setAttribute('aria-valuetext', `${value} Minuten`);
-    minutes.textContent = `${value} Min.`;
-  };
-  range.addEventListener('input', () => {
-    sliding = true;
-    showMinutes(Number(range.value));
-  });
-  range.addEventListener('change', () => {
-    sliding = false;
-    store.dispatch({ type: 'roundMin', minutes: Number(range.value) });
-  });
-  const track = el('div', 'admin__track');
-  track.append(range);
-  const duration = el('div', 'admin__slider');
-  duration.append(track, minutes);
+  // B-93/B-100: Rundendauer als Schieberegler (3 bis 10 Minuten)
+  const duration = createSlider(
+    'Rundendauer',
+    'admin__minutes',
+    (value) => ({ node: `${value} Min.`, text: `${value} Minuten` }),
+    (minutes) => store.dispatch({ type: 'roundMin', minutes }),
+  );
+
+  // Reiter „Samen“ (B-114): aktuelle (zuletzt gepflanzte) Blume (0 = keine, dann FLOWERS), ihre
+  // Stufe und der Fortschritt bis zur nächsten Stufe
+  const currentFlower = createSlider(
+    'Aktueller Samen',
+    'admin__picture-value',
+    (value) => {
+      const flower = FLOWERS[value - 1];
+      return flower
+        ? { node: picture(flowerUrl(flower, 'seed')), text: FLOWER_NAMES[flower] }
+        : { node: '–', text: 'kein Samen' };
+    },
+    (value) =>
+      store.dispatch({
+        type: 'gardenFlower',
+        flower: FLOWERS[value - 1] ?? null,
+        at: new Date().toISOString(),
+      }),
+  );
+  const currentStage = createSlider(
+    'Stufe',
+    'admin__picture-value',
+    (value) => {
+      const plant = currentPlant(store.getState().data.garden);
+      if (!plant) return { node: '–', text: 'keine Pflanze' };
+      return {
+        node: picture(flowerUrl(plant.flower, FLOWER_STAGES[value])),
+        text: STAGE_NAMES[value],
+      };
+    },
+    (stage) => store.dispatch({ type: 'gardenStage', stage }),
+  );
+  const currentRounds = createSlider(
+    'Fortschritt',
+    'admin__minutes admin__rounds',
+    (value) => {
+      const { garden } = store.getState().data;
+      if (canPlant(garden)) return { node: '–', text: 'wächst nicht' }; // keine Pflanze oder Blüte
+      return { node: `${value} von ${garden.need}`, text: `${value} von ${garden.need} Runden` };
+    },
+    (rounds) => store.dispatch({ type: 'gardenRounds', rounds }),
+  );
+  const seedsPanel = el('div', 'admin__other admin__garden');
+  seedsPanel.append(
+    settingRow('Samen', 'Markiert = steht zur Wahl. Keiner markiert = kein Garten.', seeds),
+    settingRow('Aktueller Samen', 'Ganz links = keiner (entfernt die Blume).', currentFlower.el),
+    settingRow(
+      'Stufe',
+      'Blüht sie, kommt nach der nächsten Runde ein neuer Samen.',
+      currentStage.el,
+    ),
+    settingRow('Fortschritt', 'Abgeschlossene Runden bis zur nächsten Stufe.', currentRounds.el),
+  );
+
   const other = el('div', 'admin__other');
   other.append(
-    settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration),
+    settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration.el),
     settingRow('Schlafen', 'Markiert = schläft bis morgen. Tippen schaltet um.', sleep),
-    settingRow('Samen', 'Markiert = steht zur Wahl. Tippen schaltet um.', seeds),
     settingRow('Tutorial', 'Markiert = kommt beim nächsten Mal. Tippen schaltet um.', tutorialPair),
     settingRow(
       'Neue Wörter bremsen',
@@ -292,9 +390,11 @@ export function renderAdmin(store: Store): ViewHandle {
 
   const languagesPanel = el('div', 'admin__panel');
   const otherPanel = el('div', 'admin__panel');
+  const gardenPanel = el('div', 'admin__panel');
   for (const [panel, value] of [
     [languagesPanel, 'sprachen'],
     [otherPanel, 'sonstiges'],
+    [gardenPanel, 'samen'],
   ] as const) {
     panel.setAttribute('role', 'tabpanel');
     panel.setAttribute('aria-labelledby', `admin-tab-${value}`);
@@ -307,21 +407,21 @@ export function renderAdmin(store: Store): ViewHandle {
     });
     languagesPanel.hidden = tab !== 'sprachen';
     otherPanel.hidden = tab !== 'sonstiges';
+    gardenPanel.hidden = tab !== 'samen';
 
     sleepers.forEach((tile, c) => tile.setSelected(data.rest.sleeping.includes(c)));
     tutorials.speak.setSelected(!data.tutorialDone);
     tutorials.listen.setSelected(!data.listenTutorialDone);
     brake.setSelected(data.brakeNew);
-    flowerTiles.forEach((tile, f: Flower) => {
-      tile.setSelected(data.enabledFlowers.includes(f));
-      // der letzte freigegebene bleibt an
-      if (canToggleFlower(data, f)) tile.el.removeAttribute('aria-disabled');
-      else tile.el.setAttribute('aria-disabled', 'true');
-    });
-    if (!sliding) {
-      if (range.value !== String(data.roundMin)) range.value = String(data.roundMin);
-      showMinutes(data.roundMin);
-    }
+    flowerTiles.forEach((tile, f: Flower) => tile.setSelected(data.enabledFlowers.includes(f)));
+    duration.set(data.roundMin, ROUND_MIN_LOWEST, ROUND_MIN_HIGHEST);
+    // B-114: ohne Samen ist der Garten aus – die Regler sind dann gesperrt
+    const off = !gardenOn(data);
+    const plant = currentPlant(data.garden);
+    const growing = !canPlant(data.garden);
+    currentFlower.set(plant ? FLOWERS.indexOf(plant.flower) + 1 : 0, 0, FLOWERS.length, off);
+    currentStage.set(plant?.stage ?? PLANTED, PLANTED, BLOOM, off || !plant);
+    currentRounds.set(growing ? data.garden.rounds : 0, 0, data.garden.need - 1, off || !growing);
 
     const name = LANGUAGE_INFO[language].name;
     const progress = data[progressKey(mode)]; // B-89: Lernstand des gezeigten Modus
@@ -435,8 +535,9 @@ export function renderAdmin(store: Store): ViewHandle {
 
   languagesPanel.append(toolbar, levels);
   otherPanel.append(other);
+  gardenPanel.append(seedsPanel);
   const body = el('div', 'admin__body');
-  body.append(languagesPanel, otherPanel);
+  body.append(languagesPanel, otherPanel, gardenPanel);
   view.append(createAppHeader({ start: home, end: tabList }), body);
   render();
 

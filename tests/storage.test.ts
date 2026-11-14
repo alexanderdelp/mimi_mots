@@ -615,14 +615,18 @@ describe('Rundendauer (B-93)', () => {
 });
 
 describe('Samen (B-109)', () => {
-  it('AT-109.2: fehlend, leer oder ungültig → alle; sonst bekannte in fester Reihenfolge', () => {
+  it('AT-109.2: fehlend oder ungültig → alle; sonst bekannte in fester Reihenfolge', () => {
     const all = ['sunflower', 'peony', 'clematis'];
     const old: Partial<ChildData> = valid();
     delete old.enabledFlowers;
     expect(sanitizeChild(old).enabledFlowers).toEqual(all);
     expect(sanitizeChild(valid()).enabledFlowers).toEqual(['peony', 'clematis']);
-    for (const bad of [[], ['rose'], 'peony', null, 42]) {
+    for (const bad of ['peony', null, 42]) {
       expect(sanitizeChild({ ...valid(), enabledFlowers: bad }).enabledFlowers).toEqual(all);
+    }
+    // B-114: leer bleibt leer (Garten aus), ebenso nur unbekannte
+    for (const none of [[], ['rose']]) {
+      expect(sanitizeChild({ ...valid(), enabledFlowers: none }).enabledFlowers).toEqual([]);
     }
     const mixed = sanitizeChild({ ...valid(), enabledFlowers: ['clematis', 'rose', 'sunflower'] });
     expect(mixed.enabledFlowers).toEqual(['sunflower', 'clematis']);
