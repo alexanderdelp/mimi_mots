@@ -16,7 +16,7 @@ const VERSION = 2;
 /** B-97: Länge des Namens – passt so in die Kopfleiste (1024 px, iPhone). */
 export const NAME_MAX = 16;
 
-export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja', 'it'];
+export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja'];
 /** B-93: Dauer einer Runde in Minuten (Standard), im Elternbereich einstellbar. */
 export const ROUND_MIN = 5;
 export const ROUND_MIN_LOWEST = 3;
@@ -95,7 +95,7 @@ export interface AppData {
   children: Child[];
 }
 
-/** Standard: Englisch und Französisch aktiv, Japanisch und Italienisch aus (B-73/B-80). */
+/** Standard: Englisch und Französisch aktiv, Japanisch aus (B-73). */
 const DEFAULT_ENABLED_LANGUAGES: readonly Language[] = ['en', 'fr'];
 
 /**
@@ -116,14 +116,14 @@ export function childDefaults(): ChildData {
   return {
     name: null,
     settings: { companion: null, language: null, mode: 'speak' },
-    progress: { en: {}, fr: {}, ja: {}, it: {} },
-    listenProgress: { en: {}, fr: {}, ja: {}, it: {} },
+    progress: { en: {}, fr: {}, ja: {} },
+    listenProgress: { en: {}, fr: {}, ja: {} },
     rest: { sleeping: [], since: null },
     enabledLanguages: withWords(DEFAULT_ENABLED_LANGUAGES),
     tutorialDone: false,
     listenTutorialDone: false,
     brakeNew: true,
-    disabledWords: { en: [], fr: [], ja: [], it: [] },
+    disabledWords: { en: [], fr: [], ja: [] },
     roundMin: ROUND_MIN,
     enabledFlowers: [...FLOWERS],
     garden: emptyGarden(),

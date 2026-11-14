@@ -7,18 +7,36 @@ const isColor = (w: Word) => COLOR_EMOJIS.includes(w.emoji);
 /** Zahlen 0–10 (B-68): Tasten-Emoji wie 0️⃣ … 🔟. */
 const isNumber = (w: Word) => /^(\d\uFE0F\u20E3|🔟)$/u.test(w.emoji);
 
+/** Spalten der Tabelle in anforderungen.md §10, nach Überschrift (weitere Spalten zählen nicht). */
+const COLUMNS = {
+  id: 'id',
+  emoji: 'Emoji',
+  de: 'DE',
+  en: 'EN',
+  fr: 'FR',
+  ja: 'JA',
+  jaKana: 'JA (Lesung)',
+} as const;
+
 /** Liest die Wortliste aus der Tabelle in anforderungen.md §10. */
 function wordsFromRequirements(): Omit<Word, 'syllables'>[] {
   const section = readFileSync('anforderungen.md', 'utf8').split('## 10.')[1].split('## 11.')[0];
-  return section
-    .split('\n')
-    .filter((line) => line.startsWith('| ') && !line.startsWith('| id'))
+  const cells = (line: string) =>
+    line
+      .split('|')
+      .slice(1, -1)
+      .map((s) => s.trim());
+  const lines = section.split('\n').filter((line) => line.startsWith('| '));
+  const header = cells(lines.find((line) => line.startsWith('| id'))!);
+  return lines
+    .filter((line) => !line.startsWith('| id'))
     .map((line) => {
-      const [id, emoji, de, en, fr, it, ja, jaKana] = line
-        .split('|')
-        .slice(1, -1)
-        .map((s) => s.trim());
-      return { id, emoji, de, en, fr, it, ja, jaKana };
+      const row = cells(line);
+      const entries = Object.entries(COLUMNS).map(([key, title]) => [
+        key,
+        row[header.indexOf(title)],
+      ]);
+      return Object.fromEntries(entries) as Omit<Word, 'syllables'>;
     });
 }
 
@@ -36,7 +54,7 @@ describe('Wortliste', () => {
   });
 
   it.each(WORDS.map((w) => [w.id, w] as const))('%s hat keine leeren Felder', (_, word) => {
-    for (const key of ['id', 'emoji', 'de', 'en', 'fr', 'it'] as const) {
+    for (const key of ['id', 'emoji', 'de', 'en', 'fr', 'ja', 'jaKana'] as const) {
       expect(word[key].trim(), key).not.toBe('');
       expect(word[key], key).toBe(word[key].trim());
     }
@@ -53,11 +71,8 @@ describe('Wortliste', () => {
     }
   });
 
-  it("AT-80.1: italienische Nomen haben einen bestimmten Artikel (il, lo, la, l'), Farben und Zahlen nicht", () => {
-    for (const w of WORDS) {
-      if (isColor(w) || isNumber(w)) expect(w.it, w.id).not.toMatch(/^(il |lo |la |l')/);
-      else expect(w.it, w.id).toMatch(/^(il |lo |la |l')\S/);
-    }
+  it('AT-118: kein Wort hat noch ein italienisches Feld', () => {
+    for (const w of WORDS) expect(Object.keys(w), w.id).not.toContain('it');
   });
 
   it('englische Wörter haben keinen Artikel', () => {
@@ -76,7 +91,7 @@ describe('Wortliste', () => {
   });
 
   it('getWord findet Wörter per id', () => {
-    expect(getWord('apfel')).toMatchObject({ en: 'apple', fr: 'la pomme', it: 'la mela' });
+    expect(getWord('apfel')).toMatchObject({ en: 'apple', fr: 'la pomme', ja: 'りんご' });
     expect(getWord('gibtsnicht')).toBeUndefined();
   });
 });

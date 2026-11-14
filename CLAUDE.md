@@ -1,7 +1,7 @@
 # CLAUDE.md – Mimi & Mots
 
 ## Projekt in einem Satz
-PWA für ein quergelegtes iPad, mit der eine Erstklässlerin spielerisch ein paar Wörter auf Englisch, Französisch, Japanisch oder Italienisch lernt. Sie wird dabei von Mimi (Katze) oder Mots (Pony) begleitet. Runden dauern kurz (Standard 5 Minuten, im Elternbereich 3–10).
+PWA für ein quergelegtes iPad, mit der eine Erstklässlerin spielerisch ein paar Wörter auf Englisch, Französisch oder Japanisch lernt. Sie wird dabei von Mimi (Katze) oder Mots (Pony) begleitet. Runden dauern kurz (Standard 5 Minuten, im Elternbereich 3–10).
 
 Fachliche Anforderungen (aktueller Stand): `anforderungen.md`. Offene Aufgaben und Reihenfolge: `backlog.md`. Erledigte Aufgaben und die Chronik der Entscheidungen: `docs/archiv/` – nur bei Bedarf lesen.
 
@@ -18,7 +18,7 @@ Fachliche Anforderungen (aktueller Stand): `anforderungen.md`. Offene Aufgaben u
 - **vite-plugin-pwa** (Workbox, `generateSW`, Precache aller Assets).
 - **Vitest** für Logik (Scheduler, Timer, Storage).
 - **Playwright** für E2E mit iPad-Landscape-Viewports und iPhone quer (WebKit).
-- **Audio:** vorproduzierte MP3-Dateien (mono, 64 kbit/s), erzeugt per Skript: Englisch mit Piper (`en_US-ljspeech-high`), Französisch mit Kokoro (`ff_siwis`), Japanisch mit VOICEVOX (冥鳴ひまり, Namensnennung „VOICEVOX:冥鳴ひまり“ nötig), Italienisch mit Kokoro (`if_sara`); je Wort per Stimmwahl abweichend (`audio-choices.json`). Abspielen über `HTMLAudioElement` (nicht Web Audio, wegen iOS-Stummschaltung). Web Speech API nur als Fallback, wenn eine Datei fehlt.
+- **Audio:** vorproduzierte MP3-Dateien (mono, 64 kbit/s), erzeugt per Skript: Englisch mit Piper (`en_US-ljspeech-high`), Französisch mit Kokoro (`ff_siwis`), Japanisch mit VOICEVOX (冥鳴ひまり, Namensnennung „VOICEVOX:冥鳴ひまり“ nötig); je Wort per Stimmwahl abweichend (`audio-choices.json`). Abspielen über `HTMLAudioElement` (nicht Web Audio, wegen iOS-Stummschaltung). Web Speech API nur als Fallback, wenn eine Datei fehlt.
 - **Bilder der Wörter:** native Apple-Emoji (0 Byte, auf iPad einheitlich und hochwertig).
 - **Schrift:** `ui-rounded` (SF Pro Rounded auf iPad), Fallback `"Nunito"` selbst gehostet, dann `system-ui`.
 - **Persistenz:** `localStorage` (Einstellungen + Lernstand), ein Schlüssel, versioniert.
@@ -46,7 +46,7 @@ npm run lint         # ESLint + Prettier-Check (npm run format behebt Formatfehl
 npm run icons        # App-Icons (PNG) aus public/icons/*.svg neu rendern
 npm run flowers      # Blumenbilder (public/flowers/) aus assets/blumen.png zerschneiden (B-109)
 npm run audio        # scripts/generate_audio.py – erzeugt fehlende MP3s (lokal, Python)
-npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.html (B-78; auch fr, it, ja)
+npm run audio -- --candidates --lang en   # Stimmoptionen für tools/stimmwahl.html (B-78; auch fr, ja)
 npm run test:audio   # Tests des Audio-Skripts (Python)
 ```
 
@@ -61,8 +61,8 @@ public/
              Schlaf- und Radschlagbilder verkleinert, B-77)
   flowers/   <sunflower|peony|clematis>_<seed|planted|sprout|plant|bud|bloom>.webp (B-109,
              aus assets/blumen.png per npm run flowers)
-  flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg, flag_it.svg (scharfe Vektorflaggen)
-  audio/     en/<wortId>.mp3, fr/<wortId>.mp3, ja/<wortId>.mp3, it/<wortId>.mp3
+  flags/     flag_gb.svg, flag_fr.svg, flag_jp.svg (scharfe Vektorflaggen)
+  audio/     en/<wortId>.mp3, fr/<wortId>.mp3, ja/<wortId>.mp3
   icons/     icon.svg (Quelle), icon-180.png, icon-192.png, icon-512.png,
              icon-maskable.svg, icon-maskable-512.png (austauschbar, siehe B-50)
 src/
@@ -73,7 +73,7 @@ src/
   scheduler.ts       Wortauswahl (Leitner, gewichtet)
   timer.ts           Session-Timer (pausiert bei visibilitychange)
   audio.ts           Laden/Abspielen, Fallback Web Speech
-  data/words.ts      Wortliste (id, emoji, de, syllables, en, fr, it, ja, jaKana) aus data/words.json
+  data/words.ts      Wortliste (id, emoji, de, syllables, en, fr, ja, jaKana) aus data/words.json
   data/languages.ts  Name und Flagge je Lernsprache; data/modes.ts: Modi mit Symbol
   data/flowers.ts    Blumen und Wachstumsstufen (B-109)
   data/vocabulary.ts Wortschatz je Sprache: nur Wörter mit gewählter Aufnahme (audio-choices.json, B-84)

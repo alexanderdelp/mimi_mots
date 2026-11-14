@@ -113,7 +113,7 @@
     <script type="module">
       import words from '../src/data/words.json';
 
-      // Stimmoptionen wie VOICE_OPTIONS in scripts/generate_audio.py (B-78/B-79/B-80/B-85)
+      // Stimmoptionen wie VOICE_OPTIONS in scripts/generate_audio.py (B-78/B-79/B-85)
       const LANGUAGES = {
         en: {
           name: 'Englisch',
@@ -135,14 +135,6 @@
         ja: {
           name: 'Japanisch',
           voices: { 'voicevox-himari': 'VOICEVOX 冥鳴ひまり' },
-        },
-        it: {
-          name: 'Italienisch',
-          voices: {
-            'kokoro-sara': 'Kokoro sara',
-            'kokoro-nicola': 'Kokoro nicola',
-            'piper-riccardo': 'Piper riccardo',
-          },
         },
       };
       const requested = new URLSearchParams(location.search).get('lang');

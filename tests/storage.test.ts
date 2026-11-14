@@ -39,20 +39,18 @@ const valid = (): ChildData => ({
     fr: { apfel: { box: 2, seen: 5, lastSeenAt: '2026-10-29T10:00:00.000Z' } },
     en: { hund: { box: 0, seen: 1, lastSeenAt: '2026-10-28T09:30:00.000Z' } },
     ja: { katze: { box: 1, seen: 2, lastSeenAt: '2026-10-30T08:00:00.000Z' } },
-    it: { hase: { box: 4, seen: 7, lastSeenAt: '2026-10-30T09:00:00.000Z' } },
   },
   listenProgress: {
     fr: { hund: { box: 1, seen: 1, lastSeenAt: '2026-10-30T10:00:00.000Z' } },
     en: {},
     ja: {},
-    it: {},
   },
   rest: { sleeping: ['mimi'], since: '2026-10-29' },
-  enabledLanguages: ['en', 'it'],
+  enabledLanguages: ['en', 'ja'],
   tutorialDone: true,
   listenTutorialDone: false,
   brakeNew: false,
-  disabledWords: { en: ['hund'], fr: [], ja: [], it: [] },
+  disabledWords: { en: ['hund'], fr: [], ja: [] },
   roundMin: 7,
   enabledFlowers: ['peony', 'clematis'],
   garden: { plants: [{ flower: 'peony' as const, stage: 3 }], rounds: 2, need: 5 },
@@ -90,14 +88,14 @@ describe('defaults', () => {
     expect(childDefaults()).toEqual({
       name: null,
       settings: { companion: null, language: null, mode: 'speak' },
-      progress: { en: {}, fr: {}, ja: {}, it: {} },
-      listenProgress: { en: {}, fr: {}, ja: {}, it: {} },
+      progress: { en: {}, fr: {}, ja: {} },
+      listenProgress: { en: {}, fr: {}, ja: {} },
       rest: { sleeping: [], since: null },
       enabledLanguages: ['en', 'fr'],
       tutorialDone: false,
       listenTutorialDone: false,
       brakeNew: true,
-      disabledWords: { en: [], fr: [], ja: [], it: [] },
+      disabledWords: { en: [], fr: [], ja: [] },
       roundMin: 5,
       enabledFlowers: ['sunflower', 'peony', 'clematis'],
       garden: { plants: [], rounds: 0, need: 3 },
@@ -372,7 +370,6 @@ describe('sanitizeChild', () => {
       en: {},
       fr: {},
       ja: {},
-      it: {},
     });
   });
 });
@@ -411,7 +408,7 @@ describe('Hörrunde (B-89)', () => {
     const old: Partial<ChildData> = valid();
     delete old.listenProgress;
     const data = sanitizeChild(old);
-    expect(data.listenProgress).toEqual({ en: {}, fr: {}, ja: {}, it: {} });
+    expect(data.listenProgress).toEqual({ en: {}, fr: {}, ja: {} });
     expect(data.progress).toEqual(valid().progress);
   });
 
@@ -444,8 +441,8 @@ describe('Aktive Sprachen (B-73)', () => {
 
   it('verwirft Unbekanntes und Doppeltes; leer → Standard', () => {
     expect(
-      sanitizeChild({ ...valid(), enabledLanguages: ['it', 'de', 'it', 'fr'] }).enabledLanguages,
-    ).toEqual(['fr', 'it']);
+      sanitizeChild({ ...valid(), enabledLanguages: ['ja', 'de', 'ja', 'fr'] }).enabledLanguages,
+    ).toEqual(['fr', 'ja']);
     expect(sanitizeChild({ ...valid(), enabledLanguages: [] }).enabledLanguages).toEqual([
       'en',
       'fr',
@@ -501,7 +498,7 @@ describe('Ausgeschaltete Wörter (B-88)', () => {
   it('AT-88.5: alte Daten ohne disabledWords → alle Wörter an', () => {
     const old: Partial<ChildData> = valid();
     delete old.disabledWords;
-    expect(sanitizeChild(old).disabledWords).toEqual({ en: [], fr: [], ja: [], it: [] });
+    expect(sanitizeChild(old).disabledWords).toEqual({ en: [], fr: [], ja: [] });
     expect(sanitizeChild({ ...valid(), disabledWords: 'hund' }).disabledWords.en).toEqual([]);
   });
 
@@ -511,7 +508,6 @@ describe('Ausgeschaltete Wörter (B-88)', () => {
       en: ['katze', 'hund'],
       fr: [],
       ja: [],
-      it: [],
     });
   });
 
@@ -675,5 +671,32 @@ describe('Garten (B-112)', () => {
         need: 3,
       });
     }
+  });
+});
+
+describe('Ohne Italienisch (B-118)', () => {
+  it('AT-118.3: gespeicherte italienische Daten fallen beim Laden weg', () => {
+    const entry = { box: 4, seen: 7, lastSeenAt: '2026-10-30T09:00:00.000Z' };
+    const data = sanitizeChild({
+      ...valid(),
+      settings: { companion: 'mimi', language: 'it', mode: 'listen' },
+      progress: { ...valid().progress, it: { hase: entry } },
+      listenProgress: { ...valid().listenProgress, it: { hase: entry } },
+      enabledLanguages: ['it', 'fr'],
+      disabledWords: { ...valid().disabledWords, it: ['hase'] },
+    });
+    expect(data.settings).toEqual({ companion: 'mimi', language: null, mode: 'listen' });
+    expect(data.enabledLanguages).toEqual(['fr']);
+    for (const field of [data.progress, data.listenProgress, data.disabledWords]) {
+      expect(Object.keys(field).sort()).toEqual(['en', 'fr', 'ja']);
+    }
+    expect(data.progress).toEqual(valid().progress);
+  });
+
+  it('AT-118.3: nur Italienisch eingeschaltet → Standard', () => {
+    expect(sanitizeChild({ ...valid(), enabledLanguages: ['it'] }).enabledLanguages).toEqual([
+      'en',
+      'fr',
+    ]);
   });
 });

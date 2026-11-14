@@ -91,7 +91,7 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
   );
 
   test(
-    'AT-81.3: eingeschaltete Sprachen im Raster mit zwei Spalten (EN | FR / IT)',
+    'AT-81.3/AT-118.1: drei eingeschaltete Sprachen in einer Reihe (EN | FR | JA)',
     { tag: '@layout' },
     async ({ page }) => {
       await page.evaluate(
@@ -101,22 +101,22 @@ test.describe('B-26 UI-Überarbeitung – Startseite', () => {
             activeChildId: id,
             children: [{ id }],
           };
-          data.children[0].enabledLanguages = ['en', 'fr', 'it'];
+          data.children[0].enabledLanguages = ['en', 'fr', 'ja'];
           localStorage.setItem(k, JSON.stringify(data));
         },
         [KEY, CHILD_ID] as const,
       );
       await page.reload();
-      const it = btn(page, 'Italienisch');
-      await expect(it.locator('img')).toHaveAttribute('src', /flag_it\.svg$/);
-      const [bEn, bFr, bIt] = [
+      const ja = btn(page, 'Japanisch');
+      await expect(ja.locator('img')).toHaveAttribute('src', /flag_jp\.svg$/);
+      const [bEn, bFr, bJa] = [
         await box(btn(page, 'Englisch')),
         await box(btn(page, 'Französisch')),
-        await box(it),
+        await box(ja),
       ];
       expect(bFr.y).toBeCloseTo(bEn.y, 0);
-      expect(bIt.x).toBeCloseTo(bEn.x, 0); // zweite Zeile links
-      expect(bIt.y).toBeGreaterThan(bEn.y + bEn.height - 1);
+      expect(bJa.y).toBeCloseTo(bEn.y, 0); // eine Reihe
+      expect(bJa.x).toBeGreaterThan(bFr.x + bFr.width - 1);
     },
   );
 

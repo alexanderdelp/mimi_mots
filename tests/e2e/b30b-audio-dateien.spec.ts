@@ -8,7 +8,7 @@ const hasFile = (lang: string, id: string) =>
 
 test.describe('B-30b Audio erzeugen', () => {
   test('AT-30b.3: Audiodateien werden unter /audio/ ausgeliefert', async ({ request }) => {
-    for (const lang of ['en', 'fr', 'ja', 'it']) {
+    for (const lang of ['en', 'fr', 'ja']) {
       for (const word of words) {
         if (!hasFile(lang, word.id)) continue;
         const res = await request.get(`audio/${lang}/${word.id}.mp3`);
