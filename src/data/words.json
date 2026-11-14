@@ -608,5 +608,285 @@
     "fr": "dix",
     "ja": "十",
     "jaKana": "じゅう"
+  },
+  {
+    "id": "schaf",
+    "emoji": "🐑",
+    "de": "Schaf",
+    "syllables": ["Schaf"],
+    "en": "sheep",
+    "fr": "le mouton",
+    "ja": "羊",
+    "jaKana": "ひつじ"
+  },
+  {
+    "id": "huhn",
+    "emoji": "🐔",
+    "de": "Huhn",
+    "syllables": ["Huhn"],
+    "en": "chicken",
+    "fr": "la poule",
+    "ja": "鶏",
+    "jaKana": "にわとり"
+  },
+  {
+    "id": "schildkroete",
+    "emoji": "🐢",
+    "de": "Schildkröte",
+    "syllables": ["Schild", "krö", "te"],
+    "en": "turtle",
+    "fr": "la tortue",
+    "ja": "亀",
+    "jaKana": "かめ"
+  },
+  {
+    "id": "giraffe",
+    "emoji": "🦒",
+    "de": "Giraffe",
+    "syllables": ["Gi", "raf", "fe"],
+    "en": "giraffe",
+    "fr": "la girafe",
+    "ja": "キリン",
+    "jaKana": "キリン"
+  },
+  {
+    "id": "affe",
+    "emoji": "🐒",
+    "de": "Affe",
+    "syllables": ["Af", "fe"],
+    "en": "monkey",
+    "fr": "le singe",
+    "ja": "猿",
+    "jaKana": "さる"
+  },
+  {
+    "id": "biene",
+    "emoji": "🐝",
+    "de": "Biene",
+    "syllables": ["Bie", "ne"],
+    "en": "bee",
+    "fr": "l'abeille",
+    "ja": "蜂",
+    "jaKana": "はち"
+  },
+  {
+    "id": "schnecke",
+    "emoji": "🐌",
+    "de": "Schnecke",
+    "syllables": ["Schne", "cke"],
+    "en": "snail",
+    "fr": "l'escargot",
+    "ja": "かたつむり",
+    "jaKana": "かたつむり"
+  },
+  {
+    "id": "fuchs",
+    "emoji": "🦊",
+    "de": "Fuchs",
+    "syllables": ["Fuchs"],
+    "en": "fox",
+    "fr": "le renard",
+    "ja": "狐",
+    "jaKana": "きつね"
+  },
+  {
+    "id": "pinguin",
+    "emoji": "🐧",
+    "de": "Pinguin",
+    "syllables": ["Pin", "guin"],
+    "en": "penguin",
+    "fr": "le pingouin",
+    "ja": "ペンギン",
+    "jaKana": "ペンギン"
+  },
+  {
+    "id": "eule",
+    "emoji": "🦉",
+    "de": "Eule",
+    "syllables": ["Eu", "le"],
+    "en": "owl",
+    "fr": "le hibou",
+    "ja": "ふくろう",
+    "jaKana": "ふくろう"
+  },
+  {
+    "id": "trauben",
+    "emoji": "🍇",
+    "de": "Trauben",
+    "syllables": ["Trau", "ben"],
+    "en": "grapes",
+    "fr": "le raisin",
+    "ja": "ぶどう",
+    "jaKana": "ぶどう"
+  },
+  {
+    "id": "wassermelone",
+    "emoji": "🍉",
+    "de": "Wassermelone",
+    "syllables": ["Was", "ser", "me", "lo", "ne"],
+    "en": "watermelon",
+    "fr": "la pastèque",
+    "ja": "すいか",
+    "jaKana": "すいか"
+  },
+  {
+    "id": "tomate",
+    "emoji": "🍅",
+    "de": "Tomate",
+    "syllables": ["To", "ma", "te"],
+    "en": "tomato",
+    "fr": "la tomate",
+    "ja": "トマト",
+    "jaKana": "トマト"
+  },
+  {
+    "id": "kartoffel",
+    "emoji": "🥔",
+    "de": "Kartoffel",
+    "syllables": ["Kar", "tof", "fel"],
+    "en": "potato",
+    "fr": "la pomme de terre",
+    "ja": "じゃがいも",
+    "jaKana": "じゃがいも"
+  },
+  {
+    "id": "pizza",
+    "emoji": "🍕",
+    "de": "Pizza",
+    "syllables": ["Piz", "za"],
+    "en": "pizza",
+    "fr": "la pizza",
+    "ja": "ピザ",
+    "jaKana": "ピザ"
+  },
+  {
+    "id": "schokolade",
+    "emoji": "🍫",
+    "de": "Schokolade",
+    "syllables": ["Scho", "ko", "la", "de"],
+    "en": "chocolate",
+    "fr": "le chocolat",
+    "ja": "チョコレート",
+    "jaKana": "チョコレート"
+  },
+  {
+    "id": "auge",
+    "emoji": "👁️",
+    "de": "Auge",
+    "syllables": ["Au", "ge"],
+    "en": "eye",
+    "fr": "l'œil",
+    "ja": "目",
+    "jaKana": "め"
+  },
+  {
+    "id": "ohr",
+    "emoji": "👂",
+    "de": "Ohr",
+    "syllables": ["Ohr"],
+    "en": "ear",
+    "fr": "l'oreille",
+    "ja": "耳",
+    "jaKana": "みみ"
+  },
+  {
+    "id": "mund",
+    "emoji": "👄",
+    "de": "Mund",
+    "syllables": ["Mund"],
+    "en": "mouth",
+    "fr": "la bouche",
+    "ja": "口",
+    "jaKana": "くち"
+  },
+  {
+    "id": "fuss",
+    "emoji": "🦶",
+    "de": "Fuß",
+    "syllables": ["Fuß"],
+    "en": "foot",
+    "fr": "le pied",
+    "ja": "足",
+    "jaKana": "あし"
+  },
+  {
+    "id": "regenbogen",
+    "emoji": "🌈",
+    "de": "Regenbogen",
+    "syllables": ["Re", "gen", "bo", "gen"],
+    "en": "rainbow",
+    "fr": "l'arc-en-ciel",
+    "ja": "虹",
+    "jaKana": "にじ"
+  },
+  {
+    "id": "wolke",
+    "emoji": "☁️",
+    "de": "Wolke",
+    "syllables": ["Wol", "ke"],
+    "en": "cloud",
+    "fr": "le nuage",
+    "ja": "雲",
+    "jaKana": "くも"
+  },
+  {
+    "id": "geschenk",
+    "emoji": "🎁",
+    "de": "Geschenk",
+    "syllables": ["Ge", "schenk"],
+    "en": "present",
+    "fr": "le cadeau",
+    "ja": "プレゼント",
+    "jaKana": "プレゼント"
+  },
+  {
+    "id": "teddy",
+    "emoji": "🧸",
+    "de": "Teddy",
+    "syllables": ["Ted", "dy"],
+    "en": "teddy bear",
+    "fr": "le nounours",
+    "ja": "テディベア",
+    "jaKana": "テディベア"
+  },
+  {
+    "id": "bett",
+    "emoji": "🛏️",
+    "de": "Bett",
+    "syllables": ["Bett"],
+    "en": "bed",
+    "fr": "le lit",
+    "ja": "ベッド",
+    "jaKana": "ベッド"
+  },
+  {
+    "id": "stuhl",
+    "emoji": "🪑",
+    "de": "Stuhl",
+    "syllables": ["Stuhl"],
+    "en": "chair",
+    "fr": "la chaise",
+    "ja": "椅子",
+    "jaKana": "いす"
+  },
+  {
+    "id": "schluessel",
+    "emoji": "🔑",
+    "de": "Schlüssel",
+    "syllables": ["Schlüs", "sel"],
+    "en": "key",
+    "fr": "la clé",
+    "ja": "鍵",
+    "jaKana": "かぎ"
+  },
+  {
+    "id": "flugzeug",
+    "emoji": "✈️",
+    "de": "Flugzeug",
+    "syllables": ["Flug", "zeug"],
+    "en": "plane",
+    "fr": "l'avion",
+    "ja": "飛行機",
+    "jaKana": "ひこうき"
   }
 ]
