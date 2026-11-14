@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './fixtures';
-import words from '../../src/data/words.json' with { type: 'json' };
 import { btn, hold, storeOnce, stored } from './views';
+import { vocabularyIds } from './helpers';
 
 const TODAY = new Date(2026, 9, 30, 10, 0);
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
@@ -100,7 +100,7 @@ test.describe('B-69 Elternbereich', () => {
     await expect(level(page, '2')).toHaveCount(1);
     await expect(level(page, '4')).toHaveCount(2);
     await expect(level(page, '1')).toHaveCount(0);
-    await expect(level(page, 'neu')).toHaveCount(words.length - 4);
+    await expect(level(page, 'neu')).toHaveCount(vocabularyIds('fr').length - 4); // B-84: nur Wörter mit Aufnahme
     await expect(page.locator('.admin__level[data-level="4"] .admin__title')).toHaveText(
       'Stufe 4 · 2',
     );
@@ -108,7 +108,7 @@ test.describe('B-69 Elternbereich', () => {
     await btn(page, 'Englisch').click();
     await expect(level(page, '2')).toHaveCount(1);
     await expect(level(page, '2').first()).toHaveAttribute('aria-label', 'Apfel · apple');
-    await expect(level(page, 'neu')).toHaveCount(words.length - 1);
+    await expect(level(page, 'neu')).toHaveCount(vocabularyIds('en').length - 1);
   });
 
   test('AT-69.5: Zurücksetzen nur nach Sicherheitsabfrage, nur diese Sprache', async ({ page }) => {
@@ -127,7 +127,7 @@ test.describe('B-69 Elternbereich', () => {
 
     await btn(page, 'Lernstand zurücksetzen').click();
     await btn(page, 'Ja, zurücksetzen').click();
-    await expect(level(page, 'neu')).toHaveCount(words.length);
+    await expect(level(page, 'neu')).toHaveCount(vocabularyIds('fr').length);
     await expect(btn(page, 'Lernstand zurücksetzen')).toBeDisabled();
     const saved = await stored(page);
     expect(saved.progress.fr).toEqual({});

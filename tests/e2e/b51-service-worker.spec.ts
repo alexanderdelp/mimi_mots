@@ -1,7 +1,6 @@
 import { expect, test, type Page } from './fixtures';
 import { readdirSync } from 'node:fs';
-import words from '../../src/data/words.json' with { type: 'json' };
-import { fakeMedia, mediaCalls } from './helpers';
+import { fakeMedia, mediaCalls, vocabularyIds } from './helpers';
 import { btn } from './views';
 
 const view = (page: Page, name: string) => page.locator(`[data-view="${name}"]`);
@@ -55,7 +54,7 @@ test.describe('B-51 Service Worker', () => {
       ...['cat', 'pony'].flatMap((a) =>
         ['sitting', 'pointing', 'idle', 'waving'].map((p) => `/avatars/${a}_${p}.png`),
       ),
-      ...words.map((w) => `/audio/fr/${w.id}.mp3`),
+      ...vocabularyIds('fr').map((id) => `/audio/fr/${id}.mp3`), // B-84: nur gewählte Aufnahmen
     ];
     for (const path of expected) expect(paths, path).toContain(path);
     // AT-61.5: jedes Bild und jede Audiodatei aus public/ (alle Sprachen, Schlafbilder, Flaggen)
@@ -63,7 +62,7 @@ test.describe('B-51 Service Worker', () => {
       .filter((f) => /\.(png|svg|webp|mp3)$/.test(f)) // B-109: Blumen als WebP
       .map((f) => `/${f.replaceAll('\\', '/')}`);
     // seit B-103 nur gewählte Aufnahmen: mindestens zwei volle Sprachen (EN, FR) plus Bilder
-    expect(media.length).toBeGreaterThan(2 * words.length);
+    expect(media.length).toBeGreaterThan(vocabularyIds('en').length + vocabularyIds('fr').length);
     for (const path of media) expect(paths, path).toContain(path);
     expect(paths.some((p) => /\/assets\/index-.*\.js$/.test(p))).toBe(true);
     expect(paths.some((p) => /\/assets\/index-.*\.css$/.test(p))).toBe(true);

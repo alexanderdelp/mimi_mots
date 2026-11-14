@@ -101,6 +101,8 @@
 }
 
 .admin__levels {
+  /* B-119: kleinste Wortgröße beim Einpassen (iPad 44 px, Elternbereich B-88) */
+  --word-min: 44px;
   flex: 1;
   min-height: 0;
   display: flex;
@@ -113,8 +115,10 @@
 }
 
 .admin__level {
+  /* B-119: nie unter den Inhalt stauchen (sonst überlappen die Emojis die nächste Stufe) */
+  flex-shrink: 0;
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 140px 1fr;
   align-items: center;
   gap: 12px;
   min-height: 44px;
@@ -143,22 +147,24 @@
 .admin__words {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  /* B-119: ohne Abstand passen 18 Wörter in eine Zeile (1024 × 768); das Emoji füllt den Button nicht */
+  gap: 0;
 }
 
 .admin__item {
   display: flex;
 }
 
-/* B-88: Tipp schaltet das Wort ein/aus; 44 px (Elternbereich, 88 px passen bei 61 Wörtern nicht) */
+/* B-88: Tipp schaltet das Wort ein/aus; 44 px (Elternbereich, 88 px passen bei 61 Wörtern nicht).
+   B-119: --word-size setzt fitLevels() kleiner, wenn die Stufen sonst nicht ins Feld passen */
 .admin__word {
-  width: 44px;
-  height: 44px;
+  width: var(--word-size, 44px);
+  height: var(--word-size, 44px);
   padding: 0;
   display: grid;
   place-items: center;
   border-radius: 12px;
-  font-size: 30px;
+  font-size: calc(var(--word-size, 44px) * 0.68);
   line-height: 1;
   transition:
     filter var(--transition),
@@ -606,6 +612,7 @@
   }
 
   .admin__levels {
+    --word-min: 20px; /* B-119: 89 Wörter passen auf dem iPhone nur kleiner */
     gap: 2px;
     padding: 6px 12px;
   }
@@ -629,9 +636,9 @@
   }
 
   .admin__word {
-    width: 28px;
-    height: 28px;
-    font-size: 20px;
+    width: var(--word-size, 28px);
+    height: var(--word-size, 28px);
+    font-size: calc(var(--word-size, 28px) * 0.7);
   }
 
   .admin__tabs {

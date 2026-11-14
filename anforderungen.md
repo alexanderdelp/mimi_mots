@@ -259,6 +259,34 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üb
 | acht | 8️⃣ | acht | eight | huit | 八 | はち |
 | neun | 9️⃣ | neun | nine | neuf | 九 | きゅう |
 | zehn | 🔟 | zehn | ten | dix | 十 | じゅう |
+| schaf | 🐑 | Schaf | sheep | le mouton | 羊 | ひつじ |
+| huhn | 🐔 | Huhn | chicken | la poule | 鶏 | にわとり |
+| schildkroete | 🐢 | Schildkröte | turtle | la tortue | 亀 | かめ |
+| giraffe | 🦒 | Giraffe | giraffe | la girafe | キリン | キリン |
+| affe | 🐒 | Affe | monkey | le singe | 猿 | さる |
+| biene | 🐝 | Biene | bee | l'abeille | 蜂 | はち |
+| schnecke | 🐌 | Schnecke | snail | l'escargot | かたつむり | かたつむり |
+| fuchs | 🦊 | Fuchs | fox | le renard | 狐 | きつね |
+| pinguin | 🐧 | Pinguin | penguin | le pingouin | ペンギン | ペンギン |
+| eule | 🦉 | Eule | owl | le hibou | ふくろう | ふくろう |
+| trauben | 🍇 | Trauben | grapes | le raisin | ぶどう | ぶどう |
+| wassermelone | 🍉 | Wassermelone | watermelon | la pastèque | すいか | すいか |
+| tomate | 🍅 | Tomate | tomato | la tomate | トマト | トマト |
+| kartoffel | 🥔 | Kartoffel | potato | la pomme de terre | じゃがいも | じゃがいも |
+| pizza | 🍕 | Pizza | pizza | la pizza | ピザ | ピザ |
+| schokolade | 🍫 | Schokolade | chocolate | le chocolat | チョコレート | チョコレート |
+| auge | 👁️ | Auge | eye | l'œil | 目 | め |
+| ohr | 👂 | Ohr | ear | l'oreille | 耳 | みみ |
+| mund | 👄 | Mund | mouth | la bouche | 口 | くち |
+| fuss | 🦶 | Fuß | foot | le pied | 足 | あし |
+| regenbogen | 🌈 | Regenbogen | rainbow | l'arc-en-ciel | 虹 | にじ |
+| wolke | ☁️ | Wolke | cloud | le nuage | 雲 | くも |
+| geschenk | 🎁 | Geschenk | present | le cadeau | プレゼント | プレゼント |
+| teddy | 🧸 | Teddy | teddy bear | le nounours | テディベア | テディベア |
+| bett | 🛏️ | Bett | bed | le lit | ベッド | ベッド |
+| stuhl | 🪑 | Stuhl | chair | la chaise | 椅子 | いす |
+| schluessel | 🔑 | Schlüssel | key | la clé | 鍵 | かぎ |
+| flugzeug | ✈️ | Flugzeug | plane | l'avion | 飛行機 | ひこうき |
 
 ## 11. Entscheidungen
 Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heutige Regel wichtig sind. Überholte Entscheidungen und die vollständige Chronik mit Datum: `docs/archiv/entscheidungen-chronik.md`.
@@ -342,7 +370,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 
 ### Ausnahmen von Leitprinzipien
 - Leitprinzip 4 (≤ 200 ms): Der Ring beim Halten von [×] füllt sich über 600 ms (= Long-Press-Dauer) – Rückmeldung auf eine Bedienung, keine Deko (B-25). Der Stiftkreis im Tutorial zieht sich in 700 ms (B-87). Bei „Bewegung reduzieren“ beides sofort.
-- Leitprinzip 3 (88 px): Auf dem iPhone gelten 44 px (Apple-Mindestmaß) (B-76). Die Wort-Buttons im Elternbereich sind auch auf dem iPad nur 44 px – bei 61 Wörtern passen größere nicht auf einen Bildschirm, und der Bereich richtet sich an Erwachsene (B-88). Der Kopier-Button neben der Version ist ebenfalls 44 px (B-99), ebenso der Griff des Schiebereglers für die Rundendauer (iPhone 32 px bei mindestens 44 px Bedienhöhe) (B-100, Nutzerentscheidung).
+- Leitprinzip 3 (88 px): Auf dem iPhone gelten 44 px (Apple-Mindestmaß) (B-76). Die Wort-Buttons im Elternbereich sind auch auf dem iPad nur 44 px – bei 61 Wörtern passen größere nicht auf einen Bildschirm, und der Bereich richtet sich an Erwachsene (B-88). Seit 89 Wörtern (B-119) stehen sie ohne Abstand, damit auf 1024 × 768 die 44 px bleiben; auf dem iPhone werden sie bei Bedarf bis 20 px kleiner (passt sonst nicht; die Stufen überlappen nie). Der Kopier-Button neben der Version ist ebenfalls 44 px (B-99), ebenso der Griff des Schiebereglers für die Rundendauer (iPhone 32 px bei mindestens 44 px Bedienhöhe) (B-100, Nutzerentscheidung).
 - Leitprinzip 3 (wenig Text): bis zu 12 Wörter je Tutorial-Sprechblase (B-87); sonst höchstens 14 Wörter je Kind-Ansicht außer den Lernwörtern (B-61, B-75). Die 14 bleibt, obwohl die Kachel aus B-75 entfallen ist: Die Auswahl kommt mit Name in der Kopfleiste und „Bei was?“ selbst auf etwa 14 Wörter (Nutzerentscheidung 2026-11-01).
 - Leitprinzip 1 und der Garten (B-112, Nutzerentscheidung 2026-11-08): Blumen wachsen durch abgeschlossene Lernreisen – eine bewusste Ausnahme von „keine Belohnung“. Es zählt nur das Abschließen, nie „Wusste ich“ oder „Noch üben“; keine Zahlen, kein Fortschrittsbalken, kein Text zum Wachstum.
 - Leitprinzip 1 und „Meine Wörter“ (B-107, Nutzerentscheidung 2026-11-08): Das Kind sieht seinen Lernstand, aber ohne Bewertung – keine Wörter wie „Stufe“, „sicher“, „noch üben“, keine Anzahl, keine Prozente, keine Zeile „Neu“; die Zeilen kennzeichnen gleich gefärbte lila Punkte (1–5). Erreichbar über einen Buch-Button auf Start- und Schlafseite.

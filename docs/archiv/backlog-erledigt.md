@@ -551,3 +551,9 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-118.3 Gespeicherte Daten mit Italienisch (gewählte Sprache, eingeschaltete Sprachen, Lernstand, ausgeschaltete Wörter) laden ohne Fehler; die Auswahl fällt auf eine vorhandene Sprache zurück, Italienisch taucht nirgends auf.
   - AT-118.4 „Meine Wörter“ zeigt kein Italienisch.
   - AT-118.5 Der Build enthält keine Dateien unter `audio/it/` und keine `flag_it.svg`, auch nicht im Precache.
+- [x] **B-119 Neue Wörter** (Auswahl 2026-11-14): 28 Nomen aus den Vorschlägen unter „Mehr Wörter“ – Tiere: Schaf, Huhn, Schildkröte, Giraffe, Affe, Biene, Schnecke, Fuchs, Pinguin, Eule; Essen: Trauben, Wassermelone, Tomate, Kartoffel, Pizza, Schokolade; Körper: Auge, Ohr, Mund, Fuß; Natur: Regenbogen, Wolke; Dinge: Geschenk, Teddy, Bett, Stuhl, Schlüssel, Flugzeug. Aufnahmen in Englisch, Französisch und Japanisch per Stimmwahl (Kandidaten erzeugen, der Mensch wählt in `tools/stimmwahl.html`, dann endgültige MP3s). Teddy auf Japanisch テディベア statt くま (くま ist schon Bär). Pinguin fr: le pingouin.
+  - AT-119.1 Alle 28 Wörter stehen in der Wortliste mit Emoji, deutschem Wort samt Silben und Übersetzungen in Englisch, Französisch und Japanisch (mit Kana).
+  - AT-119.2 Die Stimmwahl listet die neuen Wörter mit Kandidaten in Englisch, Französisch und Japanisch.
+  - AT-119.3 Jedes neue Wort mit gewählter Aufnahme hat eine MP3 je Sprache und erscheint in der Lernrunde und unter „Meine Wörter“.
+  - AT-119.4 Die Gesamtgröße des Builds bleibt unter 5 MB.
+  - AT-119.5 Im Elternbereich überlappen die Stufen nicht und alle Wörter passen ins Feld (auf allen Viewports, alle Wörter neu oder auf alle Stufen verteilt); die Emojis werden dafür bei Bedarf kleiner.

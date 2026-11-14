@@ -32,6 +32,10 @@ import { VERSION_LABEL } from '../version';
 import type { ViewHandle } from './view';
 
 /** Zeilen der Übersicht: noch nie dran (null), dann Stufe 0 (noch üben) bis 4 (sicher). */
+// B-119: kleinere Emojis, wenn die Stufen sonst nicht ins Feld passen (wie „Meine Wörter“)
+// Untergrenze aus dem CSS (--word-min: iPad 44 px, iPhone 20 px)
+const WORD_SIZES = [40, 36, 32, 28, 26, 24, 22, 20];
+
 const LEVELS: readonly (number | null)[] = [
   null,
   ...Array.from({ length: MAX_BOX + 1 }, (_, i) => i),
@@ -513,7 +517,26 @@ export function renderAdmin(store: Store): ViewHandle {
         return row;
       }),
     );
+    fitLevels();
   };
+
+  // zuerst die Größe aus dem CSS (44 px bzw. 28 px auf dem iPhone), nur bei Überlauf kleiner
+  const fitLevels = () => {
+    levels.style.removeProperty('--word-size');
+    if (levels.clientHeight === 0) return; // anderer Reiter: beim Einblenden neu einpassen
+    const fits = () => levels.scrollHeight <= levels.clientHeight + 1;
+    if (fits()) return;
+    const start = levels.querySelector<HTMLElement>('.admin__word')?.offsetWidth ?? 44;
+    const min = parseFloat(getComputedStyle(levels).getPropertyValue('--word-min')) || 44;
+    for (const size of WORD_SIZES) {
+      if (size >= start || size < min) continue;
+      levels.style.setProperty('--word-size', `${size}px`);
+      if (fits()) return;
+    }
+  };
+  const observer =
+    typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => fitLevels());
+  observer?.observe(levels);
 
   const toolbar = el('div', 'admin__toolbar');
   toolbar.append(modes.el, languages.el, actions);
@@ -549,6 +572,7 @@ export function renderAdmin(store: Store): ViewHandle {
     dispose: () => {
       unsubscribe();
       stopDrag();
+      observer?.disconnect();
     },
   };
 }
