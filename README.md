@@ -31,7 +31,7 @@ Andere Ports (z. B. für parallele Worktrees): `DEV_PORT=5182 PREVIEW_PORT=4182 
 
 ## Veröffentlichung (Cloudflare)
 
-Ausgeliefert wird über **Cloudflare Workers** (statische Assets, `wrangler.jsonc`), verbunden mit dem Repo über **Workers Builds**. Wrangler baut selbst (`npm run build`).
+Ausgeliefert wird über **Cloudflare Workers** (statische Assets, `wrangler.jsonc`), verbunden mit dem Repo über **Workers Builds**. Wrangler baut selbst (`npm run build`). Dafür gibt es zwei Trigger mit dem Build-Token „mimimots build token“: einen für `release` (Deploy) und „Vorschau (main, Feature-Branches)“ für alle anderen Branches (Preview).
 
 | Branch    | Umgebung    | Befehl in Workers Builds | Adresse                                      | Abzeichen          |
 | --------- | ----------- | ------------------------ | -------------------------------------------- | ------------------ |
