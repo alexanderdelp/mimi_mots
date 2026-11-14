@@ -1,6 +1,8 @@
 // Begrüßung (B-97): erster Bildschirm beim Öffnen, wenn mindestens ein Tier wach ist. Ohne
 // Namen fragt sie danach (tippt ggf. ein Elternteil), sonst „Hallo Lina!“. Beide Tiere sind
 // dabei: wache winken, schlafende zeigen ihr Schlafbild – nur Bildtausch, keine Animation.
+// B-90: Mit mehreren Kindern fragt sie „Wer bist du?“ und zeigt je Kind eine gleich große Kachel
+// mit dem Namen; beide Tiere winken (wer schläft, hängt vom Kind ab). Tippen wählt das Kind.
 import { createAppHeader, onIconHold } from '../components/app-header';
 import {
   COMPANIONS,
@@ -10,11 +12,12 @@ import {
   type Companion,
 } from '../components/avatar';
 import { roundButton } from '../components/icons';
-import type { Store } from '../state';
-import { NAME_MAX, cleanName, type ChildData } from '../storage';
+import { childrenOf, type AppState, type Store } from '../state';
+import { NAME_MAX, cleanName, type Child, type ChildData } from '../storage';
 import type { ViewHandle } from './view';
 
 export const NAME_QUESTION = 'Wie heißt du?';
+export const WHO_QUESTION = 'Wer bist du?';
 export const greeting = (name: string) => `Hallo ${name}!`;
 
 function companion(c: Companion, asleep: boolean): HTMLElement {
@@ -66,12 +69,38 @@ function nameForm(store: Store): { text: HTMLElement; action: HTMLElement } {
   return { text: label, action: form };
 }
 
-function body(store: Store, data: ChildData): HTMLElement {
+/** B-90: je Kind eine Kachel mit Namen, alle gleich groß (Raster). */
+function childTiles(store: Store, children: readonly Child[]): HTMLElement {
+  const grid = document.createElement('div');
+  grid.className = 'welcome__children';
+  grid.dataset.count = String(children.length);
+  for (const child of children) {
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'welcome__child';
+    tile.dataset.childId = child.id;
+    const name = document.createElement('span');
+    name.className = 'welcome__child-name';
+    name.textContent = child.name ?? '?';
+    tile.append(name);
+    tile.addEventListener('click', () => store.dispatch({ type: 'pickChild', id: child.id }));
+    grid.append(tile);
+  }
+  return grid;
+}
+
+function body(store: Store, data: ChildData, children: readonly Child[]): HTMLElement {
   const el = document.createElement('div');
   el.className = 'welcome__body';
   let text: HTMLElement;
   let action: HTMLElement;
-  if (data.name === null) {
+  const many = children.length > 1;
+  if (many) {
+    text = document.createElement('p');
+    text.className = 'welcome__text';
+    text.textContent = WHO_QUESTION;
+    action = childTiles(store, children);
+  } else if (data.name === null) {
     ({ text, action } = nameForm(store));
   } else {
     text = document.createElement('p');
@@ -83,7 +112,9 @@ function body(store: Store, data: ChildData): HTMLElement {
   const center = document.createElement('div');
   center.className = 'welcome__center';
   center.append(action);
-  const [left, right] = COMPANIONS.map((c) => companion(c, data.rest.sleeping.includes(c)));
+  const [left, right] = COMPANIONS.map((c) =>
+    companion(c, !many && data.rest.sleeping.includes(c)),
+  );
   el.append(text, left, center, right);
   return el;
 }
@@ -96,19 +127,25 @@ export function renderWelcome(store: Store): ViewHandle {
   const header = createAppHeader();
   const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
 
-  let shown = store.getState().data;
+  let shown: AppState = store.getState();
   const show = () => {
-    view.dataset.named = String(shown.name !== null);
-    view.replaceChildren(header, body(store, shown));
+    const children = childrenOf(shown);
+    view.dataset.named = String(shown.data.name !== null);
+    view.dataset.children = String(children.length);
+    view.replaceChildren(header, body(store, shown.data, children));
   };
   show();
-  // Name eingegeben oder neuer Tag (alle wach): neu zeichnen
+  // Name eingegeben, neuer Tag (alle wach) oder anderes Kind: neu zeichnen
   const unsubscribe = store.subscribe((state) => {
     if (state.view !== 'welcome') return;
     const { data } = state;
-    if (data.name === shown.name && data.rest === shown.rest) return;
-    shown = data;
-    show();
+    const same =
+      data.name === shown.data.name &&
+      data.rest === shown.data.rest &&
+      state.children === shown.children &&
+      state.childId === shown.childId;
+    shown = state;
+    if (!same) show();
   });
   return {
     el: view,

@@ -67,8 +67,10 @@ test.describe('B-114 Reiter „Samen“', () => {
     await prepareGarden(page);
     await page.goto('./');
     await hold(page, '.app-header__icon');
-    const tabs = page.getByRole('tab');
+    // B-90: rechts die Reiter; links neben „Zurück“ der Reiter „Kinder“ mit dem Namen
+    const tabs = page.locator('.admin__tabs').getByRole('tab');
     await expect(tabs).toHaveText(['Sprachen', 'Sonstiges', 'Samen']);
+    await expect(page.getByRole('tab', { name: 'Kinder' })).toHaveText('Lina');
     await page.getByRole('tab', { name: 'Sonstiges' }).click();
     await expect(page.locator('.admin__other:visible .admin__title')).not.toContainText(['Samen']);
     await expect(btn(page, 'Sonnenblume')).toBeHidden();

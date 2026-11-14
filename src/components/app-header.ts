@@ -1,7 +1,8 @@
 // Kopfleiste mit App-Icon und Titel – auf allen Seiten gleich. Links und rechts gibt es feste
 // Plätze, z. B. für [×] und den Timer in der Lernrunde; Icon und Titel bleiben immer mittig.
 // B-97: Name des Kinds klein in der Kopfleiste – nur Text, keine Schaltfläche; seit B-99 immer
-// rechts, damit er auf allen Seiten an derselben Stelle steht.
+// rechts, damit er auf allen Seiten an derselben Stelle steht. B-90: Mit mehreren Kindern führt
+// er auf Start- und Schlafseite zurück zur Begrüßung (Kind wechseln).
 import { roundButton } from './icons';
 import { onLongPress } from './long-press';
 
@@ -10,6 +11,8 @@ export interface AppHeaderSlots {
   end?: Node;
   /** B-97: Name des Kinds (null: noch keiner). */
   name?: string | null;
+  /** B-90: Mit mehreren Kindern ist der Name ein Button zurück zur Begrüßung (Kind wechseln). */
+  onName?: () => void;
 }
 
 export function createAppHeader(slots: AppHeaderSlots = {}): HTMLElement {
@@ -36,9 +39,15 @@ export function createAppHeader(slots: AppHeaderSlots = {}): HTMLElement {
 
   const end = slot('end', slots.end);
   if (slots.name) {
-    const name = document.createElement('span');
+    const name = document.createElement(slots.onName ? 'button' : 'span');
     name.className = 'app-header__name';
     name.textContent = slots.name;
+    if (slots.onName && name instanceof HTMLButtonElement) {
+      name.type = 'button';
+      name.classList.add('app-header__name--button');
+      name.setAttribute('aria-label', `${slots.name} – Kind wechseln`);
+      name.addEventListener('click', slots.onName);
+    }
     end.append(name);
   }
   el.append(slot('start', slots.start), brand, end);

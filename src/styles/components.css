@@ -170,6 +170,19 @@
   color: var(--lila-700);
 }
 
+/* B-90: mit mehreren Kindern ist der Name ein Button (zurück zur Begrüßung) – sieht aus wie der
+   Text, mit Mindesthöhe fürs Tippen */
+.app-header__name--button {
+  min-height: 88px;
+  padding: 0 4px;
+  background: none;
+  border-radius: var(--radius-m);
+}
+
+.app-header__name--button:focus-visible {
+  outline: 3px solid var(--lila-500);
+}
+
 .app-header__slot--end {
   min-width: 0;
   justify-content: flex-end;
@@ -362,4 +375,10 @@
 .stage-badge--lokal {
   background: var(--white);
   box-shadow: inset 0 0 0 2px var(--grau-700);
+}
+
+@media (max-height: 500px) {
+  .app-header__name--button {
+    min-height: 44px;
+  }
 }

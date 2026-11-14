@@ -111,3 +111,64 @@
     font-size: 22px;
   }
 }
+
+/* B-90: mehrere Kinder – je Kind eine gleich große Kachel mit Namen (wie die Auswahlkacheln,
+   ohne gewählten Zustand), zwei Spalten; höchstens 4 Kinder, damit es überall passt. */
+.welcome__children {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: clamp(88px, 16dvh, 140px);
+  gap: clamp(12px, 2dvh, 20px);
+  width: min(100%, 460px);
+}
+
+.welcome__child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  min-height: 88px;
+  padding: 8px 12px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  color: var(--lila-900);
+  box-shadow:
+    inset 0 0 0 2px var(--grau-700),
+    var(--shadow);
+  transition: background-color var(--transition);
+}
+
+.welcome__child:active {
+  background: var(--lila-100);
+}
+
+.welcome__child:focus-visible {
+  outline: 3px solid var(--lila-500);
+  outline-offset: 4px;
+}
+
+.welcome__child-name {
+  min-width: 0;
+  max-width: 100%;
+  font-size: clamp(22px, 3.6dvh, 32px);
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+@media (max-height: 500px) {
+  .welcome__children {
+    grid-auto-rows: 64px;
+    gap: 10px;
+  }
+
+  .welcome__child {
+    min-height: 44px;
+    padding: 4px 8px;
+  }
+
+  .welcome__child-name {
+    font-size: 20px;
+  }
+}

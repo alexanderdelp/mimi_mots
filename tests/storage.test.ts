@@ -522,7 +522,7 @@ describe('Ausgeschaltete Wörter (B-88)', () => {
 
 describe('persistOnChange (B-12, seit B-97 je Kind)', () => {
   const setup = (data: AppData = stored({ name: 'Lina' })) => {
-    const store = createStore(childData(activeChild(data)));
+    const store = createStore(data);
     return { store, data };
   };
 
@@ -561,7 +561,7 @@ describe('persistOnChange (B-12, seit B-97 je Kind)', () => {
 
   it('AT-97.6: Erststart – nach der Namenseingabe steht das Kind unter v2', () => {
     const data = load(localStorage, NOW);
-    const store = createRealStore(childData(activeChild(data)), false, () => new Date(2026, 9, 29));
+    const store = createRealStore(data, false, () => new Date(2026, 9, 29));
     persistOnChange(store, data, save, () => LATER);
     store.dispatch({ type: 'name', name: 'Lina' });
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)!);

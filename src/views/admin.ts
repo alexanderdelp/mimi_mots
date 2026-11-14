@@ -4,6 +4,9 @@
 // und per Ziehen in eine andere Stufe legen (B-106); „Sonstiges“ – Tiere einzeln wecken/hinlegen (B-94), Tutorials an/aus (B-108),
 // Bremse für neue Wörter (B-82), Rundendauer (B-93, seit B-100 als Schieberegler), Version (B-98);
 // „Samen“ (B-114) – freigegebene Samen (B-109), aktueller Samen, Stufe und Fortschritt.
+// B-90: Reiter „Kinder“ links neben dem Zurück-Button, beschriftet mit dem Namen des gewählten
+// Kinds – so steht immer da, für wen die anderen Reiter gelten. Dort Kind wählen, anlegen,
+// umbenennen und löschen (mit Sicherheitsabfrage).
 // Keine Avatare; sonst dieselben Bausteine wie überall. B-100: alle Bedienelemente von
 // „Sonstiges“ stehen rechts in einer festen Spalte (Flucht).
 import { createAppHeader } from '../components/app-header';
@@ -16,11 +19,22 @@ import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { MODE_INFO } from '../data/modes';
 import { vocabulary } from '../data/vocabulary';
 import type { Language } from '../data/words';
-import { canToggleLanguage, canToggleWord, gardenOn, progressKey, type Store } from '../state';
+import {
+  canAddChild,
+  canToggleLanguage,
+  canToggleWord,
+  childrenOf,
+  gardenOn,
+  nameProblem,
+  progressKey,
+  type Store,
+} from '../state';
 import {
   LANGUAGES,
   MAX_BOX,
+  MAX_CHILDREN,
   MODES,
+  NAME_MAX,
   ROUND_MIN_HIGHEST,
   ROUND_MIN_LOWEST,
   type Mode,
@@ -28,6 +42,7 @@ import {
 } from '../storage';
 import { copyText } from '../components/copy-text';
 import { enableDragMove } from '../components/drag-move';
+import { newId } from '../uuid';
 import { VERSION_LABEL } from '../version';
 import type { ViewHandle } from './view';
 
@@ -71,12 +86,34 @@ export function wordsByLevel(progress: Progress, language: Language) {
   );
 }
 
-type Tab = 'sprachen' | 'sonstiges' | 'samen';
+type Tab = 'kinder' | 'sprachen' | 'sonstiges' | 'samen';
 const TABS: readonly [Tab, string][] = [
   ['sprachen', 'Sprachen'],
   ['sonstiges', 'Sonstiges'],
   ['samen', 'Samen'], // B-114
 ];
+
+/** B-90: Hinweise im Reiter „Kinder“. */
+export const CHILD_HINTS = {
+  taken: 'Den Namen gibt es schon.',
+  full: `Höchstens ${MAX_CHILDREN} Kinder.`,
+  unnamed: 'Erst braucht jedes Kind einen Namen.',
+} as const;
+
+/** B-90: Namensfeld wie auf der Begrüßung (gleiche Länge, keine Autokorrektur). */
+function nameInput(label: string, value = ''): HTMLInputElement {
+  const input = el('input', 'admin__name-input');
+  input.type = 'text';
+  input.maxLength = NAME_MAX;
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+  input.value = value;
+  input.setAttribute('autocapitalize', 'words');
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('aria-label', label);
+  input.enterKeyHint = 'done';
+  return input;
+}
 
 /** B-114: Namen der Stufen – nur für den Screenreader (aria-valuetext). */
 const STAGE_NAMES = ['Samen', 'eingepflanzt', 'Keimling', 'Pflanze', 'Knospe', 'Blüte'];
@@ -245,21 +282,160 @@ export function renderAdmin(store: Store): ViewHandle {
   // Reiter (B-83) rechts in der Kopfleiste
   const tabList = el('div', 'admin__tabs');
   tabList.setAttribute('role', 'tablist');
-  const tabButtons = new Map(
+  const tabButton = (value: Tab, label: string) => {
+    const button = el('button', 'admin__tab', label);
+    button.type = 'button';
+    button.setAttribute('role', 'tab');
+    button.id = `admin-tab-${value}`;
+    button.addEventListener('click', () => {
+      tab = value;
+      confirming = false;
+      childAction = null;
+      render();
+    });
+    return button;
+  };
+  const tabButtons = new Map<Tab, HTMLButtonElement>(
     TABS.map(([value, label]) => {
-      const button = el('button', 'admin__tab', label);
-      button.type = 'button';
-      button.setAttribute('role', 'tab');
-      button.id = `admin-tab-${value}`;
-      button.addEventListener('click', () => {
-        tab = value;
-        confirming = false;
-        render();
-      });
+      const button = tabButton(value, label);
       tabList.append(button);
       return [value, button] as const;
     }),
   );
+  // B-90: Reiter „Kinder“ mit dem Namen des gewählten Kinds, links neben dem Zurück-Button
+  const childTab = tabButton('kinder', '');
+  childTab.classList.add('admin__tab--child');
+  childTab.setAttribute('aria-label', 'Kinder');
+  const childTabName = el('span', 'admin__child-name');
+  childTab.append(childTabName);
+  tabButtons.set('kinder', childTab);
+  const headerStart = el('div', 'admin__header-start');
+  headerStart.setAttribute('role', 'tablist');
+  headerStart.append(home, childTab);
+
+  // Reiter „Kinder“ (B-90)
+  let childAction: { kind: 'rename' | 'delete'; id: string; problem?: string } | null = null;
+  const childList = el('div', 'admin__children');
+  const addInput = nameInput('Name des neuen Kinds');
+  addInput.placeholder = 'Name';
+  const addButton = textButton('Kind anlegen');
+  addButton.type = 'submit';
+  const addHint = el('p', 'admin__child-hint');
+  addHint.setAttribute('role', 'status');
+  const addForm = el('form', 'admin__add-child');
+  addForm.append(addInput, addButton, addHint);
+  const updateAdd = () => {
+    const children = childrenOf(store.getState());
+    const allowed = canAddChild(children);
+    const problem = nameProblem(children, addInput.value);
+    addInput.disabled = !allowed;
+    addButton.disabled = !allowed || problem !== null;
+    addHint.textContent = !allowed
+      ? children.length >= MAX_CHILDREN
+        ? CHILD_HINTS.full
+        : CHILD_HINTS.unnamed
+      : problem === 'taken'
+        ? CHILD_HINTS.taken
+        : '';
+  };
+  addInput.addEventListener('input', updateAdd);
+  addForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (addButton.disabled) return;
+    const name = addInput.value;
+    addInput.value = '';
+    addInput.blur();
+    const before = store.getState().children.length;
+    store.dispatch({ type: 'addChild', id: newId(), name, at: new Date().toISOString() });
+    if (store.getState().children.length === before) addInput.value = name; // abgelehnt
+    updateAdd();
+  });
+  const childrenPanelBody = el('div', 'admin__kids');
+
+  const renderChildren = () => {
+    const state = store.getState();
+    const children = childrenOf(state);
+    const rows = children.map((child) => {
+      const row = el('section', 'admin__child');
+      row.dataset.childId = child.id;
+      const label = child.name ?? 'Ohne Namen';
+      const tile = createChoiceTile({
+        content: [el('span', 'admin__brake-label', label)],
+        selected: child.id === state.childId,
+        onSelect: () => store.dispatch({ type: 'pickChild', id: child.id }),
+      });
+      tile.el.classList.add('admin__child-tile');
+      const action = childAction?.id === child.id ? childAction : null;
+      if (action?.kind === 'delete') {
+        row.dataset.confirming = 'true';
+        const question = el(
+          'p',
+          'admin__question',
+          `${label} löschen? Lernstand und Garten sind dann weg.`,
+        );
+        const yes = textButton('Ja, löschen');
+        const no = textButton('Abbrechen');
+        yes.addEventListener('click', () => {
+          childAction = null;
+          store.dispatch({ type: 'deleteChild', id: child.id });
+          render();
+        });
+        no.addEventListener('click', () => {
+          childAction = null;
+          render();
+        });
+        row.append(question, yes, no);
+        return row;
+      }
+      if (action?.kind === 'rename') {
+        const form = el('form', 'admin__rename');
+        const input = nameInput(`Neuer Name für ${label}`, child.name ?? '');
+        const save = textButton('Speichern');
+        save.type = 'submit';
+        const cancel = textButton('Abbrechen');
+        const hint = el('p', 'admin__child-hint');
+        hint.setAttribute('role', 'status');
+        const check = () => {
+          const problem = nameProblem(children, input.value, child.id);
+          save.disabled = problem !== null;
+          hint.textContent = problem === 'taken' ? CHILD_HINTS.taken : '';
+        };
+        input.addEventListener('input', check);
+        check();
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (save.disabled) return;
+          childAction = null;
+          input.blur();
+          store.dispatch({ type: 'renameChild', id: child.id, name: input.value });
+          render();
+        });
+        cancel.addEventListener('click', () => {
+          childAction = null;
+          render();
+        });
+        form.append(input, save, cancel, hint);
+        row.append(tile.el, form);
+        queueMicrotask(() => input.focus());
+        return row;
+      }
+      const rename = textButton('Umbenennen');
+      rename.addEventListener('click', () => {
+        childAction = { kind: 'rename', id: child.id };
+        render();
+      });
+      const remove = textButton('Löschen');
+      remove.disabled = children.length < 2; // das letzte Kind bleibt
+      remove.addEventListener('click', () => {
+        childAction = { kind: 'delete', id: child.id };
+        render();
+      });
+      row.append(tile.el, rename, remove);
+      return row;
+    });
+    childList.replaceChildren(...rows);
+    updateAdd();
+  };
 
   // Reiter „Sonstiges“
   // B-94: jedes Tier einzeln – Auswahlkachel wie „Bremsen“, gewählt = schläft (ohne Avatare)
@@ -392,10 +568,21 @@ export function renderAdmin(store: Store): ViewHandle {
     versionRow(),
   );
 
+  childrenPanelBody.append(
+    el(
+      'p',
+      'admin__hint admin__kids-hint',
+      'Markiert = gewählt. Sprachen, Sonstiges und Samen gelten für dieses Kind.',
+    ),
+    childList,
+    addForm,
+  );
+  const childrenPanel = el('div', 'admin__panel');
   const languagesPanel = el('div', 'admin__panel');
   const otherPanel = el('div', 'admin__panel');
   const gardenPanel = el('div', 'admin__panel');
   for (const [panel, value] of [
+    [childrenPanel, 'kinder'],
     [languagesPanel, 'sprachen'],
     [otherPanel, 'sonstiges'],
     [gardenPanel, 'samen'],
@@ -409,7 +596,10 @@ export function renderAdmin(store: Store): ViewHandle {
     tabButtons.forEach((button, value) => {
       button.setAttribute('aria-selected', String(value === tab));
     });
+    childrenPanel.hidden = tab !== 'kinder';
     languagesPanel.hidden = tab !== 'sprachen';
+    childTabName.textContent = data.name ?? 'Kinder';
+    if (tab === 'kinder') renderChildren();
     otherPanel.hidden = tab !== 'sonstiges';
     gardenPanel.hidden = tab !== 'samen';
 
@@ -559,13 +749,15 @@ export function renderAdmin(store: Store): ViewHandle {
   languagesPanel.append(toolbar, levels);
   otherPanel.append(other);
   gardenPanel.append(seedsPanel);
+  childrenPanel.append(childrenPanelBody);
   const body = el('div', 'admin__body');
-  body.append(languagesPanel, otherPanel, gardenPanel);
-  view.append(createAppHeader({ start: home, end: tabList }), body);
+  body.append(childrenPanel, languagesPanel, otherPanel, gardenPanel);
+  view.append(createAppHeader({ start: headerStart, end: tabList }), body);
   render();
 
   const unsubscribe = store.subscribe((state, previous) => {
-    if (state.view === 'admin' && state.data !== previous.data) render();
+    if (state.view !== 'admin') return;
+    if (state.data !== previous.data || state.children !== previous.children) render();
   });
   return {
     el: view,

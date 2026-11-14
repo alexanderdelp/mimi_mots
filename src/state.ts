@@ -18,13 +18,21 @@ import type { Language, Word } from './data/words';
 import {
   LANGUAGES,
   MAX_BOX,
+  MAX_CHILDREN,
+  activeChild,
+  childData,
+  childDefaults,
   cleanName,
   isRoundMin,
   localDay,
+  newChild,
+  type AppData,
+  type Child,
   type ChildData,
   type Mode,
   type Settings,
 } from './storage';
+import { isUuid } from './uuid';
 
 export type ViewName =
   | 'welcome'
@@ -40,6 +48,13 @@ export type ViewName =
 export type AppEvent =
   | { type: 'name'; name: string } // Begrüßung: Name des Kinds eingeben (B-97)
   | { type: 'enter' } // Begrüßung → Start (nur mit Namen, B-97)
+  // B-90: Kind wählen – auf der Begrüßung (Kachel, dann weiter wie „enter“) und im Elternbereich
+  | { type: 'pickChild'; id: string }
+  | { type: 'welcome' } // B-90: Start/Schlafseite → Begrüßung (Name in der Kopfleiste, ab 2 Kindern)
+  // B-90: Elternbereich, Reiter „Kinder“: anlegen (id und `at` vom Aufrufer), umbenennen, löschen
+  | { type: 'addChild'; id: string; name: string; at: string }
+  | { type: 'renameChild'; id: string; name: string }
+  | { type: 'deleteChild'; id: string }
   | { type: 'play' } // Start → Lernrunde (nur mit vollständiger Auswahl)
   | { type: 'finish' } // Lernrunde → Abschluss (Timer-Ende oder [×])
   | { type: 'home' } // Abschluss bzw. „Meine Wörter“ → Start (bzw. Schlafseite, wenn beide schlafen)
@@ -197,6 +212,50 @@ function isAvailable(data: ChildData): boolean {
   );
 }
 
+/** Daten eines Kinds beim Öffnen bzw. Wechseln: neuer Tag → alle wach, Auswahl passend. */
+function prepare(data: ChildData, today: string): ChildData {
+  return withRestSettings(wakeIfNewDay(data, today));
+}
+
+/** B-90: alle Kinder mit aktuellem Stand – für das aktive gilt `data`. */
+export function childrenOf(state: Pick<AppState, 'children' | 'childId' | 'data'>): Child[] {
+  return state.children.map((c) => (c.id === state.childId ? { ...c, ...state.data } : c));
+}
+
+const nameKey = (name: string) => name.toLocaleLowerCase('de');
+
+/** B-90: Namen gibt es nur einmal (ohne Groß-/Kleinschreibung); `except`: das Kind selbst. */
+export function nameTaken(children: readonly Child[], name: string, except?: string): boolean {
+  return children.some(
+    (c) => c.id !== except && c.name !== null && nameKey(c.name) === nameKey(name),
+  );
+}
+
+/** B-90: Grund, warum ein Name (neu oder umbenannt) nicht geht – oder null. */
+export function nameProblem(
+  children: readonly Child[],
+  raw: string,
+  except?: string,
+): 'empty' | 'taken' | null {
+  const name = cleanName(raw);
+  if (name === null) return 'empty';
+  return nameTaken(children, name, except) ? 'taken' : null;
+}
+
+/** B-90: Ein weiteres Kind geht bis MAX_CHILDREN – und erst, wenn alle einen Namen haben. */
+export function canAddChild(children: readonly Child[]): boolean {
+  return children.length < MAX_CHILDREN && children.every((c) => c.name !== null);
+}
+
+/** B-90: zu einem anderen Kind wechseln; der Stand des bisherigen bleibt in `children`. */
+function switchChild(state: AppState, id: string, today: string): AppState {
+  if (id === state.childId) return state;
+  const children = childrenOf(state);
+  const next = children.find((c) => c.id === id);
+  if (!next) return state;
+  return { ...state, children, childId: id, data: prepare(childData(next), today) };
+}
+
 /** Lernrunde: Scheduler-Session, aktuelles Wort (null, bis das erste gewählt ist), ob das
  *  Fremdwort schon aufgedeckt wurde und ob die Zeit abgelaufen ist. */
 export interface RoundState {
@@ -215,15 +274,21 @@ export interface AppState {
   adminFrom?: 'welcome' | 'start' | 'sleep';
   /** B-112: was die gerade abgeschlossene Lernreise im Garten bewirkt hat (bis zurück zum Start). */
   harvest?: Harvest;
+  /** B-90: alle Kinder. Für das aktive (`childId`) gilt `data` – sein Eintrag hier ist der Stand
+   *  vom Öffnen bzw. letzten Wechsel (`childrenOf` setzt beides zusammen). */
+  children: Child[];
+  childId: string;
+  /** B-90: Kind beim Öffnen des Elternbereichs – wurde gewechselt, geht es zur Begrüßung zurück. */
+  adminChild?: string;
 }
 
 /** Erlaubte Ansichtswechsel; alles andere wird ignoriert. */
 const TRANSITIONS: Record<ViewName, Partial<Record<AppEvent['type'], ViewName>>> = {
   welcome: { enter: 'start', admin: 'admin' },
-  start: { play: 'round', admin: 'admin', words: 'words', garden: 'garden' },
+  start: { play: 'round', admin: 'admin', words: 'words', garden: 'garden', welcome: 'welcome' },
   round: { finish: 'end' },
   end: { home: 'start' },
-  sleep: { admin: 'admin', words: 'words', garden: 'garden' },
+  sleep: { admin: 'admin', words: 'words', garden: 'garden', welcome: 'welcome' },
   admin: {},
   words: {},
   seed: {},
@@ -322,7 +387,44 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
   if (event.type === 'name') {
     const name = cleanName(event.name);
     if (state.view !== 'welcome' || name === null || name === state.data.name) return state;
+    if (nameTaken(state.children, name, state.childId)) return state;
     return { ...state, data: { ...state.data, name } };
+  }
+  if (event.type === 'pickChild') {
+    if (state.view === 'admin') return switchChild(state, event.id, today);
+    if (state.view !== 'welcome' || !state.children.some((c) => c.id === event.id)) return state;
+    const next = switchChild(state, event.id, today);
+    if (next.data.name === null) return next; // B-97: erst der Name
+    return { ...next, view: allAsleep(next.data) ? 'sleep' : 'start' };
+  }
+  if (event.type === 'welcome' && state.children.length < 2) return state;
+  if (state.view === 'admin' && event.type === 'addChild') {
+    const name = cleanName(event.name);
+    const children = childrenOf(state);
+    if (name === null || nameTaken(children, name) || !canAddChild(children)) return state;
+    if (!isUuid(event.id) || children.some((c) => c.id === event.id)) return state;
+    const child = { ...newChild(new Date(event.at), { ...childDefaults(), name }), id: event.id };
+    return { ...state, children: [...children, child] };
+  }
+  if (state.view === 'admin' && event.type === 'renameChild') {
+    const name = cleanName(event.name);
+    const children = childrenOf(state);
+    const child = children.find((c) => c.id === event.id);
+    if (!child || name === null || name === child.name) return state;
+    if (nameTaken(children, name, event.id)) return state;
+    if (event.id === state.childId) return { ...state, data: { ...state.data, name } };
+    return {
+      ...state,
+      children: state.children.map((c) => (c.id === event.id ? { ...c, name } : c)),
+    };
+  }
+  if (state.view === 'admin' && event.type === 'deleteChild') {
+    // B-90: Das letzte Kind bleibt; gelöscht wird lokal vollständig (ohne Markierung, Neon später)
+    if (state.children.length < 2 || !state.children.some((c) => c.id === event.id)) return state;
+    const rest = state.children.filter((c) => c.id !== event.id);
+    if (event.id !== state.childId) return { ...state, children: rest };
+    const next = rest[0];
+    return { ...state, children: rest, childId: next.id, data: prepare(childData(next), today) };
   }
   if (event.type === 'enter' && state.data.name === null) return state;
   if (event.type === 'play' && !isAvailable(state.data)) return state;
@@ -360,9 +462,14 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
   }
   if (event.type === 'leave' && state.view === 'admin') {
     const data = withRestSettings(state.data);
+    const done = { ...state, data, adminFrom: undefined, adminChild: undefined };
+    // B-90: anderes Kind gewählt (mit mehreren Kindern) → zur Begrüßung, dort wählt das Kind
+    if (state.children.length > 1 && state.childId !== state.adminChild) {
+      return { ...done, view: 'welcome' };
+    }
     // B-99: zurück zur Begrüßung, wenn er von dort geöffnet wurde; schlafen beide → Schlafseite
     const back = state.adminFrom === 'welcome' ? 'welcome' : 'start';
-    return { ...state, view: allAsleep(data) ? 'sleep' : back, data, adminFrom: undefined };
+    return { ...done, view: allAsleep(data) ? 'sleep' : back };
   }
   if (event.type === 'tutorialDone' && state.view === 'round' && !tutorialSeen(state.data)) {
     const key = tutorialKey(state.data.settings.mode ?? 'speak');
@@ -445,10 +552,13 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
       ? { session: createSession(), wordId: null, revealed: false, expired: false }
       : state.round;
   if (view === 'admin') {
-    return { ...state, view, round, adminFrom: state.view as AppState['adminFrom'] };
+    const adminFrom = state.view as AppState['adminFrom'];
+    return { ...state, view, round, adminFrom, adminChild: state.childId };
   }
   return { ...state, view, round };
 }
+
+const single = (child: Child) => ({ activeChildId: child.id, children: [child] });
 
 export type Listener = (state: AppState, previous: AppState) => void;
 
@@ -458,19 +568,25 @@ export interface Store {
   subscribe(listener: Listener): () => void;
 }
 
-/** `now` liefert die aktuelle Zeit (in Tests ersetzbar). */
+/** `stored`: alle Kinder (B-90) oder nur die Daten eines Kinds (dann ein Kind mit neuer id, für
+ *  Tests). `now` liefert die aktuelle Zeit (in Tests ersetzbar). */
 export function createStore(
-  stored: ChildData,
+  stored: AppData | ChildData,
   portrait = false,
   now: () => Date = () => new Date(),
 ): Store {
-  const data = withRestSettings(wakeIfNewDay(stored, localDay(now())));
-  // B-97: beim Öffnen zuerst die Begrüßung – außer beide Tiere schlafen
+  const app: Pick<AppData, 'activeChildId' | 'children'> =
+    'children' in stored ? stored : single(newChild(now(), stored));
+  const data = prepare(childData(activeChild(app)), localDay(now()));
+  // B-97: beim Öffnen zuerst die Begrüßung – außer beide Tiere schlafen.
+  // B-90: mit mehreren Kindern immer die Begrüßung, dort wählt das Kind
   let state: AppState = {
-    view: allAsleep(data) ? 'sleep' : 'welcome',
+    view: app.children.length === 1 && allAsleep(data) ? 'sleep' : 'welcome',
     portrait,
     data,
     round: null,
+    children: app.children,
+    childId: activeChild(app).id,
   };
   const listeners = new Set<Listener>();
   return {

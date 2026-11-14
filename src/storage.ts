@@ -1,8 +1,10 @@
 // Persistenz in localStorage (anforderungen.md §7): ein Schlüssel, versioniert.
 // Kaputte oder fehlende Daten führen nie zum Absturz, sondern zu Defaults.
-// B-97: Alle Daten gehören zu einem Kind (`children`, Platz für weitere – B-90); ids und
-// Zeitstempel so, dass die Kinder später 1 : 1 als Zeilen in der Datenbank passen. Daten älterer
-// Versionen (`mimi-mots:v1`) werden nicht übernommen – eine neue Version darf sie verwerfen.
+// B-97: Alle Daten gehören zu einem Kind (`children`); ids und Zeitstempel so, dass die Kinder
+// später 1 : 1 als Zeilen in der Datenbank passen. Daten älterer Versionen (`mimi-mots:v1`)
+// werden nicht übernommen – eine neue Version darf sie verwerfen.
+// B-90: mehrere Kinder im selben Format v2 – ein Stand mit einem Kind (bis 0.9.x) gilt
+// unverändert weiter, deshalb braucht es keine Übernahme.
 import { emptyGarden, sanitizeGarden, type Garden } from './garden';
 import { COMPANIONS, type Companion } from './components/avatar';
 import { FLOWERS, type Flower } from './data/flowers';
@@ -15,6 +17,8 @@ export const STORAGE_KEY = 'mimi-mots:v2';
 const VERSION = 2;
 /** B-97: Länge des Namens – passt so in die Kopfleiste (1024 px, iPhone). */
 export const NAME_MAX = 16;
+/** B-90: höchstens so viele Kinder – so passen ihre Kacheln auf jede Begrüßung (auch iPhone). */
+export const MAX_CHILDREN = 4;
 
 export const LANGUAGES: readonly Language[] = ['en', 'fr', 'ja'];
 /** B-93: Dauer einer Runde in Minuten (Standard), im Elternbereich einstellbar. */
@@ -143,7 +147,7 @@ export function defaults(now: Date = new Date()): AppData {
 }
 
 /** Das aktive Kind (gibt es immer – sanitize stellt das sicher). */
-export function activeChild(data: AppData): Child {
+export function activeChild(data: Pick<AppData, 'activeChildId' | 'children'>): Child {
   return data.children.find((c) => c.id === data.activeChildId) ?? data.children[0];
 }
 
@@ -349,8 +353,27 @@ export function save(data: AppData, storage: Storage | null = getStorage()): boo
   }
 }
 
-/** Speichert die Daten, sobald sie sich im Store ändern (z. B. neue Auswahl, Lernstand).
- *  Der Store kennt nur das aktive Kind; es wird in `stored` (alle Kinder) eingesetzt. */
+/** Gleiche Daten (tiefer Vergleich, Reihenfolge der Schlüssel egal). */
+function same(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const ka = Object.keys(a);
+  const kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  return ka.every(
+    (k) =>
+      Object.prototype.hasOwnProperty.call(b, k) &&
+      same((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
+  );
+}
+
+/**
+ * Speichert die Daten, sobald sie sich im Store ändern (z. B. neue Auswahl, Lernstand, B-90:
+ * Kinder anlegen, umbenennen, löschen, wechseln). Zeitstempel setzt nur diese Funktion:
+ * `updatedAt` eines Kinds rückt vor, wenn sich seine Daten geändert haben; ein neues Kind behält
+ * die Zeitstempel aus dem Store. Gelöschte Kinder fehlen danach ganz (keine Markierung).
+ */
 export function persistOnChange(
   store: Pick<Store, 'subscribe'>,
   stored: AppData,
@@ -359,8 +382,24 @@ export function persistOnChange(
 ): () => void {
   let current = stored;
   return store.subscribe((state, previous) => {
-    if (state.data === previous.data) return;
-    current = withActiveChildData(current, state.data, now());
+    if (
+      state.data === previous.data &&
+      state.children === previous.children &&
+      state.childId === previous.childId
+    ) {
+      return;
+    }
+    const at = now().toISOString();
+    const children = state.children.map((entry): Child => {
+      const child = entry.id === state.childId ? { ...entry, ...state.data } : entry;
+      const old = current.children.find((c) => c.id === child.id);
+      if (!old) return child;
+      const changed = !same(childData(old), childData(child));
+      return { ...child, createdAt: old.createdAt, updatedAt: changed ? at : old.updatedAt };
+    });
+    const next: AppData = { version: VERSION, activeChildId: state.childId, children };
+    if (same(next, current)) return;
+    current = next;
     write(current);
   });
 }

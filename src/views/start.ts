@@ -123,7 +123,13 @@ export function renderStart(store: Store): ViewHandle {
     () => store.dispatch({ type: 'words' }),
     () => store.dispatch({ type: 'garden' }),
   );
-  const header = createAppHeader({ start: buttons, name: data.name });
+  // B-90: mit mehreren Kindern führt der Name zurück zur Begrüßung
+  const header = createAppHeader({
+    start: buttons,
+    name: data.name,
+    onName:
+      store.getState().children.length > 1 ? () => store.dispatch({ type: 'welcome' }) : undefined,
+  });
   const release = onIconHold(header, () => store.dispatch({ type: 'admin' }));
   view.append(header, groups, footer);
   return { el: view, dispose: release };

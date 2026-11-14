@@ -15,7 +15,7 @@ import './styles/garden.css';
 import { COMPANION_NAMES, cartwheelAvatarUrl } from './components/avatar';
 import { icon } from './components/icons';
 import { BUILD, stageBadge } from './env';
-import { activeChild, childData, load, persistOnChange } from './storage';
+import { load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
 import type { ViewHandle } from './views/view';
 import { renderWelcome } from './views/welcome';
@@ -82,9 +82,9 @@ function createPortraitOverlay(store: Store): HTMLElement {
 
 function start(app: HTMLElement) {
   const portraitQuery = window.matchMedia(PORTRAIT_QUERY);
-  // B-97: gespeichert sind alle Kinder, der Store arbeitet mit dem aktiven
+  // B-97/B-90: gespeichert sind alle Kinder; der Store kennt alle und arbeitet mit dem aktiven
   const stored = load();
-  const store = createStore(childData(activeChild(stored)), portraitQuery.matches);
+  const store = createStore(stored, portraitQuery.matches);
 
   const viewRoot = document.createElement('div');
   viewRoot.className = 'view-root';

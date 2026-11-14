@@ -746,3 +746,204 @@
     font-size: 16px;
   }
 }
+
+/* B-90: Reiter „Kinder“ – links in der Kopfleiste neben dem Zurück-Button, beschriftet mit dem
+   Namen des gewählten Kinds (zu lang → Auslassungspunkte). */
+.admin__header-start {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.admin__tab.admin__tab--child {
+  min-width: 88px;
+  max-width: 220px;
+  padding: 0 16px;
+  color: var(--lila-700);
+}
+
+.admin__child-name {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 22px;
+}
+
+.admin__kids {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.admin__kids-hint {
+  margin-bottom: 4px;
+}
+
+.admin__children {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Kind: Kachel (gewählt = markiert), daneben Umbenennen und Löschen bzw. die Abfrage */
+.admin__child {
+  display: grid;
+  grid-template-columns: 300px auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.admin__child[data-confirming='true'] {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  min-height: 88px;
+}
+
+.admin__child-tile {
+  height: 88px;
+}
+
+.admin__child-tile .admin__brake-label,
+.admin__child .admin__question {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin__rename,
+.admin__add-child {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.admin__add-child {
+  padding-top: 12px;
+  border-top: 1px solid var(--lila-100);
+}
+
+.admin__name-input {
+  width: 300px;
+  min-width: 0;
+  height: 88px;
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--radius-m);
+  background: var(--white);
+  box-shadow: inset 0 0 0 2px var(--grau-700);
+  color: var(--lila-900);
+  font: inherit;
+  font-size: 24px; /* ≥ 16 px: iOS zoomt sonst beim Antippen */
+  font-weight: 700;
+  user-select: text;
+  -webkit-user-select: text;
+  outline: none;
+}
+
+.admin__rename .admin__name-input {
+  flex: 0 1 300px;
+}
+
+.admin__name-input:focus {
+  box-shadow: inset 0 0 0 5px var(--lila-700);
+}
+
+.admin__name-input:disabled {
+  opacity: 0.45;
+}
+
+.admin__child-hint {
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--lila-900);
+}
+
+.admin__kids .text-button {
+  padding: 0 20px;
+  font-size: 20px;
+}
+
+@media (max-height: 500px) {
+  .admin__header-start {
+    gap: 12px;
+  }
+
+  .admin__tab.admin__tab--child {
+    min-width: 44px;
+    max-width: 140px;
+    padding: 0 10px;
+  }
+
+  .admin__child-name {
+    font-size: 16px;
+  }
+
+  .admin__kids {
+    gap: 6px;
+    padding: 8px 16px;
+  }
+
+  .admin__kids-hint {
+    margin-bottom: 0;
+  }
+
+  .admin__children {
+    gap: 6px;
+  }
+
+  .admin__child {
+    grid-template-columns: 200px auto auto minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .admin__child[data-confirming='true'] {
+    min-height: 44px;
+  }
+
+  .admin__child-tile {
+    height: 44px;
+    min-height: 44px;
+    padding: 4px 12px;
+  }
+
+  .admin__child-tile .admin__brake-label,
+  .admin__child .admin__question {
+    font-size: 16px;
+  }
+
+  .admin__rename,
+  .admin__add-child {
+    gap: 10px;
+  }
+
+  .admin__add-child {
+    padding-top: 6px;
+  }
+
+  .admin__name-input {
+    width: 200px;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 18px;
+  }
+
+  .admin__child-hint {
+    font-size: 14px;
+  }
+
+  .admin__kids .text-button {
+    padding: 0 12px;
+    font-size: 16px;
+  }
+}

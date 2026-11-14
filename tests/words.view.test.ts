@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { childDefaults } from '../src/storage';
 import { reduce, type AppState, type ViewName } from '../src/state';
+import { ONE_CHILD } from './test-store';
 import { learnedWords } from '../src/views/words';
 
 const entry = (box: number) => ({ box, seen: 2, lastSeenAt: '2026-11-07T10:00:00.000Z' });
@@ -20,6 +21,7 @@ const data = () => {
 const at = (view: ViewName, d = data()): AppState => ({
   view,
   portrait: false,
+  ...ONE_CHILD,
   data: d,
   round: null,
 });

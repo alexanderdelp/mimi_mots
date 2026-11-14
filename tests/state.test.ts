@@ -17,6 +17,7 @@ import {
   type AppState,
   type ViewName,
 } from '../src/state';
+import { ONE_CHILD } from './test-store';
 import { createStore as createRealStore } from '../src/state';
 import { createStore, createStore as createStoreAt } from './test-store';
 import { createSession } from '../src/scheduler';
@@ -59,7 +60,13 @@ describe('nextView', () => {
 });
 
 describe('reduce', () => {
-  const base: AppState = { view: 'round', portrait: false, data: childDefaults(), round: null };
+  const base: AppState = {
+    view: 'round',
+    portrait: false,
+    ...ONE_CHILD,
+    data: childDefaults(),
+    round: null,
+  };
 
   it('setzt portrait, ohne Ansicht oder Daten zu ändern', () => {
     const next = reduce(base, { type: 'orientation', portrait: true });
@@ -125,6 +132,7 @@ describe('Auswahl (B-11)', () => {
   const startState = (): AppState => ({
     view: 'start',
     portrait: false,
+    ...ONE_CHILD,
     data: childDefaults(),
     round: null,
   });
@@ -162,7 +170,13 @@ describe('Auswahl (B-11)', () => {
   });
 
   it('select wirkt nur auf der Startansicht', () => {
-    const state: AppState = { view: 'round', portrait: false, data: complete(), round: null };
+    const state: AppState = {
+      view: 'round',
+      portrait: false,
+      ...ONE_CHILD,
+      data: complete(),
+      round: null,
+    };
     expect(reduce(state, { type: 'select', settings: { companion: 'mots' } })).toBe(state);
   });
 
@@ -487,6 +501,7 @@ describe('Schlafende Begleiter (B-65)', () => {
     const state: AppState = {
       view: 'start',
       portrait: false,
+      ...ONE_CHILD,
       data: rest(['mimi']),
       round: null,
     };
@@ -617,6 +632,7 @@ describe('Elternbereich (B-69)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -682,6 +698,7 @@ describe('Aktive Sprachen (B-73)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -777,7 +794,7 @@ describe('Tutorial abbrechen (B-87)', () => {
   it('AT-89.6/AT-108.2: toggleTutorial schaltet nur das Tutorial des Modus an und wieder aus', () => {
     const data = complete();
     data.listenTutorialDone = true;
-    const admin: AppState = { view: 'admin', portrait: false, data, round: null };
+    const admin: AppState = { view: 'admin', portrait: false, ...ONE_CHILD, data, round: null };
     const listen = reduce(admin, { type: 'toggleTutorial', mode: 'listen' });
     expect(listen.data).toMatchObject({ tutorialDone: true, listenTutorialDone: false });
     const speak = reduce(admin, { type: 'toggleTutorial', mode: 'speak' });
@@ -815,7 +832,7 @@ describe('Tutorial (B-74)', () => {
   const at = (view: ViewName, tutorialDone: boolean): AppState => {
     const data = complete();
     data.tutorialDone = tutorialDone;
-    return { view, portrait: false, data, round: null };
+    return { view, portrait: false, ...ONE_CHILD, data, round: null };
   };
 
   it('tutorialDone nur in der Runde, toggleTutorial nur im Elternbereich', () => {
@@ -834,6 +851,7 @@ describe('Bremse für neue Wörter (B-82)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -853,6 +871,7 @@ describe('Rundendauer (B-93)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -875,6 +894,7 @@ describe('Wörter ein-/ausschalten (B-88)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -919,6 +939,7 @@ describe('Spielbare Sprachen (B-81/B-84)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -946,6 +967,7 @@ describe('Begrüßung (B-97)', () => {
   const at = (view: ViewName, data: ChildData = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -1027,6 +1049,7 @@ describe('Wörter per Ziehen in eine Stufe legen (B-106)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -1089,6 +1112,7 @@ describe('Samen freigeben (B-109)', () => {
   const at = (view: ViewName, data = complete()): AppState => ({
     view,
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -1118,6 +1142,7 @@ describe('Garten (B-112)', () => {
   const roundAt = (data = complete(), expired = true): AppState => ({
     view: 'round',
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: { session: createSession(), wordId: 'dog', revealed: true, expired },
   });
@@ -1147,7 +1172,14 @@ describe('Garten (B-112)', () => {
   it('AT-112.1: nur freigegebene Samen lassen sich pflanzen', () => {
     const data = complete();
     data.enabledFlowers = ['sunflower'];
-    const seed: AppState = { view: 'seed', portrait: false, data, round: null, harvest: 'choose' };
+    const seed: AppState = {
+      view: 'seed',
+      portrait: false,
+      ...ONE_CHILD,
+      data,
+      round: null,
+      harvest: 'choose',
+    };
     expect(reduce(seed, { type: 'plant', flower: 'peony', at: AT })).toBe(seed);
   });
 
@@ -1172,7 +1204,13 @@ describe('Garten (B-112)', () => {
   });
 
   it('AT-112.3: Garten nur mit Pflanze, zurück zur Start- bzw. Schlafseite', () => {
-    const start: AppState = { view: 'start', portrait: false, data: complete(), round: null };
+    const start: AppState = {
+      view: 'start',
+      portrait: false,
+      ...ONE_CHILD,
+      data: complete(),
+      round: null,
+    };
     expect(reduce(start, { type: 'garden' })).toBe(start);
     const withPlant = { ...start, data: growing(0, 3) };
     const garden = reduce(withPlant, { type: 'garden' });
@@ -1181,7 +1219,7 @@ describe('Garten (B-112)', () => {
     const sleeping = growing(0, 3);
     sleeping.rest = { sleeping: ['mimi', 'mots'], since: '2026-11-08' };
     const fromSleep = reduce(
-      { view: 'sleep', portrait: false, data: sleeping, round: null },
+      { view: 'sleep', portrait: false, ...ONE_CHILD, data: sleeping, round: null },
       { type: 'garden' },
       '2026-11-08',
     );
@@ -1204,6 +1242,7 @@ describe('Reiter „Samen“ (B-114)', () => {
   const admin = (data: ChildData): AppState => ({
     view: 'admin',
     portrait: false,
+    ...ONE_CHILD,
     data,
     round: null,
   });
@@ -1229,6 +1268,7 @@ describe('Reiter „Samen“ (B-114)', () => {
     const round: AppState = {
       view: 'round',
       portrait: false,
+      ...ONE_CHILD,
       data,
       round: { session: createSession(), wordId: 'dog', revealed: true, expired: true },
     };
@@ -1236,7 +1276,7 @@ describe('Reiter „Samen“ (B-114)', () => {
     expect(end.view).toBe('end');
     expect(end.harvest).toBeNull();
     expect(end.data.garden).toEqual(data.garden);
-    const start: AppState = { view: 'start', portrait: false, data, round: null };
+    const start: AppState = { view: 'start', portrait: false, ...ONE_CHILD, data, round: null };
     expect(reduce(start, { type: 'garden' })).toBe(start);
     const off = admin(data);
     expect(reduce(off, { type: 'gardenStage', stage: 4 })).toBe(off);
@@ -1249,6 +1289,7 @@ describe('Reiter „Samen“ (B-114)', () => {
     const round: AppState = {
       view: 'round',
       portrait: false,
+      ...ONE_CHILD,
       data,
       round: { session: createSession(), wordId: 'dog', revealed: true, expired: true },
     };
