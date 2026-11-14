@@ -5,7 +5,7 @@ Beschreibt den aktuellen Stand der App. Frühere Fassungen und die vollständige
 ## 1. Ziel und Zielgruppe
 - **Nutzerin:** Erstklässlerin (6–7 Jahre), kann einfache Wörter lesen. Deutsche Sprachausgabe ist nicht nötig.
 - **Gerät:** iPad quer, als PWA vom Home-Bildschirm; iPhone quer mit kompaktem Layout.
-- **Ziel:** Spielerisch ein paar Wörter auf Englisch, Französisch, Japanisch oder Italienisch kennenlernen. Kurze Runden, kein Leistungsdruck.
+- **Ziel:** Spielerisch ein paar Wörter auf Englisch, Französisch oder Japanisch kennenlernen. Kurze Runden, kein Leistungsdruck.
 - **Nicht-Ziele:** Bewertung, Belohnung, Ranglisten, Accounts, Eltern-Statistiken, Schreiben/Tippen, Spracherkennung.
 
 ## 2. Didaktische Grundlagen
@@ -36,7 +36,7 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 
 ### 3.1 Startbildschirm (Auswahl)
 - **Begleiter** („Wer soll dich begleiten?“): zwei große Kacheln (Mimi, Mots) mit Bild (Pose „ruhig“) und Name. Ein schlafender Begleiter ist ausgegraut, nicht wählbar und zeigt sein Schlafbild.
-- **Sprache** („In welcher Sprache?“): flache Kacheln nur mit Flagge, in einem Raster mit höchstens zwei Spalten, immer zwei Kachelzeilen hoch: Englisch (`flag_gb.svg`), Französisch (`flag_fr.svg`), Japanisch (`flag_jp.svg`), Italienisch (`flag_it.svg`). Es erscheinen nur Sprachen, die im Elternbereich eingeschaltet sind und Wörter haben (§5); ausgeschaltete fehlen ganz.
+- **Sprache** („In welcher Sprache?“): flache Kacheln nur mit Flagge, gleich groß in einer Reihe: Englisch (`flag_gb.svg`), Französisch (`flag_fr.svg`), Japanisch (`flag_jp.svg`). Es erscheinen nur Sprachen, die im Elternbereich eingeschaltet sind und Wörter haben (§5); ausgeschaltete fehlen ganz.
 - **Modus** („Bei was?“): zwei flache Kacheln untereinander, nur Symbol: Kopf mit Schallwellen = Sprechen, Ohr = Hören.
 - **Kachelgrößen:** Kacheln einer Gruppe sind gleich groß; Sprach- und Modus-Kacheln sind halb so hoch wie die Begleiter-Kacheln.
 - **Auswahlzustand:** ausgewählt = dicker lila Rahmen (5 px, `--lila-700`) + Hintergrund `--lila-100`; nicht ausgewählt = dünner dunkelgrauer Rahmen (2 px, `--grau-700`) + weißer Hintergrund. Größe der Kacheln ändert sich nicht.
@@ -145,7 +145,7 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 ## 6. Audio
 - **Anforderung:** hochwertige, natürliche Aussprache, kostenlos, offline, klein.
 - **Lösung:** Audio wird einmalig vor dem Build lokal erzeugt (`scripts/generate_audio.py`, `npm run audio`) und als statische Dateien `public/audio/<lang>/<id>.mp3` ausgeliefert und gecacht.
-  - Standardstimmen: EN **Piper** `en_US-ljspeech-high`, FR **Kokoro** `ff_siwis`, JA **VOICEVOX** 冥鳴ひまり (aus der Kana-Lesung, Namensnennung „VOICEVOX:冥鳴ひまり“), IT **Kokoro** `if_sara`. Lizenzen siehe README und §11.
+  - Standardstimmen: EN **Piper** `en_US-ljspeech-high`, FR **Kokoro** `ff_siwis`, JA **VOICEVOX** 冥鳴ひまり (aus der Kana-Lesung, Namensnennung „VOICEVOX:冥鳴ひまり“). Lizenzen siehe README und §11.
   - **Stimmwahl je Wort** (`tools/stimmwahl.html`, nur Dev-Server): je Wort mehrere Stimmen als „Wort“ und „Wort.“ anhören und eine wählen oder „keins“. Die Wahl steht in `audio-choices.json` und gilt als Hörprüfung (Häkchen in `audio-check.md`).
   - Nachbearbeitung (ffmpeg): Stille trimmen, 150 ms Vorlauf, Lautheit normalisieren (−16 LUFS), MP3 mono 64 kbit/s.
   - Größe: ~8 KB/Wort; je Datei < 32 KB, alle zusammen < 3 MB (derzeit ca. 1,6 MB).
@@ -194,71 +194,71 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 ## 10. Anhang: Wortliste
 Quelle für App und Audio-Skript ist `src/data/words.json` (dort zusätzlich die Silben `syllables`); ein Unit-Test prüft, dass diese Tabelle Eintrag für Eintrag übereinstimmt. Welche Wörter je Sprache in der App vorkommen, bestimmt `audio-choices.json` (§5).
 
-FR- und IT-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üblicher Schreibweise (Kanji, Hiragana oder Katakana), dazu die Kana-Lesung für die Aussprache.
+FR-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üblicher Schreibweise (Kanji, Hiragana oder Katakana), dazu die Kana-Lesung für die Aussprache.
 
-| id | Emoji | DE | EN | FR | IT | JA | JA (Lesung) |
-|---|---|---|---|---|---|---|---|
-| apfel | 🍎 | Apfel | apple | la pomme | la mela | りんご | りんご |
-| banane | 🍌 | Banane | banana | la banane | la banana | バナナ | バナナ |
-| erdbeere | 🍓 | Erdbeere | strawberry | la fraise | la fragola | いちご | いちご |
-| birne | 🍐 | Birne | pear | la poire | la pera | 梨 | なし |
-| kirsche | 🍒 | Kirsche | cherry | la cerise | la ciliegia | さくらんぼ | さくらんぼ |
-| zitrone | 🍋 | Zitrone | lemon | le citron | il limone | レモン | レモン |
-| karotte | 🥕 | Karotte | carrot | la carotte | la carota | にんじん | にんじん |
-| brot | 🍞 | Brot | bread | le pain | il pane | パン | パン |
-| kaese | 🧀 | Käse | cheese | le fromage | il formaggio | チーズ | チーズ |
-| ei | 🥚 | Ei | egg | l'œuf | l'uovo | 卵 | たまご |
-| milch | 🥛 | Milch | milk | le lait | il latte | 牛乳 | ぎゅうにゅう |
-| kuchen | 🍰 | Kuchen | cake | le gâteau | la torta | ケーキ | ケーキ |
-| eis | 🍦 | Eis | ice cream | la glace | il gelato | アイス | アイス |
-| katze | 🐱 | Katze | cat | le chat | il gatto | 猫 | ねこ |
-| hund | 🐶 | Hund | dog | le chien | il cane | 犬 | いぬ |
-| pferd | 🐴 | Pferd | horse | le cheval | il cavallo | 馬 | うま |
-| maus | 🐭 | Maus | mouse | la souris | il topo | ねずみ | ねずみ |
-| hase | 🐰 | Hase | rabbit | le lapin | il coniglio | うさぎ | うさぎ |
-| vogel | 🐦 | Vogel | bird | l'oiseau | l'uccello | 鳥 | とり |
-| fisch | 🐟 | Fisch | fish | le poisson | il pesce | 魚 | さかな |
-| kuh | 🐮 | Kuh | cow | la vache | la mucca | 牛 | うし |
-| schwein | 🐷 | Schwein | pig | le cochon | il maiale | 豚 | ぶた |
-| ente | 🦆 | Ente | duck | le canard | l'anatra | カモ | カモ |
-| baer | 🐻 | Bär | bear | l'ours | l'orso | 熊 | くま |
-| loewe | 🦁 | Löwe | lion | le lion | il leone | ライオン | ライオン |
-| elefant | 🐘 | Elefant | elephant | l'éléphant | l'elefante | 象 | ぞう |
-| schmetterling | 🦋 | Schmetterling | butterfly | le papillon | la farfalla | ちょうちょ | ちょうちょ |
-| frosch | 🐸 | Frosch | frog | la grenouille | la rana | かえる | かえる |
-| ball | ⚽ | Ball | ball | le ballon | la palla | ボール | ボール |
-| haus | 🏠 | Haus | house | la maison | la casa | 家 | いえ |
-| auto | 🚗 | Auto | car | la voiture | la macchina | 車 | くるま |
-| buch | 📖 | Buch | book | le livre | il libro | 本 | ほん |
-| baum | 🌳 | Baum | tree | l'arbre | l'albero | 木 | き |
-| blume | 🌸 | Blume | flower | la fleur | il fiore | 花 | はな |
-| sonne | ☀️ | Sonne | sun | le soleil | il sole | 太陽 | たいよう |
-| mond | 🌙 | Mond | moon | la lune | la luna | 月 | つき |
-| stern | ⭐ | Stern | star | l'étoile | la stella | 星 | ほし |
-| schuh | 👟 | Schuh | shoe | la chaussure | la scarpa | 靴 | くつ |
-| hut | 👒 | Hut | hat | le chapeau | il cappello | 帽子 | ぼうし |
-| fahrrad | 🚲 | Fahrrad | bike | le vélo | la bicicletta | 自転車 | じてんしゃ |
-| boot | ⛵ | Boot | boat | le bateau | la barca | 船 | ふね |
-| zug | 🚂 | Zug | train | le train | il treno | 電車 | でんしゃ |
-| regenschirm | ☂️ | Regenschirm | umbrella | le parapluie | l'ombrello | 傘 | かさ |
-| herz | ❤️ | Herz | heart | le cœur | il cuore | ハート | ハート |
-| rot | 🔴 | rot | red | rouge | rosso | 赤 | あか |
-| blau | 🔵 | blau | blue | bleu | blu | 青 | あお |
-| gelb | 🟡 | gelb | yellow | jaune | giallo | 黄色 | きいろ |
-| gruen | 🟢 | grün | green | vert | verde | 緑 | みどり |
-| lila | 🟣 | lila | purple | violet | viola | 紫 | むらさき |
-| orange | 🟠 | orange | orange | orange | arancione | オレンジ | オレンジ |
-| null | 0️⃣ | null | zero | zéro | zero | ゼロ | ゼロ |
-| eins | 1️⃣ | eins | one | un | uno | 一 | いち |
-| zwei | 2️⃣ | zwei | two | deux | due | 二 | に |
-| drei | 3️⃣ | drei | three | trois | tre | 三 | さん |
-| vier | 4️⃣ | vier | four | quatre | quattro | 四 | よん |
-| fuenf | 5️⃣ | fünf | five | cinq | cinque | 五 | ご |
-| sechs | 6️⃣ | sechs | six | six | sei | 六 | ろく |
-| sieben | 7️⃣ | sieben | seven | sept | sette | 七 | なな |
-| acht | 8️⃣ | acht | eight | huit | otto | 八 | はち |
-| neun | 9️⃣ | neun | nine | neuf | nove | 九 | きゅう |
-| zehn | 🔟 | zehn | ten | dix | dieci | 十 | じゅう |
+| id | Emoji | DE | EN | FR | JA | JA (Lesung) |
+|---|---|---|---|---|---|---|
+| apfel | 🍎 | Apfel | apple | la pomme | りんご | りんご |
+| banane | 🍌 | Banane | banana | la banane | バナナ | バナナ |
+| erdbeere | 🍓 | Erdbeere | strawberry | la fraise | いちご | いちご |
+| birne | 🍐 | Birne | pear | la poire | 梨 | なし |
+| kirsche | 🍒 | Kirsche | cherry | la cerise | さくらんぼ | さくらんぼ |
+| zitrone | 🍋 | Zitrone | lemon | le citron | レモン | レモン |
+| karotte | 🥕 | Karotte | carrot | la carotte | にんじん | にんじん |
+| brot | 🍞 | Brot | bread | le pain | パン | パン |
+| kaese | 🧀 | Käse | cheese | le fromage | チーズ | チーズ |
+| ei | 🥚 | Ei | egg | l'œuf | 卵 | たまご |
+| milch | 🥛 | Milch | milk | le lait | 牛乳 | ぎゅうにゅう |
+| kuchen | 🍰 | Kuchen | cake | le gâteau | ケーキ | ケーキ |
+| eis | 🍦 | Eis | ice cream | la glace | アイス | アイス |
+| katze | 🐱 | Katze | cat | le chat | 猫 | ねこ |
+| hund | 🐶 | Hund | dog | le chien | 犬 | いぬ |
+| pferd | 🐴 | Pferd | horse | le cheval | 馬 | うま |
+| maus | 🐭 | Maus | mouse | la souris | ねずみ | ねずみ |
+| hase | 🐰 | Hase | rabbit | le lapin | うさぎ | うさぎ |
+| vogel | 🐦 | Vogel | bird | l'oiseau | 鳥 | とり |
+| fisch | 🐟 | Fisch | fish | le poisson | 魚 | さかな |
+| kuh | 🐮 | Kuh | cow | la vache | 牛 | うし |
+| schwein | 🐷 | Schwein | pig | le cochon | 豚 | ぶた |
+| ente | 🦆 | Ente | duck | le canard | カモ | カモ |
+| baer | 🐻 | Bär | bear | l'ours | 熊 | くま |
+| loewe | 🦁 | Löwe | lion | le lion | ライオン | ライオン |
+| elefant | 🐘 | Elefant | elephant | l'éléphant | 象 | ぞう |
+| schmetterling | 🦋 | Schmetterling | butterfly | le papillon | ちょうちょ | ちょうちょ |
+| frosch | 🐸 | Frosch | frog | la grenouille | かえる | かえる |
+| ball | ⚽ | Ball | ball | le ballon | ボール | ボール |
+| haus | 🏠 | Haus | house | la maison | 家 | いえ |
+| auto | 🚗 | Auto | car | la voiture | 車 | くるま |
+| buch | 📖 | Buch | book | le livre | 本 | ほん |
+| baum | 🌳 | Baum | tree | l'arbre | 木 | き |
+| blume | 🌸 | Blume | flower | la fleur | 花 | はな |
+| sonne | ☀️ | Sonne | sun | le soleil | 太陽 | たいよう |
+| mond | 🌙 | Mond | moon | la lune | 月 | つき |
+| stern | ⭐ | Stern | star | l'étoile | 星 | ほし |
+| schuh | 👟 | Schuh | shoe | la chaussure | 靴 | くつ |
+| hut | 👒 | Hut | hat | le chapeau | 帽子 | ぼうし |
+| fahrrad | 🚲 | Fahrrad | bike | le vélo | 自転車 | じてんしゃ |
+| boot | ⛵ | Boot | boat | le bateau | 船 | ふね |
+| zug | 🚂 | Zug | train | le train | 電車 | でんしゃ |
+| regenschirm | ☂️ | Regenschirm | umbrella | le parapluie | 傘 | かさ |
+| herz | ❤️ | Herz | heart | le cœur | ハート | ハート |
+| rot | 🔴 | rot | red | rouge | 赤 | あか |
+| blau | 🔵 | blau | blue | bleu | 青 | あお |
+| gelb | 🟡 | gelb | yellow | jaune | 黄色 | きいろ |
+| gruen | 🟢 | grün | green | vert | 緑 | みどり |
+| lila | 🟣 | lila | purple | violet | 紫 | むらさき |
+| orange | 🟠 | orange | orange | orange | オレンジ | オレンジ |
+| null | 0️⃣ | null | zero | zéro | ゼロ | ゼロ |
+| eins | 1️⃣ | eins | one | un | 一 | いち |
+| zwei | 2️⃣ | zwei | two | deux | 二 | に |
+| drei | 3️⃣ | drei | three | trois | 三 | さん |
+| vier | 4️⃣ | vier | four | quatre | 四 | よん |
+| fuenf | 5️⃣ | fünf | five | cinq | 五 | ご |
+| sechs | 6️⃣ | sechs | six | six | 六 | ろく |
+| sieben | 7️⃣ | sieben | seven | sept | 七 | なな |
+| acht | 8️⃣ | acht | eight | huit | 八 | はち |
+| neun | 9️⃣ | neun | nine | neuf | 九 | きゅう |
+| zehn | 🔟 | zehn | ten | dix | 十 | じゅう |
 
 ## 11. Entscheidungen
 Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heutige Regel wichtig sind. Überholte Entscheidungen und die vollständige Chronik mit Datum: `docs/archiv/entscheidungen-chronik.md`.
@@ -293,7 +293,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Englisch: Piper `en_US-ljspeech-high` (LJ Speech, public domain). Alle englischen Kokoro-Stimmen sprachen bei Einzelwörtern einen falschen Anfangslaut mit (z. B. „egg“ → „leg“). Keine Piper-Stimmen auf Lessac-Basis (u. a. Amy): Blizzard-2013-Daten nur für Forschung. Die Stimme ist amerikanisch, die Flagge bleibt britisch; der Fallback ist en-GB (B-64).
 - Französisch: Kokoro `ff_siwis` (Standard). Wählbar auch Piper tom (AGPL-Modell, Lizenzwirkung auf Aufnahmen unklar – nur nach bewusster Entscheidung) und MeloTTS (MIT; eigene Umgebung mit Python 3.10, Aufruf als Unterprozess). Piper mls war unverständlich; Piper siwis-medium/upmc (Lessac) und siwis-low/gilles/mls_1840-low (nicht-kommerziell) entfallen (B-79).
 - Japanisch: VOICEVOX 冥鳴ひまり – kostenlos, auch kommerziell, Namensnennung „VOICEVOX:冥鳴ひまり“ (README). Die japanischen Kokoro-Stimmen sind schwach bewertet, No.7 nur nicht-kommerziell. Aussprache aus der Kana-Lesung (`jaKana`), damit Kanji nicht falsch gelesen werden (月 → つき). VOICEVOX wird nicht automatisch geladen, weil man beim Download den Nutzungsbedingungen zustimmen muss (B-67).
-- Italienisch: Kokoro `if_sara` (Standard) und `im_nicola` (Apache-2.0), Piper `it_IT-riccardo-x_low` (M-AILABS, frei nutzbar, nur x_low-Qualität). Nicht Piper paola (Lessac, nur Forschung); MeloTTS kann kein Italienisch, MMS-TTS und XTTS sind nur nicht-kommerziell (B-80).
+- Italienisch (bis B-118, entfernt): Kokoro `if_sara` (Standard) und `im_nicola` (Apache-2.0), Piper `it_IT-riccardo-x_low` (M-AILABS, frei nutzbar, nur x_low-Qualität). Nicht Piper paola (Lessac, nur Forschung); MeloTTS kann kein Italienisch, MMS-TTS und XTTS sind nur nicht-kommerziell (B-80).
 - Stimmwahl je Wort statt einer Stimme je Sprache, als „Wort“ oder „Wort.“: Das Beschneiden bei −45 dB kappt teils leises Wortende, „Wort.“ endet bei manchen Stimmen sauberer. Gewählte Dateien werden kopiert statt neu erzeugt, weil Piper nicht bitgleich reproduziert. Die Wahl gilt als Hörprüfung (B-78).
 - „keins“, wenn keine Aufnahme taugt: gespeichert als `null`, die App-Datei wird gelöscht, kein Haken; `npm run audio` erzeugt dafür nichts. Keine Notizspalte in `audio-check.md` (B-85).
 - Grenzen: je Datei < 32 KB, alle zusammen < 3 MB – manche wählbaren Stimmen sprechen langsamer (B-79).
@@ -303,9 +303,10 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 ### Sprachen und Wortschatz
 - Wortliste: `src/data/words.json` ist Quelle für App und Audio-Skript, `words.ts` liefert Typ und Zugriff (B-04).
 - Wortschatz = Wörter mit gewählter Aufnahme (`audio-choices.json`, beim Bauen eingelesen) – lieber ein Wort weglassen als eine schlechte Aussprache anbieten. Lernstand herausgefallener Wörter bleibt gespeichert und gilt wieder, wenn sie zurückkommen (B-84).
-- Nur eingeschaltete Sprachen erscheinen auf der Startseite (ausgegraute wirkten zu voll). Standard: Englisch und Französisch an, Japanisch und Italienisch aus. Sprachen ohne Wörter lassen sich nicht einschalten, die letzte Sprache mit Wörtern nicht ausschalten; gespeicherte Daten werden beim Laden entsprechend bereinigt – so ist die Startseite nie ohne Sprache (B-73, B-81, B-86).
+- Nur eingeschaltete Sprachen erscheinen auf der Startseite (ausgegraute wirkten zu voll). Standard: Englisch und Französisch an, Japanisch aus. Sprachen ohne Wörter lassen sich nicht einschalten, die letzte Sprache mit Wörtern nicht ausschalten; gespeicherte Daten werden beim Laden entsprechend bereinigt – so ist die Startseite nie ohne Sprache (B-73, B-81, B-86).
 - Wörter je Sprache im Elternbereich aus- und einschaltbar; ausgeschaltete kommen nicht vor (auch nicht als Probewort), ihr Lernstand bleibt; das letzte Wort bleibt an (B-88).
-- Französisch und Italienisch: Nomen mit bestimmtem Artikel, Farben und Zahlen ohne (B-04, B-68, B-80). Italienisch kindgerecht: ⚽ „la palla“, 🚗 „la macchina“, 🍰 „la torta“ (B-80).
+- Französisch: Nomen mit bestimmtem Artikel, Farben und Zahlen ohne (B-04, B-68).
+- Italienisch entfernt (Wunsch 2026-11-14, B-118): aus App, Wortliste, Audio, Flagge, Audio-Skript, Stimmwahl und Hörprüfung. Gespeicherte italienische Daten verwirft die vorhandene Bereinigung beim Laden (kein Migrationscode); die Startseite zeigt drei Sprachkacheln in einer Reihe.
 - Japanisch: übliche Schreibweise (Kanji, Hiragana oder Katakana), ohne Lesehilfe; Wortwahl nach Bild: 🦆 カモ, ⛵ 船, 🚂 電車, 🍦 アイス (B-67).
 - Silben des deutschen Worts von Hand in `words.json` (`syllables`), weil automatische Trennung bei Grundschul-Silben (z. B. „E-le-fant“) unzuverlässig ist (B-66).
 
