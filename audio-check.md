@@ -67,31 +67,31 @@ Abhörseite für den Stand der App: http://localhost:5181/tools/hoerpruefung.htm
 | acht | 8️⃣ acht | eight | [x] | huit | [x] | 八（はち） | [ ] |
 | neun | 9️⃣ neun | nine | [x] | neuf | [x] | 九（きゅう） | [ ] |
 | zehn | 🔟 zehn | ten | [x] | dix | [x] | 十（じゅう） | [ ] |
-| schaf | 🐑 Schaf | sheep | [ ] | le mouton | [ ] | 羊（ひつじ） | [ ] |
-| huhn | 🐔 Huhn | chicken | [ ] | la poule | [ ] | 鶏（にわとり） | [ ] |
-| schildkroete | 🐢 Schildkröte | turtle | [ ] | la tortue | [ ] | 亀（かめ） | [ ] |
-| giraffe | 🦒 Giraffe | giraffe | [ ] | la girafe | [ ] | キリン | [ ] |
-| affe | 🐒 Affe | monkey | [ ] | le singe | [ ] | 猿（さる） | [ ] |
-| biene | 🐝 Biene | bee | [ ] | l'abeille | [ ] | 蜂（はち） | [ ] |
-| schnecke | 🐌 Schnecke | snail | [ ] | l'escargot | [ ] | かたつむり | [ ] |
-| fuchs | 🦊 Fuchs | fox | [ ] | le renard | [ ] | 狐（きつね） | [ ] |
-| pinguin | 🐧 Pinguin | penguin | [ ] | le pingouin | [ ] | ペンギン | [ ] |
-| eule | 🦉 Eule | owl | [ ] | le hibou | [ ] | ふくろう | [ ] |
-| trauben | 🍇 Trauben | grapes | [ ] | le raisin | [ ] | ぶどう | [ ] |
-| wassermelone | 🍉 Wassermelone | watermelon | [ ] | la pastèque | [ ] | すいか | [ ] |
-| tomate | 🍅 Tomate | tomato | [ ] | la tomate | [ ] | トマト | [ ] |
-| kartoffel | 🥔 Kartoffel | potato | [ ] | la pomme de terre | [ ] | じゃがいも | [ ] |
-| pizza | 🍕 Pizza | pizza | [ ] | la pizza | [ ] | ピザ | [ ] |
-| schokolade | 🍫 Schokolade | chocolate | [ ] | le chocolat | [ ] | チョコレート | [ ] |
-| auge | 👁️ Auge | eye | [ ] | l'œil | [ ] | 目（め） | [ ] |
-| ohr | 👂 Ohr | ear | [ ] | l'oreille | [ ] | 耳（みみ） | [ ] |
-| mund | 👄 Mund | mouth | [ ] | la bouche | [ ] | 口（くち） | [ ] |
-| fuss | 🦶 Fuß | foot | [ ] | le pied | [ ] | 足（あし） | [ ] |
-| regenbogen | 🌈 Regenbogen | rainbow | [ ] | l'arc-en-ciel | [ ] | 虹（にじ） | [ ] |
-| wolke | ☁️ Wolke | cloud | [ ] | le nuage | [ ] | 雲（くも） | [ ] |
-| geschenk | 🎁 Geschenk | present | [ ] | le cadeau | [ ] | プレゼント | [ ] |
-| teddy | 🧸 Teddy | teddy bear | [ ] | le nounours | [ ] | テディベア | [ ] |
-| bett | 🛏️ Bett | bed | [ ] | le lit | [ ] | ベッド | [ ] |
-| stuhl | 🪑 Stuhl | chair | [ ] | la chaise | [ ] | 椅子（いす） | [ ] |
-| schluessel | 🔑 Schlüssel | key | [ ] | la clé | [ ] | 鍵（かぎ） | [ ] |
-| flugzeug | ✈️ Flugzeug | plane | [ ] | l'avion | [ ] | 飛行機（ひこうき） | [ ] |
+| schaf | 🐑 Schaf | sheep | [x] | le mouton | [x] | 羊（ひつじ） | [ ] |
+| huhn | 🐔 Huhn | chicken | [x] | la poule | [x] | 鶏（にわとり） | [ ] |
+| schildkroete | 🐢 Schildkröte | turtle | [x] | la tortue | [x] | 亀（かめ） | [ ] |
+| giraffe | 🦒 Giraffe | giraffe | [x] | la girafe | [x] | キリン | [ ] |
+| affe | 🐒 Affe | monkey | [x] | le singe | [x] | 猿（さる） | [ ] |
+| biene | 🐝 Biene | bee | [x] | l'abeille | [x] | 蜂（はち） | [ ] |
+| schnecke | 🐌 Schnecke | snail | [x] | l'escargot | [x] | かたつむり | [ ] |
+| fuchs | 🦊 Fuchs | fox | [x] | le renard | [x] | 狐（きつね） | [ ] |
+| pinguin | 🐧 Pinguin | penguin | [x] | le pingouin | [x] | ペンギン | [ ] |
+| eule | 🦉 Eule | owl | [x] | le hibou | [x] | ふくろう | [ ] |
+| trauben | 🍇 Trauben | grapes | [x] | le raisin | [x] | ぶどう | [ ] |
+| wassermelone | 🍉 Wassermelone | watermelon | [x] | la pastèque | [x] | すいか | [ ] |
+| tomate | 🍅 Tomate | tomato | [x] | la tomate | [x] | トマト | [ ] |
+| kartoffel | 🥔 Kartoffel | potato | [x] | la pomme de terre | [x] | じゃがいも | [ ] |
+| pizza | 🍕 Pizza | pizza | [x] | la pizza | [x] | ピザ | [ ] |
+| schokolade | 🍫 Schokolade | chocolate | [x] | le chocolat | [x] | チョコレート | [ ] |
+| auge | 👁️ Auge | eye | [x] | l'œil | [x] | 目（め） | [ ] |
+| ohr | 👂 Ohr | ear | [x] | l'oreille | [x] | 耳（みみ） | [ ] |
+| mund | 👄 Mund | mouth | [x] | la bouche | [x] | 口（くち） | [ ] |
+| fuss | 🦶 Fuß | foot | [x] | le pied | [x] | 足（あし） | [ ] |
+| regenbogen | 🌈 Regenbogen | rainbow | [x] | l'arc-en-ciel | [x] | 虹（にじ） | [ ] |
+| wolke | ☁️ Wolke | cloud | [x] | le nuage | [x] | 雲（くも） | [ ] |
+| geschenk | 🎁 Geschenk | present | [x] | le cadeau | [x] | プレゼント | [ ] |
+| teddy | 🧸 Teddy | teddy bear | [x] | le nounours | [x] | テディベア | [ ] |
+| bett | 🛏️ Bett | bed | [x] | le lit | [x] | ベッド | [ ] |
+| stuhl | 🪑 Stuhl | chair | [x] | la chaise | [x] | 椅子（いす） | [ ] |
+| schluessel | 🔑 Schlüssel | key | [x] | la clé | [x] | 鍵（かぎ） | [ ] |
+| flugzeug | ✈️ Flugzeug | plane | [x] | l'avion | [x] | 飛行機（ひこうき） | [ ] |

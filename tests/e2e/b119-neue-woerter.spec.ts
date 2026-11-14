@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { TOOLS_URL } from '../../playwright.config';
 import { expect, test } from './fixtures';
 import { vocabularyIds } from './helpers';
-import { btn, prepare, storeOnce } from './views';
+import { btn, hold, prepare, storeOnce } from './views';
 
 // B-119: 28 neue Wörter (Tiere, Essen, Körper, Himmel, Dinge) in Englisch, Französisch, Japanisch.
 const NEW_IDS = [
@@ -125,4 +125,53 @@ test.describe('B-119 Neue Wörter', () => {
       }, 0);
     expect(size('dist')).toBeLessThan(5 * 1024 * 1024);
   });
+
+  // B-119: mit 89 Wörtern passten die Emojis im Elternbereich auf dem iPhone nicht mehr in die
+  // Zeile „Neu“ und überlappten die nächste Stufe; jetzt werden sie bei Bedarf kleiner
+  for (const [name, spread] of [
+    ['alle neu', false],
+    ['auf alle Stufen verteilt', true],
+  ] as const) {
+    test(
+      `AT-119.5: Elternbereich – Stufen überlappen nicht, alles passt (${name})`,
+      {
+        tag: '@layout',
+      },
+      async ({ page }) => {
+        await prepare(page);
+        const ids = vocabularyIds('en');
+        const progress = spread
+          ? Object.fromEntries(
+              ids.filter((_, i) => i % 6 !== 5).map((id, i) => [id, { ...entry, box: i % 5 }]),
+            )
+          : {};
+        await storeOnce(page, {
+          settings: { companion: 'mimi', language: 'en', mode: 'speak' },
+          progress: { en: progress, fr: {}, ja: {} },
+          enabledLanguages: ['en', 'fr', 'ja'],
+          tutorialDone: true,
+          listenTutorialDone: true,
+          rest: { sleeping: [], since: '2026-10-30' },
+        });
+        await page.goto('./');
+        await hold(page, '.app-header__icon', 1100);
+        await expect(page.locator('.admin__word')).toHaveCount(ids.length);
+        const result = await page.locator('.admin__levels').evaluate((box) => {
+          const rows = [...box.querySelectorAll<HTMLElement>('.admin__level')];
+          const overlaps = rows.slice(1).flatMap((row, i) => {
+            const top = row.getBoundingClientRect().top;
+            return [...rows[i].querySelectorAll('.admin__word')]
+              .filter((w) => w.getBoundingClientRect().bottom > top + 0.5)
+              .map((w) => (w as HTMLElement).dataset.wordId);
+          });
+          const bottom = box.getBoundingClientRect().bottom;
+          const outside = [...box.querySelectorAll<HTMLElement>('.admin__word')]
+            .filter((w) => w.getBoundingClientRect().bottom > bottom + 0.5)
+            .map((w) => w.dataset.wordId);
+          return { overlaps, outside, fits: box.scrollHeight <= box.clientHeight + 1 };
+        });
+        expect(result).toEqual({ overlaps: [], outside: [], fits: true });
+      },
+    );
+  }
 });
