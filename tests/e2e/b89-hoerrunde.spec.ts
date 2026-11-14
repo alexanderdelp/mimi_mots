@@ -37,7 +37,7 @@ test.describe('B-89 Hörrunde', () => {
       expect(answer.x + answer.width).toBeLessThanOrEqual(card.x);
       expect(card.width).toBeCloseTo(answer.width, 0);
       await expect(page.locator('.round__foreign')).toHaveText(french(id));
-      await expect.poll(() => plays(page)).toEqual([`/mimi_mots/audio/fr/${id}.mp3`]);
+      await expect.poll(() => plays(page)).toEqual([`/audio/fr/${id}.mp3`]);
 
       // verdeckt: nur der Auge-Button, keine Bewertung
       await expect(page.locator('.word-card__emoji')).toBeHidden();
@@ -65,9 +65,7 @@ test.describe('B-89 Hörrunde', () => {
       await expect(page.locator('.word-card')).not.toHaveAttribute('data-word-id', id);
       await expect(view(page, 'round')).toHaveAttribute('data-revealed', 'false');
       const next = (await wordId(page))!;
-      await expect
-        .poll(async () => (await plays(page)).at(-1))
-        .toBe(`/mimi_mots/audio/fr/${next}.mp3`);
+      await expect.poll(async () => (await plays(page)).at(-1)).toBe(`/audio/fr/${next}.mp3`);
       expect(await plays(page)).toHaveLength(3);
     },
   );
@@ -206,7 +204,7 @@ test.describe('B-89 Tutorial der Hörrunde', () => {
       await expect(view(page, 'round')).toHaveAttribute('data-revealed', String(i >= 5));
       // beim Zeigen auf das Wort wird es einmal abgespielt
       if (i === 2) {
-        await expect.poll(() => plays(page)).toEqual(['/mimi_mots/audio/fr/apfel.mp3']);
+        await expect.poll(() => plays(page)).toEqual(['/audio/fr/apfel.mp3']);
       }
       await next(page);
     }
