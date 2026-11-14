@@ -68,6 +68,38 @@ export function plant(garden: Garden, flower: Flower, at: string): Garden {
   return { plants: [...garden.plants, { flower, stage: PLANTED }], rounds: 0, need: rollNeed(at) };
 }
 
+const withCurrent = (garden: Garden, change: Partial<Plant>): Plant[] =>
+  garden.plants.map((p, i) => (i === garden.plants.length - 1 ? { ...p, ...change } : p));
+
+/** B-114 (Elternbereich): aktuelle (zuletzt gepflanzte) Blume tauschen, mit `null` entfernen;
+ *  ist der Garten leer, wird sie eingepflanzt. */
+export function setCurrentFlower(garden: Garden, flower: Flower | null, at: string): Garden {
+  const current = currentPlant(garden);
+  if (flower === null) {
+    if (!current) return garden;
+    return { plants: garden.plants.slice(0, -1), rounds: 0, need: garden.need };
+  }
+  if (!current) return plant(garden, flower, at);
+  if (current.flower === flower) return garden;
+  return { ...garden, plants: withCurrent(garden, { flower }) };
+}
+
+/** B-114: Stufe der aktuellen Blume (eingepflanzt bis Blüte); mit der Blüte ist sie fertig. */
+export function setCurrentStage(garden: Garden, stage: number): Garden {
+  const current = currentPlant(garden);
+  if (!current || !Number.isInteger(stage) || stage < PLANTED || stage > BLOOM) return garden;
+  if (stage === current.stage) return garden;
+  const rounds = stage === BLOOM ? 0 : garden.rounds;
+  return { ...garden, plants: withCurrent(garden, { stage }), rounds };
+}
+
+/** B-114: abgeschlossene Runden auf der aktuellen Stufe (0 bis need − 1); nicht nach der Blüte. */
+export function setCurrentRounds(garden: Garden, rounds: number): Garden {
+  if (canPlant(garden) || !Number.isInteger(rounds)) return garden;
+  if (rounds < 0 || rounds >= garden.need || rounds === garden.rounds) return garden;
+  return { ...garden, rounds };
+}
+
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 

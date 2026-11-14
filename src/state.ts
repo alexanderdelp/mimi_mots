@@ -3,7 +3,16 @@
 import { COMPANIONS, type Companion } from './components/avatar';
 import { applyRating, createSession, type Rating, type Session } from './scheduler';
 import { FLOWERS, type Flower } from './data/flowers';
-import { canPlant, completeRound, plant, type Harvest } from './garden';
+import {
+  canPlant,
+  completeRound,
+  plant,
+  setCurrentFlower,
+  setCurrentRounds,
+  setCurrentStage,
+  type Garden,
+  type Harvest,
+} from './garden';
 import { hasVocabulary, vocabulary } from './data/vocabulary';
 import type { Language, Word } from './data/words';
 import {
@@ -48,6 +57,10 @@ export type AppEvent =
   | { type: 'tutorialDone' } // Lernrunde: Tutorial abgeschlossen (B-74)
   | { type: 'toggleTutorial'; mode: Mode } // Elternbereich: Tutorial des Modus an/aus (B-108)
   | { type: 'toggleFlower'; flower: Flower } // Elternbereich: Samen an/aus (B-109)
+  // Elternbereich, Reiter „Samen“ (B-114): aktuelle Blume (null = entfernen), Stufe, Runden
+  | { type: 'gardenFlower'; flower: Flower | null; at: string }
+  | { type: 'gardenStage'; stage: number }
+  | { type: 'gardenRounds'; rounds: number }
   | { type: 'toggleBrake' } // Elternbereich: Bremse für neue Wörter an/aus (B-82)
   | { type: 'roundMin'; minutes: number } // Elternbereich: Dauer einer Runde (B-93)
   | { type: 'day' } // App wieder sichtbar: an einem neuen Tag wachen alle auf (B-65)
@@ -108,10 +121,15 @@ export function canToggleWord(data: ChildData, language: Language, id: string): 
   return activeWords(data, language).some((w) => w.id !== id);
 }
 
-/** B-109: Einschalten geht immer; Ausschalten nur, wenn danach noch ein Samen an ist. */
-export function canToggleFlower(data: ChildData, flower: Flower): boolean {
-  const on = data.enabledFlowers;
-  return !on.includes(flower) || on.length > 1;
+/** B-114: Der Garten ist an, solange mindestens ein Samen freigegeben ist. Sonst taucht er
+ *  nirgends auf: kein Garten-Button, keine Samenwahl, kein Wachstum (Pflanzen bleiben erhalten). */
+export function gardenOn(data: ChildData): boolean {
+  return data.enabledFlowers.length > 0;
+}
+
+/** B-112/B-114: Garten-Button nur mit Pflanze und eingeschaltetem Garten. */
+export function showGarden(data: ChildData): boolean {
+  return gardenOn(data) && data.garden.plants.length > 0;
 }
 
 /** Auswahl passend zu Schlaf und aktiven Sprachen (B-65/B-73): Nicht mehr Wählbares
@@ -228,7 +246,8 @@ export function reduce(
     const data = consume(next.data, today);
     // B-112: Nur eine abgeschlossene Lernreise (Zeit abgelaufen, letzte Bewertung) zählt für den
     // Garten – ein Abbruch per [×] nie.
-    if (event.type !== 'rate') return { ...next, data, harvest: null };
+    // B-114: ist der Garten aus, zählt nichts
+    if (event.type !== 'rate' || !gardenOn(data)) return { ...next, data, harvest: null };
     const { garden, harvest } = completeRound(data.garden, event.at);
     return { ...next, data: { ...data, garden }, harvest };
   }
@@ -334,7 +353,7 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
     const data = withRestSettings(state.data);
     return { ...state, view: allAsleep(data) ? 'sleep' : 'start', data, harvest: null };
   }
-  if (event.type === 'garden' && state.data.garden.plants.length === 0) return state;
+  if (event.type === 'garden' && !showGarden(state.data)) return state;
   if (event.type === 'toggleSleep' && state.view === 'admin') {
     // Auswahl erst beim Verlassen anpassen (leave) – so bleibt sie über mehrere Tipps erhalten
     return { ...state, data: toggleSleep(state.data, event.companion, today) };
@@ -354,11 +373,22 @@ function step(state: AppState, event: AppEvent, today: string): AppState {
     return { ...state, data: { ...state.data, [key]: !state.data[key] } };
   }
   if (event.type === 'toggleFlower' && state.view === 'admin') {
-    const { flower } = event;
-    if (!canToggleFlower(state.data, flower)) return state;
+    const { flower } = event; // B-114: auch der letzte lässt sich ausschalten (Garten aus)
     const on = state.data.enabledFlowers;
     const enabledFlowers = FLOWERS.filter((f) => (f === flower ? !on.includes(f) : on.includes(f)));
     return { ...state, data: { ...state.data, enabledFlowers } };
+  }
+  if (state.view === 'admin' && gardenOn(state.data)) {
+    const change = (garden: Garden): AppState =>
+      garden === state.data.garden ? state : { ...state, data: { ...state.data, garden } };
+    if (event.type === 'gardenFlower') {
+      return change(setCurrentFlower(state.data.garden, event.flower, event.at));
+    }
+    if (event.type === 'gardenStage')
+      return change(setCurrentStage(state.data.garden, event.stage));
+    if (event.type === 'gardenRounds') {
+      return change(setCurrentRounds(state.data.garden, event.rounds));
+    }
   }
   if (event.type === 'toggleBrake' && state.view === 'admin') {
     return { ...state, data: { ...state.data, brakeNew: !state.data.brakeNew } };

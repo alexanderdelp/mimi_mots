@@ -1,4 +1,4 @@
-// B-109: Samen im Elternbereich freigeben (Reiter „Sonstiges“) und die zerschnittenen Blumenbilder.
+// B-109: Samen im Elternbereich freigeben (Reiter „Sonstiges“, seit B-114 „Samen“) und die zerschnittenen Blumenbilder.
 import { readdirSync } from 'node:fs';
 import sharp from 'sharp';
 import { expect, test, type Page } from './fixtures';
@@ -9,7 +9,7 @@ const NAMES = ['Sonnenblume', 'Pfingstrose', 'Stern-Clematis'];
 async function openOther(page: Page) {
   await page.goto('./');
   await hold(page, '.app-header__icon');
-  await page.getByRole('tab', { name: 'Sonstiges' }).click();
+  await page.getByRole('tab', { name: 'Samen' }).click(); // B-114
   await settle(page);
 }
 
@@ -17,7 +17,7 @@ test.describe('B-109 Samen', () => {
   test('AT-109.1: Zeile „Samen“ mit drei Kacheln, anfangs alle markiert', async ({ page }) => {
     await prepare(page, {});
     await openOther(page);
-    await expect(page.locator('.admin__title', { hasText: 'Samen' })).toBeVisible();
+    await expect(page.locator('.admin__title', { hasText: /^Samen$/ })).toBeVisible();
     const sizes = [];
     for (const name of NAMES) {
       const tile = btn(page, name);
@@ -36,7 +36,7 @@ test.describe('B-109 Samen', () => {
     expect(new Set(sizes.map(String)).size).toBe(1); // gleich groß
   });
 
-  test('AT-109.2/109.3: an- und ausschalten, gemerkt, der letzte bleibt an', async ({ page }) => {
+  test('AT-109.2/114.5: an- und ausschalten, gemerkt, auch der letzte', async ({ page }) => {
     await prepare(page, {});
     await openOther(page);
     await btn(page, 'Pfingstrose').click();
@@ -44,18 +44,18 @@ test.describe('B-109 Samen', () => {
     expect((await stored(page)).enabledFlowers).toEqual(['sunflower', 'clematis']);
 
     await btn(page, 'Sonnenblume').click();
-    await expect(btn(page, 'Stern-Clematis')).toHaveAttribute('aria-disabled', 'true');
-    await btn(page, 'Stern-Clematis').click({ force: true }); // letzter: bleibt an
-    await expect(btn(page, 'Stern-Clematis')).toHaveAttribute('aria-pressed', 'true');
     expect((await stored(page)).enabledFlowers).toEqual(['clematis']);
+    await btn(page, 'Stern-Clematis').click(); // B-114: auch der letzte → Garten aus
+    await expect(btn(page, 'Stern-Clematis')).toHaveAttribute('aria-pressed', 'false');
+    expect((await stored(page)).enabledFlowers).toEqual([]);
 
     await page.reload();
     await hold(page, '.app-header__icon');
-    await page.getByRole('tab', { name: 'Sonstiges' }).click();
-    await expect(btn(page, 'Sonnenblume')).toHaveAttribute('aria-pressed', 'false');
-    await expect(btn(page, 'Pfingstrose')).toHaveAttribute('aria-pressed', 'false');
+    await page.getByRole('tab', { name: 'Samen' }).click();
+    for (const name of NAMES)
+      await expect(btn(page, name)).toHaveAttribute('aria-pressed', 'false');
     await btn(page, 'Pfingstrose').click();
-    await expect(btn(page, 'Stern-Clematis')).not.toHaveAttribute('aria-disabled', 'true');
+    await btn(page, 'Stern-Clematis').click();
     expect((await stored(page)).enabledFlowers).toEqual(['peony', 'clematis']);
   });
 

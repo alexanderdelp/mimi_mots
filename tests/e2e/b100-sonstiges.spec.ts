@@ -4,7 +4,9 @@ import { expect, isPhone, minSize, test, type Page } from './fixtures';
 import { btn, hold, overflow, prepare, settle, stored } from './views';
 
 const slider = (page: Page) => page.getByRole('slider', { name: 'Rundendauer' });
-const minutes = (page: Page) => page.locator('.admin__minutes');
+/** B-114: nur im Reiter „Sonstiges“ (der Reiter „Samen“ hat eigene Regler). */
+const OTHER = '[aria-labelledby="admin-tab-sonstiges"]';
+const minutes = (page: Page) => page.locator(`${OTHER} .admin__minutes`);
 
 async function openOther(page: Page) {
   await page.goto('./');
@@ -21,15 +23,11 @@ const box = async (page: Page, selector: string): Promise<Box> =>
 async function edges(page: Page) {
   const out: Record<string, [number, number]> = {};
   const span = (a: Box, b: Box = a): [number, number] => [a.x, b.x + b.width];
-  out.regler = span(await box(page, '.admin__slider'));
+  out.regler = span(await box(page, `${OTHER} .admin__slider`));
   out.tiere = span(
     (await btn(page, 'Mimi').boundingBox())!,
     (await btn(page, 'Mots').boundingBox())!,
   );
-  out.samen = span(
-    (await btn(page, 'Sonnenblume').boundingBox())!,
-    (await btn(page, 'Stern-Clematis').boundingBox())!,
-  ); // B-109
   out.tutorial = span(
     (await btn(page, 'Tutorial sprechen').boundingBox())!,
     (await btn(page, 'Tutorial hören').boundingBox())!,
@@ -55,7 +53,7 @@ async function thumbX(page: Page, value: number) {
 
 const thumbSize = (page: Page) =>
   page
-    .locator('.admin__track')
+    .locator(`${OTHER} .admin__track`)
     .evaluate((el) => parseFloat(getComputedStyle(el).getPropertyValue('--thumb')));
 
 /** Farben einzelner Bildpunkte des Reglers (CSS-Pixel, relativ zum Regler) aus einem Screenshot;
@@ -258,7 +256,7 @@ test.describe('B-100 Sonstiges: Flucht und Schieberegler', () => {
       const b = (await slider(page).boundingBox())!;
       const mid = b.height / 2;
       const rail = await page
-        .locator('.admin__track')
+        .locator(`${OTHER} .admin__track`)
         .evaluate((el) => parseFloat(getComputedStyle(el).getPropertyValue('--rail')));
       const x = (v: number) => thumb / 2 + ((v - 3) / 7) * (b.width - thumb);
       const tickY = mid + rail / 2 + (isPhone() ? 6 : 8);
@@ -308,16 +306,7 @@ test.describe('B-100 Sonstiges: Flucht und Schieberegler', () => {
       await prepare(page, {});
       await openOther(page);
       expect((await slider(page).boundingBox())!.height).toBeGreaterThanOrEqual(44);
-      for (const name of [
-        'Mimi',
-        'Mots',
-        'Sonnenblume', // B-109
-        'Pfingstrose',
-        'Stern-Clematis',
-        'Tutorial sprechen',
-        'Tutorial hören',
-        'Bremsen',
-      ]) {
+      for (const name of ['Mimi', 'Mots', 'Tutorial sprechen', 'Tutorial hören', 'Bremsen']) {
         const b = (await btn(page, name).boundingBox())!;
         expect(b.width, name).toBeGreaterThanOrEqual(minSize(88));
         expect(b.height, name).toBeGreaterThanOrEqual(minSize(88));

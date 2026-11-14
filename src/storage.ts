@@ -231,10 +231,10 @@ function sanitizeEnabled(raw: unknown): Language[] {
   return withWords(subsetOf(LANGUAGES, raw));
 }
 
-/** B-109: bekannte Samen in fester Reihenfolge; keiner (oder fehlt) → alle. */
+/** B-109: bekannte Samen in fester Reihenfolge; fehlt (oder kein Array) → alle.
+ *  B-114: eine leere Liste bleibt leer – dann ist der Garten aus. */
 function sanitizeFlowers(raw: unknown): Flower[] {
-  const flowers = subsetOf(FLOWERS, raw);
-  return flowers.length > 0 ? flowers : [...FLOWERS];
+  return Array.isArray(raw) ? subsetOf(FLOWERS, raw) : [...FLOWERS];
 }
 
 /** Nur Wörter des Wortschatzes (B-84); sind alle einer Sprache aus, sind alle wieder an. */

@@ -30,6 +30,7 @@ test.describe('B-60 Layout-Prüfung', () => {
     'schlafseite',
     'elternbereich',
     'elternbereich-sonstiges',
+    'elternbereich-samen', // B-114
   ]) {
     test(`AT-60.3: Screenshot ${name}`, { tag: '@layout' }, async ({ page }) => {
       const view = VIEWS.find((v) => v.name === name)!;

@@ -227,6 +227,16 @@
 }
 
 /* Reiter (B-83) rechts in der Kopfleiste: wie Textbuttons, der aktive wie eine gewählte Kachel */
+/* B-114: drei Reiter sind breiter als die rechte Hälfte der Kopfleiste – der Titel steht hier
+   mittig zwischen Zurück-Pfeil und Reitern statt in der Bildschirmmitte, damit nichts überlappt */
+.view--admin .app-header {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.view--admin .app-header__brand {
+  justify-self: center;
+}
+
 .admin__tabs {
   display: flex;
   gap: 12px;
@@ -401,7 +411,8 @@
   display: flex;
 }
 
-/* Striche unter der Spur, je einer unter jeder Griffposition (Mitte des Griffs) */
+/* Striche unter der Spur, je einer unter jeder Griffposition (Mitte des Griffs); --steps setzt
+   admin.ts (Abstände zwischen den Positionen) */
 .admin__track::before {
   content: '';
   position: absolute;
@@ -412,7 +423,7 @@
   background: repeating-linear-gradient(
     to right,
     var(--lila-500) 0 2px,
-    transparent 2px calc((100% - 2px) / 7)
+    transparent 2px calc((100% - 2px) / var(--steps, 7))
   );
   pointer-events: none;
 }
@@ -486,6 +497,36 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--lila-900);
+}
+
+/* B-114: Bild am Ende der Regler im Reiter „Samen“ (Samen bzw. Stufe), gleiche Spalte wie die Dauer */
+.admin__picture-value {
+  display: grid;
+  place-items: center;
+  height: 64px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--lila-900);
+}
+
+.admin__picture {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+/* „2 von 4“ braucht etwas mehr Platz als „5 Min.“ */
+.admin__garden .admin__slider {
+  grid-template-columns: minmax(0, 1fr) 4.6em;
+}
+
+/* B-114: gesperrte Regler (ohne wachsende Pflanze, Garten aus) blass */
+.admin__slider[data-disabled='true'] {
+  opacity: 0.45;
+}
+
+.admin__slider[data-disabled='true'] .admin__range {
+  cursor: default;
 }
 
 .admin__empty {
@@ -682,6 +723,16 @@
 
   .admin__minutes {
     font-size: 16px;
+  }
+
+  .admin__picture-value {
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .admin__picture {
+    width: 40px;
+    height: 40px;
   }
 
   .admin__empty {

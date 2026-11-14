@@ -14,7 +14,7 @@ import { icon } from '../components/icons';
 import { LANGUAGE_INFO, flagUrl } from '../data/languages';
 import { MODE_INFO } from '../data/modes';
 import type { Language } from '../data/words';
-import { isComplete, playableLanguages, type Store } from '../state';
+import { isComplete, playableLanguages, showGarden, type Store } from '../state';
 import { MODES, type Mode } from '../storage';
 import type { ViewHandle } from './view';
 
@@ -118,7 +118,7 @@ export function renderStart(store: Store): ViewHandle {
   view.dataset.view = 'start';
   // B-107: Buch zu „Meine Wörter“; B-112: daneben der Garten, sobald eine Pflanze da ist
   const buttons = childButtons(
-    data.garden.plants.length > 0,
+    showGarden(data), // B-114: nicht, wenn der Garten aus ist
     () => store.dispatch({ type: 'words' }),
     () => store.dispatch({ type: 'garden' }),
   );

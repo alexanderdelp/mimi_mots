@@ -9,6 +9,9 @@ import {
   emptyGarden,
   plant,
   rollNeed,
+  setCurrentFlower,
+  setCurrentRounds,
+  setCurrentStage,
   type Garden,
 } from '../src/garden';
 
@@ -81,5 +84,51 @@ describe('Garten (B-112)', () => {
     const replanted = plant(next.garden, 'peony', AT);
     expect(replanted.plants).toHaveLength(3);
     expect(replanted.plants[2]).toEqual({ flower: 'peony', stage: PLANTED });
+  });
+});
+
+describe('Einstellen im Elternbereich (B-114)', () => {
+  const growing: Garden = {
+    plants: [
+      { flower: 'sunflower', stage: BLOOM },
+      { flower: 'clematis', stage: 2 },
+    ],
+    rounds: 1,
+    need: 4,
+  };
+  const done: Garden = { ...growing, rounds: 0, plants: [growing.plants[0]] };
+
+  it('aktuelle Blume tauschen, entfernen; im leeren Garten einpflanzen', () => {
+    const swapped = setCurrentFlower(growing, 'peony', AT);
+    expect(swapped.plants[1]).toEqual({ flower: 'peony', stage: 2 });
+    expect(swapped.rounds).toBe(1);
+    expect(setCurrentFlower(growing, 'clematis', AT)).toBe(growing);
+    const removed = setCurrentFlower(growing, null, AT);
+    expect(removed.plants).toEqual([{ flower: 'sunflower', stage: BLOOM }]);
+    expect(removed.rounds).toBe(0);
+    expect(setCurrentFlower(done, 'peony', AT).plants).toEqual([{ flower: 'peony', stage: BLOOM }]);
+    expect(setCurrentFlower(emptyGarden(), null, AT)).toEqual(emptyGarden());
+    const planted = setCurrentFlower(emptyGarden(), 'peony', AT);
+    expect(planted.plants).toEqual([{ flower: 'peony', stage: PLANTED }]);
+    expect(planted).toMatchObject({ rounds: 0, need: rollNeed(AT) });
+  });
+
+  it('Stufe von eingepflanzt bis Blüte; mit der Blüte ist sie fertig, zurück geht auch', () => {
+    expect(setCurrentStage(growing, 4).plants[1].stage).toBe(4);
+    expect(setCurrentStage(growing, 4).rounds).toBe(1);
+    const bloomed = setCurrentStage(growing, BLOOM);
+    expect(bloomed.rounds).toBe(0);
+    expect(canPlant(bloomed)).toBe(true);
+    expect(canPlant(setCurrentStage(done, 3))).toBe(false);
+    for (const bad of [0, BLOOM + 1, 2.5]) expect(setCurrentStage(growing, bad)).toBe(growing);
+    expect(setCurrentStage(emptyGarden(), 2)).toEqual(emptyGarden());
+  });
+
+  it('Runden von 0 bis need − 1, nicht nach der Blüte', () => {
+    expect(setCurrentRounds(growing, 3).rounds).toBe(3);
+    expect(setCurrentRounds(growing, 0).rounds).toBe(0);
+    for (const bad of [-1, 4, 1.5]) expect(setCurrentRounds(growing, bad)).toBe(growing);
+    expect(setCurrentRounds(done, 1)).toBe(done);
+    expect(completeRound(setCurrentRounds(growing, 3), AT).harvest).toBe('grew');
   });
 });
