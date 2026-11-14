@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './fixtures';
 import words from '../../src/data/words.json' with { type: 'json' };
-import { fakeMedia, mediaCalls } from './helpers';
+import { fakeMedia, mediaCalls, vocabularyIds } from './helpers';
 import { btn, hold } from './views';
 
 // B-91: Halten über die Testuhr statt echter Wartezeit
@@ -68,7 +68,7 @@ test.describe('B-31 Audio-Modul', () => {
       await startRound(page, language);
       await expect
         .poll(() => requested.filter((p) => p.includes(`/audio/${lang}/`)).length)
-        .toBe(words.length);
+        .toBe(vocabularyIds(lang).length); // B-84: nur Wörter mit Aufnahme
       expect(requested.filter((p) => p.includes(`/audio/${other}/`))).toEqual([]);
     });
   }

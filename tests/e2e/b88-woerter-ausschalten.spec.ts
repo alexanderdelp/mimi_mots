@@ -124,7 +124,7 @@ test.describe('B-88 Wörter ein-/ausschalten', () => {
           els.map((e) => e.getBoundingClientRect()).map((r) => [r.width, r.height]),
         );
       expect(sizes.length).toBe(FR.length);
-      const min = isPhone() ? 28 : 44;
+      const min = isPhone() ? 20 : 44; // B-119: auf dem iPhone bei Bedarf bis 20 px
       for (const [w, h] of sizes) {
         expect(w).toBeGreaterThanOrEqual(min - 0.5);
         expect(h).toBeGreaterThanOrEqual(min - 0.5);

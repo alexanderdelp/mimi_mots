@@ -41,8 +41,8 @@ function wordsFromRequirements(): Omit<Word, 'syllables'>[] {
 }
 
 describe('Wortliste', () => {
-  it('enthält 61 Wörter (50 + Zahlen 0–10, B-68)', () => {
-    expect(WORDS).toHaveLength(61);
+  it('enthält 89 Wörter (50 + Zahlen 0–10, B-68, + 28 neue, B-119)', () => {
+    expect(WORDS).toHaveLength(89);
   });
 
   it('hat eindeutige ids', () => {
@@ -170,5 +170,56 @@ describe('Zahlen 0–10 (B-68)', () => {
       expect(w.fr, w.id).not.toMatch(/^(le |la |l'|un |une )\S/);
       expect(w.de, w.id).toBe(w.de.toLowerCase());
     }
+  });
+});
+
+describe('Neue Wörter (B-119)', () => {
+  const NEW = [
+    ['schaf', '🐑', 'Schaf', 'sheep', 'le mouton', '羊', 'ひつじ'],
+    ['huhn', '🐔', 'Huhn', 'chicken', 'la poule', '鶏', 'にわとり'],
+    ['schildkroete', '🐢', 'Schildkröte', 'turtle', 'la tortue', '亀', 'かめ'],
+    ['giraffe', '🦒', 'Giraffe', 'giraffe', 'la girafe', 'キリン', 'キリン'],
+    ['affe', '🐒', 'Affe', 'monkey', 'le singe', '猿', 'さる'],
+    ['biene', '🐝', 'Biene', 'bee', "l'abeille", '蜂', 'はち'],
+    ['schnecke', '🐌', 'Schnecke', 'snail', "l'escargot", 'かたつむり', 'かたつむり'],
+    ['fuchs', '🦊', 'Fuchs', 'fox', 'le renard', '狐', 'きつね'],
+    ['pinguin', '🐧', 'Pinguin', 'penguin', 'le pingouin', 'ペンギン', 'ペンギン'],
+    ['eule', '🦉', 'Eule', 'owl', 'le hibou', 'ふくろう', 'ふくろう'],
+    ['trauben', '🍇', 'Trauben', 'grapes', 'le raisin', 'ぶどう', 'ぶどう'],
+    ['wassermelone', '🍉', 'Wassermelone', 'watermelon', 'la pastèque', 'すいか', 'すいか'],
+    ['tomate', '🍅', 'Tomate', 'tomato', 'la tomate', 'トマト', 'トマト'],
+    ['kartoffel', '🥔', 'Kartoffel', 'potato', 'la pomme de terre', 'じゃがいも', 'じゃがいも'],
+    ['pizza', '🍕', 'Pizza', 'pizza', 'la pizza', 'ピザ', 'ピザ'],
+    ['schokolade', '🍫', 'Schokolade', 'chocolate', 'le chocolat', 'チョコレート', 'チョコレート'],
+    ['auge', '👁️', 'Auge', 'eye', "l'œil", '目', 'め'],
+    ['ohr', '👂', 'Ohr', 'ear', "l'oreille", '耳', 'みみ'],
+    ['mund', '👄', 'Mund', 'mouth', 'la bouche', '口', 'くち'],
+    ['fuss', '🦶', 'Fuß', 'foot', 'le pied', '足', 'あし'],
+    ['regenbogen', '🌈', 'Regenbogen', 'rainbow', "l'arc-en-ciel", '虹', 'にじ'],
+    ['wolke', '☁️', 'Wolke', 'cloud', 'le nuage', '雲', 'くも'],
+    ['geschenk', '🎁', 'Geschenk', 'present', 'le cadeau', 'プレゼント', 'プレゼント'],
+    ['teddy', '🧸', 'Teddy', 'teddy bear', 'le nounours', 'テディベア', 'テディベア'],
+    ['bett', '🛏️', 'Bett', 'bed', 'le lit', 'ベッド', 'ベッド'],
+    ['stuhl', '🪑', 'Stuhl', 'chair', 'la chaise', '椅子', 'いす'],
+    ['schluessel', '🔑', 'Schlüssel', 'key', 'la clé', '鍵', 'かぎ'],
+    ['flugzeug', '✈️', 'Flugzeug', 'plane', "l'avion", '飛行機', 'ひこうき'],
+  ] as const;
+
+  it('AT-119.1: alle 28 Wörter mit Emoji, Deutsch, Englisch, Französisch und Japanisch', () => {
+    expect(WORDS.slice(61).map((w) => [w.id, w.emoji, w.de, w.en, w.fr, w.ja, w.jaKana])).toEqual(
+      NEW.map((row) => [...row]),
+    );
+  });
+
+  it.each([
+    ['Schildkröte', ['Schild', 'krö', 'te']],
+    ['Wassermelone', ['Was', 'ser', 'me', 'lo', 'ne']],
+    ['Schokolade', ['Scho', 'ko', 'la', 'de']],
+    ['Regenbogen', ['Re', 'gen', 'bo', 'gen']],
+    ['Schlüssel', ['Schlüs', 'sel']],
+    ['Pinguin', ['Pin', 'guin']],
+    ['Fuß', ['Fuß']],
+  ])('AT-119.1: Silben %s', (de, syllables) => {
+    expect(WORDS.find((w) => w.de === de)!.syllables).toEqual(syllables);
   });
 });
