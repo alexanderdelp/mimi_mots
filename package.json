@@ -1,7 +1,7 @@
 {
   "name": "mimi-mots",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Spielerisch erste Wörter in anderen Sprachen lernen – mit Mimi und Mots.",
   "type": "module",
   "scripts": {
