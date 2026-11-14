@@ -4,7 +4,7 @@ import { btn } from './views';
 const AVATARS = ['cat', 'pony'].flatMap((a) =>
   ['sitting', 'pointing', 'idle', 'waving'].map((p) => `avatars/${a}_${p}.png`),
 );
-const FLAGS = ['flags/flag_gb.svg', 'flags/flag_fr.svg', 'flags/flag_jp.svg', 'flags/flag_it.svg'];
+const FLAGS = ['flags/flag_gb.svg', 'flags/flag_fr.svg', 'flags/flag_jp.svg'];
 const ICONS = [
   'icons/icon.svg',
   'icons/icon-180.png',

@@ -649,8 +649,8 @@ describe('Elternbereich (B-69)', () => {
   it('resetProgress leert nur die gewählte Sprache im gewählten Modus (B-89)', () => {
     const data = complete();
     const entry = { box: 3, seen: 4, lastSeenAt: '2026-10-29T10:00:00.000Z' };
-    data.progress = { en: { apfel: entry }, fr: { hund: entry }, ja: { katze: entry }, it: {} };
-    data.listenProgress = { en: {}, fr: { maus: entry }, ja: {}, it: {} };
+    data.progress = { en: { apfel: entry }, fr: { hund: entry }, ja: { katze: entry } };
+    data.listenProgress = { en: {}, fr: { maus: entry }, ja: {} };
     const next = reduce(at('admin', data), {
       type: 'resetProgress',
       language: 'fr',
@@ -660,7 +660,6 @@ describe('Elternbereich (B-69)', () => {
       en: { apfel: entry },
       fr: {},
       ja: { katze: entry },
-      it: {},
     });
     expect(next.data.listenProgress).toBe(data.listenProgress);
     expect(next.view).toBe('admin');
@@ -698,10 +697,10 @@ describe('Aktive Sprachen (B-73)', () => {
 
   it('AT-73.2: Elternbereich schaltet eine Sprache an und aus', () => {
     let state = at('admin');
-    state = reduce(state, { type: 'toggleLanguage', language: 'it' }); // it hat Wörter (B-84)
-    expect(state.data.enabledLanguages).toEqual(['en', 'fr', 'it']);
+    state = reduce(state, { type: 'toggleLanguage', language: 'ja' }); // ja hat Wörter (B-84)
+    expect(state.data.enabledLanguages).toEqual(['en', 'fr', 'ja']);
     state = reduce(state, { type: 'toggleLanguage', language: 'en' });
-    expect(state.data.enabledLanguages).toEqual(['fr', 'it']);
+    expect(state.data.enabledLanguages).toEqual(['fr', 'ja']);
   });
 
   it('AT-86.3: Sprache ohne Wörter lässt sich nicht einschalten', () => {
@@ -740,10 +739,10 @@ describe('Aktive Sprachen (B-73)', () => {
 
   it('AT-73.4: gewählte Sprache ausgeschaltet → keine Wahl, bei nur einer aktiven → diese', () => {
     let state = at('admin'); // gewählt: en, aktiv: en, fr
-    state = reduce(state, { type: 'toggleLanguage', language: 'it' }); // it hat Wörter (B-84)
+    state = reduce(state, { type: 'toggleLanguage', language: 'ja' }); // ja hat Wörter (B-84)
     state = reduce(state, { type: 'toggleLanguage', language: 'en' });
     expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBeNull();
-    state = reduce(state, { type: 'toggleLanguage', language: 'it' });
+    state = reduce(state, { type: 'toggleLanguage', language: 'ja' });
     expect(reduce(state, { type: 'leave' }, '2026-10-30').data.settings.language).toBe('fr');
   });
 });
@@ -884,7 +883,7 @@ describe('Wörter ein-/ausschalten (B-88)', () => {
 
   it('AT-88.1: toggleWord schaltet im Elternbereich aus und wieder ein, nur in dieser Sprache', () => {
     const off = toggle(toggle(at('admin'), 'katze'), 'hund');
-    expect(off.data.disabledWords).toEqual({ en: ['katze', 'hund'], fr: [], ja: [], it: [] });
+    expect(off.data.disabledWords).toEqual({ en: ['katze', 'hund'], fr: [], ja: [] });
     expect(activeWords(off.data, 'en').map((w) => w.id)).not.toContain('hund');
     expect(activeWords(off.data, 'fr').map((w) => w.id)).toContain('hund');
     expect(toggle(off, 'hund').data.disabledWords.en).toEqual(['katze']);
@@ -926,7 +925,7 @@ describe('Spielbare Sprachen (B-81/B-84)', () => {
 
   it('nur eingeschaltet und mit Wortschatz', () => {
     const data = complete();
-    data.enabledLanguages = ['en', 'fr', 'ja', 'it'];
+    data.enabledLanguages = ['en', 'fr', 'ja'];
     const expected = LANGUAGES.filter((l) => hasVocabulary(l));
     expect(playableLanguages(data)).toEqual(expected);
     data.enabledLanguages = ['fr'];

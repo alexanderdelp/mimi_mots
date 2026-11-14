@@ -100,8 +100,9 @@ export function renderStart(store: Store): ViewHandle {
 
   companions.el.classList.add('start__group--companion');
   languages.el.classList.add('start__group--language');
-  // eine Sprache: eine Spalte, sonst zwei (2 × 2 bei vier Sprachen)
-  languages.el.style.setProperty('--language-columns', String(Math.min(2, languages.tiles.size)));
+  // B-118: alle Sprachen in einer Reihe (höchstens drei); bei drei schmalere Kacheln
+  languages.el.style.setProperty('--language-columns', String(languages.tiles.size));
+  languages.el.classList.toggle('start__group--three', languages.tiles.size >= 3);
   modes.el.classList.add('start__group--mode');
 
   const groups = document.createElement('div');

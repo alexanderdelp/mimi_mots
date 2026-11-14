@@ -15,7 +15,7 @@ export async function enableJapanese(page: Page) {
   await enableLanguages(page, ['en', 'fr', 'ja']);
 }
 
-/** Schaltet die Sprachen für den Test frei (Japanisch und Italienisch sind standardmäßig aus). */
+/** Schaltet die Sprachen für den Test frei (Japanisch ist standardmäßig aus). */
 export async function enableLanguages(page: Page, enabled: string[]) {
   await page.addInitScript(
     ([enabledLanguages, id]) => {
@@ -24,7 +24,7 @@ export async function enableLanguages(page: Page, enabled: string[]) {
       const child = {
         id,
         settings: { companion: null, language: null, mode: 'speak' },
-        progress: { en: {}, fr: {}, ja: {}, it: {} },
+        progress: { en: {}, fr: {}, ja: {} },
         enabledLanguages,
       };
       localStorage.setItem(

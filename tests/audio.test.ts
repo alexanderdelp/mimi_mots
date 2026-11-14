@@ -97,7 +97,6 @@ describe('createAudioPlayer (B-31)', () => {
     jaKana: 'りんご',
     en: 'apple',
     fr: 'la pomme',
-    it: 'la mela',
   };
 
   /** Attrappe für ein Audio-Element; play() liefert das übergebene Ergebnis. */

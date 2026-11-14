@@ -2,8 +2,7 @@
 
 Ablauf je Wort und Sprache:
   1. Quelle: eigene Aufnahme aus audio-overrides/<lang>/<id>.(mp3|wav|m4a), sonst TTS
-     (EN: Piper en_US-ljspeech-high; FR: Kokoro ff_siwis; JA: VOICEVOX 冥鳴ひまり aus `jaKana`;
-     IT: Kokoro if_sara).
+     (EN: Piper en_US-ljspeech-high; FR: Kokoro ff_siwis; JA: VOICEVOX 冥鳴ひまり aus `jaKana`).
   2. Nachbearbeitung mit ffmpeg: Stille vorn/hinten weg, 150 ms Vorlauf, Lautheit −16 LUFS,
      MP3 mono 64 kbit/s.
 Vorhandene Dateien werden nur neu erzeugt, wenn eine neuere Override-Datei vorliegt oder
@@ -34,9 +33,8 @@ VOICES = {
     'en': {'engine': 'piper', 'voice': 'en_US-ljspeech-high'},
     'fr': {'engine': 'kokoro', 'voice': 'ff_siwis', 'lang': 'fr-fr'},
     'ja': {'engine': 'voicevox', 'voice': '冥鳴ひまり', 'style': 14},
-    'it': {'engine': 'kokoro', 'voice': 'if_sara', 'lang': 'it'},
 }
-DEFAULT_LANGS = ['en', 'fr', 'ja', 'it']
+DEFAULT_LANGS = ['en', 'fr', 'ja']
 # B-78: Stimmoptionen je Sprache für die Stimmwahl-Seite (tools/stimmwahl.html). Je Wort steht die
 # Wahl (Stimme + Variante) in audio-choices.json; ohne Eintrag gilt VOICES mit Variante „word“ –
 # seit B-103 nur, solange die Sprache noch gar keine Auswahl hat (die App nutzt nur gewählte, B-84).
@@ -53,13 +51,6 @@ VOICE_OPTIONS = {
         'kokoro-siwis': VOICES['fr'],
         'piper-tom': {'engine': 'piper', 'voice': 'fr_FR-tom-medium'},
         'melo-fr': {'engine': 'melo', 'voice': 'FR', 'speaker': 'FR'},
-    },
-    # B-80: Kokoro hat zwei italienische Stimmen; Piper riccardo (M-AILABS, frei nutzbar) nur in
-    # x_low-Qualität. Piper paola entfällt (Lessac-Basis, nur Forschung), MeloTTS kann kein Italienisch.
-    'it': {
-        'kokoro-sara': VOICES['it'],
-        'kokoro-nicola': {'engine': 'kokoro', 'voice': 'im_nicola', 'lang': 'it'},
-        'piper-riccardo': {'engine': 'piper', 'voice': 'it_IT-riccardo-x_low'},
     },
     # B-85: Japanisch hat nur eine Stimme – die Stimmwahl dient hier der Prüfung („Wort“, „Wort。“, keins)
     'ja': {'voicevox-himari': VOICES['ja']},

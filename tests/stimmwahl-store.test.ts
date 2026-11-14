@@ -11,10 +11,10 @@ import {
   readState,
 } from '../tools/stimmwahl-store';
 
-const CHECK = `| id | Deutsch | Englisch | ok | Französisch | ok | Japanisch | ok | Italienisch | ok |
-|---|---|---|---|---|---|---|---|---|---|
-| apfel | 🍎 Apfel | apple | [ ] | la pomme | [x] | りんご | [ ] | la mela | [ ] |
-| ei | 🥚 Ei | egg | [ ] | l'œuf | [ ] | 卵（たまご） | [ ] | l'uovo | [ ] |
+const CHECK = `| id | Deutsch | Englisch | ok | Französisch | ok | Japanisch | ok |
+|---|---|---|---|---|---|---|---|
+| apfel | 🍎 Apfel | apple | [ ] | la pomme | [x] | りんご | [ ] |
+| ei | 🥚 Ei | egg | [ ] | l'œuf | [ ] | 卵（たまご） | [ ] |
 `;
 
 function sandbox() {
@@ -38,9 +38,7 @@ describe('Stimmwahl (B-78)', () => {
 
   it('markChecked hakt nur das Wort in der Sprache ab', () => {
     const md = markChecked(CHECK, 'ei', 'en');
-    expect(md).toContain(
-      "| ei | 🥚 Ei | egg | [x] | l'œuf | [ ] | 卵（たまご） | [ ] | l'uovo | [ ] |",
-    );
+    expect(md).toContain("| ei | 🥚 Ei | egg | [x] | l'œuf | [ ] | 卵（たまご） | [ ] |");
     expect(md).toContain('| apfel | 🍎 Apfel | apple | [ ] |');
   });
 
@@ -53,11 +51,9 @@ describe('Stimmwahl (B-78)', () => {
     expect(state.checked.ei.en).toBe(true);
   });
 
-  it('AT-80.3: hakt Italienisch in der eigenen Spalte ab', () => {
-    const md = markChecked(CHECK, 'ei', 'it');
-    expect(md).toContain(
-      "| ei | 🥚 Ei | egg | [ ] | l'œuf | [ ] | 卵（たまご） | [ ] | l'uovo | [x] |",
-    );
+  it('hakt Japanisch in der letzten Spalte ab', () => {
+    const md = markChecked(CHECK, 'ei', 'ja');
+    expect(md).toContain("| ei | 🥚 Ei | egg | [ ] | l'œuf | [ ] | 卵（たまご） | [x] |");
   });
 
   it('AT-85.1: „keins“ löscht die App-Datei, merkt null und nimmt den Haken weg', () => {

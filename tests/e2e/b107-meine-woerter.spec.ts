@@ -86,7 +86,7 @@ test.describe('B-107 Meine Wörter', () => {
     await expect(flags).toHaveCount(2);
     await expect(btn(page, 'Englisch')).toHaveAttribute('aria-pressed', 'false');
     await expect(btn(page, 'Französisch')).toHaveAttribute('aria-pressed', 'true');
-    await expect(btn(page, 'Italienisch')).toHaveCount(0);
+    await expect(btn(page, 'Japanisch')).toHaveCount(0);
     await expect(btn(page, 'Sprechen')).toHaveAttribute('aria-pressed', 'true');
     await expect(btn(page, 'Hören')).toHaveAttribute('aria-pressed', 'false');
     const before = await stored(page);
