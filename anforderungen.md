@@ -259,6 +259,34 @@ FR-Nomen mit Artikel; EN ohne Artikel; Farben und Zahlen ohne Artikel. JA in üb
 | acht | 8️⃣ | acht | eight | huit | 八 | はち |
 | neun | 9️⃣ | neun | nine | neuf | 九 | きゅう |
 | zehn | 🔟 | zehn | ten | dix | 十 | じゅう |
+| schaf | 🐑 | Schaf | sheep | le mouton | 羊 | ひつじ |
+| huhn | 🐔 | Huhn | chicken | la poule | 鶏 | にわとり |
+| schildkroete | 🐢 | Schildkröte | turtle | la tortue | 亀 | かめ |
+| giraffe | 🦒 | Giraffe | giraffe | la girafe | キリン | キリン |
+| affe | 🐒 | Affe | monkey | le singe | 猿 | さる |
+| biene | 🐝 | Biene | bee | l'abeille | 蜂 | はち |
+| schnecke | 🐌 | Schnecke | snail | l'escargot | かたつむり | かたつむり |
+| fuchs | 🦊 | Fuchs | fox | le renard | 狐 | きつね |
+| pinguin | 🐧 | Pinguin | penguin | le pingouin | ペンギン | ペンギン |
+| eule | 🦉 | Eule | owl | le hibou | ふくろう | ふくろう |
+| trauben | 🍇 | Trauben | grapes | le raisin | ぶどう | ぶどう |
+| wassermelone | 🍉 | Wassermelone | watermelon | la pastèque | すいか | すいか |
+| tomate | 🍅 | Tomate | tomato | la tomate | トマト | トマト |
+| kartoffel | 🥔 | Kartoffel | potato | la pomme de terre | じゃがいも | じゃがいも |
+| pizza | 🍕 | Pizza | pizza | la pizza | ピザ | ピザ |
+| schokolade | 🍫 | Schokolade | chocolate | le chocolat | チョコレート | チョコレート |
+| auge | 👁️ | Auge | eye | l'œil | 目 | め |
+| ohr | 👂 | Ohr | ear | l'oreille | 耳 | みみ |
+| mund | 👄 | Mund | mouth | la bouche | 口 | くち |
+| fuss | 🦶 | Fuß | foot | le pied | 足 | あし |
+| regenbogen | 🌈 | Regenbogen | rainbow | l'arc-en-ciel | 虹 | にじ |
+| wolke | ☁️ | Wolke | cloud | le nuage | 雲 | くも |
+| geschenk | 🎁 | Geschenk | present | le cadeau | プレゼント | プレゼント |
+| teddy | 🧸 | Teddy | teddy bear | le nounours | テディベア | テディベア |
+| bett | 🛏️ | Bett | bed | le lit | ベッド | ベッド |
+| stuhl | 🪑 | Stuhl | chair | la chaise | 椅子 | いす |
+| schluessel | 🔑 | Schlüssel | key | la clé | 鍵 | かぎ |
+| flugzeug | ✈️ | Flugzeug | plane | l'avion | 飛行機 | ひこうき |
 
 ## 11. Entscheidungen
 Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heutige Regel wichtig sind. Überholte Entscheidungen und die vollständige Chronik mit Datum: `docs/archiv/entscheidungen-chronik.md`.
