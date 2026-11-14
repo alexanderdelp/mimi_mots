@@ -22,8 +22,8 @@ async function prepareGarden(
   await storeOnce(page, {
     name: 'Lina',
     settings: { companion: 'mimi', language: 'fr', mode: 'speak' },
-    progress: { en: {}, fr: {}, ja: {}, it: {} },
-    enabledLanguages: ['en', 'fr', 'ja', 'it'],
+    progress: { en: {}, fr: {}, ja: {} },
+    enabledLanguages: ['en', 'fr', 'ja'],
     rest: { sleeping: extra.sleeping ?? [], since: '2026-10-30' },
     ...(extra.enabledFlowers ? { enabledFlowers: extra.enabledFlowers } : {}),
     ...(garden ? { garden } : {}),

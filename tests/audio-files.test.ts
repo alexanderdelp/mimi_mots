@@ -5,8 +5,8 @@ import choices from '../audio-choices.json';
 import { WORDS } from '../src/data/words';
 import { isChecked, parseAudioCheck } from '../tools/audio-check-status';
 
-// B-64: auch Englisch aus MP3s (Piper), B-67: Japanisch (VOICEVOX), B-80: Italienisch (Kokoro/Piper)
-const LANGS = ['en', 'fr', 'ja', 'it'] as const;
+// B-64: auch Englisch aus MP3s (Piper), B-67: Japanisch (VOICEVOX); Italienisch entfernt (B-118)
+const LANGS = ['en', 'fr', 'ja'] as const;
 const dir = (lang: string) => `public/audio/${lang}`;
 const chosen = (lang: string) => (choices as Record<string, Record<string, unknown>>)[lang] ?? {};
 /** B-85/B-103: Datei nur für Wörter mit gewählter Aufnahme – nicht bei „keins“ (null) und nicht
@@ -49,15 +49,14 @@ describe('Audiodateien (B-30b)', () => {
 describe('Hörprüfliste (B-30b)', () => {
   const lines = readFileSync('audio-check.md', 'utf8').split('\n');
 
-  it('AT-30b.4/AT-64.6/AT-67.6/AT-80.4: jedes Wort genau einmal mit Kästchen je Sprache', () => {
+  it('AT-30b.4/AT-64.6/AT-67.6: jedes Wort genau einmal mit Kästchen je Sprache', () => {
     for (const word of WORDS) {
       const rows = lines.filter((l) => l.startsWith(`| ${word.id} |`));
       expect(rows, word.id).toHaveLength(1);
       expect(rows[0]).toContain(word.en);
       expect(rows[0]).toContain(word.fr);
       expect(rows[0]).toContain(word.ja);
-      expect(rows[0]).toContain(word.it);
-      expect(rows[0].match(/\[[ x]\]/g), word.id).toHaveLength(4);
+      expect(rows[0].match(/\[[ x]\]/g), word.id).toHaveLength(3);
     }
   });
 

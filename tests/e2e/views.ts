@@ -54,7 +54,7 @@ export const TODAY = new Date(2026, 9, 30, 10, 0);
 export const btn = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
 interface Seed {
-  language?: 'en' | 'fr' | 'ja' | 'it';
+  language?: 'en' | 'fr' | 'ja';
   sleeping?: string[];
   /** Tutorial noch nicht gesehen (B-74); sonst gilt es als gesehen. */
   tutorial?: boolean;
@@ -86,8 +86,8 @@ export async function prepare(page: Page, seed?: Seed) {
     childStore({
       ...(seed.name !== undefined ? { name: seed.name } : {}),
       settings: { companion: 'mimi', language: seed.language ?? 'fr', mode: 'speak' },
-      progress: { en: {}, fr: {}, ja: {}, it: {} },
-      enabledLanguages: ['en', 'fr', 'ja', 'it'],
+      progress: { en: {}, fr: {}, ja: {} },
+      enabledLanguages: ['en', 'fr', 'ja'],
       ...(seed.tutorial ? { tutorialDone: false } : {}),
       ...(seed.listenTutorial ? { listenTutorialDone: false } : {}),
       rest: {
@@ -141,7 +141,6 @@ const LANGUAGE_NAME = {
   en: 'Englisch',
   fr: 'Französisch',
   ja: 'Japanisch',
-  it: 'Italienisch',
 } as const;
 type Lang = keyof typeof LANGUAGE_NAME;
 
@@ -214,7 +213,7 @@ export const VIEWS: { name: string; seed?: Seed; open: (page: Page) => Promise<v
   { name: 'runde-verdeckt', seed: {}, open: (p) => roundView(p) },
   { name: 'runde-en', seed: {}, open: (p) => revealedView(p, 'en') },
   { name: 'runde-fr', seed: {}, open: (p) => revealedView(p, 'fr') },
-  ...(['ja', 'it'] as const)
+  ...(['ja'] as const)
     .filter((l) => vocabularyIds(l).length > 0) // B-84: nur Sprachen mit Wörtern
     .map((l) => ({ name: `runde-${l}`, seed: {}, open: (p: Page) => revealedView(p, l) })),
   { name: 'hoerrunde-verdeckt', seed: {}, open: (p) => listenView(p) },

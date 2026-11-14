@@ -14,7 +14,7 @@ async function advance(page: Page, ms: number) {
 async function seed(page: Page, mode: 'speak' | 'listen', roundMin?: number) {
   await storeOnce(page, {
     settings: { companion: 'mimi', language: 'fr', mode },
-    progress: { en: {}, fr: {}, ja: {}, it: {} },
+    progress: { en: {}, fr: {}, ja: {} },
     tutorialDone: true,
     listenTutorialDone: true,
     ...(roundMin === undefined ? {} : { roundMin }),

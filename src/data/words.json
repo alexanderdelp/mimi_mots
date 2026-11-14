@@ -6,7 +6,6 @@
     "syllables": ["Ap", "fel"],
     "en": "apple",
     "fr": "la pomme",
-    "it": "la mela",
     "ja": "りんご",
     "jaKana": "りんご"
   },
@@ -17,7 +16,6 @@
     "syllables": ["Ba", "na", "ne"],
     "en": "banana",
     "fr": "la banane",
-    "it": "la banana",
     "ja": "バナナ",
     "jaKana": "バナナ"
   },
@@ -28,7 +26,6 @@
     "syllables": ["Erd", "bee", "re"],
     "en": "strawberry",
     "fr": "la fraise",
-    "it": "la fragola",
     "ja": "いちご",
     "jaKana": "いちご"
   },
@@ -39,7 +36,6 @@
     "syllables": ["Bir", "ne"],
     "en": "pear",
     "fr": "la poire",
-    "it": "la pera",
     "ja": "梨",
     "jaKana": "なし"
   },
@@ -50,7 +46,6 @@
     "syllables": ["Kir", "sche"],
     "en": "cherry",
     "fr": "la cerise",
-    "it": "la ciliegia",
     "ja": "さくらんぼ",
     "jaKana": "さくらんぼ"
   },
@@ -61,7 +56,6 @@
     "syllables": ["Zi", "tro", "ne"],
     "en": "lemon",
     "fr": "le citron",
-    "it": "il limone",
     "ja": "レモン",
     "jaKana": "レモン"
   },
@@ -72,7 +66,6 @@
     "syllables": ["Ka", "rot", "te"],
     "en": "carrot",
     "fr": "la carotte",
-    "it": "la carota",
     "ja": "にんじん",
     "jaKana": "にんじん"
   },
@@ -83,7 +76,6 @@
     "syllables": ["Brot"],
     "en": "bread",
     "fr": "le pain",
-    "it": "il pane",
     "ja": "パン",
     "jaKana": "パン"
   },
@@ -94,7 +86,6 @@
     "syllables": ["Kä", "se"],
     "en": "cheese",
     "fr": "le fromage",
-    "it": "il formaggio",
     "ja": "チーズ",
     "jaKana": "チーズ"
   },
@@ -105,7 +96,6 @@
     "syllables": ["Ei"],
     "en": "egg",
     "fr": "l'œuf",
-    "it": "l'uovo",
     "ja": "卵",
     "jaKana": "たまご"
   },
@@ -116,7 +106,6 @@
     "syllables": ["Milch"],
     "en": "milk",
     "fr": "le lait",
-    "it": "il latte",
     "ja": "牛乳",
     "jaKana": "ぎゅうにゅう"
   },
@@ -127,7 +116,6 @@
     "syllables": ["Ku", "chen"],
     "en": "cake",
     "fr": "le gâteau",
-    "it": "la torta",
     "ja": "ケーキ",
     "jaKana": "ケーキ"
   },
@@ -138,7 +126,6 @@
     "syllables": ["Eis"],
     "en": "ice cream",
     "fr": "la glace",
-    "it": "il gelato",
     "ja": "アイス",
     "jaKana": "アイス"
   },
@@ -149,7 +136,6 @@
     "syllables": ["Kat", "ze"],
     "en": "cat",
     "fr": "le chat",
-    "it": "il gatto",
     "ja": "猫",
     "jaKana": "ねこ"
   },
@@ -160,7 +146,6 @@
     "syllables": ["Hund"],
     "en": "dog",
     "fr": "le chien",
-    "it": "il cane",
     "ja": "犬",
     "jaKana": "いぬ"
   },
@@ -171,7 +156,6 @@
     "syllables": ["Pferd"],
     "en": "horse",
     "fr": "le cheval",
-    "it": "il cavallo",
     "ja": "馬",
     "jaKana": "うま"
   },
@@ -182,7 +166,6 @@
     "syllables": ["Maus"],
     "en": "mouse",
     "fr": "la souris",
-    "it": "il topo",
     "ja": "ねずみ",
     "jaKana": "ねずみ"
   },
@@ -193,7 +176,6 @@
     "syllables": ["Ha", "se"],
     "en": "rabbit",
     "fr": "le lapin",
-    "it": "il coniglio",
     "ja": "うさぎ",
     "jaKana": "うさぎ"
   },
@@ -204,7 +186,6 @@
     "syllables": ["Vo", "gel"],
     "en": "bird",
     "fr": "l'oiseau",
-    "it": "l'uccello",
     "ja": "鳥",
     "jaKana": "とり"
   },
@@ -215,7 +196,6 @@
     "syllables": ["Fisch"],
     "en": "fish",
     "fr": "le poisson",
-    "it": "il pesce",
     "ja": "魚",
     "jaKana": "さかな"
   },
@@ -226,7 +206,6 @@
     "syllables": ["Kuh"],
     "en": "cow",
     "fr": "la vache",
-    "it": "la mucca",
     "ja": "牛",
     "jaKana": "うし"
   },
@@ -237,7 +216,6 @@
     "syllables": ["Schwein"],
     "en": "pig",
     "fr": "le cochon",
-    "it": "il maiale",
     "ja": "豚",
     "jaKana": "ぶた"
   },
@@ -248,7 +226,6 @@
     "syllables": ["En", "te"],
     "en": "duck",
     "fr": "le canard",
-    "it": "l'anatra",
     "ja": "カモ",
     "jaKana": "カモ"
   },
@@ -259,7 +236,6 @@
     "syllables": ["Bär"],
     "en": "bear",
     "fr": "l'ours",
-    "it": "l'orso",
     "ja": "熊",
     "jaKana": "くま"
   },
@@ -270,7 +246,6 @@
     "syllables": ["Lö", "we"],
     "en": "lion",
     "fr": "le lion",
-    "it": "il leone",
     "ja": "ライオン",
     "jaKana": "ライオン"
   },
@@ -281,7 +256,6 @@
     "syllables": ["E", "le", "fant"],
     "en": "elephant",
     "fr": "l'éléphant",
-    "it": "l'elefante",
     "ja": "象",
     "jaKana": "ぞう"
   },
@@ -292,7 +266,6 @@
     "syllables": ["Schmet", "ter", "ling"],
     "en": "butterfly",
     "fr": "le papillon",
-    "it": "la farfalla",
     "ja": "ちょうちょ",
     "jaKana": "ちょうちょ"
   },
@@ -303,7 +276,6 @@
     "syllables": ["Frosch"],
     "en": "frog",
     "fr": "la grenouille",
-    "it": "la rana",
     "ja": "かえる",
     "jaKana": "かえる"
   },
@@ -314,7 +286,6 @@
     "syllables": ["Ball"],
     "en": "ball",
     "fr": "le ballon",
-    "it": "la palla",
     "ja": "ボール",
     "jaKana": "ボール"
   },
@@ -325,7 +296,6 @@
     "syllables": ["Haus"],
     "en": "house",
     "fr": "la maison",
-    "it": "la casa",
     "ja": "家",
     "jaKana": "いえ"
   },
@@ -336,7 +306,6 @@
     "syllables": ["Au", "to"],
     "en": "car",
     "fr": "la voiture",
-    "it": "la macchina",
     "ja": "車",
     "jaKana": "くるま"
   },
@@ -347,7 +316,6 @@
     "syllables": ["Buch"],
     "en": "book",
     "fr": "le livre",
-    "it": "il libro",
     "ja": "本",
     "jaKana": "ほん"
   },
@@ -358,7 +326,6 @@
     "syllables": ["Baum"],
     "en": "tree",
     "fr": "l'arbre",
-    "it": "l'albero",
     "ja": "木",
     "jaKana": "き"
   },
@@ -369,7 +336,6 @@
     "syllables": ["Blu", "me"],
     "en": "flower",
     "fr": "la fleur",
-    "it": "il fiore",
     "ja": "花",
     "jaKana": "はな"
   },
@@ -380,7 +346,6 @@
     "syllables": ["Son", "ne"],
     "en": "sun",
     "fr": "le soleil",
-    "it": "il sole",
     "ja": "太陽",
     "jaKana": "たいよう"
   },
@@ -391,7 +356,6 @@
     "syllables": ["Mond"],
     "en": "moon",
     "fr": "la lune",
-    "it": "la luna",
     "ja": "月",
     "jaKana": "つき"
   },
@@ -402,7 +366,6 @@
     "syllables": ["Stern"],
     "en": "star",
     "fr": "l'étoile",
-    "it": "la stella",
     "ja": "星",
     "jaKana": "ほし"
   },
@@ -413,7 +376,6 @@
     "syllables": ["Schuh"],
     "en": "shoe",
     "fr": "la chaussure",
-    "it": "la scarpa",
     "ja": "靴",
     "jaKana": "くつ"
   },
@@ -424,7 +386,6 @@
     "syllables": ["Hut"],
     "en": "hat",
     "fr": "le chapeau",
-    "it": "il cappello",
     "ja": "帽子",
     "jaKana": "ぼうし"
   },
@@ -435,7 +396,6 @@
     "syllables": ["Fahr", "rad"],
     "en": "bike",
     "fr": "le vélo",
-    "it": "la bicicletta",
     "ja": "自転車",
     "jaKana": "じてんしゃ"
   },
@@ -446,7 +406,6 @@
     "syllables": ["Boot"],
     "en": "boat",
     "fr": "le bateau",
-    "it": "la barca",
     "ja": "船",
     "jaKana": "ふね"
   },
@@ -457,7 +416,6 @@
     "syllables": ["Zug"],
     "en": "train",
     "fr": "le train",
-    "it": "il treno",
     "ja": "電車",
     "jaKana": "でんしゃ"
   },
@@ -468,7 +426,6 @@
     "syllables": ["Re", "gen", "schirm"],
     "en": "umbrella",
     "fr": "le parapluie",
-    "it": "l'ombrello",
     "ja": "傘",
     "jaKana": "かさ"
   },
@@ -479,7 +436,6 @@
     "syllables": ["Herz"],
     "en": "heart",
     "fr": "le cœur",
-    "it": "il cuore",
     "ja": "ハート",
     "jaKana": "ハート"
   },
@@ -490,7 +446,6 @@
     "syllables": ["rot"],
     "en": "red",
     "fr": "rouge",
-    "it": "rosso",
     "ja": "赤",
     "jaKana": "あか"
   },
@@ -501,7 +456,6 @@
     "syllables": ["blau"],
     "en": "blue",
     "fr": "bleu",
-    "it": "blu",
     "ja": "青",
     "jaKana": "あお"
   },
@@ -512,7 +466,6 @@
     "syllables": ["gelb"],
     "en": "yellow",
     "fr": "jaune",
-    "it": "giallo",
     "ja": "黄色",
     "jaKana": "きいろ"
   },
@@ -523,7 +476,6 @@
     "syllables": ["grün"],
     "en": "green",
     "fr": "vert",
-    "it": "verde",
     "ja": "緑",
     "jaKana": "みどり"
   },
@@ -534,7 +486,6 @@
     "syllables": ["li", "la"],
     "en": "purple",
     "fr": "violet",
-    "it": "viola",
     "ja": "紫",
     "jaKana": "むらさき"
   },
@@ -545,7 +496,6 @@
     "syllables": ["o", "ran", "ge"],
     "en": "orange",
     "fr": "orange",
-    "it": "arancione",
     "ja": "オレンジ",
     "jaKana": "オレンジ"
   },
@@ -556,7 +506,6 @@
     "syllables": ["null"],
     "en": "zero",
     "fr": "zéro",
-    "it": "zero",
     "ja": "ゼロ",
     "jaKana": "ゼロ"
   },
@@ -567,7 +516,6 @@
     "syllables": ["eins"],
     "en": "one",
     "fr": "un",
-    "it": "uno",
     "ja": "一",
     "jaKana": "いち"
   },
@@ -578,7 +526,6 @@
     "syllables": ["zwei"],
     "en": "two",
     "fr": "deux",
-    "it": "due",
     "ja": "二",
     "jaKana": "に"
   },
@@ -589,7 +536,6 @@
     "syllables": ["drei"],
     "en": "three",
     "fr": "trois",
-    "it": "tre",
     "ja": "三",
     "jaKana": "さん"
   },
@@ -600,7 +546,6 @@
     "syllables": ["vier"],
     "en": "four",
     "fr": "quatre",
-    "it": "quattro",
     "ja": "四",
     "jaKana": "よん"
   },
@@ -611,7 +556,6 @@
     "syllables": ["fünf"],
     "en": "five",
     "fr": "cinq",
-    "it": "cinque",
     "ja": "五",
     "jaKana": "ご"
   },
@@ -622,7 +566,6 @@
     "syllables": ["sechs"],
     "en": "six",
     "fr": "six",
-    "it": "sei",
     "ja": "六",
     "jaKana": "ろく"
   },
@@ -633,7 +576,6 @@
     "syllables": ["sie", "ben"],
     "en": "seven",
     "fr": "sept",
-    "it": "sette",
     "ja": "七",
     "jaKana": "なな"
   },
@@ -644,7 +586,6 @@
     "syllables": ["acht"],
     "en": "eight",
     "fr": "huit",
-    "it": "otto",
     "ja": "八",
     "jaKana": "はち"
   },
@@ -655,7 +596,6 @@
     "syllables": ["neun"],
     "en": "nine",
     "fr": "neuf",
-    "it": "nove",
     "ja": "九",
     "jaKana": "きゅう"
   },
@@ -666,7 +606,6 @@
     "syllables": ["zehn"],
     "en": "ten",
     "fr": "dix",
-    "it": "dieci",
     "ja": "十",
     "jaKana": "じゅう"
   }

@@ -51,7 +51,7 @@
   padding: 10px;
 }
 
-/* vier Sprachen (B-80): schmalere Kacheln, damit die Leiste auch auf 1024 px passt */
+/* Sprachen (B-80, seit B-118 drei): schmalere Kacheln, damit die Leiste auch auf 1024 px passt */
 .admin__languages .choice-group__tiles {
   gap: 8px;
 }

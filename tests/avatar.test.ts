@@ -92,7 +92,7 @@ describe('createAvatar', () => {
 });
 
 describe('Flaggen und Icons', () => {
-  it.each(['flags/flag_gb.svg', 'flags/flag_fr.svg', 'flags/flag_jp.svg', 'flags/flag_it.svg'])(
+  it.each(['flags/flag_gb.svg', 'flags/flag_fr.svg', 'flags/flag_jp.svg'])(
     '%s ist eine Vektorflagge im Format 3 : 2',
     (file) => {
       const svg = readFileSync(`public/${file}`, 'utf8');

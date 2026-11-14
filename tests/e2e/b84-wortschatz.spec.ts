@@ -49,13 +49,13 @@ test.describe('B-84 Nur Wörter mit gewählter Aufnahme', () => {
   test('AT-84.4: Lernstand im Elternbereich zeigt nur Wörter des Wortschatzes', async ({
     page,
   }) => {
-    await enableLanguages(page, ['en', 'fr', 'it']);
+    await enableLanguages(page, ['en', 'fr', 'ja']);
     await page.goto('./');
     await hold(page, '.app-header__icon');
-    await btn(page, 'Italienisch').click();
+    await btn(page, 'Japanisch').click();
     const ids = await page
       .locator('.admin__word')
       .evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.wordId));
-    expect(ids.sort()).toEqual(vocabularyIds('it').sort());
+    expect(ids.sort()).toEqual(vocabularyIds('ja').sort());
   });
 });

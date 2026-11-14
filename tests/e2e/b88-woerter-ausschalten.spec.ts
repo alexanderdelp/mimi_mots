@@ -49,7 +49,7 @@ test.describe('B-88 Wörter ein-/ausschalten', () => {
     expect(await hund.boundingBox()).toEqual(before); // gleiche Stelle, gleiche Stufe
     await expect(page.locator('.admin__level[data-level="3"] .admin__word')).toHaveCount(1);
     let data = await stored(page);
-    expect(data.disabledWords).toEqual({ en: [], fr: ['hund'], ja: [], it: [] });
+    expect(data.disabledWords).toEqual({ en: [], fr: ['hund'], ja: [] });
     expect(data.progress.fr).toEqual({ hund: entry });
 
     await btn(page, 'Englisch').click(); // andere Sprache: Hund ist dort an

@@ -34,13 +34,28 @@
   --tile-h: var(--start-tile-small-h);
 }
 
-/* Sprachen im Raster mit höchstens zwei Spalten (nur eingeschaltete, B-81), Modi untereinander */
+/* Sprachen in einer Reihe (nur eingeschaltete, B-81; seit B-118 höchstens drei), Modi untereinander */
+.start__group--language {
+  --language-tile-w: var(--start-tile-w);
+  --language-gap: 24px;
+}
+
+/* drei Sprachen (B-118): schmalere Kacheln, damit die Reihe auch auf 1024 px passt */
+.start__group--language.start__group--three {
+  --language-tile-w: calc(var(--start-tile-w) * 0.8);
+  --language-gap: 16px;
+}
+
+.start__group--language .choice-tile {
+  --tile-w: var(--language-tile-w);
+}
+
 .start__group--language .choice-group__tiles {
   display: grid;
-  grid-template-columns: repeat(var(--language-columns, 2), var(--start-tile-w));
+  grid-template-columns: repeat(var(--language-columns, 2), var(--language-tile-w));
   /* immer zwei Zeilen hoch, damit die Überschrift auf einer Linie mit den anderen bleibt */
   grid-template-rows: repeat(2, var(--start-tile-small-h));
-  gap: var(--start-tile-gap) 24px;
+  gap: var(--start-tile-gap) var(--language-gap);
 }
 
 .start__group--mode .choice-group__tiles {
@@ -101,8 +116,9 @@
     padding: 6px 16px;
   }
 
-  .start__group--language .choice-group__tiles {
-    gap: var(--start-tile-gap) 12px;
+  .start__group--language,
+  .start__group--language.start__group--three {
+    --language-gap: 12px;
   }
 
   .view--start .choice-tile {

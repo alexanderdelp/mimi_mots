@@ -13,7 +13,7 @@ export interface Choice {
 export type Choices = Partial<Record<CheckLanguage, Record<string, Choice | null>>>;
 
 /** Spalte des „ok“-Kästchens je Sprache in audio-check.md (nach dem führenden „|“). */
-const OK_CELL: Record<CheckLanguage, number> = { en: 3, fr: 5, ja: 7, it: 9 };
+const OK_CELL: Record<CheckLanguage, number> = { en: 3, fr: 5, ja: 7 };
 
 /** Kandidaten-Ordner `<stimme>-<variante>` gibt es je Sprache in tools/stimmwahl/<lang>/. */
 const VARIANTS = ['word', 'dot'];
