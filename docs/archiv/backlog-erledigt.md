@@ -251,7 +251,7 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-61.5 (Leitprinzip 5): Der Produktionsbuild ist kleiner als 5 MB und der Service Worker speichert alle Bilder und Audiodateien vor.
   - AT-61.6 (Leitprinzip 3, Texte): Checkliste der sichtbaren Texte (Deutsch, kurz, du-Form) in `anforderungen.md` §11; in den Kind-Ansichten höchstens 12 Wörter Text außer den Lernwörtern (seit B-75: 14, die Startseite hat mit „Nur bekannte Wörter“ 14).
 
-(B-62 iPad-Praxistest ist noch offen und steht in `backlog.md`.)
+(B-62 iPad-Praxistest wurde am 2026-11-14 durchgeführt, siehe unten.)
 
 ## Nach Abschluss
 - [x] **B-64 Englische Aussprache mit Piper**: Englisch aus vorproduzierten MP3s statt Gerätestimme (klang unter Linux schlecht, auf dem iPad je nach installierter Stimme). Stimme nach Klangvergleich (Kokoro `bf_*`/`bm_*`/`am_*`, 23 Piper-Stimmen): Piper `en_US-ljspeech-high` (LJ Speech, public domain). Amy u. ä. fielen aus, weil sie auf der nur für Forschung lizenzierten Lessac-Stimme aufbauen. Französisch bleibt Kokoro `ff_siwis`.
@@ -557,3 +557,4 @@ Erledigte Aufgaben aus `backlog.md` samt Akzeptanztests und Notizen, wörtlich w
   - AT-119.3 Jedes neue Wort mit gewählter Aufnahme hat eine MP3 je Sprache und erscheint in der Lernrunde und unter „Meine Wörter“.
   - AT-119.4 Die Gesamtgröße des Builds bleibt unter 5 MB.
   - AT-119.5 Im Elternbereich überlappen die Stufen nicht und alle Wörter passen ins Feld (auf allen Viewports, alle Wörter neu oder auf alle Stufen verteilt); die Emojis werden dafür bei Bedarf kleiner.
+- [x] **B-62 iPad-Praxistest**: Mit dem Kind testen; Beobachtungen in `anforderungen.md` §11 festhalten. Durchgeführt (2026-11-14); daraus B-116 (Tutorials überarbeiten) und B-117 (Bedienung mit beiden Händen).

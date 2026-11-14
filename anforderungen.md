@@ -393,5 +393,9 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 ### Auslieferung
 - Seit 0.7.0 über Cloudflare Workers wie KonJugi: `release` = Produktion (`mimimots.bytekaska.de`), `main` = Integration (`main.mimimots.bytekaska.de`), übrige Branches = Abnahme (`<branch>.mimimots.bytekaska.de`); Umgebungs-Abzeichen außer in Produktion. Bindestrich statt Unterstrich, weil Hostnamen mit `_` kein Zertifikat bekommen. GitHub Pages bleibt mit 0.6.0 stehen (laufende Installation auf dem iPad), wird aber nicht mehr gebaut; die neue Adresse ist ein eigener Ursprung, Daten werden nicht übernommen (B-115, 2026-11-14).
 
+### Praxistest auf dem iPad (B-62, 2026-11-14)
+- Das Tutorial verwirrt: Sichtbare Buttons tun nichts, nur „Weiter“ in der Sprechblase schaltet weiter, und der Blick springt zwischen Markierung und Sprechblase; zehn Schritte sind wohl zu viele → B-116.
+- Das Kind hält das iPad mit beiden Händen; die Buttons liegen über die ganze Fläche verteilt (Lautsprecher in der Mitte) → B-117 prüft Bedienleisten am linken und rechten Rand.
+
 ## 12. Später
 Die Liste für später führt `backlog.md` (Abschnitt „Später“).
