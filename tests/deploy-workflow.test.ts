@@ -1,43 +1,66 @@
-// B-53: Der Deploy-Workflow für GitHub Pages ist vollständig (AT-53.1).
+// Auslieferung über Cloudflare Workers (ersetzt B-53 GitHub Pages ab 0.7.0): CI prüft nur,
+// Cloudflare Workers Builds liefert aus (release → Produktion, main → Integration, sonst Abnahme).
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
-const workflow = readFileSync('.github/workflows/deploy.yml', 'utf8');
+const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
+const wrangler = readFileSync('wrangler.jsonc', 'utf8');
 const readme = readFileSync('README.md', 'utf8');
 
-describe('Deploy-Workflow (AT-53.1)', () => {
-  it('läuft bei Push auf main und von Hand', () => {
-    expect(workflow).toMatch(/on:\s*\n\s+push:\s*\n\s+branches: \[main\]/);
-    expect(workflow).toContain('workflow_dispatch:');
+describe('CI-Workflow', () => {
+  it('läuft bei Push auf main/release und bei PRs', () => {
+    expect(ci).toMatch(/push:\s*\n\s+branches: \[main, release\]/);
+    expect(ci).toMatch(/pull_request:/);
   });
 
-  it('hat die nötigen Rechte für Pages', () => {
-    expect(workflow).toMatch(/pages: write/);
-    expect(workflow).toMatch(/id-token: write/);
-  });
-
-  it('prüft, baut und veröffentlicht dist/', () => {
-    const steps = ['npm ci', 'npm run lint', 'npm test', 'npm run build'];
+  it('prüft und baut in dieser Reihenfolge', () => {
     let last = -1;
-    for (const step of steps) {
-      const i = workflow.indexOf(`run: ${step}`);
+    for (const step of ['npm ci', 'npm run lint', 'npm test', 'npm run build']) {
+      const i = ci.indexOf(`run: ${step}`);
       expect(i, step).toBeGreaterThan(last);
       last = i;
     }
-    expect(workflow).toMatch(/upload-pages-artifact@v\d+\s*\n\s+with:\s*\n\s+path: dist/);
-    expect(workflow).toMatch(/uses: actions\/deploy-pages@v\d+/);
-    expect(workflow).toMatch(/name: github-pages/);
   });
 
-  it('erlaubt nur ein Deployment gleichzeitig', () => {
-    expect(workflow).toMatch(/concurrency:\s*\n\s+group: pages/);
+  it('PRs nach release nur aus main', () => {
+    expect(ci).toMatch(/github\.base_ref == 'release'/);
+    expect(ci).toMatch(/head_ref }}" != "main"/);
+  });
+
+  it('GitHub Pages wird nicht mehr gebaut (Installation auf dem iPad bleibt unberührt)', () => {
+    expect(existsSync('.github/workflows/deploy.yml')).toBe(false);
+    expect(ci).not.toMatch(/deploy-pages|upload-pages-artifact/);
   });
 });
 
-describe('README (AT-53.4)', () => {
-  it('beschreibt Einrichtung und Home-Bildschirm', () => {
-    expect(readme).toContain('https://alexanderdelp.github.io/mimi_mots/');
-    expect(readme).toMatch(/GitHub Actions/);
+describe('wrangler.jsonc', () => {
+  it('Worker mimimots liefert dist/ aus, baut selbst, mit Vorschauen', () => {
+    expect(wrangler).toMatch(/"name": "mimimots"/);
+    expect(wrangler).toMatch(/"directory": "\.\/dist"/);
+    expect(wrangler).toMatch(/"command": "npm run build"/);
+    expect(wrangler).toMatch(/"previews": \{\}/); // Pflicht für `wrangler preview`
+    expect(wrangler).toMatch(/"preview_urls": true/);
+  });
+
+  it('eigene Domain mit Vorschauen je Branch', () => {
+    expect(wrangler).toMatch(
+      /"pattern": "mimimots\.bytekaska\.de", "custom_domain": true, "previews_enabled": true/,
+    );
+  });
+});
+
+describe('Schutz von release', () => {
+  it('pre-push-Hook sperrt direkte Pushes nach release', () => {
+    const hook = 'scripts/git-hooks/pre-push';
+    expect(readFileSync(hook, 'utf8')).toContain('refs/heads/release');
+  });
+});
+
+describe('README', () => {
+  it('nennt die Adressen der Umgebungen und den Home-Bildschirm', () => {
+    expect(readme).toContain('https://mimimots.bytekaska.de');
+    expect(readme).toContain('https://main.mimimots.bytekaska.de');
+    expect(readme).toMatch(/Workers Builds/);
     expect(readme).toMatch(/Zum Home-Bildschirm/);
   });
 });

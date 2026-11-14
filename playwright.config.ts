@@ -1,14 +1,15 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Getestet wird der Produktionsbuild unter dem Pages-Pfad, wie auf GitHub Pages.
+// Getestet wird der Produktionsbuild unter der Wurzel, wie auf Cloudflare – als Produktion
+// (APP_BRANCH=release), also ohne Umgebungs-Abzeichen, damit Bilder und Texte nicht vom Branch abhängen.
 // Vorschau-Port wie `preview.port` in vite.config.ts (4181, je Worktree per PREVIEW_PORT änderbar,
 // B-92). Immer ein eigener, frisch gebauter Server: Ein schon laufender gehört womöglich einem
 // anderen Projekt oder Worktree – dann lieber eine Fehlermeldung als fremden Code testen.
 const PORT = Number(process.env.PREVIEW_PORT ?? 4181);
-export const APP_URL = `http://localhost:${PORT}/mimi_mots/`;
+export const APP_URL = `http://localhost:${PORT}/`;
 // B-104: Seiten aus tools/ sind nicht im Build; sie laufen in einem eigenen Dev-Server.
 const TOOLS_PORT = PORT + 10;
-export const TOOLS_URL = `http://localhost:${TOOLS_PORT}/mimi_mots/`;
+export const TOOLS_URL = `http://localhost:${TOOLS_PORT}/`;
 
 const ipad = devices['iPad Pro 11 landscape'];
 /** Projektname des iPhones – Tests mit iPad-Maßen fragen danach (B-76). */
@@ -52,6 +53,7 @@ export default defineConfig({
     {
       command: 'npm run build && npx vite preview',
       url: APP_URL,
+      env: { APP_BRANCH: 'release' },
       reuseExistingServer: false,
       timeout: 120_000,
     },

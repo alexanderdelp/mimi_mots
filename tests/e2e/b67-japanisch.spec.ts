@@ -56,7 +56,7 @@ test.describe('B-67 Japanisch', () => {
         const plays = (await mediaCalls(page)).filter((c) => c.op === 'play');
         expect(plays.at(-1)).toEqual({
           op: 'play',
-          src: `/mimi_mots/audio/ja/${word.id}.mp3`,
+          src: `/audio/ja/${word.id}.mp3`,
           time: 0,
         });
         await btn(page, 'Noch üben').click();

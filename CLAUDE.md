@@ -22,7 +22,16 @@ Fachliche Anforderungen (aktueller Stand): `anforderungen.md`. Offene Aufgaben u
 - **Bilder der Wörter:** native Apple-Emoji (0 Byte, auf iPad einheitlich und hochwertig).
 - **Schrift:** `ui-rounded` (SF Pro Rounded auf iPad), Fallback `"Nunito"` selbst gehostet, dann `system-ui`.
 - **Persistenz:** `localStorage` (Einstellungen + Lernstand), ein Schlüssel, versioniert.
-- **Hosting:** GitHub Pages, Deploy per GitHub Action. Vite `base` = `/<repo-name>/`; Manifest `start_url`/`scope` und SW-Pfade relativ dazu.
+- **Hosting:** Cloudflare Workers (statische Assets, `wrangler.jsonc`, Worker `mimimots`), mit dem Repo verbunden über Workers Builds (wie KonJugi). Vite `base` = `/`; Manifest `start_url`/`scope` relativ.
+  | Branch | Umgebung | Befehl in Workers Builds | Adresse |
+  |---|---|---|---|
+  | `release` | Produktion | `npx wrangler deploy` | https://mimimots.bytekaska.de |
+  | `main` | Integration | `npx wrangler preview` | https://main.mimimots.bytekaska.de |
+  | `feat/*`, `fix/*` … | Abnahme | `npx wrangler preview` | `https://<branch>.mimimots.bytekaska.de` (`/` → `-`) |
+  - Umgebungs-Abzeichen unten links (Integration / Abnahme: <branch> / Lokal: <branch>), in Produktion keins; im Elternbereich außerhalb der Produktion zusätzlich der Branch in der Versionszeile (`src/env.ts`, `tools/build-info.ts`: `WORKERS_CI_BRANCH`, lokal Git; `APP_BRANCH` überschreibt – Playwright baut mit `APP_BRANCH=release`).
+  - `release` ist geschützt: nie direkt pushen, nur PR `main` → `release` nach Freigabe des Menschen (CI-Job `release-source`, Hook `scripts/git-hooks/pre-push`, aktivieren mit `git config core.hooksPath scripts/git-hooks`). `previews: {}` in `wrangler.jsonc` ist Pflicht für `wrangler preview`.
+  - Cloudflare-Zugang: `~/.config/mimi_mots/cloudflare.env` (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`; Account-Token, nie ausgeben). Laden mit `set -a; . ~/.config/mimi_mots/cloudflare.env; set +a`. Die Workers-Builds-API nimmt nur Benutzer-Tokens; Build-Einstellungen und -Logs im Dashboard.
+  - GitHub Pages (bis 0.6.0, `https://alexanderdelp.github.io/mimi_mots/`) bleibt mit dem alten Stand stehen und wird nicht mehr gebaut – dort läuft noch eine Installation auf dem iPad.
 - **Datenbank (geplant, noch nicht angebunden):** Neon-Projekt `mimi_mots` (Region Frankfurt; Postgres mit Neon Auth und Data API) – Einstellungen und Vorgehen in `backlog.md` unter „Später“ → „Lernstand in einer Datenbank sichern“. Bis dahin gilt Leitprinzip 6 unverändert.
 
 ## Befehle
@@ -137,9 +146,10 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
   2. **Vor der Umsetzung** E2E-Akzeptanztests ausdenken und als Liste unter der Aufgabe in `backlog.md` eintragen (`AT-12.1 …`), dann als Playwright-Tests umsetzen.
   3. Implementieren; dabei sinnvolle Unit-Tests (Vitest) ergänzen.
   4. **Fertig** ist eine Aufgabe, wenn sie funktional korrekt umgesetzt ist und **alle** bisher existierenden Akzeptanz- und Unit-Tests grün sind (plus Lint und die Definition of Done unten).
-  5. Übergabe zur **lokalen Abnahme** durch den Menschen (Dev-Server/Preview, ggf. iPad). Ohne Abnahme kein Pull Request.
+  5. Übergabe zur **lokalen Abnahme** durch den Menschen (Dev-Server/Preview, ggf. iPad; nach Push des Branches auch unter `https://<branch>.mimimots.bytekaska.de`). Ohne Abnahme kein Pull Request.
   6. Nach grüner Abnahme: Häkchen in `backlog.md` und die Aufgabe samt Akzeptanztests gleich ans Ende von `docs/archiv/backlog-erledigt.md` verschieben (`backlog.md` enthält nur Offenes), Version erhöhen (siehe „Versionierung“), Commit (`feat: B-12 Timer-Zifferblatt`), Push, Pull Request nach `main` erstellen und mergen; danach Git-Tag `vX.Y.Z` auf dem Merge-Commit setzen und pushen.
   7. Nach erfolgreichem Merge den Feature-Branch lokal und auf GitHub löschen, `main` lokal aktualisieren.
+  8. In Produktion (`release`) nur per PR `main` → `release`, wenn der Mensch es freigibt (die Integration `main.mimimots.bytekaska.de` vorher ansehen).
 - Nie direkt auf `main` committen.
 - Vor größeren Entscheidungen, die von `anforderungen.md` abweichen: fragen.
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.

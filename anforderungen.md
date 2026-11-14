@@ -186,7 +186,7 @@ Begrüßung → Start → Lernrunde (Tutorial beim ersten Mal, dann Wort 1..n) �
 ## 9. PWA / Technik
 - Manifest: Name „Mimi & Mots“, `display: standalone`, `orientation: landscape`, `theme_color` `#6A4C9C`, `background_color` `#F8F4FB`, Icons 192/512/maskable 512; dazu `apple-touch-icon` 180.
 - Service Worker precacht alle Assets inkl. Audio (< 5 MB). Update: neue Version wird still beim nächsten Start aktiv (kein Popup für das Kind).
-- Hosting: **GitHub Pages** (HTTPS) unter `/mimi_mots/`. Deploy per GitHub Action bei Push auf `main` (Lint → Unit-Tests → Build → Deploy).
+- Hosting: **Cloudflare Workers** (HTTPS) unter `https://mimimots.bytekaska.de` (Produktion aus `release`), Integration aus `main`, Abnahme je Branch (Workers Builds). CI (GitHub Action) prüft Lint, Unit-Tests und Build. GitHub Pages bis 0.6.0, eingefroren.
 - App-Icon: `icons/icon.svg` (lila Verlauf, weiße Sprechblase mit Katzen- und Ponyohr, lila Herz wie auf dem Halstuch). Austausch: SVG ersetzen und `npm run icons` ausführen.
 - Version, Commit und Build-Datum werden beim Bauen eingesetzt und im Elternbereich angezeigt.
 - Performance: Startbildschirm < 1 s nach Cache, keine Layout-Sprünge.
@@ -351,7 +351,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 
 ### Entwicklung und Werkzeuge
 - Arbeit in Feature-Branches mit Pull Requests; Akzeptanztests vor der Umsetzung in `backlog.md`; PR erst nach lokaler Abnahme (2026-10-29).
-- Hosting GitHub Pages; App-Icon als austauschbares SVG (`npm run icons`) (B-50, B-53).
+- Hosting Cloudflare (seit 0.7.0, vorher GitHub Pages); App-Icon als austauschbares SVG (`npm run icons`) (B-50, B-53).
 - E2E-Tests steuern die Uhr mit Playwrights Clock-API statt eines Test-Parameters – der Produktionsbuild braucht keinen Test-Zugang (B-40).
 - Verhalten läuft nur auf 1180 × 820; Tests zu Größe, Lage, Überlauf und Screenshots tragen `@layout` und laufen auf allen Viewports. Tests mit Hochformat-Wechsel per Größenänderung nur auf iPad-Viewports (die iPhone-Emulation löst kein Orientierungs-Ereignis aus) (B-76, B-91).
 - Screenshot-Tests blenden in der Lernrunde nur die Uhr aus (B-99).
@@ -360,6 +360,9 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 - Versionierung nach SemVer (Nutzerentscheidung): MINOR je neue Funktion, PATCH je Korrektur oder kleine Anpassung, keine neue Version für Doku/Tests/Werkzeuge; 1.0.0, sobald der Lernstand in der Datenbank liegt. Erhöht wird im Abnahme-Commit beim Merge, danach Git-Tag `vX.Y.Z`; keine GitHub-Releases (2026-11-01).
 - API-Testseite `tools/api-test.html` (B-104): nur Dev-Server, deshalb bleibt Leitprinzip 6 unberührt; ihre E2E-Tests laufen mit Attrappen gegen einen eigenen Dev-Server (Port Vorschau + 10). Geprüft 2026-11-06: Datamuse kann kein Französisch, die Free Dictionary API (dictionaryapi.dev) auch nicht, LibreTranslate.com verlangt einen Schlüssel, Web Speech kann Lautschrift nur per SSML versuchen.
 - Telegram-Bot für Updates und Fragen an den Menschen (`tools/telegram.mjs`): eigener Bot, weil Telegram je Bot nur eine Warteschlange hat; Zugangsdaten nur in `~/.config/mimi_mots/telegram.env` (2026-11-01).
+
+### Auslieferung
+- Seit 0.7.0 über Cloudflare Workers wie KonJugi: `release` = Produktion (`mimimots.bytekaska.de`), `main` = Integration (`main.mimimots.bytekaska.de`), übrige Branches = Abnahme (`<branch>.mimimots.bytekaska.de`); Umgebungs-Abzeichen außer in Produktion. Bindestrich statt Unterstrich, weil Hostnamen mit `_` kein Zertifikat bekommen. GitHub Pages bleibt mit 0.6.0 stehen (laufende Installation auf dem iPad), wird aber nicht mehr gebaut; die neue Adresse ist ein eigener Ursprung, Daten werden nicht übernommen (B-115, 2026-11-14).
 
 ## 12. Später
 Die Liste für später führt `backlog.md` (Abschnitt „Später“).

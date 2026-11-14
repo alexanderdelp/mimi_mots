@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import config, { BASE } from '../vite.config';
 
 describe('Vite-Konfiguration', () => {
-  it('nutzt den GitHub-Pages-Pfad des Repos als base', () => {
-    expect(BASE).toBe('/mimi_mots/');
+  it('liefert unter der Wurzel der eigenen Domain aus (Cloudflare)', () => {
+    expect(BASE).toBe('/');
     expect(config).toMatchObject({ base: BASE });
   });
 

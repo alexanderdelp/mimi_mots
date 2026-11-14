@@ -48,7 +48,7 @@ async function avatarBox(page: Page) {
 }
 
 test.describe('B-03 Assets einbinden', () => {
-  test('AT-03.1: alle Bilder werden unter /mimi_mots/ ausgeliefert', async ({ page, request }) => {
+  test('AT-03.1: alle Bilder werden unter / ausgeliefert', async ({ page, request }) => {
     for (const file of [...AVATARS, ...FLAGS, ...ICONS]) {
       const res = await request.get(file);
       expect(res.status(), file).toBe(200);

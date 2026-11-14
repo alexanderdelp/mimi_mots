@@ -4,12 +4,10 @@ test.describe('B-50 Manifest & Icons', () => {
   test('AT-50.1: Meta-Tags und Links für iPad/PWA', async ({ page }) => {
     await page.goto('./');
     const attr = (sel: string, name: string) => page.locator(sel).getAttribute(name);
-    expect(await attr('link[rel="manifest"]', 'href')).toBe('/mimi_mots/manifest.webmanifest');
-    expect(await attr('link[rel="apple-touch-icon"]', 'href')).toBe(
-      '/mimi_mots/icons/icon-180.png',
-    );
+    expect(await attr('link[rel="manifest"]', 'href')).toBe('/manifest.webmanifest');
+    expect(await attr('link[rel="apple-touch-icon"]', 'href')).toBe('/icons/icon-180.png');
     expect(await attr('link[rel="apple-touch-icon"]', 'sizes')).toBe('180x180');
-    expect(await attr('link[rel="icon"]', 'href')).toBe('/mimi_mots/icons/icon.svg');
+    expect(await attr('link[rel="icon"]', 'href')).toBe('/icons/icon.svg');
     expect(await attr('meta[name="theme-color"]', 'content')).toBe('#6A4C9C');
     expect(await attr('meta[name="apple-mobile-web-app-capable"]', 'content')).toBe('yes');
     expect(await attr('meta[name="apple-mobile-web-app-status-bar-style"]', 'content')).toBe(
@@ -31,8 +29,8 @@ test.describe('B-50 Manifest & Icons', () => {
       background_color: '#F8F4FB',
     });
     const base = new URL(res.url());
-    expect(new URL(m.start_url, base).pathname).toBe('/mimi_mots/');
-    expect(new URL(m.scope, base).pathname).toBe('/mimi_mots/');
+    expect(new URL(m.start_url, base).pathname).toBe('/');
+    expect(new URL(m.scope, base).pathname).toBe('/');
     const icons = m.icons.map((i: { sizes: string; purpose: string }) => `${i.sizes} ${i.purpose}`);
     expect(icons).toEqual(['192x192 any', '512x512 any', '512x512 maskable']);
   });

@@ -1,0 +1,35 @@
+# Prüft jeden Push auf main/release und jeden PR (Lint, Unit-Tests, Build). Ausgeliefert wird nicht
+# hier, sondern über Cloudflare Workers Builds (wrangler.jsonc): release → Produktion,
+# main → Integration, Feature-Branches → Abnahme. GitHub Pages (bis 0.6.0) wird nicht mehr gebaut.
+name: CI
+
+on:
+  push:
+    branches: [main, release]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  # `release` ist Produktion: PRs dorthin nur aus `main` (Integration), nie direkt aus Feature-Branches.
+  release-source:
+    if: github.event_name == 'pull_request' && github.base_ref == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR nach release kommt aus main
+        run: |
+          if [ "${{ github.head_ref }}" != "main" ]; then
+            echo "::error::PRs nach 'release' nur aus 'main' (gerade: ${{ github.head_ref }})."
+            exit 1
+          fi
