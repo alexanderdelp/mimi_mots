@@ -12,6 +12,7 @@ PWA für ein quergelegtes iPad (auch iPhone quer), mit der eine Erstklässlerin 
 - Offene Aufgaben: [backlog.md](backlog.md)
 - Arbeitsweise und Technik: [CLAUDE.md](CLAUDE.md)
 - Archiv (erledigte Aufgaben, Chronik der Entscheidungen): [docs/archiv/](docs/archiv/)
+- Neuen Rechner einrichten und offener Stand: [docs/rechnerwechsel.md](docs/rechnerwechsel.md)
 
 ## Entwicklung
 
