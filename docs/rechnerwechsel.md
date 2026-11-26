@@ -63,6 +63,5 @@ Die fertigen MP3s liegen im Repo (`public/audio/`). `.venv/`, `.models/` (Kokoro
 
 ### Alter Rechner
 
-Die leeren Ordner `.claude/worktrees/amazing-wiles-e34e95` und `.claude/worktrees/interesting-rubin-8b9ea1`
-waren noch gesperrt (alte Sessions in der Claude-App). Sie enthalten nichts und können gelöscht werden, sobald
-diese Sessions archiviert sind – oder einfach mit dem ganzen Repo-Ordner.
+Aufgeräumt: keine Worktrees, keine lokalen Branches außer `main`, Build- und Testreste gelöscht. Der Repo-Ordner
+kann nach dem Kopieren von `telegram.env` gelöscht werden.
