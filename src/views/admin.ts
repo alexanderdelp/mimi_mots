@@ -29,6 +29,7 @@ import {
 import { copyText } from '../components/copy-text';
 import { enableDragMove } from '../components/drag-move';
 import { VERSION_LABEL } from '../version';
+import { offlineLabel, readOfflineInfo } from '../offline';
 import type { ViewHandle } from './view';
 
 /** Zeilen der Übersicht: noch nie dran (null), dann Stufe 0 (noch üben) bis 4 (sicher). */
@@ -189,6 +190,30 @@ function versionRow(): HTMLElement {
   value.append(text, copy);
   row.append(el('span', 'admin__title', 'Version'), value);
   return row;
+}
+
+/** Zeile „Offline“ (B-120): ob die App ohne Internet startet, z. B. „Bereit · 236 Dateien“. Wird
+ *  jede Sekunde neu gelesen, damit man auf dem iPad sieht, wie das Laden vorankommt. */
+function offlineRow(): { el: HTMLElement; stop(): void } {
+  const row = el('section', 'admin__setting admin__setting--offline');
+  const value = el('span', 'admin__offline');
+  const text = el('span', 'admin__offline-text', '…');
+  value.append(text);
+  row.append(el('span', 'admin__title', 'Offline'), value);
+  let stopped = false;
+  const update = async () => {
+    const label = offlineLabel(await readOfflineInfo());
+    if (!stopped && text.textContent !== label) text.textContent = label;
+  };
+  void update();
+  const timer = setInterval(() => void update(), 1000);
+  return {
+    el: row,
+    stop() {
+      stopped = true;
+      clearInterval(timer);
+    },
+  };
 }
 
 export function renderAdmin(store: Store): ViewHandle {
@@ -378,6 +403,7 @@ export function renderAdmin(store: Store): ViewHandle {
     settingRow('Fortschritt', 'Abgeschlossene Runden bis zur nächsten Stufe.', currentRounds.el),
   );
 
+  const offline = offlineRow();
   const other = el('div', 'admin__other');
   other.append(
     settingRow('Rundendauer', 'Gilt fürs Sprechen und fürs Hören.', duration.el),
@@ -390,6 +416,7 @@ export function renderAdmin(store: Store): ViewHandle {
     ),
     // B-98: Stand der installierten App (Version · Commit · Build-Datum)
     versionRow(),
+    offline.el,
   );
 
   const languagesPanel = el('div', 'admin__panel');
@@ -573,6 +600,7 @@ export function renderAdmin(store: Store): ViewHandle {
       unsubscribe();
       stopDrag();
       observer?.disconnect();
+      offline.stop();
     },
   };
 }

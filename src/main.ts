@@ -15,6 +15,7 @@ import './styles/garden.css';
 import { COMPANION_NAMES, cartwheelAvatarUrl } from './components/avatar';
 import { icon } from './components/icons';
 import { BUILD, stageBadge } from './env';
+import { registerServiceWorker } from './offline';
 import { activeChild, childData, load, persistOnChange } from './storage';
 import { createStore, type Store, type ViewName } from './state';
 import type { ViewHandle } from './views/view';
@@ -126,3 +127,5 @@ const app = document.querySelector<HTMLDivElement>('#app');
 if (app) {
   start(app);
 }
+// B-51/B-120: nur im Build gibt es einen Service Worker (der Dev-Server erzeugt keinen)
+if (import.meta.env.PROD) registerServiceWorker();

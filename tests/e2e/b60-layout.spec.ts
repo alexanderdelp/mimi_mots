@@ -41,7 +41,10 @@ test.describe('B-60 Layout-Prüfung', () => {
       // Begleiter, rechts in der Kopfleiste steht der Name (der bleibt sichtbar)
       // B-100: im Reiter „Sonstiges“ auch den Versionstext (Commit und Build-Datum ändern sich);
       // unsichtbar statt maskiert – die Maske wäre so breit wie der Text und änderte das Bild
-      await page.addStyleTag({ content: '.admin__version-text { visibility: hidden; }' });
+      // B-120: ebenso die Zeile „Offline“ (Zustand und Zahl der Dateien ändern sich)
+      await page.addStyleTag({
+        content: '.admin__version-text, .admin__offline-text { visibility: hidden; }',
+      });
       await expect(page).toHaveScreenshot(`${name}.png`, {
         mask: [page.locator('.round__timer')],
       });

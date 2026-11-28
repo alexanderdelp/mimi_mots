@@ -312,12 +312,14 @@
   min-width: 0;
 }
 
-.admin__setting--version {
+.admin__setting--version,
+.admin__setting--offline {
   padding: 6px 0;
 }
 
 /* Text links in der Spalte, Kopier-Button am rechten Rand */
-.admin__version {
+.admin__version,
+.admin__offline {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -329,7 +331,8 @@
 }
 
 /* B-99: Versionstext markierbar, falls die Zwischenablage nicht erreichbar ist */
-.admin__version-text {
+.admin__version-text,
+.admin__offline-text {
   min-width: 0;
   user-select: text;
   -webkit-user-select: text;
@@ -550,7 +553,8 @@
     padding: 8px 0;
   }
 
-  .admin__setting--version {
+  .admin__setting--version,
+  .admin__setting--offline {
     padding: 4px 0;
   }
 }
@@ -666,15 +670,18 @@
     padding: 4px 0;
   }
 
-  .admin__setting--version {
+  .admin__setting--version,
+  .admin__setting--offline {
     padding: 0;
   }
 
-  .admin__setting--version {
+  .admin__setting--version,
+  .admin__setting--offline {
     padding: 3px 0;
   }
 
-  .admin__version {
+  .admin__version,
+  .admin__offline {
     min-width: 0;
     font-size: 14px;
   }

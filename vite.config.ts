@@ -66,7 +66,7 @@ export default defineConfig({
     VitePWA({
       strategies: 'generateSW',
       registerType: 'prompt', // kein skipWaiting/clientsClaim → Update erst beim nächsten Start
-      injectRegister: 'script-defer',
+      injectRegister: false, // B-120: eigene Anmeldung in src/offline.ts, damit Fehler sichtbar werden
       manifest: false, // eigenes public/manifest.webmanifest (B-50)
       workbox: {
         globPatterns: ['**/*.{html,js,css,woff2,svg,png,webp,mp3,webmanifest}'],

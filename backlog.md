@@ -7,6 +7,13 @@ Vor Beginn einer Aufgabe werden ihre E2E-Akzeptanztests als `AT-<Nr>.<n>` direkt
 Erledigte Aufgaben samt Akzeptanztests stehen im Archiv `docs/archiv/backlog-erledigt.md` (nur bei Bedarf lesen).
 
 ## Offen
+- [ ] **B-120 Offline-Anzeige im Elternbereich** (2026-11-28): Die installierte App auf dem iPad startet ohne Internet nicht (weißer Bildschirm, dann „nicht gefunden“), obwohl sie in Chromium und WebKit am Rechner offline läuft. Im Reiter „Sonstiges“ zeigt eine Zeile „Offline“, ob die App offline bereit ist: „Bereit · 236 Dateien“, „Lädt … · 120 Dateien“, „Nicht aktiv · …“ (Seite nicht vom Service Worker bedient), „Abgebrochen“, „Kein Service Worker“ oder „Fehler: …“; dazu „Update lädt/wartet/abgebrochen“ und „nicht dauerhaft“, wenn der Speicher geräumt werden darf. Dafür meldet die App den Service Worker selbst an (statt `registerSW.js`), merkt sich Fehler und bittet per `navigator.storage.persist()` um dauerhaften Speicher.
+  - AT-120.1: Nach Installation und Neuladen zeigt „Sonstiges“ die Zeile „Offline“ mit „Bereit · N Dateien“ (N = Einträge im Precache); im Reiter „Sprachen“ steht sie nicht.
+  - AT-120.2: Beim ersten Laden (Seite noch nicht bedient) steht „Lädt …“ bzw. „Nicht aktiv · N Dateien“.
+  - AT-120.3: Offline gestartet steht weiterhin „Bereit“.
+  - AT-120.4 (Unit): Texte für alle Zustände (`offlineLabel`).
+  - AT-120.5: Ohne Service Worker (gesperrt) steht „Kein Service Worker“.
+  - AT-120.6: „Sonstiges“ mit der neuen Zeile passt auf alle Viewports, Kontrast ok.
 - [ ] **B-90 Mehrere Kinder** (nach B-97, baut auf dem Kind-Profil auf): Seit B-97 gehören alle Daten zu einem Kind in `children`; B-90 erlaubt weitere. Auf der Begrüßung wählt man das Kind (je Kind eine große Kachel mit Namen, danach gilt `activeChildId`); mit nur einem Kind bleibt es bei „Hallo Lina!“. Weitere Kinder nur im Elternbereich anlegen (sonst legt man sich 30 Kinder an), dort auch Umbenennen und Löschen (mit Sicherheitsabfrage) und der Lernstand je Kind. Je Kind eigene Auswahl, eigener Lernstand, Schlafzustand, Tutorials und ausgeschaltete Wörter (steckt seit B-97 schon im Kind). Vorher klären: Gelten Sprachen, Bremse, Rundendauer und der Schlaf der Tiere je Kind (so seit B-97) oder für das ganze Gerät?
   - Entschieden (2026-11-01): Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind (wie seit B-97) – dynamischer, und bei einem Kind ohne Unterschied.
   - Stand (2026-11-26): umgesetzt auf `feat/b-90-mehrere-kinder` (gepusht, noch kein PR), wartet auf die lokale Abnahme. Akzeptanztests in `tests/e2e/b90-mehrere-kinder.spec.ts`, beim Merge hier bzw. im Archiv eintragen. Details: `docs/rechnerwechsel.md`.
