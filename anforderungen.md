@@ -353,7 +353,7 @@ Nur gültige Entscheidungen, nach Thema; Begründungen nur, wo sie für die heut
 
 ### Speicher und Daten
 - Alle Daten gehören zu einem Kind: `{ version: 2, activeChildId, children: [{ id, name, createdAt, updatedAt, …Daten }] }` unter `mimi-mots:v2`. ids sind UUIDs (`crypto.randomUUID`, ohne sicheren Kontext über `crypto.getRandomValues`), Zeitstempel ISO in UTC – damit die Kinder später 1 : 1 als Zeilen in der Datenbank passen. Unbrauchbare Daten führen zum Erststart (B-97).
-- Keine Datenübernahme über Updates (Entscheidung des Menschen): Eine neue Version darf gespeicherte Daten verwerfen; Code, der Daten über Updates erhält, nur nach Rückfrage; vor jeder Änderung am Speicherformat fragen. Deshalb wird `mimi-mots:v1` nicht übernommen (B-97).
+- Gespeicherte Daten bleiben bei jedem Update erhalten (Nutzerentscheidung 2026-11-28; ersetzt „Keine Datenübernahme über Updates“, nach der `mimi-mots:v1` in B-97 nicht übernommen wurde): Ändert sich das Speicherformat, liest die neue Version das alte Format ein und wandelt es um (Migration mit Unit-Tests). Wegfallen dürfen nur Werte, die es nicht mehr gibt (entfernte Sprache oder Wort); kaputte Daten führen weiter zum Erststart.
 - Sprachen, Bremse, Rundendauer, ausgeschaltete Wörter und der Schlaf der Tiere gelten je Kind, nicht für das Gerät (Nutzerentscheidung für B-90).
 - Fehlende oder ungültige Werte → Standard (z. B. `roundMin` → 5, Bremse an) (B-82, B-93).
 

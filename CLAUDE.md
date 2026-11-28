@@ -153,13 +153,13 @@ Regeln: Auswahlkacheln einer Gruppe haben immer gleiche Größe; Rahmendicke-Wec
 - Nie direkt auf `main` committen.
 - Vor größeren Entscheidungen, die von `anforderungen.md` abweichen: fragen.
 - Neue Erkenntnisse oder Abweichungen in `anforderungen.md` → Abschnitt „Entscheidungen“ eintragen.
-- Keine Datenübernahme über Updates: Eine neue Version darf gespeicherte Daten verwerfen; Code, der Daten über Updates hinweg erhält, nur nach Rückfrage. Vor jeder Änderung am Speicherformat den Menschen fragen, ob Daten erhalten bleiben müssen (ändert sich mit der Datenbank).
+- **Gespeicherte Daten bleiben immer erhalten** (Nutzerentscheidung 2026-11-28, gilt ab jetzt, nicht erst mit der Datenbank): Kein Update darf Lernstand, Kinder, Einstellungen oder Garten verlieren. Jede Änderung am Speicherformat bringt eine Migration vom bisherigen Format mit (Version im Schlüssel bzw. Feld `version` erhöhen, alte Daten einlesen und umwandeln, nie stillschweigend verwerfen) und Unit-Tests mit echten Daten im alten Format. Nur Werte, die es nicht mehr gibt (z. B. eine entfernte Sprache oder ein entferntes Wort), dürfen wegfallen. Unbrauchbare Daten (kaputtes JSON) führen weiter zu Standardwerten, ohne Absturz.
 - Keine neuen Abhängigkeiten ohne Begründung. Keine CDN-Links.
 
 ### Versionierung
 `package.json` → `version` nach SemVer `MAJOR.MINOR.PATCH`, sichtbar im Elternbereich (B-98):
 - **MINOR** +1 für jede neue Funktion (`feat:`), **PATCH** +1 für Korrekturen und kleine Anpassungen (`fix:` oder kleine `feat:` wie B-99); reine Doku, Tests oder Werkzeuge (`docs:`, `chore:`) ohne neue Version.
-- **1.0.0**, sobald der Lernstand in der Datenbank (Neon) liegt – ab dann dürfen Updates keine Daten mehr verlieren.
+- **1.0.0**, sobald der Lernstand in der Datenbank (Neon) liegt. Daten erhalten müssen Updates schon vorher (siehe Arbeitsweise).
 - Erhöht wird erst im Abnahme-Commit beim Merge (nicht auf dem Feature-Branch), damit parallele Branches nicht kollidieren; danach Git-Tag `vX.Y.Z` auf `main`. Keine GitHub-Releases.
 
 ### Telegram (Updates und Fragen an den Menschen)
